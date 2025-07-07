@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="RU">
+
+<head>
+    <title>Заголовок</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <!-- <link href="http://localhost:3000/kukuruza/main.css" rel="stylesheet"> -->
+    <link href="/kukuruza/main.css" rel="stylesheet">
+</head>
+
+<body>
+    <p>Наша главная страничечка.</p>
+    <p class="kaka">Второй абзац главной страничечки.</p>
+    <button id="myButton">кнопка</button>
+
+    <script>
+        document.addEventListener("click", async () => {
+            alert("kaka");
+            const sraka = await fetch("sraka");
+            if (sraka.ok) {
+                const text = await sraka.text();
+                console.log(text);
+            } else {
+                alert("neok");
+            }
+        });
+    </script>
+</body>
+
+</html>

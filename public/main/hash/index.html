@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="author" content="Mark Solovyev">
+	<meta name="description" content="Про хэш.">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Про Hash</title>
+</head>
+<body>
+	<a href="/">Вернуться на главную</a>
+	<h1>Hash</h1>
+
+	<h2>SHA256</h2>
+
+	<p>Трали-вали</p>
+	<p>PowerShell:</p>
+	<code><pre>
+		# По умолчанию используется SHA256
+		Get-FileHash C:\Users\user\Downloads\archlinux\archlinux-2025.07.01-x86_64.iso
+
+		# Но также поддерживаются алгоритмы: SHA1, SHA256 (дефолтный), SHA384, SHA512, MD5(устаревший, но поддерживается)
+		Get-FileHash .\archlinux-2025.07.01-x86_64.iso -Algorithm SHA512
+	</pre></code>
+	<p>CMD</p>
+	<code><pre>
+		# По умолчанию используется SHA1, поэтому явно укажем SHA256:
+		certutil -hashfile .\archlinux-2025.07.01-x86_64.iso SHA256
+	</pre></code>
+	
+	<h2>BLAKE2</h2>
+	
+	<p>BLAKE2 - это современный криптографический хеш-алгоритм, разработаный как более быстрая и безопасная альтернатива MD5, SHA-1 и SHA-2. Он быстрее, чем SHA256, безопаснее, чем MD5 и SHA-1 и широко применяется в новых системах.</p>
+	<code><pre>
+		# Для начала установим набор GNU-утилит для Linux. Это Gnu On Windows.
+		# И b2sum там не будет. Это стандартные утилиты типа ls, cat, grep, sha1sum, sha256sum
+		# ... но b2sum тут нет, потому что BLAKE2 - относительно новая вещь и не входит в базовый набор coreutils v5.x, на которых основан Gow.
+		choco install gow -y
+			
+		
+		# Либо можно установить git - установится также Git Bash с GNU-утилитами.
+		# Но в этом случае ими можно пользоваться только из Git Bash:
+		choco install git -y
+		
+		# Запустим в Git Bash:
+		b2sum ./archlinux-2025.07.01-x86_64.iso
+		
+	</pre></code>
+	<p>ChatGPT советует перейти на официальный проект uutils coreutils: <a href="https://github.com/uutils/coreutils/releases">https://github.com/uutils/coreutils/releases</a>, типа там можно найти релиз coreutils-x86_64-pc-windows-msvc.zip, скачать его, распаковать и у нас будет работающая в cmd утилита b2sum. Но что-то я не могу найти на этом гитхабе релиз. Может, просто я слепой.</p>
+</body>
+</html>

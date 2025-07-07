@@ -1,0 +1,21 @@
+.ccc {
+	color: red;
+}
+.systable {
+
+	margin: 0 auto;
+	width: 38rem;
+}
+.wrapper {
+	border: solid 1px grey;
+	display: grid;
+	grid-template-columns: 0.5fr 1fr;
+}
+.wrapper > * {
+	border-style: solid;
+	border-color: green;
+	border-top-width: 0;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+}
