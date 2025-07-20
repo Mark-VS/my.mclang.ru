@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="author" content="Mark Solovyev">
+	<meta name="description" content="Пусто">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Пусто</title>
+</head>
+<body>
+	<a href="/">Вернуться на главную</a>
+	<h1>Пусто</h1>
+
+	<p>Трали-вали</p>
+
+	<h3>NODEJS</h3>
+	<pre><code>
+	
+	# 1. Устанавливаем nvm:
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+		# curl -o script.sh https://example.com/script.sh  -- сохранить файл как script.sh
+		# curl -o - https://example.com/script.sh -- здесь ты говоришь: запиши вывод в стандартный вывод (в терминал), а не в файл.
+			# Здесь "-" после "-o" - это специальное обозначение stdout (экран/вывод в терминал).
+			# "-o -" - выводим файл на экран, а не в файл
+			# | bash - передаёт этот вывод прямо в интерпретатор bash. То есть мы как бы говорим: скачай скрипт и сразу же выполни его.
+			# можно сделать так:
+				curl -O https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh
+				less install.sh		# посмотреть содержимое
+				bash install.sh		# выполнить
+					# -o - сохраняет файл с указанным именем, направляет поток в файл.
+					# -O - сохраняет файл с оригинальным именем
+					# -o - - направляет поток в терминал
+					# -o - = -o- = они равноценны, curl поддерживает слияние флагов
+	# 2. Либо перезагружаем терминал, либо выполняем:
+	export NVM_DIR="$HOME/.nvm"
+	source "$NVM_DIR/nvm.sh"
+	
+	# 3. Устанавливаем нужную версию Node.js:
+	nvm install node
+		# или, например:
+		nvm install 20
+		
+	# 4. Проверим, что всё работает:
+		node -v
+		npm -v
+
+	</code></pre>
+	
+	<h3>...</h3>
+	<pre><code>
+	
+
+
+	</code></pre>
+
+</body>
+</html>
