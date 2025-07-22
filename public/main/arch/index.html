@@ -68,12 +68,24 @@
 		
 		# Меняем часовой пояс:
 		ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+		
+		# Проверяем системное время:
+		date
+		# Проверяем аппаратное время:
+		hwclock
+		# Проверяем текущий часовой пояс:
+		timedatectl
 	</code></pre>
 	
 	<h3>Разметка диска для GPT</h3>
 	<pre><code>
 		# Посмотреть список определившихся блочных устройств:
 		lsblk
+		
+		# Посмотреть подробную информацию о разделах (в том числе метки:):
+		blkid /dev/sda2
+		# Либо:
+		lsblk -f
 		
 		# Или:
 		fdisk -l
@@ -106,7 +118,7 @@
 		# Тут выводятся флаги. esp-флаг значит: EFI System Partition
 		
 		
-		# Посмотреть файловую систему разделов можно так:
+		# Посмотреть файловую систему разделов и метку можно так:
 		lsblk -f
 		
 		# lsblk может вывести тип раздела, но он его выводит в таком вот виде:
@@ -462,6 +474,9 @@
 		# И запускаем их сейчас:
 		systemctl start vboxservice.service
 		
+		# Чтобы работало 3D-ускорение в VirtualBox, нужен OpenGL. Для этого ставим mesa:
+		sudo pacman -S mesa
+		
 		#
 		pacman -S xorg
 		pacman -S xfce4
@@ -701,7 +716,12 @@
 	sudo ls /
 	
 	# Проверим, добавлен ли пользователь в группу vboxsf:
-	sudo usermod -aG vboxf mark
+	groups
+	# Lобавляем себя в группу vboxsf:
+	sudo usermod -aG vboxsf mark	
+	# VirtualBox монтирует общие папки от имени группы vboxsf
+	
+	
 	
 	
 	</code></pre>
@@ -743,6 +763,19 @@
 	# Можно выбрать другой дистрибутив и отключить цветные прямоугольники:
 	neofetch --color_blocks off --ascii_distro gentoo
 
+	</code></pre>
+	<h3>FastFetch</h3>
+	<pre><code>
+	
+	# Вывести логотип Arch:
+	fastfetch --logo arch
+	# Создаём дефолтный конфиг в ~/.config/fastfetch/config.jsonc:
+	fastfetch --gen-config
+	# ... и удаляем оттуда блок "color" в конце - если хотим убрать палитру.
+	# Изменить логотип дистрибутива в конфиге можно так:
+	"logo": {
+		"source": "debian"
+	}
 	</code></pre>
 	<h3>Полезные командочки</h3>
 	<pre><code>
