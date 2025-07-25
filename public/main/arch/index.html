@@ -741,42 +741,8 @@
 
 	</code></pre>
 	</code></pre>
-	<h3>NEOFETCH AUR</h3>
-	<pre><code>
-	
-	sudo pacman -S --needed git base-devel
-	git clone https://aur.archlinux.org/neofetch.git
-	cd neofetch
-	makepkg -si
-	
-	# У меня вылезла ошибка:
-	# ==> ОШИБКА: Одна или более PGP-подписей не могут быть проверены!
-	# Строкой выше был ключ: B1F2C1D8BD78374A
-	# Надо импортировать этот недостающий ключ:
-	gpg --recv-keys B1F2C1D8BD78374A
-		# Эта команда значит: Эй, GnuPG, найди на сервере ключ с ID B1F2C1D8BD78374A и добавь его к моим доверенным ключам. Теперь моя систем может проверить этот ключ, потому что у неё есть эталон для сравнения.
-	# И теперь повторим собрку:
-	makepkg -si
-	
-	# Если мы используюм bash, то просто добавляем в ~/.bashrc:
-	neofetch
-	# Можно выбрать другой дистрибутив и отключить цветные прямоугольники:
-	neofetch --color_blocks off --ascii_distro gentoo
 
-	</code></pre>
-	<h3>FastFetch</h3>
-	<pre><code>
-	
-	# Вывести логотип Arch:
-	fastfetch --logo arch
-	# Создаём дефолтный конфиг в ~/.config/fastfetch/config.jsonc:
-	fastfetch --gen-config
-	# ... и удаляем оттуда блок "color" в конце - если хотим убрать палитру.
-	# Изменить логотип дистрибутива в конфиге можно так:
-	"logo": {
-		"source": "debian"
-	}
-	</code></pre>
+
 	<h3>Полезные командочки</h3>
 	<pre><code>
 	
@@ -1068,17 +1034,6 @@ Also, try creating (or modifying) /etc/modules-load.d/virtualbox.conf with:
 		swaymsg exit
 	</code></pre>
 	
-	<h3>Обои для рабочего стола</h3>
-	<pre><code>
-	
-		sudo pacman -S archlinux-wallpaper
-		sudo pacman -S gnome-backgrounds
-		sudo pacman -S palsma-workspace-wallpapers
-		sudo pacman -S xfce4-artwork
-
-
-		xorg-xwayland
-	</code></pre>
 	<h3>Hyprland</h3>
 	<pre><code>
 	
