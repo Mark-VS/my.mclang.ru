@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>index4</title>
+	<link href="/assets/styles/main.css" rel="stylesheet">
+</head>
+<body>
+
+	<h3>Полезные командочки</h3>
+	<pre><code>
+	# Посмотреть, сколько занимает место кэш:
+	du -sh ~/.cache/yay
+	# удаляем кэш вручную:
+	rm -rf ~/.cache/yay
+
+	# X11 или Wayland:
+	echo $XDG_SESSION_TYPE
+	</code></pre>
+
+	<h3>Железо</h3>
+	<pre><code>
+		lspci
+		lsusb (usbutils)
+		lsblk
+
+		# Проверим видеокарту:
+		lspci | grep -E "VGA|3D"
+			00:02.0 VGA compatible controller: Intel Corporation Alder Lake-S GT1 [UHD Graphics 730] (rev 0c)
+		# Посмотреть список микрофонов:
+		pactl list short sources
+
+	</code></pre>
+
+	<h3>pacman</h3>
+	<pre><code>
+		# update system
+		# sudo pacman -Syu
+			-S - Synchronize: Install or update packages
+			-y - Refresh package database (download the latest package lists)
+			-u - Upgrade all installed packages to the latest version
+		# Refresh package list (not upgrade):
+			sudo pacman -Sy
+
+		# Remove
+		sudo pacman -Rns budgie-desktop gnome xfce4 xfce4-goodies
+			-R - remove a packager
+			-n - remove configuration files and mark dependencies as unused
+			-s - remove unused dependencies that were installed with the package
+		sudo pacman -Rdd linux-firmware
+			-R - удалить пакет
+			-d - игнорировать зависимости (один -d)
+			-dd - игнорировать зависимости дважды (то есть вообще никакие зависимости):
+				- не проверят, что от пакета кто-то зависит (обратные зависимости);
+				- не проверять, что сам пакет зависит от чего-то.
+
+		# Search package in repo
+		sudo pacman -Ss lalal
+			-S - Syncronize
+			-s - search
+		# Хочу узнать, что входит в пакет, который я установил.
+		# Например, я ставлю Sway и хочу знать, ЧТО установится:
+		pacman -Qi sway
+		# Найти, установлен ли у меня метапакет. Выведен всё, что он установил:
+		pacman -Qg plasma
+
+		# Хочу узнать, что входит в пакет, который я ещё не установил:
+		pacman -Si sway
+		# Посмотреть что включает в себя метапакет:
+		pacman -Sg plasma
+
+		# Узнать, установлен ли у меня пакет:
+		pacman -Q xorg-server
+	</code></pre>
+
+
+	<p></p>
+	<pre><code>
+
+	</code></pre>
+
+	<p></p>
+	<ul>
+		<li></li>
+	</ul>
+</body>
+</html>

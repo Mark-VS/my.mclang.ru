@@ -11,24 +11,34 @@
 	<p>Базовые</p>
 	<ul>
 		<li>vi, vim, emacs</li>
-		<li>man</li>
+		<li>man-db, man-pages</li>
 		<li>base-devel</li>
 	</ul>
 	<p>Программки, которые надо поставить (оф. репозиторий):</p>
 	<ul>
-		<li>lapce / geany / code afds</li>
+		<li>strawberry</li>
+		<li>leafpad / lapce / geany / code</li>
 		<li>audacious / qmmp / strawberry</li>
 		<li>mpv / smplayer / vlc /celluloid / dragon (phonon) / haruna</li>
 		<li>fastfetch / neofetch (медленный)</li>
 		<li>coolreader (Qt) / foliate (GTK)</li>
 		<li>rofi -> rofi -show drun</li>
+		<li>-</li>
+		<li>kmix / pavucontrol - громкость, можно блудет установить микрофон по умолчанию</li>
+		<li>audacity</li>
+		<li>ffmpeg (kde-applications): ffmpeg -video_size 1920x1080 -framerate 30 -f x11grab -i :0.0 output.mkv</li>
+		<li>obs-studio (лучше выбрать кодировщик FFmpeg VAAPI H.264 - Аппаратное ускорение через встроенное iGPU (Intel))</li>
+		<li>kooha - лучше работает с Wayland/GTK</li>
+		<li>SimpleScreenRecorder</li>
 	</ul>
 	<p>AUR</p>
 	<ul>
 		<li>VSCodium: vscodium / vscodium-bin</li>
 		<li>VSCODE: visual-studio-code / visual-studio-code-bin</li>
-		<li>DeaDBeeF: deadbeef</li>
+		<li>DeaDBeeF: deadbeef, deadbeef-plugin-lastfm-git</li>
 		<li>QMPlay2: qmplay2 - видеопроигрыватель</li>
+		<li>-</li>
+		<li>obs-studio-git / obs-studio-rc</li>
 	</ul>
 	
 	<p></p>
@@ -92,6 +102,41 @@
 	neofetch
 	# Можно выбрать другой дистрибутив и отключить цветные прямоугольники:
 	neofetch --color_blocks off --ascii_distro gentoo
+	</code></pre>
+
+	<h3>OBS Studio</h3>
+	<pre><code>
+Проблема понятна: OBS Studio пытается использовать QSV (Quick Sync Video) — аппаратный кодировщик от Intel, но не может его инициализировать:
+Failed to initialize MFX
+[qsv encoder: 'msdk_impl'] Specified object/item/sync point not found. (MFX_ERR_NOT_FOUND)
+[qsv encoder: 'simple_video_recording'] qsv failed to load
+
+ Что это значит?
+QSV требует:
+
+CPU от Intel с поддержкой Quick Sync
+
+корректного драйвера (i915)
+
+работающего MediaSDK или libmfx
+
+На Arch по умолчанию это часто не настроено, либо твой процессор не поддерживает QSV, либо ты не установил нужные зависимости.
+
+✅ Решения
+💡 1. Просто переключись на x264 (программный кодировщик)
+Это самое простое и стабильное решение:
+
+Открой OBS → Настройки → Вывод
+
+Вкладка «Запись» → выбери Кодировщик: x264
+
+Применить → OK
+
+Теперь запись должна работать.
+
+
+# Запуск OBS через xcb (X11-бэкенд):
+QT_QPA_PLATFORM=xcb obs
 	</code></pre>
 
 	<p></p>
