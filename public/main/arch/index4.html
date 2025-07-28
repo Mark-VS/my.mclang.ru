@@ -8,6 +8,26 @@
 </head>
 <body>
 
+	<h3>Переменные окружения</h3>
+	<pre><code>
+	# Какую среду окружения мы сейчас использует (выведет KDE):
+		$XDG_CURRENT_DESKTOP
+	# Выведет plasma
+		$DESKTOP_SESSION
+	# Можно выяснить вот так:
+		ps -e | grep -Ei 'plasma|gnome|xfce|lxqt|mate|cinnamon'
+	# X11 или Wayland
+		$XDG_SESSION_TYPE
+	# Посмотреть id текущей сессии
+		$XDG_SESSION_ID
+	# Посмотреть тип сессии (выведет или x11, или wayland):
+	loginctl show-session $XDG_SESSION_ID -p Type
+		# посмотреть среду окружения через loginctl - НЕ ВСЕГДА РАБОТАЕТ!
+		# loginctl show-session $XDG_SESSION_ID -p Desktop
+	# Посмотреть все сессии:
+		loginctl
+	</code></pre>
+
 	<h3>Полезные командочки</h3>
 	<pre><code>
 	# Посмотреть, сколько занимает место кэш:
@@ -28,9 +48,31 @@
 		# Проверим видеокарту:
 		lspci | grep -E "VGA|3D"
 			00:02.0 VGA compatible controller: Intel Corporation Alder Lake-S GT1 [UHD Graphics 730] (rev 0c)
+
 		# Посмотреть список микрофонов:
 		pactl list short sources
+		# Или:
+		pw-cli ls Node | grep input
+		# pw-cli - входит в пакет pipewire
 
+
+		# Завершить сеанс KDE Plasma 6:
+		qdbus6 org.kde.Shutdown /Shutdown logout
+
+			# Завершить сессию в KDE Plasma (я так понимаю, в X11):
+			qdbus org.kde.ksmserver /KSMServer logout 0 0 0
+				#qdbus (qt5-tools)
+		# Завершить сессию в KDE Plasma с Wayland:
+		loginctl terminate-session $XDG_SESSION_ID
+		# список сессий:
+		loginctl
+		# Завершить все сессии текущего пользователя:
+		loginctl terminate-user mark
+			# При этом sddm останется висеть и нужно будет убить процесс sddm
+
+
+	
+	
 	</code></pre>
 
 	<h3>pacman</h3>
