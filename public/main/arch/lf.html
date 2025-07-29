@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+<body>
+
+<h1>lf</h1>
+<pre><code>
+    # Конфигурационный файл находится в ~/.config/lf/lfrc
+    
+    # Назначаем горячие клавиши:
+    map i %/usr/bin/imv "$f"        # Клавиша i запускает imv
+    map m %mpv "$f"                 # Клавиша m запускает mpv
+    
+    map o %xdg-open "$f"            # Клавиша o открывает файл с помощью "программы по умолчанию"
+    # Задать "программу по умолчанию" для определённого вида клавиш можно с помощью xdg-mime
+    xdg-mime query default image/png        # Узнать с помощью какой программы по умолчанию открываются файлы .png
+    xdg-mime query default image/jpg        # Узнать с помощью какой программы по умолчанию открываются файлы .jgp
+    xdg-mime query default text/html        # Узнать с помощью какой программы по умолчанию открываются файлы .html
+    xdg-mime default imv.desktop image/png  # Мы присвоили файлам .png программу imv
+    
+    # Создание нового файла:
+    map n :newfile
+    cmd newfile %{{
+        printf "File name: "                    # Показываем приглашение
+        read name                               # Ждём ввод имени
+        [ -n "$name" ] && touch -- "$name"      # Если переменная не пустая, то создаём файл
+        lf -remote "send $id reload"            # Обновляем список файлов
+        lf -remote "send $id select '$name'"    # выделяем новый файл
+    }}
+</code></pre>
+
+</body>
+</html>
