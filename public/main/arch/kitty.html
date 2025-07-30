@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kitty</title>
+</head>
+<body>
+
+<h1>kitty</h1>
+<pre><code>
+    
+    # Пример конфигурационного файла можно скопировать отсюда (ооочень большой файл):
+        /usr/share/doc/kitty/kitty.conf
+    # Локальный конфигурационный файл (копировать его не обязательно. Можно создать новый):
+        ~/.config/kitty/kitty.conf
+        
+    # Переменная: $KITTY_WINDOW_ID - если задана, значит мы в kitty
+        
+    # Добавить тему:
+        kitty +kitten themes
+        # Мне понравилась Atelier Savanna Dark:
+        # https://github.com/atelierbram/AtelierSchemes-kitty/blob/main/themes/atelier-savanna-dark.conf
+        
+    # Конфиг:
+        include current-theme.conf  # подключаем тему из отдельного файла
+        font_size 14.0              # задаём размер шрифта
+        background_opacity 0.84     # устанавливаем прозрачность
+        
+    # Горячие клавиши
+    
+    # Новая вкладка: Ctrl+Shift+T
+    # Переместиться на соседнюю вкладку: Ctrl+Shift+Right
+    # Закрыть вкладку: Ctrl+Shift+W
+    # Новое окно: Ctrl+Shift+Enter
+    # Перейти в другое окно: Ctrl+Shift+номер_окна
+    
+</code></pre>
+
+</body>
+</html>

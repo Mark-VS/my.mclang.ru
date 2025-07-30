@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+<body>
+
+<h1>sway</h1>
+<pre><code>
+
+    # Глобальный конфиг:
+        /etc/sway/config
+    # Локальный конфиг:
+        ~/.config/sway/config
+        
+    # Раскладка клавиатуры:
+        input * {
+            xkb_layout us,ru
+            xkb_options grp:alt_shift_toggle
+        }
+
+    # Задать фон:
+        # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+        # output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+        exec_always swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill
+        # в глобальном конфиге надо закоментировать строку, которая задаёт фон
+	
+	
+	## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
+	
+	# install sway
+	sudo pacman -S sway foot
+	# У меня sway v1.11 по умолчанию собран без поддержки Xwayland. И я не могу запускать программы типа feh
+	# Установить sway с поддержкой Xwayland:
+	sudo pacman -S sway xorg-xwayland
+	
+	# sway config files:
+		# /etc/sway/config
+		# ~/.config/sway/config
+	# foot - wayland terminal
+		# Чтобы увеличить шрифт в foot создадим конфиг для него:
+		# ~/.config/foot/foot.ini:
+			# [main]
+			# font=monospace:size=16
+			# И теперь закроем foot и заново запустим, чтобы заново загрузить настройки
+
+		# Lock screen: swaylock
+		# Idle behavior: swayidle
+		# Clipboard: wl-clipboard
+		# Notifications: mako
+		# Screenshot tools: grim + slurp
+		# Terminal: foot (or use alacritty, kitty, etc.)
+
+	# seatd / elogind - для управления доступом к вводу/выводу 
+	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
+	# wlroots - Библиотека, на которой работает sway
+
+	# wofi / bemenu - лаунчеры
+	# waybar - панель статуса (вместо swaybar)
+	# swaylock, swayidle - Блокировка экрана и автовыход в сон
+	# grightnessctl - Яркость экрана
+	# grim + slurp - Скриншоты экрана
+	# mako - уведомления
+	# networkmanager + nmcli / nmtui - Управление сетью
+	
+	# cava - терминальный аудио-визуализатор
+		
+		
+		# Добавить раскладку
+		# Создаём конфиг-файл ~/.config/sway/config:
+			input * {
+				xkb_layout us,ru
+				xkb_options grp:alt_shift_toggle
+			}
+		# Перезагружаем sway:
+		swaymsg reload
+		# Now try Alt+Shift - it should switch between English and Russian
+		# Or You may switch layout using this command:
+		swaymsg input "*" xkb_switch_layout next
+		
+		
+		# Завершить сессию:
+		swaymsg exit
+</code></pre>
+
+</body>
+</html>

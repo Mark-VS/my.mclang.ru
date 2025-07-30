@@ -10,17 +10,27 @@
 <h1>lf</h1>
 <pre><code>
     # Конфигурационный файл находится в ~/.config/lf/lfrc
+    # Системного конфига больше нигде нет. Дефолтные шорткаты определены в бинарнике
     
     # Назначаем горячие клавиши:
     map i %/usr/bin/imv "$f"        # Клавиша i запускает imv
     map m %mpv "$f"                 # Клавиша m запускает mpv
-    
+    map p %zathura "$f"             # Для pdf-файлов
+    map a %atool -x "$f"            # Для архивов
+    map h %lapce "$f"               # Для текстовых файлов
+        
     map o %xdg-open "$f"            # Клавиша o открывает файл с помощью "программы по умолчанию"
     # Задать "программу по умолчанию" для определённого вида клавиш можно с помощью xdg-mime
     xdg-mime query default image/png        # Узнать с помощью какой программы по умолчанию открываются файлы .png
     xdg-mime query default image/jpg        # Узнать с помощью какой программы по умолчанию открываются файлы .jgp
     xdg-mime query default text/html        # Узнать с помощью какой программы по умолчанию открываются файлы .html
     xdg-mime default imv.desktop image/png  # Мы присвоили файлам .png программу imv
+    
+    
+    map p :paste
+    # map r :rename - по умолчанию
+    # map y :copy - по умолчанию
+    # map d :cut - по умолчанию - но позже мы его заменим на d - delete
     
     # Создание нового файла:
     map n :newfile
@@ -31,6 +41,51 @@
         lf -remote "send $id reload"            # Обновляем список файлов
         lf -remote "send $id select '$name'"    # выделяем новый файл
     }}
+    
+    # Создание новой папки:
+    map f :mkdir
+        cmd mkdir %{{
+            printf "Folder name: "
+            read name
+            [ -n "$name" ] && mkdir -p -- "$name"
+            lf -remote "send $id reload"
+            lf -remote "send $id select '$name'"
+        }}
+    
+    # Удалить файл или папку:
+    map d :delete
+    
+    # Команда delete уже определена в lf. Нам надо только присвоить её клавише d. По умолчанию d - это cut.
+    # cmd delete %{{
+    #     printf "Delete '$f'? [y/N] "
+    #     read ans
+    #     if [ "$ans" = y ];  then
+    #         rm -r -- "$f"
+    #         reload              # то же самое, что и lf -remote "send $id reload"
+    #     else
+    #         lf -remote "send $is select '$f'"   # Восстанавливает выделение и перерисовывает статусную строку
+    # }}
+    
+    ## Открыть текущую папку в файловом менеджере pcmanfm:
+    cmd openfm %{{
+        pcmanfm "$PWD"
+    }}
+    
+    ## Открыть терминал foot в текущей директории:
+    cmd foot %{{
+        foot -e bash -c "cd '$PWD'; exec bash "
+    }}
+    
+        e — указывает foot, что дальше идёт команда.
+        bash -c "cd '$PWD'; exec bash" — выполняет cd в нужную директорию, а потом запускает bash (или другой шелл).
+        exec — гарантирует, что оболочка заменит процесс, а не вложится внутрь.
+        
+        
+    # Дополнительные полезные команды
+    
+    # Очистить статусную строку:
+    printf "\r\033[K"
+        
 </code></pre>
 
 </body>

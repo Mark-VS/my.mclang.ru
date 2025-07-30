@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>waybar</title>
+</head>
+<body>
+
+<h1>waybar</h1>
+<pre><code>
+
+    # Глобальный конфиг:
+        /etc/xdg/waybar/config.jsonc
+    # Локальный конфиг:
+        ~/.config/waybar/config
+        
+    # Скопируем глобальный себе в домашнюю директорию:
+        mkdir -p ~/.config/waybar
+        cp /etc/xdg/waybar/config.jsonc ~/.config/waybar/config
+        cp /etc/xdg/waybar/style.css ~/.config/waybar/
+    
+    ## Чтобы заработали иконки в конфиге, нужно установить шрифты:
+        sudo pacman -S ttf-nerd-fonts-symbols
+        sudo pacman -S ttf-nerd-fonts-symbols-mono
+        ## Можно поставить дополнительно:
+            sudo pacman -S ttf-fonts-awesome
+            
+    ## Чтобы при старте системы запускался наш waybar, а не дефолтный swaybar, надо
+        ## - закомментировать раздел bar в ~/.config/sway/config
+        ## - и добавить вместо него:
+            exec_always pkill waybar; waybar    # закрываем предыдущий процесс waybar и запускаем новый
+           
+    "modules-right": [
+    "sway/language",      // раскладка
+    "clock"               // время
+    ],
+    "sway/language": {      // указываем формат для раскладки
+    "format": "{}"
+    }
+    
+    // У меня вылезала ошибка из модуля "custom/media", потому что запускались py-скрипты, которых не было.
+    // [warning] 'swap-icon-label' must be a bool. - предупреждение вылезает из-за модуля sway/window
+
+    ## Пример простого simple_media.py (первая закомментированная строка тоже нужна!!!!!):
+        #!/usr/bin/env python3
+        import subprocess
+        import json
+        
+        def get_status():
+            try:
+                # Получаем статус проигрывания от strawberry
+                result = subprocess.run(
+                    ["playerctl", "--player=strawberry", "status"],
+                    capture_output=True, text=True, timeout=1
+                )
+                status = result.stdout.strip()
+                if status == "Playing":
+                    return "A"
+            except Exception:
+                pass
+            return "🎜"
+    
+        print(json.dumps({"text": get_status()}))
+    
+    ## И соответственно, пример модуля "custom/media" в файле ~/.config/waybar/config, который запускает этот скрипт:
+        "custom/media": {
+        // "format": "{icon} {text}",
+        //  "return-type": "json",
+        //  "max-length": 40,
+        //  "format-icons": {
+        //     "spotify": "",
+        //     "default": "🎜"
+        //  },
+        //  "escape": true
+        //  "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
+        // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+    
+            "exec": "$HOME/.config/waybar/scripts/simple_media.py",
+            "return-type": "json",
+            "interval": 1
+    
+        },
+
+
+    ### Улучшенный пример.
+    ## Теперь когда плеер не запущен, значка нет. Когда запущен, отображается его имя. А когда играет, отображается значок игры.
+    
+        #!/usr/bin/env python3
+        import subprocess
+        import json
+        
+        PLAYER = "strawberry"
+        
+        def is_player_running():
+            try:
+                result = subprocess.run(
+                    ["playerctl", "--list-all"],
+                    capture_output=True, text=True, timeout=1
+                )
+                players = result.stdout.strip().splitlines()
+                return PLAYER in players
+            except:
+                return False
+        
+        def get_status():
+            try:
+                result = subprocess.run(
+                    ["playerctl", "--player=" + PLAYER, "status"],
+                    capture_output=True, text=True, timeout=1
+                )
+                return result.stdout.strip()
+            except:
+                return None
+        
+        def main():
+            if not is_player_running():
+                return  # Не выводим ничего
+        
+            status = get_status()
+            if status == "Playing":
+                text = "🎜"
+            else:
+                text = PLAYER
+        
+            print(json.dumps({"text": text}))
+        
+        if __name__ == "__main__":
+            main()
+            
+    ## Модуль "custom/media":
+    
+        "custom/media": {
+        // "format": "{icon} {text}",
+        //  "return-type": "json",
+        //  "max-length": 40,
+        //  "format-icons": {
+        //     "spotify": "",
+        //     "default": "🎜"
+        //  },
+        //  "escape": true
+    
+            "exec": "$HOME/.config/waybar/scripts/simple_media.py",
+            "return-type": "json",
+            "interval": 2,
+            "max-length": 40,
+            "format-icons": {
+            "default": "🎜"
+            }
+        }
+        
+        
+    ## Улучшенный пример. Теперь он работает с разными проигрывателями (для DeaDBeeF нужен плагин deadbeef-mpris2-plugin, чтобы playerctl его понимал):
+        #!/usr/bin/env python3
+        import subprocess
+        import json
+        
+        def get_players():
+            try:
+                result = subprocess.run(
+                    ["playerctl", "--list-all"],
+                    capture_output=True, text=True, timeout=1
+                )
+                return result.stdout.strip().splitlines()
+            except:
+                return []
+        
+        def get_status(player):
+            try:
+                result = subprocess.run(
+                    ["playerctl", "--player", player, "status"],
+                    capture_output=True, text=True, timeout=1
+                )
+                return result.stdout.strip()
+            except:
+                return None
+        
+        def main():
+            players = get_players()
+            for player in players:
+                status = get_status(player)
+                if status == "Playing":
+                    print(json.dumps({"text": "🎜"}))
+                    return
+                elif status in ["Paused", "Stopped"]:
+                    print(json.dumps({"text": player}))
+                    return
+            # Ни одного активного плеера
+            print(json.dumps({}))
+        
+        if __name__ == "__main__":
+            main()
+            
+    ## Модуль "custom/media": 
+    "custom/media": {
+       // "format": "{icon} {text}",
+       //  "return-type": "json",
+       //  "max-length": 40,
+       //  "format-icons": {
+       //     "spotify": "",
+       //     "default": "🎜"
+       //  },
+       //  "escape": true
+       //  "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
+       // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+
+       "exec": "~/.config/waybar/scripts/simple_media.py",
+       "interval": 2,
+       "return-type": "json",
+       "format": "{}",
+       "on-click": "playerctl play-pause"
+     },
+     
+     ## Цвета для модуля "cutom/media":
+        #custom-media {
+            background-color: #3a6e56;
+            color: #0f1b14;
+            min-width: 100px;
+        }
+        #custom-media:hover {
+            color: #1f3f2f;
+            background-color: #4d9970;
+        }
+    
+    ## Цвета для модуля "pulseaudio":
+        #pulseaudio:hover {
+            background-color: #f1c40f;
+        }
+        #pulseaudio {
+            background-color: #a37800;
+            color: #000000;
+        }
+</code></pre>
+
+</body>
+</html>
