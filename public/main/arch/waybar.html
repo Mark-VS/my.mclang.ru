@@ -29,7 +29,7 @@
     ## Чтобы при старте системы запускался наш waybar, а не дефолтный swaybar, надо
         ## - закомментировать раздел bar в ~/.config/sway/config
         ## - и добавить вместо него:
-            exec_always pkill waybar; waybar    # закрываем предыдущий процесс waybar и запускаем новый
+            exec_always "pgrep -x waybar || waybar"   # если процесс waybar существует, то ничего не делаем, иначе запускаем новый
            
     "modules-right": [
     "sway/language",      // раскладка

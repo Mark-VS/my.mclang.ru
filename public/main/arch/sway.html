@@ -24,8 +24,23 @@
     # Задать фон:
         # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
         # output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-        exec_always swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill
+        
+        ## Сначала убиваем старый процесс swaybg, потому что при старте sway запускает swaybg в любом случае (без параметров):
+        		exec_always "pkill swaybg; swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
+        ## или (что тоже самое, только через bash. Предыдущий был через shell):
+        		exec_always bash -c "pkill swaybg;  swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
+        
+       
+        		
         # в глобальном конфиге надо закоментировать строку, которая задаёт фон
+        
+    ## Запуск waybar (две команды - в кавычках!):
+    ## Ищем точное совпадение среди процессов (waybar), если не найдено, то запускаем waybar, а если найдено, то ничего не делаем:
+    	exec_always "pgrep -x waybar || waybar"
+    	# И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
+	
+	# ntfs-3g - нужен для фс ntfs
+	sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
 	
 	
 	## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
@@ -67,6 +82,7 @@
 	
 	# cava - терминальный аудио-визуализатор
 		
+
 		
 		# Добавить раскладку
 		# Создаём конфиг-файл ~/.config/sway/config:
