@@ -138,15 +138,68 @@
 		## Win+Shift+p - Узнать цвет пипеткой (запускаем скрипт из файла ~/.local/bin/pipette):
 		bindsym $mod+Shift+p exec ~/.local/bin/pipette   
 		
+		## Утстановим swaylock и swayidle
+			sudo pacman -S swaylock swayidle
+		## Запуситить блокировщик с тёмным фоном:
+			swaylock -c 222222
+			
+		## Вот так будет выглядеть команда, которая блокирует экран через 5 мин, а через 10 мин. откючает питание монитора	
+		swayidle -w \
+    		timeout 300 'swaylock -c 222222' \
+    		timeout 600 'swaymsg "output * dpms off"' \
+    		resume 'swaymsg "output * dpms on"'
+    	## Эту команду надо вставить в ~/.config/sway/config (с добавлением "exec"):
+    	exec swayidle -w \
+    		timeout 300 'swaylock -c 222222' \
+    		timeout 600 'swaymsg "output * dpms off"' \
+    		resume 'swaymsg "output * dpms on"'
+    		
+    			# * - все мониторы
+				# "output * dpms off" - выключить все мониторы
+				# "output * dpms on" - включить все мониторы
+				
+	## ПОДКЛЮЧЕНИЕ ТЕЛЕФОНА:
+		## Ставим gvfs-mtp (это протокол передачи файлов на Android):
+			sudo pacman -S gvfs-mtp
+		## Теперь телефон должен появиться в списке вот здесь:
+			gio mount -l
+				## В моём случае это:
+					Volume(0): RMX3771
+  					Type: GProxyVolume (GProxyVolumeMonitorMTP)
+  					
+  		## Он должен примонтироваться сюда: /run/user/$UID/gvfs , но у меня внутри пусто. Значит надо его вручную примонтировать
+  		## Пытаемся примонтировать:
+  			gio mount -d "RMX3771"
+  				# gio: RMX3771: Нет тома для указанного идентификатора
+  			gio mount -li | grep -i rm		# Посмотрить точный ID
+  				# Нам дали ссылку на подключение к устройству:
+  				Volume(0): RMX3771
+  					Type: GProxyVolume (GProxyVolumeMonitorMTP)
+  					activation_root=mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
+  		## Монтируем по ссылке:
+  			gio mount "mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/"
+  		## Теперь здесь должна появиться папка:
+  			ls /run/user/$UID/gvfs
+				'mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7'
+			## И заходим в неё: /run/user/$UID/gvfs/'mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7'/'Внутренняя память'/
+			
+		## РАЗМОНТИРОВАТЬ телеофон:
+			gio mount -u /run/user/$UID/gvfs/'mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7'
+		# или можно покороче:
+			gio mount -u mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
+				
+		## Но если мы попытаемся открыть эту директорию в PCManFM, то ничего не выйдет
 		
 	# seatd / elogind - для управления доступом к вводу/выводу 
 	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
 	# wlroots - Библиотека, на которой работает sway
 
+	# Loupe - нормальный вьюер
 	# wofi / bemenu - лаунчеры
 	# waybar - панель статуса (вместо swaybar)
 	# swaylock, swayidle - Блокировка экрана и автовыход в сон
-	# grightnessctl - Яркость экрана
+	# brightnessctl - Яркость экрана
+	# Wlogout — красивое окно выхода/перезагрузки/выключения.
 	
 	# mako - уведомления
 	# networkmanager + nmcli / nmtui - Управление сетью
