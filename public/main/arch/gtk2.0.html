@@ -78,8 +78,32 @@
         }
         
         # Применяем стиль ко всем виджетам
-        class "*" style "custom-dark"        
-    
+        class "*" style "custom-dark"
+        
+         
+    ## ТЕМЫ, которые пришлись по вкусу:
+        # пакет: graphite-gtk-theme-nord-normal-git
+        # тема: Graphite-teal-Dark-nord
+            ## в lxappearance подправим размер шрифта на 12px, изменим ширину Noto Sans с thin на regular  
+            ## и подправим цвет текста в виджетах в файле ~/.gtkrc-2.0.mine:
+            
+                gtk-color-scheme = "text_color:#999999\nselected_bg_color:#999999\nselected_fg_color:#cccccc"
+                
+                # Создаем свой стиль
+                style "custom-dark"
+                {
+                    # Цвета для текста и фона в виджетах (Entry, TextView, List)
+                    base[SELECTED]    = @selected_bg_color
+                
+                    text[NORMAL]      = @text_color
+                    text[ACTIVE]      = @text_color
+                    text[SELECTED]    = @selected_fg_color
+                    text[INSENSITIVE] = "#777777"
+                }
+                
+                # Применяем стиль ко всем виджетам
+                class "*" style "custom-dark"  
+             
 
 </code></pre>
 
