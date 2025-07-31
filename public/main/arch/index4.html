@@ -26,17 +26,84 @@
 		# loginctl show-session $XDG_SESSION_ID -p Desktop
 	# Посмотреть все сессии:
 		loginctl
+		
+		
+	# Какой shell сейчас использует эмулятор терминала, в котором мы находимся:
+		echo $SHELL
+		  # или:
+		ps -p $$
+		  # или:
+		echo $0
+		
+	
+	## ИТОГО
+		$$ - специальная переменная shell, которая всегда хранит PID текущего shell-процесса
+		$SHELL - переменная окружения, которая обычно указывает на мой shell
+		$0 - позиционный параметр ноль, который показывает имя запущенной программы.
+			# запущенный в терминале, он выводит мой shell, но внутри запущенного скрипта он выведет имя текущего скрипта
+		$LS_COLORS - текущие цвета
+	
+	
 	</code></pre>
 
 	<h3>Полезные командочки</h3>
 	<pre><code>
+	
+	# Посмотреть процессы:
+		ps aux | grep swaybg	# BSD-стиль
+		px -ef | grep swaybg	# POSIX / SysV-стиль - почти то же самое
+			a - показать процессы всех пользователей
+			u - добавить колонку с владельцем процесса
+			x - показать процессы без терминала (демоны)
+			-e - все процессы
+			-f - полный формат
+			-p // --pid - можно узнать имя процесса по его pid
+			u и -u - разные опции
+		pgrep swaybg		# просто поиск процесса
+	# Как сохранить заголовки столбцов при выводе процессов:
+		ps aux | head -n 1 && ps aux | grep swaybg		# здесь мы два раза запускаем ps aux
+		ps aux | grep -E "COMMAND|swaybg"		# Здесь мы в регулярном выражении указываем какие строки хотим оставить (COMMAND - точно есть в первой строке)
+		ps -eo user,pid,%cpu,%mem,tty,stat,start,time,cmd | grep swaybg		# здесь мы явно указываем столбцы, которые хотим вывести
+	
+	## Установить Oh My Zsh:
+		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+			## После установки можно выбрать красивую тему в ~/.zshrc (например, ZSH_THEME="agnoster" или robbyrussell по умолчанию).
+	## Для красивой подсветки:
+		git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+		echo 'source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> ~/.zshrc
+	## Автоподсказки по истории:
+		git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
+		echo 'source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
+	
 	# Посмотреть, сколько занимает место кэш:
 	du -sh ~/.cache/yay
 	# удаляем кэш вручную:
 	rm -rf ~/.cache/yay
 
-	# X11 или Wayland:
-	echo $XDG_SESSION_TYPE
+	# Посмотреть текущие цвета:
+		echo $LS_COLORS
+		dircolors -p | grep -i other_writable	## для опасных файлов, у которых есть все права доступа
+	## Вывести список БЕЗ яркой подсветки:
+		ls --color=never ~/mnt/usb
+	## Чтобы каждый раз не прописывать аргумент, можно сделать так:
+		alias ls="ls --color=never"	
+	## Убрать alias:
+		unalias ls 		# и перезагружаем терминал
+		
+	## НО ЛУЧШЕ ИЗМЕНИТЬ цветовую схему
+	## Скопировать дефолтную схему цветов:
+		dircolors -p > ~/.dircolors
+	## Заменим
+			STICKY_OTHER_WRITABLE 30;42
+			OTHER_WRITABLE 34;42
+		##	На:
+			STICKY_OTHER_WRITABLE 30 # просто серый текст без фона
+			OTHER_WRITABLE 34        # голубой текст без фона
+	## Добавим в ~/.bashrc или в ~/.zshrc:
+		eval "$(dircolors ~/.dircolors)"
+	## Перезагружаем терминал или применяем сразу:
+		source ~/.zshrc
+
 	</code></pre>
 
 	<h3>Железо</h3>

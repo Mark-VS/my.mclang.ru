@@ -44,15 +44,45 @@
 	# 4. Проверим, что всё работает:
 		node -v
 		npm -v
+	
+	</code></pre>
+
+	<h3>zsh</h3>
+	<pre><code>
+	
+	## Устанавливаем zsh
+		sudo pacman -S zsh
+	## Установить Oh My Zsh:
+		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+			## После установки можно выбрать красивую тему в ~/.zshrc (например, ZSH_THEME="agnoster" или robbyrussell по умолчанию).
+	## Для красивой подсветки:
+		git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+		echo 'source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> ~/.zshrc
+	## Автоподсказки по истории:
+		git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
+		echo 'source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
 
 	</code></pre>
+	
+	<h3>Изменить shell</h3>
+	<pre><code>
+	## Список доступных шеллов:
+		cat /etc/shells
+		chsh --list-shells
+	## Поменять shell на bash:
+		chsh --shell /bin/bash
+		## и надо перезайти в сессию
+	## Проверить, что шелл реально изменился без перезагрузки:
+		grep "^$USER:" /etc/passwd
+		cat /etc/passed | grep "^$USER"
+
+	</code></pre>		
 	
 	<h3>...</h3>
 	<pre><code>
 	
 
-
-	</code></pre>
+	</code></pre>	
 
 </body>
 </html>

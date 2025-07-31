@@ -39,7 +39,7 @@
     	exec_always "pgrep -x waybar || waybar"
     	# И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
 	
-	# ntfs-3g - нужен для фс ntfs
+	# ntfs-3g - нужен для фaйловой системы ntfs
 	sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
 	
 	
@@ -67,7 +67,78 @@
 		# Notifications: mako
 		# Screenshot tools: grim + slurp
 		# Terminal: foot (or use alacritty, kitty, etc.)
+		
+	# grim + slurp - Скриншоты экрана
+	# imagemagick - узнать цвет пикселя
+		sudo pacman -S grim slurp imagemagic
+		grim out.png	## делает скриншот
+		grim -g "$(slurp)" out.png		## делает скриншот выделенной области
+		grim -g "$(slurp -p)" -t ppm - | convert - txt:- | grep -m1 -oP '#\w{6}'
+			slurp -p — ждёт клик по экрану и возвращает координаты 1×1 пикселя
+			grim -g — делает скриншот только этого пикселя
+			convert — анализирует цвет и выводит HEX
+			grep — оставляет только #RRGGBB
 
+
+
+	## Создаём скрипт, который определяет цвет пикселя в файле ~/.local/bin/pipette:
+		
+		#!/usr/bin/env bash						## - шейбанг (shebang)
+
+		# Делаем скрин выделенной области
+		COLOR=$(grim -g "$(slurp -p)" -t ppm - \
+    		| convert - txt:- \
+    		| grep -m1 -oP '#\w{6}')
+		
+		# Если пользователь нажал Esc и цвет не выбран
+		[ -z "$COLOR" ] && exit 0
+		
+		# Копируем цвет в буфер обмена
+		echo -n "$COLOR" | wl-copy
+		
+		# Создаем маленькую цветную иконку 64x64 для уведомления
+		convert -size 64x64 xc:"$COLOR" /tmp/color.png
+		
+		# Показываем уведомление
+		notify-send -i /tmp/color.png "Цвет скопирован" "$COLOR"
+		
+		
+	## Уведомления.
+		# Ставим mako:
+			sudo pacman -S mako
+		# Теперь можно выводить увеодмления через:
+			mako "Header" "This it the message"
+		## Конфигурационный файл здесь: ~/.config/mako/config:
+		## Пример простого конфига:
+			# Время показа уведомления
+			default-timeout=3000
+			
+			# Цвета и прозрачность
+			background-color=#222222
+			text-color=#eeeeee
+			border-color=#555555
+			
+			# Толщина и закругление рамки
+			border-size=2
+			border-radius=8
+			
+			# Положение экрана (например, сверху-право)
+			anchor=top-right
+			
+			# Отступы
+			margin=10
+			padding=10
+
+
+		
+		## Win+Print - Делаем скриншот всего экрана:
+		bindsym $mod+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png; grim "$file" && notify-send "Скриншот" "Сохранён в $file"'
+		## Win+Shift+Print - Делаем скриншот выделенной области:
+		bindsym $mod+Shift+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png; grim -g "$(slurp)" "$file" && notify-send "Скриншот" "Сохранён в $file"'		
+		## Win+Shift+p - Узнать цвет пипеткой (запускаем скрипт из файла ~/.local/bin/pipette):
+		bindsym $mod+Shift+p exec ~/.local/bin/pipette   
+		
+		
 	# seatd / elogind - для управления доступом к вводу/выводу 
 	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
 	# wlroots - Библиотека, на которой работает sway
@@ -76,7 +147,7 @@
 	# waybar - панель статуса (вместо swaybar)
 	# swaylock, swayidle - Блокировка экрана и автовыход в сон
 	# grightnessctl - Яркость экрана
-	# grim + slurp - Скриншоты экрана
+	
 	# mako - уведомления
 	# networkmanager + nmcli / nmtui - Управление сетью
 	

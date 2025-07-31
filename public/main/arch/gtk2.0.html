@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+<body>
+
+<h1>GTK 2.0</h1>
+<pre><code>
+
+    ## GTK-темы настраиваются с помощью lxappearance
+
+    ## PCManFM использует по умолчанию gtk2.0
+    
+    ## Проверяем, какой GTK использует pcmanfm:
+        pacman -Qi pcmanfm | grep Version
+        ldd $(which pcmanfm) | grep gtk
+        
+    # Файл настроек:
+        ~/.gtkrc-2.0
+    # В моём случае этот файл подгружает: ~/.gtkrc-2.0.mine
+    # То есть настройки пишем сюда:
+        /home/mark/.gtkrc-2.0.mine
+        
+    
+    ## А вот GTK 3.0 редактировать надо здесь:
+        ~/.config/gtk-3.0/gtk.css
+        
+        
+    ## После редактирования (pcmanfm иногда кэширует стили):
+        killall pcmanfm
+        pcmanfm &
+        
+        
+    ## Пример простенького файла (здесь не меняются цвета виджетов):
+        style "custom"
+        {
+            bg[NORMAL]   = "#aaaaaa"   # фон окон
+            fg[NORMAL]   = "green"   # цвет текста
+            text[NORMAL] = "red"   # текст в виджетах
+            base[NORMAL] = "#222222"   # фон в полях ввода
+        }
+        class "*" style "custom"
+            
+    ## Пример файла:
+    # Определяем свою цветовую схему
+        gtk-color-scheme = "bg_color:#222222\nfg_color:#eeeeee\nbase_color:#111111\ntext_color:#eeeeee\nselected_bg_color:#444444\nselected_fg_color:#ffffff"
+        
+        # Создаем свой стиль
+        style "custom-dark"
+        {
+            # Цвет текста на простых виджетах
+            fg[NORMAL]      = @fg_color
+            fg[PRELIGHT]    = @fg_color
+            fg[ACTIVE]      = @fg_color
+            fg[SELECTED]    = @selected_fg_color
+            fg[INSENSITIVE] = "#777777"
+        
+            # Фон простых виджетов
+            bg[NORMAL]      = @bg_color
+            bg[PRELIGHT]    = "#333333"
+            bg[ACTIVE]      = "#333333"
+            bg[SELECTED]    = @selected_bg_color
+            bg[INSENSITIVE] = "#2a2a2a"
+        
+            # Цвета для текста и фона в виджетах (Entry, TextView, List)
+            base[NORMAL]      = @base_color
+            base[ACTIVE]      = @base_color
+            base[SELECTED]    = @selected_bg_color
+            base[INSENSITIVE] = "#2a2a2a"
+        
+            text[NORMAL]      = @text_color
+            text[ACTIVE]      = @text_color
+            text[SELECTED]    = @selected_fg_color
+            text[INSENSITIVE] = "#777777"
+        }
+        
+        # Применяем стиль ко всем виджетам
+        class "*" style "custom-dark"        
+    
+
+</code></pre>
+
+</body>
+</html>
