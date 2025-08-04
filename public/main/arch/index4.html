@@ -142,7 +142,7 @@
 	
 	</code></pre>
 
-	<h3>pacman</h3>
+	<h3>pacman и yay</h3>
 	<pre><code>
 		# update system
 		# sudo pacman -Syu
@@ -181,6 +181,12 @@
 
 		# Узнать, установлен ли у меня пакет:
 		pacman -Q xorg-server
+		
+		
+		## Пропустить стадию проверки
+		yay -S portfolio-file-manager --mflags "--nocheck"
+			# Когда я ставил portfolio-file-manager, то пакет ставился нормально, но не проходил проверку и из-за этого установка отменялась.
+			## В таких случаях помогает установка без проверки
 	</code></pre>
 
 

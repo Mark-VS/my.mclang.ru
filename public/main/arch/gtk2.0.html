@@ -103,8 +103,413 @@
                 
                 # Применяем стиль ко всем виджетам
                 class "*" style "custom-dark"  
-             
+                
+        
+        ## GTK-3.0
+        
+            # на sway (wayland) lxappearance меняет темы только для gtk-2 приложений.
+            # Для Wayland нужно использовать XDG desktop portal и settings daemon, иначе GTK3/4 останутся на дефолтной Adwaita.
 
+            # GTK-2 читает темы напрямую из ~/.gtkrc-2.0
+            # GTK3/GTK4 читают темы только из Xsettings
+                # В полноценной DE (GNOME, Xfce, LXDE) за это отвечает демон:
+                    xsettingsd (Xfce)
+                    lxsession (LXDE)
+                    gnome-settings-daemon (GNOME)   
+                # В i3 или Openbox этого демона нет, поэтому GTK3 остаётся на дефолтной Adwaita.
+            # В случае, если у меня установлен sway (wayland)
+                GTK2 у меня идёт через XWayland, и темы подхватываются из ~/.gtkrc-2.0 (X11-логика).
+                GTK3/GTK4 используют Wayland и ждут настройки темы от XDG-портала и settings daemon, которых у тебя нет.
+
+            ## Мне нужен XDG Desktop Portal и settings deamon, иначе GTK3/GTK4 останутся на дефолтной Adwaita
+                # То есть, мне нужно установить:
+                    1. какой-нибудь settings daemon (xfsettingsd, lxsession, gnome-settings-daemon)
+                    2. xdg-desktop-portal
+                    3. xdg-desktop-portal-wlr
+                    
+                    sudo pacman -S xdg-desktop-portal xdg-desktop-portal-wlr lxsession
+                    
+                    В ~/.config/sway/config добавь:
+                        exec --no-startup-id lxsession -s LXDE
+                        exec --no-startup-id xdg-desktop-portal
+                        exec --no-startup-id xdg-desktop-portal-wlr
+                        
+                        exec --no-startup-id lxsession -s LXDE
+                            # --no-startup - чтобы Sway не «думал», что мой автозапуск завис. Не ждать завершения загрузки.
+                            
+                            
+                ## ВНИМАНИЕ
+                    Если при первом запуске lxsession мы его запустим без аргумента "-s LXDE", то он создаст дефолтный профиль LXDE и потом... суп с котом.
+                    
+                Как запустить xdg-desktop-portal-wlr (с логами):
+                /usr/lib/xdg-desktop-portal-wlr -l DEBUG       
+                # Он запустится и автоматически подключится к wayland
+                
+                
+                #### ГХХХрень Всё заново
+                
+                файл ~/.config/gtk-3.0/settings.ini
+                [Settings]
+                    gtk-theme-name=Adwaita-dark
+                    gtk-icon-theme-name=Papirus
+                    gtk-font-name=Sans 10       
+                    
+                ## Step 2: Export environment variable for Sway
+                GTK3 on Wayland may need GTK_THEME to be set in your Sway config (~/.config/sway/config):
+                set $gtk_theme Adwaita-dark
+                exec_always {
+                    export GTK_THEME=$gtk_theme
+                }              
+                
+                ## Step 3: Optionally run an xsettings daemon
+                    If some GTK3 apps still ignore the theme, install and run xsettingsd:
+                sudo pacman -S xsettingsd
+                
+                Create ~/.config/xsettingsd/xsettingsd.conf:
+                    Net/ThemeName "Adwaita-dark"
+                    Net/IconThemeName "Papirus"
+                    Gtk/FontName "Sans 10"
+    
+                Then in Sway config:
+                    exec_always xsettingsd
+                    
+                ## Step 4: Restart GTK3 apps
+                    GTK3 apps don’t apply theme changes until they are restarted.
+                    
+                    
+        ### Ваааажжно
+            echo $XDG_CONFIG_HOME
+                надо удостовериться, что GTK3 видит конфигурационный файл.
+                Если переменная пустая, то GTK3 falls back to ~/.config.          
+                Но мой settings.ini уже в ~/.config/gtk-3.0/settings.ini, which is correct.          
+
+
+        If you want to avoid running extra daemons, you can also make GTK3 apps read your theme by using gsettings (from dconf):
+            gsettings set org.gnome.desktop.interface gtk-theme "Breeze"
+            gsettings set org.gnome.desktop.interface icon-theme "Nordic-bluish"
+        This works without xsettingsd for most GTK3 apps.
+        
+        
+    https://github.com/swaywm/sway/wiki/GTK-3-settings-on-Wayland
+    
+    !!!
+    ## Если я в терминале в переменную $GTK_THEME записывать название темы, а потом запустить из этого терминала...
+    # ... любую GTK3-программу, то тема применится.
+        export GTK_THEME="Adapta-Nokto"
+        thunar
+    # Таким же образом можно назначить в ~/.config/sway/config запуск программы с переменной:
+    bindsym $mod+Shift+o exec env $GTK_THEME=Adapta-Nokto thunar
+    # И теперь при нажатии клавиш Win+Shift+o будет открывать thunar с применённой темой Adapta-Nokto       
+        
+        
+    ## Как правильно задать переменную окружения GTK_THEME.
+        Создаём файл ~/.config/environment.d/gtk-theme.conf:
+            GTK_THEME=Adapta-Nokto
+            
+        А дальше надо либо перелогиниться, либо выполнить:
+            systemctl --user import-environment GTK_THEME  -- устаревший способ
+            systemctl --user daemon-reexec -- современный рабочиий - переподгружает переменные
+            
+    2. Через ~/.profile или ~/.bash_profile
+        Если Sway запускается через TTY (через startx или exec sway в .xinitrc):
+    
+    
+
+    
+    #### Посмотреть доступные переменные
+        systemctl --user show-environment | grep GTK_THEME
+        
+        
+    ### 
+        ##  /etc/security/pam_env.conf - основной файл с переменными окружения
+                ## Формат строк:
+                    VARIABLE_NAME DEFAULT_VALUE ANOTHER_VALUE
+                    BROWSER   /usr/bin/firefox 
+        ##  /etc/environment - более простой глобальный файл для переменных окружения (не только PAM)
+                ## Формат строк:
+                    VAR=value
+        ## ~/.pam_environment (в домашней директории пользователя) - личные переменные окружения для конкретного пользователя
+                ## Формат строк:
+                    VAR=value
+                    MY_VAR=lala
+        
+    ### Когда ты запускаешь Sway через display manager или tty+sway, PAM может автоматически подгрузить переменные, если:
+        - в PAM-конфиге твоей сессии подключён модуль pam_env.so.
+            Например, в /etc/pam.d/sway или /etc/pam.d/login должна быть строка:
+                session required pam_env.so
+        - после этого переменные из /etc/environment и ~/.pam_environment будут доступны в сессии Sway.
+        
+    How PAM and .pam_environment work
+        pam_env.so only works if a PAM session is started (e.g., via a display manager like GDM, SDDM, or when logging into a graphical session through login → systemd → PAM).
+        
+        "pam_env.so" работает только если PAM-сессия уже стартовала (через дисплейный менеджер, например через GTDM, SDDM, или если происходит вход в графическую сессию через login → systemd → PAM)
+        Если же я логинюсь в tty, а потом запускаю:
+            exec sway
+        1. PAM уже завержил свою работу
+        2. Добавление pam_env.so в /etc/pam.d/sway ни к чему не приведёт, because there is no sway PAM service invoked.
+    .pam_environment прочитывается только в процессе натройки PAM-сессии (PAM session setup), не через bash или sh.
+    
+    
+    
+     Why this happens
+        ~/.config/environment.d is loaded into systemd --user.
+        exec sway just replaces your TTY shell with sway.
+        Your shell’s environment does not automatically get the variables from systemd.
+        So apps started from Sway see only the shell environment that launched Sway, which doesn’t have MY_VAR unless you export it first.
+        
+    # Import systemd user environment
+        eval $(systemctl --user show-environment | sed 's/^/export /')
+                ^ - начало строки
+                то есть мы заменяем в каждой строке начало строки на слово "export "
+        # Start sway
+        exec sway
+            
+    systemctl --user daemon-reexec
+    systemctl --user show-environment | grep GTK_THEME
+    systemctl --user import-environment - устаревшая хрень
+    
+    
+    Login Shell (оболочка входа)
+
+    1. После ввода логина и пароля PAM запускает твой логин‑шелл (например, bash).
+        Он читает файлы:
+        /etc/profile
+        ~/.bash_profile или ~/.profile
+        Эти файлы задают базовые переменные вроде PATH, LANG и другие.
+    
+    2. PAM и systemd‑logind
+        systemd-logind создаёт пользовательскую сессию и через PAM устанавливает переменные среды сессии:
+            XDG_SESSION_ID
+            XDG_RUNTIME_DIR
+            DBUS_SESSION_BUS_ADDRESS
+        Эти переменные появляются автоматически при входе через TTY.
+    
+    3.Наследование оболочкой
+        Любые переменные, доступные в твоей оболочке на момент exec sway, переходят в Sway и его дочерние процессы.
+         
+    Итог:
+        Базовые переменные (PATH, LANG, XDG_*) приходят от PAM, login shell и logind.
+        Переменные из ~/.config/environment.d загружаются только в systemd --user и не попадают в Sway без явного импорта.
+        
+        
+    Что такое GSettings и org.gnome.desktop.interface
+    GSettings
+        Это система конфигурации, которую используют GTK, GNOME и многие их приложения.
+        Хранит настройки через dconf (базу данных).
+        Используется для:
+            - темы иконок
+            - темы курсора
+            - звуков
+            - размера шрифта
+            - масштабирования
+            
+    org.gnome.desktop.interface
+        Это «схема» в GSettings, где хранятся ключевые настройки интерфейса.
+        Примеры ключей:
+            Настройка          Ключ в GSettings
+            GTK-тема	       gtk-theme
+            Тема иконок	       icon-theme
+            Тема курсора	   cursor-theme
+            Размер курсора     cursor-size
+            Тема звуков	       sound-theme-name
+            
+    Поскольку у тебя нет полноценного GNOME, GUI для смены тем (gnome-control-center) нет.
+    Но можно управлять этим через консольные утилиты:
+        Установка темы иконок:
+            gsettings set org.gnome.desktop.interface icon-theme Papirus
+        Установка GTk-темы (через Gsettings)
+            gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark
+        Установка темы курсора:
+            gsettings set org.gnome.desktop.interface cursor-theme Bibata-Modern-Classic
+        Установка шрифта и его размера:
+            gsettings set org.gnome.desktop.interface font-name "Noto Sans 12"
+            gsettings set org.gnome.desktop.interface monospace-font-name "JetBrains Mono 12"
+                моноширинный шрифт (для терминалов, редакторов кода).
+            
+        Проверка текущих значений:
+            gsettings get org.gnome.desktop.interface icon-theme
+            gsettings get org.gnome.desktop.interface gtk-theme
+            
+    ## ВАЖНО ДЛЯ SWAY!!!
+        Эти настройки работают только если запущен dconf сервис.
+        Обычно под Wayland/Sway его запускают вручную или через dbus.
+        
+        
+    #Пример добавления в ~/.config/sway/config:
+        # Запуск dbus и dconf
+            exec_always {
+                dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+            }
+            
+    1. Что такое dbus и зачем он нужен
+        D-Bus — это «шина сообщений» в Linux, через которую общаются программы.
+        GSettings и dconf используют D-Bus, чтобы приложения могли получать настройки.  
+        
+        
+    2. Что такое dconf
+        dconf — это база данных, где хранятся настройки GTK/GNOME (в том числе темы, иконки, курсор).
+        Работает через сервис dconf-service, который запускается автоматически по требованию через D-Bus.
+        Т.е. dconf сам не запускается вручную, его стартует D-Bus, когда приложение к нему обращается.
+
+    3. Что делает dbus-update-activation-environment
+        Эта команда не запускает dbus и не запускает dconf.
+        Она делает следующее:
+        - Берёт текущие переменные окружения (например, DISPLAY, WAYLAND_DISPLAY, XDG_CURRENT_DESKTOP).
+        - Обновляет их в сессии D-Bus, чтобы сервисы, которые будут запущены через D-Bus (включая dconf), знали, что ты в Sway, а не в GNOME.
+        - Без этого многие GTK3/GTK4 приложения не смогут получить правильные настройки темы.
+        
+        Пример команды:
+        dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+            --systemd — говорит обновить переменные окружения в текущей user systemd session.
+            Переменные после этой команды доступны для всех сервисов, которые стартует D-Bus и systemd.
+            
+    4. А где реально запускается D-Bus и dconf?
+        - D-Bus:
+            Если у тебя в Arch с Sway включён systemd --user, то user D-Bus запускается автоматически при старте сессии.
+            Проверить можно так:
+                systemctl --user status dbus.service
+            или:
+                echo $DBUS_SESSION_BUS_ADDRESS
+        - dconf:
+            Его демон (dconf-service) запускается автоматически через D-Bus, когда что-то вызывает gsettings.
+            Проверить можно так:
+                ps aux | grep dconf
+            Обычно он появится после первого вызова gsettings или запуска GTK-приложения.
+            
+            
+    То есть в твоём конфиге exec_always { ... }
+        - ничего не стартует напрямую,
+        - а просто обновляет переменные окружения для уже работающего D-Bus,
+        чтобы GTK-приложения могли использовать gsettings/dconf корректно.
+                
+                
+                
+    # Изменить цвет текста в GTK3-теме
+        нужно подправлять файл ~/.config/gtk-3.0/gtk.css
+        # Изменить весь текст:
+            @import url("colors.css");
+            * {
+                color: red;
+            }
+            
+        window, headerbar, label {
+            color: #ffcc00;
+        }
+        - window — сам контейнер окна, но не перекрашивает содержимое, только наследуемые цвета, если они не переопределены темой.
+        - headerbar — заголовки окна и кнопки в шапке.
+        - label — простые статические надписи.
+        
+        # Если мы запустим THUNAR, то предыдущий пример там перекрасит только текст сверху, в окне
+        # Чтобы перекрасилось содержимое thunar, можно сделать так:
+        .view {
+            color: #ffcc00; /* Цвет текста в списках и таблицах */
+        }
+        Вот это правило должно перекрасить дерево папок и файлов слева:
+        .sidebar {
+            color: #ffcc00; /* Цвет текста в списках и таблицах */
+        }
+        Правда в thunar это не работает, потому что он не использует отдельный класс .sidebar для дерева папок. Но в других программах это может сработать. В thunar класс .view отвечает и за дерево папок, и за содержимое.
+    
+    
+    treeview.view {
+        color: #ffcc00;
+    }
+    iconview.view {
+        color: #00ccff;
+    }
+    
+    ## Перекрасит дерево файлов слева:
+    treeview,   /* GtkTreeView */
+    .view {     /* Весь текст: и внутри самого окна, и в GtkTreeView */
+        color: #8AA3AD
+    }
+    
+    ## Текст меток (например, путь, заголовки)
+    ## В thunar и в DeaDBeeF перекрашивает текст пунктов меню (Файл, Правка, ...)
+    ## В wofi перекрашивает текст в выпадающем списке
+    label {
+        color: @my_fg_color;
+    }
+    /* Текст кнопок - < > ^ Home */
+    button {
+        color: @my_fg_color;
+    }
+    
+    ## Перекрашивает в thunar в списке файлов слева текущую папку 
+    ## .view:selected - выбранная папка подсвечивается жёлтым
+    ## .view:selected:focus - подсвечивается жёлтым во время клика (т.е. всё то время, пока нажата ЛКМ)
+    .view:selected,                
+    .view:selected:focus {
+        color: #D0E6EB;
+    }
+
+    ## Цвет текста в меню (Файл, Правка, ...)
+    menuitem {
+        
+    }
+    ## Цвет текста в меню при наведении мышки на айтем и при выборе пункта меню
+    menuitem:hover {
+        
+    }
+
+    # хз...
+    text, GtkLabel {
+        color: red;
+    }
+    
+    #AFCBD6 - серо-голубоватый
+    #9FBAC4 - более мягкий, чуть серее
+    #8AA3AD - Серый с лёгким голубым оттенком, почти как сталь 
+        #D0E6EB - цвет для выделения #8AA3AD, более яркий и контрастный
+        #C4D8E0 - менее контрастный
+    
+    ## Чтобы подправить только один дефолтный текст, нужно лезть в /usr/share/themes/Adapta-Nokto/gtk-3.0/gtk.css
+    Но внутри файла: /usr/share/themes/Adapta-Nokto/gtk-3.0/gtk.css только одна строка:
+        resource:///org/adapta-project/gtk-3.20-nokto/gtk-contained-dark.css 
+        
+        то есть стили зашиты внутрь /usr/share/themes/Adapta-Nokto/gtk-3.0/gtk.gresource
+        
+    Чтоб вытащить их оттуда, нужно воспользоваться утилитой gresource. Она находится в пакете glib2 (заголовочные файл)и glib2-devel (сама gresource)
+    
+    cd /usr/share/themes/Adapta-Nokto/gtk-3.0/
+    sudo mkdir extracted
+    cd extracted
+    gresource extract ../gtk.gresource /org/adapta-project/gtk-3.20-nokto/gtk-contained-dark.css > gtk-contained-dark.css
+        ## Так не сработает, потому что ">" запускается от имени обычного пользователя. Поэтому пишем так:
+    1-вариант:
+    sudo gresource extract ../gtk.gresource /org/adapta-project/gtk-3.20-nokto/gtk-contained-dark.css | sudo tee gtk-contained-dark.css > /dev/null
+    2-й вариант:
+    sudo sh -c 'gresource extract ../gtk.gresource /org/adapta-project/gtk-3.20-nokto/gtk-contained-dark.css > gtk-contained-dark.css'
+    
+    
+
+    Можно скопировать тему локальную папку: 
+        ~/.themes/Adapta-Nokto/gtk-3.0
+        То есть в ~/.themes/Adapta-Nokto/gtk-3.0 у нас должны быть три файла:
+            gtk.css, gtk.gresource, thumbnail.png
+        # Извлечём gtk-contained-dark.css:
+        gresource extract gtk.gresource /org/adapta-project/gtk-3.20-nokto/gtk-contained-dark.css > gtk-contained-dark.css
+        
+        Исправим @define-color theme_fg_color и @define-color theme_text_color на свои.
+        В файле gtk.css заменим строку импорта на локальный CSS:
+        @import url("gtk-contained-dark.css");
+        Переключись на локальную тему через gnome-tweaks или lxappearance.
+        Теперь @define-color заработает, потому что файл больше не запакован в gresource.
+        
+        По идее, если всё сделано правильно, то когда я в lxappearance выберу тему, то должна примениться её логальная версия
+        
+        
+        И судя по всему, у темы, запакованной в gtk.gresource, есть приоритет над обычной темой в .css-файле
+        
+        
+        /usr/share/themes/Adapta-Nokto/gtk-3.0/ ... здесь системные темы
+        ~/.themes/Adapta-Nokto/gtk-3.0/ ....    - здесь локальные темы
+        ~/.config/gtk-3.0/ ... здесь
+        
+        
+        Внутри папки ... /gtk-3.0/ GTK ищет файл gtk.css, поэтому если я распаковал сюда тему с именем gtk-contained-dark.css", то я должен её импортировать из gtk.css-файла?
+        @import url("gtk-contained-dark.css");
+        
 </code></pre>
 
 </body>

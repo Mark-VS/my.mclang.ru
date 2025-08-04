@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim</title>
+</head>
+<body>
+
+<h1>nvim</h1>
+<pre><code>
+
+## Конфигурационные файл: ~/.config/nvim/init.lua, ~/.config/nvim/init.vim
+    !!! init.vim - устаревий способ.
+    !!! Лучше все настройки указывыать в init.lua.
+## Шаблоны для базовой настройки можно найти здесь: /usr/share/nvim/runtime/
+    /usr/share/nvim/runtime/example_init.lua - это дефолтный шаблон init.lua
+    cp /usr/share/nvim/runtime/example_init.lua ~/.config/nvim/init.lua
+    # НО это всё не дефолтные настройки. Дефолтный конфиг встроен в lua-код внутри neovim
+    # Посммотреть эти дефолтные настройки можно здесь:
+        less /usr/share/nvim/runtime/lua/vim/_defaults.lua
+    ## Вытаскивать дефолтные настройки оттуда смысла нет. Проще переопределять нужное в ~/.config/nvim/init.lua
+
+        -- Применяем цветовую схему:
+        vim.cmd.colorscheme('habamax')
+        -- Убираем фон у основных групп, чтобы сделать всё прозрачным
+        vim.api.nvim_set_hl(0, "Normal",      { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "LineNr",      { bg = "NONE" })
+        vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "StatusLine",  { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "StatusLineNC",{ bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "VertSplit",   { bg = "NONE" })
+        
+    ## Перезагрузить настройки из init.lua:
+        :source $MYVIMRC
+            # или:
+        :source ~/.config/nvim/init.lua
+        
+    # Пример выше затирает цветовую схему "habamax" и делает настройки такими же, как в терминале.
+    ## Вот так можно сохранить оригинальный цвет текста из схемы:
+             
+        vim.cmd.colorscheme('elflord')
+        -- vim.api.nvim_set_hl(0, "Normal", { fg = "red", bg = "NONE" })
+        
+        -- Получаем текущий цвет текста для Normal
+        local normal_fg = vim.api.nvim_get_hl(0, {name = "Normal"}).fg
+        
+        -- Убираем фон у основных групп, и цвет текста применяем тот, который стоит по умолчанию у "elflord"
+        vim.api.nvim_set_hl(0, "Normal",      { fg = normal_fg, bg = "NONE" })
+        vim.api.nvim_set_hl(0, "EndOfBuffer", { fg = normal_fg, bg = "NONE" })
+
+                            
+</code></pre>
+
+</body>
+</html>

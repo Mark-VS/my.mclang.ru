@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qt6</title>
+    <style>
+        body {
+            font-size: 16px;
+        background-color: #282C34;
+        color: #8AA3AD;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Qt</h1>
+
+<ul>
+<li>
+<h3>Переменные</h3>
+<pre>
+    QT_QPA_PLATFORM=wayland
+    QT_QPA_PLATFORMTHEME=qt6ct
+    QT_QPA_PALETTE="WindowText:#FF0000;Text:FF0000;ButtonText:#FF0000"
+    QT_STYLE_OVERRIDE=kvantum
+    QT_STYLE_SHEET=/home/mark/redtext.qss
+</pre>
+</li>
+
+<li><h3>Qt6ct</h3>
+<pre><code>
+    ## Для начала ставим Qt6ct, чтобы настраивать стили:
+        sudo pacman -S qt6ct
+        
+    ## Конфигурационный файл: ~/.config/qt6ct/qt6ct.conf
+    
+    ## В программе можно выбрать три темы (стиля):
+        Oxygen, Breeze, Windows, Fusion
+        
+    
+    ## Как поменять тему.
+        открываем программу qt6ct, настраиваем стили, цветовую схему, шрифты и нажимаем "Применить"
+        теперь при запуске Qt6-приложения нам надо ему указать, откуда брать стиль - из программы qt6ct
+        Это делается через переменную окружения QT_QPA_PLATFORMTHEME
+        
+        QT_QPA_PLATFORMTHEME=qt6c6 qbittorrent
+        
+        
+    ## В моём дефолтном ~/.config/qt6ct/qt6ct.conf-файле ссылка на цветовую схему:
+        color_scheme_path=/usr/share/qt6ct/colors/darker.conf
+        
+        ## То, что предложил Чат:
+            [Appearance]
+            style=Fusion
+            palette=custom
+            custom_palette=true
+            color_scheme_path=/home/yourusername/.config/qt6ct/colors/MyDarkColors.conf
+            
+            palette=custom + custom_palette=true — разрешают использовать пользовательскую цветовую схему.
+            
+            ## Пример цветовой схемы от Чата в файле /home/yourusername/.config/qt6ct/colors/MyDarkColors.conf
+                [ColorScheme]
+                activeText=#ffffff
+                activeWindowText=#ffffff
+                activeBase=#2b2b2b
+                activeWindow=#1e1e1e
+                activeButton=#3c3f41
+                activeHighlight=#5294e2
+                activeHighlightedText=#ffffff
+                
+                inactiveText=#aaaaaa
+                inactiveWindowText=#aaaaaa
+                inactiveBase=#2b2b2b
+                inactiveWindow=#1e1e1e
+                inactiveButton=#3c3f41
+                inactiveHighlight=#444444
+                inactiveHighlightedText=#ffffff
+                
+                disabledText=#555555
+                disabledWindowText=#555555
+                disabledBase=#2b2b2b
+                disabledWindow=#1e1e1e
+                disabledButton=#2b2b2b
+                disabledHighlight=#333333
+                disabledHighlightedText=#777777
+
+</code></pre>
+</li>
+
+<li><h3>Kvantum</h3>
+<pre><code>
+    ## Если нам нужно устанавливать новые схемы и более гибко управлять темами, то нам понадобится Kvantum.
+        sudo pacman -S kvantum
+    ## Установились: Kvantum Manager и Kvantum Preview
+    ## Через KvantumManager мы можем менять темы.
+    
+        sudo pacman -S kvantum-theme-materia    ## Ставим одну тему из оф. репозитория Arch
+        yay -S kvantum-theme-arc                ## И ещё одну из AUR
+        
+        
+    ## Темы устанавливаются в /usr/share/Kvantum/
+        ## У нас вместе с kvantum-theme-materia установились три темы:
+            /usr/share/Kvantum/Materia
+            /usr/share/Kvantum/MateriaDark
+            /usr/share/Kvantum/MateriaLight
+        ## И вместе с kvantum-theme-arc тоже три:
+            /usr/share/Kvantum/Arc
+            /usr/share/Kvantum/ArcDark
+            /usr/share/Kvantum/ArcDarker
+        ## Остальные темы в /usr/share/Kvantum - дефолтные, которые поставились вместе с Kvantum'ом.
+            
+    ## Мы эти темы можем изменить в KvantumManager в разделе "Изменение или удаление тем".
+        ## В этом разделе мы вибираем темы, которые есть в /usr/share/Kvantum/
+        
+    ## Мы также можем скопировать темы из /usr/share/Kvantum/ в ~/.config/Kvantum/
+        ## Для этого зайдём в раздел "Утсановка/Обновление тем", выберем папку из /usr/share/Kvantum/ и нажмём "Установить".
+        ## После этого тема скопируется из /usr/share/Kvantum/ в ~/.config/Kvantum/
+        ## Теперь мы можем её кастомизировать под себя.
+        
+    ## Допустим, мы выбрали тему ArcDark и установили её в польовательскую директорию.
+    ## Тогда мы можем редактировать эту тему в файле:
+        ~/.config/Kvantum/ArcDark/ArcDark.kvconfig
+        
+    ## Запустим qbittorrent:
+        QT_QPA_PLATFORMTHEME=qt6ct qbittorrent
+    ## Тема применилась
+    
+    ## Qt6-приложения, которые можно потестить:
+        featherpad, strawberry, qbittorrent, dragon, ark, kcalc, gwenview, qmmp, kfind
+    ## KDE-приложения:
+        dolphin, kwrite, okular, elisa
+    
+    
+    ## А теперь давайте запустим  pdf-вьюер Okular:
+        QT_QPA_PLATFORMTHEME=qt6ct okular
+    ## Тема НЕ ПРИМЕНИЛАСЬ к этому приложению.
+    ## Если вы посмотрите повнимательней, то обнаружите, что шрифты и размеры шрифтов, которые мы установили в qt6ct применились, 
+        ... а вот всё, что мы настраивали в Kvantum, не применилось.
+        
+        
+    ## А теперь давайте запустим Okular вот так:
+        QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=kvantum okular
+            ## Стили из kvantum применились
+        
+        QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=kvantum dolphin
+            ## А вот тут не очень
+            
+            
+</code></pre></li>
+
+
+</ul>
+
+</body>
+</html>
