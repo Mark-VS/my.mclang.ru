@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>foot</title>
+    <style>
+        body {
+            font-size: 16px;
+            background-color: #282C34;
+            color: #8AA3AD;
+        }
+    </style>
 </head>
 <body>
 
@@ -53,6 +60,11 @@
     ## license: MIT
     ## upstream: https://github.com/atelierbram/AtelierSchemes-kitty/blob/main/themes/atelier-savanna-dark.conf
     ## blurb: Base color for Savanna is green, it has greenish colors for the background. “Color-wheel colors” are desaturated considerably, giving this colorscheme a rather under understated appeal and, dear I say it, a ‘natural’ look and feel.
+
+
+    ## На удалённом сервере, на Debian, когда я захожу туда через ssh, не открываются текстовые файлы через терминал. Сервер ругается на неизвестный терминал foot. Для того, чтобы Debian узнал про терминал foot, копируем из своей локальной машины бинарник foot:
+        sudo scp /usr/share/terminfo/f/foot mark@tupniki.ru:/usr/share/terminfo/f/
+        ## После этого nano должен сразу заработать
 </code></pre>
 
 </body>

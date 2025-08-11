@@ -10,7 +10,7 @@
 
 	<h3>Переменные окружения</h3>
 	<pre><code>
-	# Какую среду окружения мы сейчас использует (выведет KDE):
+	# Какую среду окружения мы сейчас используем (выведет KDE):
 		$XDG_CURRENT_DESKTOP
 	# Выведет plasma
 		$DESKTOP_SESSION
@@ -34,6 +34,9 @@
 		ps -p $$
 		  # или:
 		echo $0
+		
+	# Какой терминал мы сейчас используем:
+		echo $TERM
 		
 	
 	## ИТОГО
@@ -135,59 +138,9 @@
 		loginctl
 		# Завершить все сессии текущего пользователя:
 		loginctl terminate-user mark
-			# При этом sddm останется висеть и нужно будет убить процесс sddm
-
-
-	
-	
+			# При этом sddm останется висеть и нужно будет убить процесс sddm	
 	</code></pre>
 
-	<h3>pacman и yay</h3>
-	<pre><code>
-		# update system
-		# sudo pacman -Syu
-			-S - Synchronize: Install or update packages
-			-y - Refresh package database (download the latest package lists)
-			-u - Upgrade all installed packages to the latest version
-		# Refresh package list (not upgrade):
-			sudo pacman -Sy
-
-		# Remove
-		sudo pacman -Rns budgie-desktop gnome xfce4 xfce4-goodies
-			-R - remove a packager
-			-n - remove configuration files and mark dependencies as unused
-			-s - remove unused dependencies that were installed with the package
-		sudo pacman -Rdd linux-firmware
-			-R - удалить пакет
-			-d - игнорировать зависимости (один -d)
-			-dd - игнорировать зависимости дважды (то есть вообще никакие зависимости):
-				- не проверят, что от пакета кто-то зависит (обратные зависимости);
-				- не проверять, что сам пакет зависит от чего-то.
-
-		# Search package in repo
-		sudo pacman -Ss lalal
-			-S - Syncronize
-			-s - search
-		# Хочу узнать, что входит в пакет, который я установил.
-		# Например, я ставлю Sway и хочу знать, ЧТО установится:
-		pacman -Qi sway
-		# Найти, установлен ли у меня метапакет. Выведен всё, что он установил:
-		pacman -Qg plasma
-
-		# Хочу узнать, что входит в пакет, который я ещё не установил:
-		pacman -Si sway
-		# Посмотреть что включает в себя метапакет:
-		pacman -Sg plasma
-
-		# Узнать, установлен ли у меня пакет:
-		pacman -Q xorg-server
-		
-		
-		## Пропустить стадию проверки
-		yay -S portfolio-file-manager --mflags "--nocheck"
-			# Когда я ставил portfolio-file-manager, то пакет ставился нормально, но не проходил проверку и из-за этого установка отменялась.
-			## В таких случаях помогает установка без проверки
-	</code></pre>
 
 
 	<p></p>
