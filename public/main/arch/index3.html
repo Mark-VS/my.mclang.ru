@@ -25,35 +25,132 @@
 <body>
 	<a href="/arch">Вернуться назад</a>
 
-	<p>Базовые</p>
+	<h3>Базовые</h3>
 	<ul>
 		<li>vi, vim, emacs</li>
 		<li>man-db, man-pages</li>
 		<li>base-devel</li>
 		<li>ncdu - улучшенная du</li>
 	</ul>
-	<p>Программки, которые надо поставить (оф. репозиторий):</p>
+	
+	<h3>Основное</h3>
 	<ul>
-		<li>lapce, lite-xl, helix, mousepad, leafpad (GTK notepad clone), Kate, KWrite, pluma</li>
-		<li>strawberry</li>
-		<li>leafpad / lapce / geany / code</li>
-		<li>audacious / qmmp / strawberry</li>
-		<li>mpv / smplayer / vlc /celluloid / dragon (phonon) / haruna</li>
-		<li>fastfetch / neofetch (медленный)</li>
-		<li>coolreader (Qt) / foliate (GTK)</li>
-		<li>chromium / Brave (GTK)</li>
 		<li>rofi -> rofi -show drun</li>
 		<li>wofi -> wofi --show drun (GTK)</li>
 		<li>htop</li>
+		<li>fastfetch / neofetch (медленный)</li>
+	</ul>
+
+	<h3>Браузеры</h3>
+	<ul>
+		<li>epiphany (GTK4) - на WebKitGTK (Safari)</li>
+		<li>qutebrowser (Qt6) - keyboard-driven browser - на QtWebEngine (Chromium/Blink)</li>
+		<li>chromium (GTK3)</li>
+		<li>firefox (GTK3)</li>
+		<li>vivaldi (GTK3/GTK4/Qt5/Qt6) - на движке Chromium</li>
+		<li>falkon (Qt6)</li>
+		<li>angelfish (Qt6)</li>
+		<li>librewolf / librewolf-bin (AUR) - на движке Firefox</li>
+		<li>floorp / floorp-bin (GTK3) (AUR) - на движке Firefox</li>
+		<li>midori / midori-bin (GTK3) (AUR) - форк floorp</li>
+		<li>brave / brave-bin (GTK3) (AUR)</li>
+		<li>microsoft-edge-stable-bin (GTK3) (AUR)</li>
+		<li>yandex-browser / yandex-browser-corporate (GTK4) (AUR)</li>
+		<li>opera (GTK3/Qt5/Qt6)(AUR)</li>
+		<li>konqueror (Qt6)</li>
 		<li>-</li>
+		<li>nyxt</li>
+		<li>netsurf</li>
+		<li>LadyBird</li>
+		<li>Goanna (PaleMoon)</li>
+		<li>-</li>
+		<li>lynx</li>
+	</ul>
+	<h3>Простенькие текстовые редакторы</h3>
+	<ul>
+		<li>leafpad (GTK notepad clone)</li>
+		<li>mousepad</li>
+		<li>kwrite (KDE applications)</li>
+		<li></li>
+	</ul>
+	<h3>Code</h3>
+	<ul>
+		<li>code (VS Code)</li>
+		<li>vscodium / vscodium-bin (AUR)</li>
+		<li>lapce</li>
+		<li>geany</li>
+		<li>kate (KDE applications)</li>
+	</ul>
+	<h3>Офис</h3>
+	<ul>
+		<li>lite-xl, helix, mousepad, leafpad (GTK notepad clone), Kate, KWrite, pluma</li>
+		<li>gnumeric (GTK) - аналог Microsoft Excel и Libre Office Calc, написан на C</li>kde	
+	</ul>
+
+	<h3>Работа с графикой</h3>
+	<ul>
+		<li>gimp (GTK) - обработка фотографий</li>
+		<li>krita (QT) - рисование и цифровая живопись</li>
+		<li>inkscape (GTK) - для работы с векторной графикой</li>
+		<li>-</li>
+		<li>mypaint (GTK3)</li>
+		<li>photoflare (Qt5)</li>
+		<li>darktable (GTK) - аналог Adobe LightRoom, обработка фотографий в Raw</li>
+		<li>rawtherapee (GTK3) - обработка фотографий в Raw</li>
+		<li>pinta / pinta-git / pinta-gtk3-git (AUR)</li>
+		<li>-</li>
+		<li>libresprite / libresprite-bin (AUR) - форк Aseprite, полностью бесплатный. Пиксель-арт редактор с анимацией</li>
+		<li>pixelorama / pixelorama-bin (AUR) - беспл. редактор для пиксель-арта и спрайтов</li>
+		<li>-</li>
+		<li>imagemagick - консольный инструмент для автоматической обработки картинок.</li>
+		<li>xnviewmp / xnviewmp-system-libs (Qt5) (AUR) - просмотрщик и пакетный конвертер изображений</li>
+	</ul>
+	<h3>Звук</h3>
+	<ul>
 		<li>kmix / pavucontrol - громкость, можно блудет установить микрофон по умолчанию</li>
-		<li>audacity / ardour</li>
-		<li>discord / nheko (https://servers.joinmatrix.org)</li>
+		<li>audacity (GTK) - запись и простое редактирование звука</li>	
+		<li>ardour (GTK) - цифровая звуковая рабочая станция (DAW)</li>
+	</ul>
+	<h3>Видео</h3>
+	<ul>
+		<li>kdenlive (Qt6)</li>
+		<li>obs-studio (лучше выбрать кодировщик FFmpeg VAAPI H.264 - Аппаратное ускорение через встроенное iGPU (Intel)) - работает через PipeWire</li>
 		<li>ffmpeg (kde-applications): ffmpeg -video_size 1920x1080 -framerate 30 -f x11grab -i :0.0 output.mkv</li>
-		<li>obs-studio (лучше выбрать кодировщик FFmpeg VAAPI H.264 - Аппаратное ускорение через встроенное iGPU (Intel))</li>
-		<li>kooha - лучше работает с Wayland/GTK</li>
-		<li>SimpleScreenRecorder</li>
-		
+		<li>kooha - простой и минималистичный захватчик экрана, лучше работает с Wayland/GTK</li>
+		<li>SimpleScreenRecorder (С++/Qt) - захватчик экрана, более старой школы, мощнее, чем kooha</li>
+	</ul>
+	
+	<h3>Аудио проигрыватели</h3>
+	<ul>
+		<li>strawberry</li>
+		<li>audacious</li>
+		<li>qmmp</li>
+		<li>deadbeef (AUR)</li>
+	</ul>
+	<h3>Видео проигрыватели</h3>
+	<ul>
+		<li>mpv</li>
+		<li>smplayer</li>
+		<li>vlc</li>
+		<li>celluloid - по сути, GUI-оболочка для mpv</li>
+		<li>dragon (phonon)</li>
+		<li>haruna</li>
+		<li>qmplay2 / qmplay2-git / gmplay2-appimage (AUR)</li>
+	</ul>
+	
+	<h3>eBooks</h3>
+	<ul>
+		<li>coolreader (Qt)</li>
+		<li>foliate (GTK)</li>
+	</ul>
+	<h3>Мессенджеры / звонки</h3>
+	<ul>
+		<li>discord</li>
+		<li>nheko (https://servers.joinmatrix.org)</li>	
+	</ul>
+	<h3>ХЗ</h3>
+	<ul>
+		<li>steam (репозиторий multilib)</li>
 	</ul>
 
 	<p>Оформление</p>
@@ -80,34 +177,17 @@
 		<li>plasma-workspace</li>
 	</ul>
 
-	<p>AUR</p>
-	<ul>
-		<li>VSCodium: vscodium / vscodium-bin</li>
-		<li>VSCODE: visual-studio-code / visual-studio-code-bin</li>
-		<li>DeaDBeeF: deadbeef, deadbeef-plugin-lastfm-git</li>
-		<li>QMPlay2: qmplay2 - видеопроигрыватель</li>
-		<li>microsoft-edge-stable-bin</li>
-		<li>opera</li>
-		<li>-</li>
-		<li>obs-studio-git / obs-studio-rc</li>
-	</ul>
-	
-	<p></p>
 
-	<ul>
-		<li>nyxt - браузер для хакеров</li>
-		<li>NetSurf - независимый</li>
-		<li>LadyBird</li>
-		<li>Goanna (PaleMoon)</li>
-	</ul>
+
 	<p>Игры</p>
 	<ul>
 		<li>luanti</li>
 		<li>Майнкрафт: jre8-openjdk</li>
 		<li>---java -jar myjarfile.jar</li>
-		<li>steam (репозиторий multilib)</li>
+	
 
 	</ul>
+	
 	<p>Как можно из аура устанавливать ещё:</p>
 	<pre><code>
 		git clone https://aur.archlinux.org/visial-studio-code-bin.git
@@ -135,63 +215,54 @@
 		"source": "debian"
 	}
 	</code></pre>
+<p>NeoFetch AUR</p>
+	<pre><code>    sudo pacman -S --needed git base-devel
+    git clone https://aur.archlinux.org/neofetch.git
+    cd neofetch
+    makepkg -si</code></pre>
+    
+	У меня вылезла ошибка:
+	<pre><code>    ==> ОШИБКА: Одна или более PGP-подписей не могут быть проверены!</code></pre>
+	Строкой выше был ключ: B1F2C1D8BD78374A. Надо импортировать этот недостающий ключ:
+	<pre><code>    gpg --recv-keys B1F2C1D8BD78374A</code></pre>
+		# Эта команда значит: Эй, GnuPG, найди на сервере ключ с ID B1F2C1D8BD78374A и добавь его к моим доверенным ключам. Теперь моя система может проверить этот ключ, потому что у неё есть эталон для сравнения.
+	И теперь повторим собрку:
+	<pre><code>    makepkg -si</code></pre>
 
-	<p>NeoFetch AUR</p>
-	<pre><code>
-	sudo pacman -S --needed git base-devel
-	git clone https://aur.archlinux.org/neofetch.git
-	cd neofetch
-	makepkg -si
-
-	# У меня вылезла ошибка:
-	# ==> ОШИБКА: Одна или более PGP-подписей не могут быть проверены!
-	# Строкой выше был ключ: B1F2C1D8BD78374A
-	# Надо импортировать этот недостающий ключ:
-	gpg --recv-keys B1F2C1D8BD78374A
-		# Эта команда значит: Эй, GnuPG, найди на сервере ключ с ID B1F2C1D8BD78374A и добавь его к моим доверенным ключам. Теперь моя систем может проверить этот ключ, потому что у неё есть эталон для сравнения.
-	# И теперь повторим собрку:
-	makepkg -si
-
-	# Если мы используюм bash, то просто добавляем в ~/.bashrc:
-	neofetch
-	# Можно выбрать другой дистрибутив и отключить цветные прямоугольники:
-	neofetch --color_blocks off --ascii_distro gentoo
-	</code></pre>
+	Если мы используюм bash, то просто добавляем в ~/.bashrc:
+	<pre><code>    neofetch</code></pre>
+	Можно выбрать другой дистрибутив и отключить цветные прямоугольники:
+	<pre><code>    neofetch --color_blocks off --ascii_distro gentoo</code></pre>
 
 	<h3>OBS Studio</h3>
-	<pre><code>
+	<p>
 Проблема понятна: OBS Studio пытается использовать QSV (Quick Sync Video) — аппаратный кодировщик от Intel, но не может его инициализировать:
 Failed to initialize MFX
 [qsv encoder: 'msdk_impl'] Specified object/item/sync point not found. (MFX_ERR_NOT_FOUND)
 [qsv encoder: 'simple_video_recording'] qsv failed to load
 
- Что это значит?
-QSV требует:
-
-CPU от Intel с поддержкой Quick Sync
-
-корректного драйвера (i915)
-
-работающего MediaSDK или libmfx
-
+<h3>Что это значит?</h3>
+<h4>QSV требует:</h4>
+<ul>
+	<li>CPU от Intel с поддержкой Quick Sync</li>
+	<li>корректного драйвера (i915)</li>
+	<li>работающего MediaSDK или libmfx</li>
+</ul>
 На Arch по умолчанию это часто не настроено, либо твой процессор не поддерживает QSV, либо ты не установил нужные зависимости.
 
-✅ Решения
-💡 1. Просто переключись на x264 (программный кодировщик)
-Это самое простое и стабильное решение:
-
-Открой OBS → Настройки → Вывод
-
-Вкладка «Запись» → выбери Кодировщик: x264
-
-Применить → OK
-
-Теперь запись должна работать.
-
+✅ <h3>Решения</h3>
+<ul>
+<li>💡 1. Просто переключись на x264 (программный кодировщик)</li>
+<li>Это самое простое и стабильное решение:</li>
+<li>Открой OBS → Настройки → Вывод</li>
+<li>Вкладка «Запись» → выбери Кодировщик: x264</li>
+<li>Применить → OK</li>
+<liТеперь запись должна работать.</li>
+</ul>
 
 # Запуск OBS через xcb (X11-бэкенд):
-QT_QPA_PLATFORM=xcb obs
-	</code></pre>
+<pre><code>QT_QPA_PLATFORM=xcb obs</code></pre>
+	</p>
 
 	<p></p>
 	<pre><code>
