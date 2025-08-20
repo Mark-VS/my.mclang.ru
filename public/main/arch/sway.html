@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sway</title>
+    <link rel="stylesheet" href="highlight/styles_custom/androidstudio.css">
     <style>
         html {
             font-size: 16px;
@@ -18,13 +19,18 @@
         a.sec { color: #56B6C2; }
         a.thi { color: #98C379; }
         a.fou { color: #C678DD; }
-        code { font-size: 1rem; }
+        code { font-size: 1rem; background-color: white}
     </style>
 </head>
 <body>
+<script src="highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
 <h1>sway</h1>
+
+<pre><code>
+	import kaka from 'kaka.js';
+</code></pre>
 
 <h3>Запуск</h3>
 <pre><code>    dbus-run-session sway > ~/.sway.log 2>&1
@@ -66,29 +72,36 @@
 	
 	## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
 	
+	</code></pre>
+	<h3>РАЗРЕШЕНИЕ И ЧАСТОТА</h3>
+	
+		
+		<pre><code class="language-bash"># Посмотретьтекущие настройки:
+   swaymsg -t get_outputs
+# или:
+   wayland-info	## пакет wayland-utils
+# или:
+   wlr-randr		## wlr-randr
+
+# Чтобы поменять разрешение и частоту навсегда, надо внести эту строку в ~/.config/sway/config:
+   swaymsg output HDMI-A-2 mode 1920x1080@144Hz
+		</code></pre>
+		
+		<h4>Чтобы поменять разрешение и частоту навсегда, надо внести эту строку в ~/.config/sway/config:</h4>
+		<pre><code>output HDMI-A-2 mode 1920x1080@144Hz</code></pre>
+	
+	<h3>Установка Sway</h4>
+	<pre><code class="language-bash">
 	# install sway
 	sudo pacman -S sway foot
 	# У меня sway v1.11 по умолчанию собран без поддержки Xwayland. И я не могу запускать программы типа feh
 	# Установить sway с поддержкой Xwayland:
 	sudo pacman -S sway xorg-xwayland
+	</code></pre>
 	
-	# sway config files:
-		# /etc/sway/config
-		# ~/.config/sway/config
-	# foot - wayland terminal
-		# Чтобы увеличить шрифт в foot создадим конфиг для него:
-		# ~/.config/foot/foot.ini:
-			# [main]
-			# font=monospace:size=16
-			# И теперь закроем foot и заново запустим, чтобы заново загрузить настройки
-
-		# Lock screen: swaylock
-		# Idle behavior: swayidle
-		# Clipboard: wl-clipboard
-		# Notifications: mako
-		# Screenshot tools: grim + slurp
-		# Terminal: foot (or use alacritty, kitty, etc.)
-		
+	
+	<h3>Всё остальное</h3>
+	<pre><code class="language-bash">
 	# grim + slurp - Скриншоты экрана
 	# imagemagick - узнать цвет пикселя
 		sudo pacman -S grim slurp imagemagic
@@ -122,9 +135,10 @@
 		
 		# Показываем уведомление
 		notify-send -i /tmp/color.png "Цвет скопирован" "$COLOR"
-		
-		
-	## Уведомления.
+	</code></pre>	
+	
+	<h3>Уведомления</h3>
+	<pre><code class="language-bash">	
 		# Ставим mako:
 			sudo pacman -S mako
 		# Теперь можно выводить увеодмления через:
@@ -149,16 +163,19 @@
 			# Отступы
 			margin=10
 			padding=10
+</code></pre>
 
-
-		
+		<pre><code class="language-bash">
 		## Win+Print - Делаем скриншот всего экрана:
 		bindsym $mod+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png; grim "$file" && notify-send "Скриншот" "Сохранён в $file"'
 		## Win+Shift+Print - Делаем скриншот выделенной области:
 		bindsym $mod+Shift+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png; grim -g "$(slurp)" "$file" && notify-send "Скриншот" "Сохранён в $file"'		
 		## Win+Shift+p - Узнать цвет пипеткой (запускаем скрипт из файла ~/.local/bin/pipette):
 		bindsym $mod+Shift+p exec ~/.local/bin/pipette   
+		</code></pre>
 		
+		<h3>swaylock и swayidle</h3>
+		<pre><code class="language-bash">
 		## Утстановим swaylock и swayidle
 			sudo pacman -S swaylock swayidle
 		## Запуситить блокировщик с тёмным фоном:
@@ -178,8 +195,10 @@
     			# * - все мониторы
 				# "output * dpms off" - выключить все мониторы
 				# "output * dpms on" - включить все мониторы
-				
-	## ПОДКЛЮЧЕНИЕ ТЕЛЕФОНА:
+		</code></pre>
+		
+		<h3>Подключение телефона</h3>
+		<pre><code class="language-bash">
 		## Ставим gvfs-mtp (это протокол передачи файлов на Android):
 			sudo pacman -S gvfs-mtp
 		## Теперь телефон должен появиться в списке вот здесь:
@@ -210,7 +229,9 @@
 			gio mount -u mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
 				
 		## Но если мы попытаемся открыть эту директорию в PCManFM, то ничего не выйдет
+		</code></pre>
 		
+		<pre><code class="language-bash">
 	# seatd / elogind - для управления доступом к вводу/выводу 
 	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
 	# wlroots - Библиотека, на которой работает sway
@@ -270,5 +291,8 @@
 		swaymsg exit
 </code></pre>
 
+<script src="highlight/languages/bash.min.js"></script>
+<script src="highlight/languages/typescript.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

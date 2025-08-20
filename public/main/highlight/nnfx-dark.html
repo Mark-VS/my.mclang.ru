@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Mark-VS">
+    <meta name="description" content="Here's the description."
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <link rel="stylesheet" href="highlight/styles/nnfx-dark.min.css">
+    <style>
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-size: 1.14rem;
+            background-color: #282C34;
+            color: #8AA3AD;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+        a { color: #4FA3C4; }
+        a:active { color: #E06C75; }
+        a:visited { color: #8E7BB5; }
+        a:visited:active { color: #E06C75; }
+        code { font-size: 1rem; }
+    </style>
+</head>
+<body>
+<script src="highlight/highlight.min.js"></script>
+
+<h1>Start example</h1>
+
+
+<ul style="list-style-type: none; padding: 0">
+    <li><h3>Здесь мы запускаем сразу два сервера:</h3></li>
+    <li>http - на порту 3000, и https - на порту 3001</li>
+</ul>
+
+<!-- <pre><code style="background-color: #282C34;"> -->
+<pre><code>
+import express from "express";
+import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
+import { readFileSync } from "node:fs";
+import https from "node:https";
+
+const HTTP_PORT = 3000;
+const HTTPS_PORT = 3001;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const UP = "..";
+const CERTS_FOLDER = "certs";
+const MY_HTTP_FILE = join(__dirname, "index1.html");
+const MY_HTTPS_FILE = join(__dirname, "index2.html");
+const MY_CERT = join(__dirname, UP, CERTS_FOLDER, "serverCert.crt");
+const MY_CERT_KEY = join(__dirname, UP, CERTS_FOLDER, "serverCert.key");
+
+/*
+Добавим небольшой блок с комментариями,
+чтобы посмотреть, как будет выглядеть многострочный комментарий.
+Траляляля
+*/
+const httpApp = express();
+const httpsApp = express();
+
+const serverOptions = {
+    cert: readFileSync(MY_CERT, "utf-8"),
+    key: readFileSync(MY_CERT_KEY, "utf-8"),
+    passphrase: "server_12345"
+}
+
+// А это простой комментарий
+const httpsServer = https.createServer(serverOptions, httpsApp);
+
+httpApp.get("/", (req, res) => {
+    res.status(200).send("Небезопасная веб-страничка.");
+});
+httpApp.get("/lala", (req, res) => {
+    res.status(200).sendFile(MY_HTTP_FILE);
+});
+
+httpsApp.get("/", (req, res) => {
+    res.status(200).send("Безопасная веб-страничка.");
+});
+httpsApp.get("/lala", (req, res) => {
+    res.status(200).sendFile(MY_HTTPS_FILE);
+});
+
+httpApp.listen(HTTP_PORT, () => {
+    console.log(`Сервер запущен на порту ${HTTP_PORT}`);
+});
+httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`Сервер запущен на порту ${HTTPS_PORT}`);
+});
+
+// Добавим в конце бессмысленную функцию:
+function jopa(kropa, popa) {
+    let srushka = kropa + " " + popa;
+    return srushka;
+}
+jopa("Моя строка внутри переменной kropa.", "Моя строка внутри попы.");
+</code></pre>
+
+<script src="highlight/languages/typescript.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

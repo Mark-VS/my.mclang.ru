@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wlogout</title>
+    <link rel="stylesheet" href="highlight/styles_custom/androidstudio.css">
+    
+    <style>
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-size: 1.14rem;
+            background-color: #282C34;
+            color: #8AA3AD;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+        a { color: #61AFEF; }
+        a.sec { color: #56B6C2; }
+        a.thi { color: #98C379; }
+        a.fou { color: #C678DD; }
+        code { font-size: 1rem; }
+    </style>
+</head>
+<body>
+<script src="highlight/highlight.min.js"></script>
+
+<h1>wlogout</h1>
+
+
+
+<pre><code>
+# Конфигурационные файлы:
+~/.config/wlogout/style.css - описывает внешний вид (цвета, шрифты, размеры)
+~/.config/wlogout/layout - описывает кнопки (power, reboot, logout и т. д.)
+</code></pre>
+
+<h4>~/.config/wlogout/style.css:</h4>
+<pre><code class="language-css">
+window {
+    background-color: rgba(30, 30, 30, 0.9);
+}
+
+button {
+    background-color: #1e1e2e;
+    border-radius: 15px;
+    margin: 10px;
+    padding: 20px;
+    border: 2px solid #cba6f7;
+    color: #ffffff;
+    font-size: 20px;
+}
+
+button:focus {
+    background-color: #89b4fa;
+    color: #000000;
+}
+</code></pre>
+
+<h4>~/.config/wlogout/layout:</h4>
+<pre><code class="language-css">
+{
+    "label" : "lock",
+    "action" : "loginctl lock-session",
+    "text" : "Lock",
+    "keybind" : "l"
+}
+{
+    "label" : "hibernate",
+    "action" : "systemctl hibernate",
+    "text" : "Hibernate",
+    "keybind" : "h"
+}
+{
+    "label" : "logout",
+    "action" : "swaymsg exit",
+    "text" : "Logout",
+    "keybind" : "e"
+}   
+{
+    "label" : "shutdown",
+    "action" : "systemctl poweroff",
+    "text" : "Shutdown",
+    "keybind" : "s"
+}
+{
+    "label" : "suspend",
+    "action" : "systemctl suspend",
+    "text" : "Suspend",
+    "keybind" : "u"
+}
+{
+    "label" : "reboot",
+    "action" : "systemctl reboot",
+    "text" : "Reboot",
+    "keybind" : "r"
+}
+</code></pre>
+
+<script src="highlight/languages/css.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

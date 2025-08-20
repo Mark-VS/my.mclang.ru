@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+  <link rel="stylesheet" href="highlight/styles/androidstudio.min.css">
+    <style>
+        body {
+            font-size: 16px;
+            background-color: #282C34;
+            color: #8AA3AD;
+        }
+        a { color: #61AFEF; }
+    </style>
+</head>
+<body>
+<script src="highlight/highlight.min.js"></script>
+
+<h1>lf</h1>
+<pre><code class="language-ts">
+import express from "express";
+import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
+import { readFileSync } from "node:fs";
+import https from "node:https";
+</code></pre>
+
+<h3>bash</h3>
+<pre><code class="language-bash">
+swaymsg -t get_outputs
+swaymsg output HDMI-A-2 mode 1920x1080@144Hz
+## aaaa
+cp ~/lala.txt ~/.coco/
+for ((i=0; i<10; i++)); do
+    echo "номер: $i"
+done
+</code></pre>
+
+<script src="highlight/languages/bash.min.js"></script>
+<script src="highlight/languages/typescript.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
