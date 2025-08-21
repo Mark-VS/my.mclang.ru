@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeaDBeeF</title>
+    <style>
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-size: 1.14rem;
+            background-color: #282C34;
+            color: #8AA3AD;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+        a { color: #61AFEF; }
+        a.sec { color: #56B6C2; }
+        a.thi { color: #98C379; }
+        a.fou { color: #C678DD; }
+        code { font-size: 1rem; }
+    </style>
+</head>
+<body>
+<a href="/arch">Вернуться назад</a>
+
+<h1>DeaDBeeF</h1>
+<pre><code>
+# Конфигурационный файл:
+~/.config/deadbeef/config
+</code></pre>
+
+<h4>Last FM Scrobbler</h4>
+<p>Edit -> Preferences -> Plugins -> last.fm scrobbler. Вводим логин и пароль и ставим галочку напротив "Enable scrobbler".</p>
+
+<h3>Плагин</h3>
+<h4>deadbeef-plugin-waveform-gtk3-git</h4>
+<pre><code>
+yay -S deadbeef-plugin-waveform-gtk3-git
+
+# Плагин появился в списке плагинов (Waveform Seekbar). Теперь мы можем добавить его весто стандартного Seekbar.
+# Для этого надо перейти в режим настройки дизайна: View -> Design mode
+# После этого кликаем правой кнопкой мыши по Seekerbar и ... ПКМ -> Replace with ... -> Waveform Seekbar 
+</code></pre>
+
+<h4>deadbeef-plugin-musical-spectrum-gtk3-git</h4>
+
+
+<p>Если я случайно испортил интерфейс во время редактирования внешнего вида, то всё исправить можно в файле ~/.config/deadbeef/config.</p>
+<pre><code>
+# У меня блок, в котором содержался испорченный внешний вид, выглядел вот так:
+gtkui.layout.1.9.0 {"type":"vbox","legacy_params":" expand=\"1 1 1\" fill=\"1 1 1\" homogeneous=1","children":[{"type":"playtb"},
+
+# Просто его удаляем и перезагружаем DeaDBeeF. После перезагрузки внешний вид вернётся в прежнее дефолтное состояние.
+</code></pre>
+</body>
+</html>

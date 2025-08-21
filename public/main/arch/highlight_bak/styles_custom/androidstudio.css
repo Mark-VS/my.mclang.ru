@@ -1,0 +1,110 @@
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*
+Date: 24 Fev 2015
+Author: Pedro Oliveira <kanytu@gmail . com>
+*/
+.hljs {
+  /* color: #a9b7c6; */
+  color: #8AA3AD;
+  
+  /* background: #202326; */
+  background: #232629;
+  /* background: #282b2e; */ 
+  /* !!! background: #282b2e; */
+  /* background: #313438; */
+  /* background: #2d3033; */
+}
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet {
+  color: #6897BB
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-deletion {
+  color: #cc7832  /* Этим цветом почается в ts "import ... from" */
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link {
+  color: #629755
+}
+.hljs-comment,
+.hljs-quote {
+  /*color: #808080 */  /* комментарии */
+  /* color: #787878; */ 
+  color: #707070;
+}
+.hljs-meta {
+  color: #bbb529
+}
+.hljs-string,
+.hljs-attribute,
+.hljs-addition {
+  color: #6A8759  /* Строки, заключённые в ковычки. По умолчанию: зелёный */
+}
+.hljs-section,
+.hljs-title,
+.hljs-type {
+  color: #ffc66d
+}
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #e8bf6a
+}
+.hljs-emphasis {
+  font-style: italic
+}
+.hljs-strong {
+  font-weight: bold
+}
+
+
+
+
+
+/* Скролл-бар */
+
+/* 1. Для браузеров на базе Chromium / WebKit (Chrome, Edge, Safari, Opera) */
+
+/* Ширина/высота скроллбара */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Фон трека (полосы, по которой бегает ползунок) */
+::-webkit-scrollbar-track {
+  background: #1e1e1e; /* тёмный фон */
+}
+
+/* Сам ползунок */
+::-webkit-scrollbar-thumb {
+  background-color: #444; /* цвет "бегунка" */
+  border-radius: 6px;
+  border: 2px solid #1e1e1e; /* чтобы был зазор между бегунком и треком */
+}
+
+/* При наведении */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}
+
+
+/* 2. Для Firefox */
+/* У него свои правила (scrollbar-color): */
+
+/* Цвет бегунка и трека */
+* {
+  scrollbar-width: thin; /* auto | thin | none */
+  scrollbar-color: #444 #1e1e1e; /* thumb track */
+}
