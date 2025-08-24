@@ -182,40 +182,6 @@
 				# "output * dpms on" - включить все мониторы
 		</code></pre>
 		
-		<h3>Подключение телефона</h3>
-		<pre><code class="language-bash">
-		## Ставим gvfs-mtp (это протокол передачи файлов на Android):
-			sudo pacman -S gvfs-mtp
-		## Теперь телефон должен появиться в списке вот здесь:
-			gio mount -l
-				## В моём случае это:
-					Volume(0): RMX3771
-  					Type: GProxyVolume (GProxyVolumeMonitorMTP)
-  					
-  		## Он должен примонтироваться сюда: /run/user/$UID/gvfs , но у меня внутри пусто. Значит надо его вручную примонтировать
-  		## Пытаемся примонтировать:
-  			gio mount -d "RMX3771"
-  				# gio: RMX3771: Нет тома для указанного идентификатора
-  			gio mount -li | grep -i rm		# Посмотрить точный ID
-  				# Нам дали ссылку на подключение к устройству:
-  				Volume(0): RMX3771
-  					Type: GProxyVolume (GProxyVolumeMonitorMTP)
-  					activation_root=mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
-  		## Монтируем по ссылке:
-  			gio mount "mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/"
-  		## Теперь здесь должна появиться папка:
-  			ls /run/user/$UID/gvfs
-				'mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7'
-			## И заходим в неё: /run/user/$UID/gvfs/'mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7'/'Внутренняя память'/
-			
-		## РАЗМОНТИРОВАТЬ телеофон:
-			gio mount -u /run/user/$UID/gvfs/'mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7'
-		# или можно покороче:
-			gio mount -u mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
-				
-		## Но если мы попытаемся открыть эту директорию в PCManFM, то ничего не выйдет
-		</code></pre>
-		
 		<pre><code class="language-bash">
 	# seatd / elogind - для управления доступом к вводу/выводу 
 	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)

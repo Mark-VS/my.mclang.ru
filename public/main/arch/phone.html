@@ -4,32 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>phone</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
 <h1>phone</h1>
-<pre><code>
-    
-    gvfs-mtp        - телефоны в режиме MTP
+<pre><code class="language-bash">
+
+    gvfs-mtp        - телефоны в режиме MTP (Media Transfer Protocol)
     gvfs-gphoto2    - фотоаппараты в режиме MPT
+    
+    mtpfs — даёт возможность вручную примонтировать телефон через FUSE.
+    jmtpfs (AUR) — хз, можно примонтировать куда угодно
+    
+    ## Для удобства ещё можно поставить:
+    udisks2
     
     ## После установки gvfs-mtp телефон должен появиться в
         gio mount -l
 </code></pre>
 
+<h3>Терминал</h3>
+<h4>Что нужно для дальнейшей работы</h4>
+<ul>
+    <li>gio — входит в пакет glib2 (он почти всегда уже стоит в Arch)</li>
+    <li>gvfs — виртуальная файловая система (без неё gio mount мало что умеет)</li>
+    <li>gvfs-mtp — модуль, добавляющий поддержку MTP-устройств (Android-смартфоны)</li>
+</ul>
+<pre><code class="language-bash">
+    # Проверим, определился ли у меня телефон:
+    lsusb
+        # ...
+        # Bus 001 Device 008: ID 22d9:2764 OPPO Electronics Corp. RMX3771
+        # ...
+        
+    # Можно найти телефон вот так:
+    gio mount -l
+        # Volume(0): RMX3771
+        #    Type: GProxyVolume (GProxyVolumeMonitorMTP)
+        
+    # Или, если хотим более полную информацию, то вот так:
+    gio mount -li
+        # Volume(0): RMX3771
+        #    Type: GProxyVolume (GProxyVolumeMonitorMTP)
+        #    ids:
+        #    unix-device: '/dev/bus/usb/001/008'
+        #    activation_root=mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
+        #    themed icons:  [phone]
+        
+    # Нам здесь важна вот эта строка:
+        # activation_root=mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/
+        
+    # Монтируем:
+    gio mount "mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/"
+    
+    # Содержимое телефона должно появиться здесь:
+        # /run/user/$UID/gvfs/mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7/
+        
+    # Отмонтировать:
+    gio mount -u "mtp://realme_RMX3771_8TFAHU5DO7TGLJK7/"
+    
+    # gvfs-mtp специально монтирует в каталог /run/user/$UID/gvfs/..., и изменить этот путь напрямую нельзя — это особенность GVFS.
+    
+    # 1. Можно создать символическую ссылку:
+    ln -s "/run/user/$UID/gvfs/mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7" ~/mnt/phone
+        # Она будет рабочей при каждом новом подключении
+        
+    # 2. Либо использовать bind-mount:
+    sudo mount --bind "/run/user/$UID/gvfs/mtp:host=realme_RMX3771_8TFAHU5DO7TGLJK7" ~/mnt/phone
+    # и потом размонтировать вот так:
+    sudo umount ~/mnt/phone
+    
+</code></pre>
+
+<h3>PCManFM</h3>
+<pre><code class="language-bash">
+    # Для того, чтобы PCManFM определил телефон, нам также потребуются:
+    # - gvfs
+    # - fvfs-mtp
+    
+    # Затем просто подключаем телефон и выбираем режим передачи файлов.
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

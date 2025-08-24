@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pcmanfm</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>PCManFM</h1>
+
+<ul>
+<li>pcmanfm (GTK2)</li>
+<li>pcmanfm-gtk3 (GTK3)</li>
+<li>pcmanfm-qt (Qt)</li>
+</ul>
+
+<p>Для того, чтобы мы могли работать с PCManFm от имени root'а, нам понадобятся:</p>
+<ul>
+    <li>polkit</li>
+    <li>polkit-gnome (или lxqt-policykit)</li>
+    <li>gvfs</li>
+</ul>
+
+<pre><code  class="language-bash">
+# По умолчанию в Ach уже должен быть установлен polkit.
+# Если мы проверим:
+    ps aux | grep polkit
+# то получим что-то вроде:
+    polkitd     1374  0.0  0.0 385764 12608 ?        Ssl  12:46   0:18 /usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+    
+# То есть у нас уже работает демон polkitd.
+# Нам нужен только GUI-агент, чтобы ...
+# ... графическая программа могла запускать ...
+# ... графическое окно для ввода пароля.
+
+# Поэтому установим polkit-gnome и gvfs:
+sudo pacman -S polkit-gnome gvfs
+</code></pre>
+
+<pre><code>
+# Далее мы запускаем GUI-агент:
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
+# И после этого мы можем в PCManFM открывать папки вот так:
+admin:///root
+
+# Чтобы запускать GUI-агент автоматически при входе в систему, добавим в ~/.config/sway/config:
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+</code></pre>
+
+<pre><code class="language-bash">
+gvfs — это бэкенд, который понимает admin://, trash://, smb:// и т.п.
+polkit (и агент, например polkit-gnome или lxqt-policykit) — чтобы всплывало окно с паролем.
+gvfs-mtp, gvfs-smb, gvfs-nfs и прочие нужны только для соответствующих протоколов (MTP для телефонов, SMB для сетевых папок, NFS для сетевых дисков). Для доступа к root-папкам — не нужны.
+</code></pre>
+
+<h3>Можно запустить по-другому PCManFM:</h3>
+<pre><code class="language-bash">
+pkexec env DISPLAY=$DISPLAY \
+XAUTHORITY=$XAUTHORITY \
+WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR pcmanfm
+
+# pkexec
+# - спрашивает пароль через polkit, а не через sudo
+# - учитывает правила доступа polkit (можно разрешить/запретить разным пользователям запускать разные программы)
+# - по умолчанию сбрасывает все переменные окружения (это сделано специально ради безопасности, чтобы root-программы не получили случайно небезопасные переменные от твоей сессии).
+</code></pre>
+
+<p>Графические приложения должны знать:</p>
+<ul>
+    <li>в какой дисплей (X11/Wayland) рисовать окна → DISPLAY или WAYLAND_DISPLAY</li>
+    <li>где хранится файл авторизации → XAUTHORITY</li>
+    <li>где лежат временные сокеты твоей сессии → XDG_RUNTIME_DIR</li>
+</ul>
+<p>Когда pkexec сбрасывает окружение, этих переменных нет.
+Поэтому мы руками «передаём» их через env ... pcmanfm.</p>
+
+<p>Что происходит в итоге:</p>
+<ul>
+    <li>pkexec запускается.</li>
+    <li>Он говорит polkit: «Разреши пользователю mark выполнить /usr/bin/pcmanfm от root?»</li>
+    <li>Polkit-agent (например, polkit-gnome) показывает окно с вводом пароля.</li>
+    <li>Если пароль верный, pcmanfm запускается под root.</li>
+    <li>Благодаря тому, что ты передал DISPLAY, XAUTHORITY и WAYLAND_DISPLAY, он может нарисовать окно в твоём сеансе Sway.<li>
+</ul>
+
+<h4>Итог:</h4>
+<ul>
+    <li>pkexec = «sudo для графических программ, но через polkit».</li>
+    <li>env ... = «спасение от того, что pkexec чистит переменные окружения».</li>
+</ul>
+
+<h4>Ещё можно запустить PCManFM от root'а вот так:</h4>
+<pre><code class="language-bash">
+sudo -E pcmanfm
+
+# Но обычно рекомендуют pkexec, а не sudo pacman,потому что
+# ... sudo под Wayland/X11 ломает доступ к сокету дисплея.
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

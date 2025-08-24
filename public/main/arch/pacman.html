@@ -4,69 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pacman</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+	<link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
-    <h3>pacman и yay</h3>
-	<pre><code>
-	# update system
-	# sudo pacman -Syu
-		-S - Synchronize: Install or update packages
-		-y - Refresh package database (download the latest package lists)
-		-u - Upgrade all installed packages to the latest version
-	# Refresh package list (not upgrade):
-		sudo pacman -Sy
-	
-	# Remove
-	sudo pacman -Rns budgie-desktop gnome xfce4 xfce4-goodies
-		-R - remove a packager
-		-n - remove configuration files and mark dependencies as unused
-		-s - remove unused dependencies that were installed with the package
-	sudo pacman -Rdd linux-firmware
-		-R - удалить пакет
-		-d - игнорировать зависимости (один -d)
-		-dd - игнорировать зависимости дважды (то есть вообще никакие зависимости):
-			- не проверят, что от пакета кто-то зависит (обратные зависимости);
-			- не проверять, что сам пакет зависит от чего-то.
-	
-	# Search package in repo
-	sudo pacman -Ss lalal
-		-S - Syncronize
-		-s - search
-	# Хочу узнать, что входит в пакет, который я установил.
-	# Например, я ставлю Sway и хочу знать, ЧТО установится:
-	pacman -Qi sway
-	# Найти, установлен ли у меня метапакет. Выведен всё, что он установил:
-	pacman -Qg plasma
-	
-	# Хочу узнать, что входит в пакет, который я ещё не установил:
-	pacman -Si sway
-	# Посмотреть что включает в себя метапакет:
-	pacman -Sg plasma
-	
-	# Узнать, установлен ли у меня пакет:
-	pacman -Q xorg-server
-	
-	
-	## Пропустить стадию проверки
-	yay -S portfolio-file-manager --mflags "--nocheck"
-		# Когда я ставил portfolio-file-manager, то пакет ставился нормально, но не проходил проверку и из-за этого установка отменялась.
-		## В таких случаях помогает установка без проверки
-	</code></pre>
+    <h1>Pacman</h1>
 
+	<pre><code class="language-bash">
+  # update system
+  # sudo pacman -Syu
+  	-S - Synchronize: Install or update packages
+  	-y - Refresh package database (download the latest package lists)
+  	-u - Upgrade all installed packages to the latest version
+  # Refresh package list (not upgrade):
+  	sudo pacman -Sy
+  
+  # Remove
+  sudo pacman -Rns budgie-desktop gnome xfce4 xfce4-goodies
+  	-R - remove a packager
+  	-n - remove configuration files and mark dependencies as unused
+  	-s - remove unused dependencies that were installed with the package
+  sudo pacman -Rdd linux-firmware
+  	-R - удалить пакет
+  	-d - игнорировать зависимости (один -d)
+  	-dd - игнорировать зависимости дважды (то есть вообще никакие зависимости):
+  		- не проверят, что от пакета кто-то зависит (обратные зависимости);
+  		- не проверять, что сам пакет зависит от чего-то.
+  
+  # Search package in repo
+  sudo pacman -Ss lalal
+  	-S - Syncronize
+  	-s - search
+  # Хочу узнать, что входит в пакет, который я установил.
+  # Например, я ставлю Sway и хочу знать, ЧТО установится:
+  pacman -Qi sway
+  # Найти, установлен ли у меня метапакет. Выведен всё, что он установил:
+  pacman -Qg plasma
+  
+  # Хочу узнать, что входит в пакет, который я ещё не установил:
+  pacman -Si sway
+  # Посмотреть что включает в себя метапакет:
+  pacman -Sg plasma
+  
+  # Узнать, установлен ли у меня пакет:
+  pacman -Q xorg-server
+	</code></pre>
+	
+	<ul>
+		<li>/var/cache/pacman/pkg/ - Каталог для кэша → это именно пакеты (*.pkg.tar.zst), которые pacman скачивает.</li>
+		<li>/var/lib/pacman/ - Каталог баз данных → там лежат репозитории (файлы с информацией о пакетах).
+Если ты удалишь "неиспользуемые репозитории", это просто почистит каталоги баз тех репозиториев, которые у тебя больше не подключены в /etc/pacman.conf.</li>
+	</ul>
+	
+	<pre><code class="language-bash">
+# Очистить кэш pacman:
+  sudo pacman -Sc
+  # Удаляет старые версии пакетов из /var/cache/pacman/pkg/
+  # но оставляет последнюю скачанную версию каждого пакета
+  # (чтобы можно было переустановить без интернета).
+  
+  sudo pacman -Scc
+  # удаляет вообще всё из /var/cache/pacman/pkg/ (и старые, и последние версии).
+  # pacman даже предупреждает:
+  # "Удаление всех пакетов может привести к невозможности переустановки без скачивания заново".
+  
+  # Чистит только /var/cache/pacman/pkg/ и /var/lib/pacman/
+  # 
+  # Папку ~/.cache/ не очищает
+	</code></pre>
+	
+   	<h4>То есть:</h4>
+	<ul>
+		<li>Если хочешь немного освободить место, но оставить возможность быстро переустановить → pacman -Sc.</li>
+		<li>Если хочешь чистый кэш, всё скачать заново при необходимости → pacman -Scc.</li>
+	</ul>
+	
+   	<h4>Для AUR ситуация схожа:</h4>
+	<ul>
+		<li>yay -Sc — чистит старые, оставляет актуальные сборки.</li>
+		<li>yay -Scc — чистит вообще всё, но git-репозитории пакетов остаются (в ~/.cache/yay).</li>
+	</ul>
+
+	<h4>Установить собранный ранее пакет (.pkg.tar.zst):</h4>
+	<pre><code>sudo pacman -U paru-2.1.0-1-x86_64.pkg.tar.zst</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

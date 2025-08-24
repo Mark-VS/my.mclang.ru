@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yay</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+
+<a href="/arch">Вернуться назад</a>
+
+<h1>yay</h1>
+
+<h3>Установка</h3>
+<pre><code class="language-bash">
+# Ставим инструменты сборки:
+sudo pacman -S --needed base-devel git
+# (base-devel нужен для makepkg, git — чтобы скачать исходники).
+
+# Клонируем репозиторий yay:
+git clone https://aur.archlinux.org/yay.git
+cd yay
+
+# Собираем и устанавливаем:
+makepkg -si
+</code></pre>
+
+<pre><code>
+# Очистить кэш yay (только кэш, но НЕ исходники):
+yay -Sc
+
+# Очистить кэш yay вместе с исходниками:
+yay -Scc
+# Но всё-равно в ~/.cache/yay остаются клоны репозиториев и некоторые файлы
+</code></pre>
+
+<pre><code class="language-bash">## Пропустить стадию проверки
+yay -S portfolio-file-manager --mflags "--nocheck"
+# Когда я ставил portfolio-file-manager, то пакет ставился нормально, но не проходил проверку и из-за этого установка отменялась.
+## В таких случаях помогает установка без проверки
+	</code></pre>
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

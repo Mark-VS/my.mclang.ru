@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>paru</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>paru</h1>
+
+<h3>Установка paru:</h3>
+<pre><code class="language-bash">
+# Ставим инструменты:
+sudo pacman -S --needed base-devel git
+
+# Клонируем репозиторий paru:
+git clone https://aur.archlinux.org/paru.git
+cd paru
+
+# Собираем и устанавливаем:
+makepkg -si
+
+
+# Либо можно сначала собрать:
+makepkg -s
+# makepkg скачает зависимости и соберёт .pkg.tar.zst в текущей папке
+
+# А потом установить собранный пакет:
+sudo pacman -U paru-2.1.0-1-x86_64.pkg.tar.zst
+</code></pre>
+
+<ul>
+    <li><code class="language-bash" style="background-color: #232629; padding: 0 8px">paru-2.1.0-1-x86_64.pkg.tar.zs</code> - это основной готовый пакет, который устанавливается в систему. Его ставят командой: sudo pacman -U paru-2.1.0-1-x86_64.pkg.tar.zs</li>
+    <li><code class="language-bash" style="background-color: #232629; padding: 0 8px">paru-debug-2.1.0-1-x86_64.pkg.tar.zst</code> - это пакет с отладочными символами (debug info). Его обычно не нужно устанавливать, только если ты собираешься отлаживать paru с помощью gdb или подобных инструментов.</li>
+    <li><code class="language-bash" style="background-color: #232629; padding: 0 8px ">paru-2.1.0.tar.gz</code> → это исходный архив, который AUR подгружает для сборки. Он хранится просто как копия исходников и в установке не участвует.</li>
+</ul> 
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
