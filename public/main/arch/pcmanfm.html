@@ -42,9 +42,18 @@
 sudo pacman -S polkit-gnome gvfs
 </code></pre>
 
+<ul>
+    <li>gvfs — это бэкенд, который понимает admin://, trash://, smb:// и т.п.</li>
+    <li>polkit (и агент, например polkit-gnome или lxqt-policykit) — чтобы всплывало окно с паролем.</li>
+    <li>gvfs-mtp, gvfs-smb, gvfs-nfs и прочие нужны только для соответствующих протоколов (MTP для телефонов, SMB для сетевых папок, NFS для сетевых дисков). Для доступа к root-папкам — не нужны.</li>
+</ul>
+
 <pre><code>
 # Далее мы запускаем GUI-агент:
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
+# Или лучше так:
+nohup /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 >/dev/null 2>&1 &
 
 # И после этого мы можем в PCManFM открывать папки вот так:
 admin:///root
@@ -53,11 +62,12 @@ admin:///root
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 </code></pre>
 
-<pre><code class="language-bash">
-gvfs — это бэкенд, который понимает admin://, trash://, smb:// и т.п.
-polkit (и агент, например polkit-gnome или lxqt-policykit) — чтобы всплывало окно с паролем.
-gvfs-mtp, gvfs-smb, gvfs-nfs и прочие нужны только для соответствующих протоколов (MTP для телефонов, SMB для сетевых папок, NFS для сетевых дисков). Для доступа к root-папкам — не нужны.
-</code></pre>
+<ul>
+    <li>nohup отцепляет процесс от терминала.</li>
+    <li>/dev/null 2>&1 убирает вывод в никуда.</li>
+    <li>& запускает в фоне.</li>
+</ul>
+
 
 <h3>Можно запустить по-другому PCManFM:</h3>
 <pre><code class="language-bash">
