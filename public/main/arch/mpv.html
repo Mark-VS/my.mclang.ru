@@ -4,24 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mpv</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #4FA3C4; }
-        a:active { color: #E06C75; }
-        a:visited { color: #8E7BB5; }
-        a:visited:active { color: #E06C75; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
 <h1>mpv</h1>
@@ -46,6 +33,7 @@
 <li>Shift+G - увеличить размер субтитров</li>
 <li>Shift+F - уменьшить размер субтитров</li>
 <li>Shift+- - видео отключается, а звук продолжает проигрываться</li>
+<li>Shift+# - переключение звуковых дорожек</li>
 <li>Shift+I - информация</li>
 </ul>
 
@@ -62,5 +50,28 @@ sub-scale=1.20
 <pre><code>screenshot-directory=/home/username/Pictures/mpv
 </code></pre>
 
+<h4>Подгрузить внешнюю звуковую дорожку:</h4>
+<pre><code class="language-bash">
+mpv video-file.mkv --audio-file=external_track.ac3
+
+# Несколько дорожек:
+mpv video-file.mkv --audio-file=rus.ac3 --audio-file=eng.ac3
+
+# Автопоиск звук. дорожек:
+mpv video-file.mkf --audio-file-auto=fuzzy
+# Если у нас видеофайл и звук. файлы - с похожими именами:
+# - airplane.rus.ac3
+# - airplane.commentary.mka
+# - airplane.tralala.mka
+# то mpv их подцепит
+
+# При этом настройку audio-file-auto можно прописать
+# в конфигурационный файл ~/.config/mpv/mpv.conf:
+audio-file-auto=fuzzy
+# Тогда при запуске mpv сам найдёт дорожки.
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

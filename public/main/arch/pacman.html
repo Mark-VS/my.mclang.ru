@@ -57,6 +57,10 @@
 		<li>/var/cache/pacman/pkg/ - Каталог для кэша → это именно пакеты (*.pkg.tar.zst), которые pacman скачивает.</li>
 		<li>/var/lib/pacman/ - Каталог баз данных → там лежат репозитории (файлы с информацией о пакетах).
 Если ты удалишь "неиспользуемые репозитории", это просто почистит каталоги баз тех репозиториев, которые у тебя больше не подключены в /etc/pacman.conf.</li>
+		<li>/var/lib/pacman/local/ - Здесь хранятся данные обо всех установленных пакетах (каждый пакет — отдельная папка).
+Внутри есть файлы вроде desc, files, где перечислены версия, зависимости, список установленных файлов и т. д. Это и есть «реестр» pacman'а.</li>
+		<li>/var/lib/pacman/sync - Здесь хранятся локальные копии баз данных репозиториев (например core.db, extra.db, community.db). Когда я выполняю: pacman -Sy или -Syu, они обновляются.</li>
+		<li>/var/lib/pacman/sync - Здесь также хранятся локальные копии баз данных файлов (например core.files, extra.files, multilib.files). Когда я выполняю: pacman -Fy, они обновляются.</li>
 	</ul>
 	
 	<pre><code class="language-bash">
@@ -65,6 +69,13 @@
   # Удаляет старые версии пакетов из /var/cache/pacman/pkg/
   # но оставляет последнюю скачанную версию каждого пакета
   # (чтобы можно было переустановить без интернета).
+  
+  # Также удаляет неиспользуемые репозитории из /var/lib/pacman/sync/
+  # То есть если я удалю из /etc/pacman.conf:
+  #   [multilib]
+  #   Include = /etc/pacman.d/mirrorlist
+  # а потом запущу команду "sudo pacman -Sc" -
+  # тогда pacman удалит копию репозитория /var/lib/pacman/sync/multilib.db
   
   sudo pacman -Scc
   # удаляет вообще всё из /var/cache/pacman/pkg/ (и старые, и последние версии).
@@ -88,8 +99,66 @@
 		<li>yay -Scc — чистит вообще всё, но git-репозитории пакетов остаются (в ~/.cache/yay).</li>
 	</ul>
 
+	<h4>Скачать пакет, но не устанавливать его</h4>
+	<pre><code class="language-bash">
+# Скачать пакет в домашнюю папку:
+sudo pacman -Sw vim --cachedir="/home/mark"
+
+# А так пакет скачается в /var/cache/pacman/pkg/
+sudo pacman -Sw vim
+
+# Скачаются два файла:
+#    filename.pkg.tar.zst,
+#    filename.pkg.tar.zst.sig
+	</code></pre>
+
 	<h4>Установить собранный ранее пакет (.pkg.tar.zst):</h4>
-	<pre><code>sudo pacman -U paru-2.1.0-1-x86_64.pkg.tar.zst</code></pre>
+	<pre><code class="language-bash">
+# Устанавливаем пакет из текущей директории:
+sudo pacman -U paru-2.1.0-1-x86_64.pkg.tar.zst
+
+# Если я ранее скачал пакет в /var/cache/pacman/pkg, то ...
+# при последующей установке можно не писать путь к нему целиком.
+sudo pacman -U filename.pkg.tar.zst
+# и pacman найдёт его в /var/cache/pacman/pkg и установит
+# (если в текущей папке нет пакета с таким же названием).
+</code></pre>
+	
+	<h4>Узнать, какому пакету принадлежит бинарник:</h4>
+	<pre><code class="language-bash">pacman -Qo /usr/bin/package-name</code></pre>
+	
+	<h4>Узнать, какому пакету принадлежит утилита:</h4>
+	<pre><code class="language-bash">
+# Например, я хочу установить утилиту netstat.
+# Но я не знаю, какой ставить пакет, чтобы я смог ей воспользоваться.
+pacman -F netstat
+
+# Теперь я знаю, что утилита netstat ...
+# находится в пакете net-tools и просто ставлю этот пакет:
+sudo pacman -S net-tools
+
+# Чтобы осуществлять поиск (pacman -F), нужно предварительно ...
+# скачать базу данных файлов себе в локальное хранилище (/var/lib/pacman/sync):
+sudo pacman -Fy
+	</code></pre>
+	
+	<h4>Расшифровка</h4>
+	<pre><code class="language-bash">
+sudo pacman -Syu
+sudo pacman --sync --refresh --sysupgrade
+
+sudo pacman -Rns
+sudo pacman --remove --nosave --recursive
+
+sudo pacman -Sw vim --cachedir="/home/mark"
+sudo pacman --sync --downloadonly --cachedir="/home/mark"
+
+sudo pacman -U package.pkg.tar.zst
+sudo pacman --upgrade package.pkg.tar.zst
+
+sudo pacman -Fy
+sudo pacman --files --refresh
+	</code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

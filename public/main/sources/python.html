@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="RU">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>python</title>
+    	<link rel="stylesheet" href="/assets/styles/style.css">
+    	<link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+	</head>
+	<body>
+		<script src="/assets/highlight/highlight.min.js"></script>
+		<a href="/sources/">Вернуться назад</a>
+		
+		<h1>Python</h1>
+		<h2>Установка Python из исходников</h2>
+		
+		<p>Для начала скачиваем Python-3.13.7.tar.xz с сайта https://python.org по ссылке: <a href="https://www.python.org/ftp/python/3.13.7/Python-3.13.7.tar.xz">https://www.python.org/ftp/python/3.13.7/Python-3.13.7.tar.xz</a></p>
+		<p>Распаковываем:</p>
+		
+		<pre><code class="language-bash">
+   tar -xJf Python-3.13.7.tar.xz
+   cd Python-3.13.7
+		</code></pre>
+		
+		<p>Теперь приступаем к сборке:</p>
+		<pre class="language-bash"><code>
+   # Для начала создадим папку для сборки, чтобы не смешивать
+   # собранную программу с исходниками
+   
+   mkdir build		# Создаём папку
+   cd build		# переходим в созданную папку
+   ../configure		# Запускаем конфигурацию
+   make			# компилируем python
+   sudo make install	# устанавливаем Python в систему
+		</code></pre>
+		
+		<p>Команда <code>make</code> собирает программу из исходников в папку ~/Загрузки/Python-3.13.7/build/, а <code>sudo make install</code> - копирует собранную программу в систему.</p>
+		
+		<p>Теперь у нас бинарник установился в <strong><i>/usr/local/bin</i></strong></p>
+		<ul>
+			<li>/usr/local/bin/ - бинарник</li>
+			<li>/usr/local/include/python3.13/ - заголовочные файлы (filename.h). Сюда разработчики кидают расширения на C</li>
+			<li>/usr/local/lib/python3.13/</li>
+			<li>/usr/local/share/doc/python3.13/ - сюда ставится html-документация</li>
+			<li>/usr/local/lib/python3.13/site-packages/ - пакеты из sudo pip</li>
+			<li>~/.local/lib/python3.13/site-packages/ - пакеты из pip</li>
+		</ul>
+		
+		<h3>Как собрать документацию</h3>
+		<p>В скачанных исходниках у нас есть папка Doc. Чтобы собрать документацию можно выполнить одну из следующих команд:</p>
+		<pre><code class="language-bash">
+   make -C Doc html		# соберёт документацию в HTML-формате
+   make -C Doc text		# соберёт документацию в txt-формате
+   make -C Doc latex		# соберёт документацию в LaTeX-формате
+   
+   # После сборки HTML-файлы окажутся в папке Doc/build/html/
+   # Нужно в браузере открыть файл Doc/build/html/index.html
+		</code></pre>
+		
+		<p>Но перед тем, как собрирать документацию, нам надо установить все необходимые зависимости, которые нужны для этой сборки. Эти зависимости перечислены в файле Doc/requirements.txt</p>
+		<pre><code class="language-bash">
+   # Создаём виртуальное окружение:
+   python3 -m venv venv
+   source venv/bin/activate		# активируем его
+   
+   # Ставим необходимые зависимости для сборки документации:
+   pip install -r requirements.txt
+   
+   # Теперь собираем документацию:
+   make html		# "-C Doc" можно пропустить - мы уже в папке "Doc"
+   
+   # Выходим из виртуального окружения:
+   deactivate
+   
+   # Теперь у нас собрана документация из HTML-файлов в Doc/build/html/
+   # Можно скопировать её в системное место:
+   sudo cp -r Doc/build/html/* /usr/local/share/doc/python3.13/html/
+		</code></pre>
+		
+		
+		<h3>Удаление Python</h3>
+		<p>Если ещё остались исходники, можно сделать так:</p>
+		<pre><code class="language-bash">
+   sudo make uninstall
+		</code></pre>
+		
+		<p>Если перед <code>make install</code> использовать <code>sudo checkinstall</code>, то он создаст пакет, который можно удалить как обычный (pacman -R).</p>
+		
+		<h3>Ручное удаление Python</h3>
+		
+		<pre><code class="language-bash">
+   sudo rm -rf /usr/local/bin/python3.13 /usr/local/bin/pip3.13
+   sudo rm -rf /usr/local/lib/python3.13
+   sudo rm -rf /usr/local/include/python3.13
+   sudo rm -rf /usr/local/lib/libpython3.13*
+   sudo rm -rf /usr/local/lib/pkgconfig/python-3.13.pc
+   sudo rm -rf /usr/local/share/man/man1/python3.13.1
+   sudo rm -rf /usr/local/share/doc/python3.13/	# Если мы копировали сюда документацию при установке
+		</code></pre>
+		
+		
+		<h3>Дополнительная инфа на будущее</h3>
+		<p>Чтобы не "засорять" систему, лучше ставить Python в отдельный каталог с помощью --prefix, например:</p>
+
+		<pre><code class="language-bash">
+   ./configure --prefix=$HOME/opt/python3.13
+   make
+   make install		
+		</code></pre>
+		<p>Тогда всё окажется в <strong>~/opt/python3.13</strong>, и удалить будет очень просто:</p>
+		<pre><code class="language-bash">
+   rm -rf ~/opt/python3.13
+		</code></pre>
+
+		<script src="/assets/highlight/languages/bash.min.js"></script>
+		<script>hljs.highlightAll();</script>
+	</body>
+</html>
