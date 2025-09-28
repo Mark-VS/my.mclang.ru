@@ -99,6 +99,32 @@
 		<li>yay -Scc — чистит вообще всё, но git-репозитории пакетов остаются (в ~/.cache/yay).</li>
 	</ul>
 
+	<pre><code class="language-bash">
+   # ~/.cache/yay/ - кэш yay
+   
+   # yay -Sc	 - делает не только очистку своего кэша, но ещё и проксирует вызов в pacman -Sc.
+   yay -Sc	# очистка обоих кэшей - и yay, и pacman
+   yay -Sc --yay	# почистить только кэш yay, без затрагивания pacman
+   yay -Sc --pacman	# почистить pacman, не затрагивая yay
+   
+   yay -Scc	# очистка обоих кэшей - и yay, и pacman
+   yay -Scc --yay	# почистить только кэш yay, без pacman
+   yay -Scc --pacman	# почистить только кэш pacman, без yay
+	</code></pre>
+	
+	<pre><code class="language-bash">
+   # ~/.cache/paru/ - кэш paru
+   
+   paru -Sc	# очитска обоих кэшей - и paru, и pacman
+   paru -Sc --paru	# очистить только кэш paru
+   paru -Sc --pacman	# очистить только кэш pacman
+   
+   paru -Scc	# очистить оба кэша - и paru, и pacman
+   paru -Scc --paru	# очистть только кэш paru
+   paru -Scc --pacman	# очистить только кэш pacman
+	</code></pre>
+
+
 	<h4>Скачать пакет, но не устанавливать его</h4>
 	<pre><code class="language-bash">
 # Скачать пакет в домашнюю папку:

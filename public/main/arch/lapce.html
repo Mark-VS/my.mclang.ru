@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lapce</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>lapce</h1>
+
+<h2>lapce (оф. реп.)</h2>
+<p>Ставил первый раз какой-то пакет - вроде бы из оф. репозитория. Грамматик не было. Создалась папка ~/.local/share/lapce-stable/grammars/, но внутри было пусто. Подсветку так и не смог настроить.</p>
+
+<pre><code class="language-bash">
+   # По идее, грамматики должны храниться здесь:
+   ~/.local/share/lapce/grammars/
+   # Но у меня была создана пустая папка "grammars" вот здесь:
+   ~/.local/share/lapce-stable/grammars/
+   
+   # Я пытался туда закидывать .so-файлы с грамматиками, но подсветка так и не заработала. 
+</code></pre>
+
+<h2>lapce-nightly (AUR)</h2>
+<p>А вот этот пакет из AUR у меня сразу собрался с установленными грамматиками. И всё сразу заработало из коробки.</p>
+<pre><code class="language-bash">
+   # Папка, где хранятся грамматики:
+   ~/.local/share/lapce-nightly/grammars/
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

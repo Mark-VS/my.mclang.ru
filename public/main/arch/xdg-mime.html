@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xdg-mime</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+	<link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>xdg-mime</h1>
+
+<p>Есть какой-то системный пакет shared-mime-info</p>
+
+<h3>grep</h3>
+<pre><code class="language-bash">
+   # Посмотреть только glob-правила:
+   grep -R "&lt;glob" ~/.local/share/mime/packages
+
+   # Найти все определения &lt;mime-type&gt;:
+   grep -R "&lt;mime-type" ~/.local/share/mime/packages
+   
+   # Найти все правила magic:
+   grep -R "&lt;magic" ~/.local/share/mime/packages
+</code></pre>
+
+<pre><code class="language-bash">
+   # Проверка MIME-типа через xdg-mime:
+   xdg-mime query filetype script.rpy
+   
+   # Проверка MIME-типа через file:
+   file --mime-type script.rpy
+</code></pre>
+
+<pre><code>
+   # папка с глобальными MIME-типами:
+   /usr/share/mime/packages/
+   
+   # папка с локальными MIME-типами:
+   ~/.local/share/mime/packages/
+      # У меня здесь по умолчанию был только один файл: video-mpeg.xml
+      
+   # Arch объединяет все MIME-типы в один файл:
+   /usr/share/mime/packages/freedesktop.org.xml
+   
+   # Создаю здесь файл rpy-python.xml со следующим содержимым:
+   
+   ...
+   
+   # Здесь мы говорим: все .rpy = text/x-python.
+   
+   # Далее обновляем базу MIME:
+   update-mime-database ~/.local/share/mime
+</code></pre>
+
+<h3>mimeapps.list</h3>
+<pre><code class="language-bash">
+   # mimeapps.list - пользовательские переопределения
+   ~/.config/mimeapps.list   
+      
+   # mimeapps.list - общесистемные переопределения   
+   /etc/xdg/mimeapps.list
+   
+   # mimeapps.list - (Устаревшее) пользовательские переопределения
+   ~/.local/share/applications/mimeapps.list
+   
+   # переопределения предоставляемые дистрибутивом по умолчанию
+   /usr/local/share/applications/mimeapps.list
+   /usr/share/applications/mimeapps.list
+   
+   ~/.local/share/applications/mimeinfo.cache
+   /usr/share/applications/mimeinfo.cache
+   
+   # У меня mimeapps.list есть в папках:
+      # ~/.config/mimeapps.list
+      # ~/.local/share/applications/mimeapps.list
+</code></pre>
+
+
+<pre><code class="language-bash">
+   # Проверяем, что .rpy есть в базе данных:
+   grep -R "rpy" ~/.local/share/mime
+   # /home/mark/.local/share/mime/globs:text/x-python:*.rpy
+   # /home/mark/.local/share/mime/packages/rpy-python.xml:    <glob pattern="*.rpy"/>
+   # /home/mark/.local/share/mime/text/x-python.xml:  <glob pattern="*.rpy"/>
+   # /home/mark/.local/share/mime/globs2:50:text/x-python:*.rpy
+      # Должно быть что-то вроде:
+      # ~/.local/share/mime/text/x-python.xml:<glob pattern="*.rpy"/>
+   
+   # пересобрать базу MIME
+   update-mime-database ~/.local/share/mime
+   
+   # пересобрать глобальный кэш (может потребоваться sudo)
+   sudo update-mime-database /usr/share/mime
+   
+   # очистить кэш XDG MIME
+   rm -f ~/.local/share/mime/globs.cache
+   rm -f ~/.local/share/mime/globs2.cache
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

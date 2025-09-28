@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+
+<h1>MIME-типы</h1>
+
+<p>IANA - организация, которая ведёт реестр MIME-типов.</p>
+
+<h3>Как узнать MIME-тип</h3>
+
+<p>Создадим простой текстовый файл "myfile.kaka".</p>
+<pre><code class="language-bash">
+   # С помощью утилиты "file":
+   file --mime-type myfile.kaka
+      # myfile.kaka: text/plain
+
+   # С помощью "xdg-mime":
+   xdg-mime query filetype myfile.kaka
+      # text/plain
+
+   # С помощью "gio":
+   gio info myfile.kaka | grep content-type
+      #  standard::content-type: text/plain
+      #  standard::fast-content-type: application/octet-stream
+</code></pre>
+<p>Скрипт "xdg-mime" под капотом использует утилиту "file".</p>
+
+<pre><code class="language-bash">
+   # папка с MIME-типами:
+   /usr/share/mime/packages/
+   ~/.local/share/mime/packages/
+</code></pre>
+
+
+<p>Теперь создаём файл ~/.magic:</p>
+<pre><code># Содержимое файла ~/.magic:
+   0   string   KAKA!   application/x-kaka
+   !:mime   application/x-kaka
+</code></pre>
+
+<p>Проверяем MIME-тип:</p>
+<pre><code>
+   file --mime-type myfile.kaka
+      # myfile.kaka: application/x-kaka
+
+   xdg-mime query filetype myfile.kaka
+      # application/x-kaka
+</code></pre>
+
+
+<h3>для чего нужен application-x-kaka.xml</h3>
+<ul>
+<li>Это часть Shared MIME-info Database (Freedesktop стандарт).</li>
+<li>Эти XML нужны, если ты хочешь, чтобы твой MIME-тип знал всё окружение Linux: файловый менеджер, редакторы, ассоциации «открыть с помощью», иконки и т.д.</li>
+<li>Например:
+   <ul>
+       <li>Nautilus/Thunar/Konqueror будут подсвечивать иконку для *.kaka.</li>
+       <li>Программы смогут регистрировать «открыть с помощью myApp» для application/x-kaka.</li>
+       <li>MIME-тип будет участвовать в ассоциациях через xdg-mime default.</li>
+   </ul>
+</li>
+</ul>
+
+<p>Проверим, какое у нас дефолтное приложение для типа application/x-kaka</p>
+<pre><code>
+   xdg-mime query default application/x-kaka
+      # ничего не выдало
+</code></pre>
+
+<p>---</p>
+<p>создаём файл ~/.local/share/mime/packages/application-x-kaka.xml:</p>
+<pre><code>
+   &lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+       &lt;mime-type type="application/x-foobar"&gt;
+           &lt;comment&gt;foo file&lt;/comment&gt;
+           &lt;glob pattern="*.kaka"/&gt;
+           &lt;magic priority="100"&gt;
+               &lt;match type="string" value="KAKA!" offset="0"/&gt;
+           &lt;/magic&gt;
+       &lt;/mime-type&gt;
+   &lt;/mime-info&gt;
+</code></pre>
+
+<p>Далее обновляем базу MIME:</p>
+<pre><code>
+   update-mime-database ~/.local/share/mime
+
+   # После выполнения этой команды мой application/x-kaka становится официально зарегестрированным MIME-типом в системе.
+   # Эта команда читает все XML-файлы из ~/.local/share/mime/packages
+   # и на их основе перестраивает бинарные кэши (например, ~/.local/share/mime/mime.cache + подкаталоги вроде application/, text/ и т.п.)
+</code></pre>
+
+<h4>Что делает update-mime-database</h4>
+<p>Эта команда пересобирает несколько служебных файлов. Среди них:</p>
+<ul>
+   <li>globs → список соответствий: "расширение → MIME-тип".</li>
+   <li>magic → правила определения по содержимому (сигнатуры).</li>
+   <li>subclasses → информация о наследовании MIME-типов.</li>
+   <li>aliases → синонимы MIME-типов.</li>
+   <li>types/ → директории с описаниями каждого MIME-типа.</li>
+   <li>mime.cache → бинарный кэш, чтобы всё это быстро читалось.</li>
+</ul>
+
+<p>Теперь я хочу привязать к своему MIME-типу определённое приложение.</p>
+<pre><code>
+   # привязываем application/x-kaka к notepadqq:
+   xdg-mime default notepadqq.desktop application/x-kaka
+
+   # Теперь проверяем, какое приложение привязано к нашему MIME-типу:
+   xdg-mime query default application/x-kaka
+      # notepadqq.desktop
+</code></pre>
+<pre><code># Папка с .desktop-файлами:
+   ~/.local/share/applications
+   /usr/share/applications
+
+   # Любая программа при установке кладёт сюда свой .desktop-файл.
+</code></pre>
+
+<pre><code># Файл mimeapps.list
+   ~/.config/mimeapps.list
+   ~/.local/share/applications/mimeapps.list
+
+   # в этот файл записывается соответствие между notepadqq.desktop и MIME-типом application/x-kaka
+   # То есть когда я запустил команду "xdg-mime default notepadqq.desktop application/x-kaka", ...
+   # ... то запись попала в файл ~/.config/mimeapps.list
+   # ~/.local/share/applications/mimeapps.list - содержит старые записи
+</code></pre>
+
+<p>Теперь если мы кликнем по файлу myfile.kaka, то он откроется с помощью notepadqq. Или можно попробовать открыть его через терминал вот так:</p>
+<pre><code class="language-bash">
+   xdg-open myfile.kaka
+</code></pre>
+
+<h2>Важно!</h2>
+<p>Большинство файловых менеджеров не используют под капотом утилиту "file". Они определяют тип файла по расширению и по файлу ~/.local/share/mime/globs. А потом смотрят в ~/.config/mimeapps.list, чтобы найти программу, которой надо открыть файл.</p>
+<p>А вот когда мы используем "file --mime-type" или "xdg-open" (который под капотом использует тот же "file"), то file пытается определить тип файла по сигнатуре и поэтому сначала прочитывает файл ~/.magic, где мы описываем её.</p>
+<p>"gio info | grep content-type" будет вести себя примерно также, как PCManFM. Он ориентируется на globs и определяет тип по расширению.</p>
+
+<h4>список MIME-типов:</h4>
+<ul>
+   <li>inode/directory - папка</li>
+   <li>text/plain - обычный текстовый файл</li>
+   <li>text/html - HTML-документ</li>
+   <li>text/x-script.python - .py-файлы</li>
+   <li>application/javascript</li>
+   <li>application/json</li>
+   <li>image/png</li>
+   <li>image/jpeg - .jpg и .jpeg файлы</li>
+   <li>image/webp - .webp файлы</li>
+   <li>---</li>
+   <li>application/x-tar</li>
+   <li>application/gzip</li>
+   <li>application/x-bzip2</li>
+   <li>application/x-xz</li>
+   <li>application/zstd</li>
+   <li>application/x-lzma</li>
+   <li>application/vnd.rar</li>
+   <li>application/zip</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

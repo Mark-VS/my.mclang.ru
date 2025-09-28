@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архивы</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Архивы</h1>
+
+<h3>Распаковка архивов</h3>
+
+<h4>Сокращённая форма записи:</h4>
+<pre><code>
+   # x - eXtract
+   # f - file
+   # v - verbose
+   # z = --gzip - использовать gzip
+   # j = --bzip2 - использовать bzip2
+   # J = --xz - использовать xz (LZMA2-сжатие)
+   # --zstd - использовать zstd (ZStandart)
+   # C - папка для распаковки архива
+   
+   # распаковать .tar.gz:
+   tar xzf file.tar.gz -C temp/file_folder
+   
+   # распаковать .tar.bz2:
+   tar xjf file.tar.bz2 -C temp/file_folder
+   
+   # распаковать .tar.xz:
+   tar xJf file.tar.xz -C temp/file_folder
+   
+   # распаковать .tar.zst:
+   tar xf file.tar.zst --zstd --directory temp/file_folder
+   tar xf file.tar.zst -I zstd --directory temp/file_folder
+   tar xf file.tar.zst --use-compress-program=zstd --directory temp/file_folder
+   tar --zstd -xf file.tar.zst --directory temp/file_folder
+   tar -I zstd -xf file.tar.zst --directory temp/file_folder
+   tar --use-compress-program=zstd -xf file.tar.zst --directory temp/file_folder
+
+   tar -I zstd -xf file.tar.zst -C temp/file_folder
+   
+   # распаковать .tar.lzma:
+   tar --use-compress-program=lzma -xf file.tar.lzma -C temp/file_folder
+   tar -I lzma -xf file.tar.lzma -C temp/file_folder
+   tar xf traceback.tar.lzma --use-compress-program=lzma
+   tar xf traceback.tar.lzma -I lzma
+
+   # Тоже вроде работает:
+   tar -xf traceback.tar.lzma
+</code></pre>
+
+<h4>Развёрнутая форма записи:</h4>
+<pre><code class="language-bash">
+   # распаковать .tar.gz:
+   tar --extract --gzip --file file.tar.gz --directory=temp/file_folder
+   
+   # распаковать .tar.bz2:
+   tar --extract --bzip2 --file file.tar.bz2 --directory=temp/file_folder
+   
+    # распаковать .tar.xz:
+   tar --extract --xz --file file.tar.xz --directory=temp/file_folder
+   
+   # распаковать .tar.zst:
+   tar --extract --zstd --file file.tar.xz --directory=temp/file_folder
+   
+   # распаковать .tar.lzma:
+   tar --extract --use-compress-program=lzma --file file.tar.lzma --directory=temp/file_folder
+</code></pre>
+
+<h3>Создание архивов</h3>
+
+<h4>Короткая форма записи:</h4>
+<pre><code class="language-bash">
+  # создать .tar.gz:
+  tar czf myArchive.tar.gz
+
+  # создать .tar.bzip2:
+  tar cjf myArchive.tar.bzip2
+
+  # создать .tar.xz:
+  tar cJf myArchive.tar.xz
+
+  # создать .tar.zst:
+  tar cf myArchive.tar.zst --zstd
+  tar --zstd -cf myArchive.tar.zst
+
+  # создать .tar.lzma:
+  tar cf myArchive.tar.lzma -I lzma
+  tar -I lzma -cf myArchive
+</code></pre>
+
+<h4>Развёрнутая форма записи:</h4>
+<pre><code class="language-bash">
+   # создать .tar.gz:
+   tar --create --gzip --file myArchive.tar.gz domik/
+
+   # создать .tar.bzip2:
+   tar --create --bzip2 --file myArchive.tar.bzip2 domik/
+
+   # создать .tar.xz:
+   tar --create --xz --file myArchive.tar.xz domik/
+
+   # создать .tar.zst:
+   tar --create --use-compress-program=zstd --file myArchive.tar.zst domik/
+   tar --create --zstd --file myArchive.tar.zst domik/
+
+   # создать .tar.lzma:
+   tar --create --use-compress-program=lzma --file myArchive.tar.lzma domik/
+</code></pre>
+
+<h3>ZIP-архивы</h3>
+<pre><code class="language-bash">
+   # Для работы нам понадобятся утилиты zip и unzip:
+   sudo pacman -S zip unzip
+
+   # Упаковать папку "domik" в архив:
+   zip -r myArchive.zip domik/
+      # в текущей папке появится архив с именем: "myArchive.zip"
+
+   # Распаковать архив "myArchive.zip
+   unzip myArchive.zip
+      # в текущей папке появится папка "domik/"
+
+   # Распаковать архив в нужную нам папку:
+   unzip myArchive.zip -d temp/kakashka
+      # у нас папка "domik" появится здесь: temp/kakashka/domik/...
+      # Здесь важно, чтобы "temp" существовала. А "kakaskha" создастся даже, если она не существует.
+</code></pre>
+
+<h3>RAR-архивы</h3>
+<h4>Установка RAR:</h4>
+<pre><code class="language-bash">
+   # Копируем из AUR:
+   git clone https://aur.archlinux.org/rar.git
+   cd rar
+      # Теперь в папке есть PKGBUILD и вспомогательные файлы.
+      # ls
+        # .git  .gitignore  PKGBUILD  rar.1  .SRCINFO
+
+   # Скачиваем зависимости
+   makepkg -s --nobuild
+      # -s = sync dependencies
+      # --nobuild - не запускать сборку после скачивания зависимостей
+
+      # теперь у нас появились папка "src" и файл "rarlinux-x64-712.tar.gz"
+
+   # Сборка:
+   makepkg
+      # теперь у нас появились папка "pkg" и файлы: "rar-7.12-1-x86_64.pkg.tar.zst" и "rar-debug-7.12-1-x86_64.pkg.tar.zst"
+   
+   # Или:
+   makepkg -c
+      # теперь у нас появились файлы: "rar-7.12-1-x86_64.pkg.tar.zst" и "rar-debug-7.12-1-x86_64.pkg.tar.zst",
+      # но удалились папки: "pkg" и "src"
+
+   # Устанавливаем пакет в систему:
+   sudo pacman -U rar-7.12-1-x86_64.pkg.tar.zst
+
+</code></pre>
+<h4>Использование RAR:</h4>
+<pre><code class="language-bash">
+   # Проверить версию rar:
+   rar
+      # во второй строке будет указана версия
+   # Или:
+   rar | head -n 2
+   # Или лучше так:
+   rar | head -n 2 | tail -n 1
+   # Или:
+   rar | sed -n '2p'
+   # Или:
+   rar | awk 'NR==2'
+
+   # Упаковать папку domik/ в "myArchive.rar"
+   rar a myArchive.rar domik/
+
+   # Извлечь папку domik/ из архива "myArchive.rar":
+   rar x myArchive.rar
+      # в текущей директории появится папка "domik"
+
+   # Извлечь "domik" в указанную папку
+   rar x myArchive.rar temp/folder_name
+      # папка temp/folder_name должна существовать
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
