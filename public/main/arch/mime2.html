@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/arch">Вернуться назад</a></p>
+
+<h1>MIME2</h1>
+
+<ul>
+<li><a href="https://www.freedesktop.org/wiki/Specifications/AddingMIMETutor/">AddingMIMETutor</a></li>
+<li><a href="https://www.freedesktop.org/wiki/Specifications/config-spec/">https://www.freedesktop.org/wiki/Specifications/config-spec/</a></li>
+<li><a href="https://specifications.freedesktop.org/desktop-entry-spec/0.9.5/mime-types.html">Registering MIME Types</a></li>
+<li><a href="https://specifications.freedesktop.org/shared-mime-info-spec/latest/ar01s02.html">Unified system</a></li>
+</ul>
+
+<p>Пример XML-файла:</p>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+   &lt;mime-type type="image/png"&gt;
+      &lt;comment xml:lang="en"&gt;PNG image&lt;/comment&gt;
+      &lt;comment xml:lang="af"&gt;png beeld&lt;/comment&gt;
+      ...
+      &lt;magic priority="50"&gt;
+         &lt;match type="string" value="\x89PNG" offset="0"/&gt;
+      &lt;/magic&gt;
+      &lt;glob pattern="*.png"/&gt;
+   &lt;/mime-type&gt;
+&lt;/mime-info&gt;
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

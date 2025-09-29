@@ -9,6 +9,7 @@
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/arch">Вернуться назад</a></p>
 
 <h1>MIME-типы</h1>
 
@@ -138,6 +139,10 @@
 <p>Теперь если мы кликнем по файлу myfile.kaka, то он откроется с помощью notepadqq. Или можно попробовать открыть его через терминал вот так:</p>
 <pre><code class="language-bash">
    xdg-open myfile.kaka
+</code></pre>
+
+<pre><code># Привязать файловый менеджер PCManFM к папкам:
+   xdg-mime default pcmanfm.desktop inode/directory
 </code></pre>
 
 <h2>Важно!</h2>
