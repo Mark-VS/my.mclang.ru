@@ -20,7 +20,7 @@
 <li><a href="https://specifications.freedesktop.org/shared-mime-info-spec/latest/ar01s02.html">Unified system</a></li>
 </ul>
 
-<p>Пример XML-файла:</p>
+<p>Пример XML-файла для .png:</p>
 <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
    &lt;mime-type type="image/png"&gt;
@@ -34,6 +34,246 @@
    &lt;/mime-type&gt;
 &lt;/mime-info&gt;
 </code></pre>
+
+<p>Создадим XML-файл "~/.local/share/mime/packages/application-x-bulochka.xml":</p>
+<pre><code class="language-xml">
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+    &lt;mime-type type="application/x-bulka"&gt;
+        &lt;glob pattern="*.bulka"/&gt;
+    &lt;/mime-type&gt;
+&lt;/mime-info&gt;
+</code></pre>
+
+<p>Обновим базу данных MIME:</p>
+<pre><code class="language-bash">
+   update-mime-database ~/.local/share/mime
+</code></pre>
+
+<p>Проверим, видит ли система наш новый тип:</p>
+<pre><code class="language-bash">
+    grep -R "application/x-bulka" ~/.local/share/mime/
+</code></pre>
+
+<p>Вот вывод, который я получил:</p>
+<pre><code class="language-bash">
+   /home/mark/.local/share/mime/globs:application/x-bulka:*.bulka
+   /home/mark/.local/share/mime/types:application/x-bulka
+   /home/mark/.local/share/mime/application/x-bulka.xml:<mime-type xmlns="http://www.freedesktop.org/standards/shared-mime-info" type="application/x-bulka">
+   grep: /home/mark/.local/share/mime/mime.cache: двоичный файл совпадает
+   /home/mark/.local/share/mime/packages/application-x-bulochka.xml:    <mime-type type="application/x-bulka">
+   /home/mark/.local/share/mime/globs2:50:application/x-bulka:*.bulka
+</code></pre>
+
+
+<p>Теперь я хочу создать свой файл с расширением ".bulka":</p>
+<pre><code class="language-bash">
+   echo "Первая строка, которую мы вставляем в файл." >> myfile.bulka
+   echo "Вторая строка" >> myfile.bulka
+</pre></code>
+
+<p>Этот файл (myfile.bulka) по факту является типом "text/plain". Но мы определили в файле <strong><i>application-x-bulochka.xml</i></strong>, что все файлы с расширением ".bulka" должны определяться как наш новый тип "application/x-bulka". Давайте попробуем определить тип файла разными способами:</p>
+<pre><code class="language-bash">
+   # с помощью утилиты file:
+   file --mime-type myfile.bulka
+      #  myfile.bulka: text/plain
+
+   # с помощью xdg-mime
+   xdg-mime query filetype myfile.bulka
+      #  text/plain
+
+   # с помощью gio:
+   gio info myfile.bulka | grep content-type
+      #  standard::content-type: application/x-bulka
+      #  standard::fast-content-type: application/x-bulka
+</code></pre>
+
+<p>Как видим, разные утилиты определяют тип по-разному. Утилита <strong><i>file</i></strong> говорит, что наш файл имеет тип "text/plain". А вот <strong><i>gio</i></strong> говорит, что тип нашего файла: "application/x-bulka". А вот скрипт <strong><i>xdg-mime</i></strong> под капотом использует утилиту <strong><i>file</i></strong>, поэтому результат такой же, как когда мы спрашиваем тип у <strong><i>file</i></strong>.</p>
+<p>Всё дело в том, что <strong><i>gio</i></strong>, когда пытается определить тип файла, опирается на нашу локальную базу данных MIME-типов, в которую мы добавили тип "application/x-bulka". А вот file залезает в файл и читает его содержимое и на основе содержимого определяет тип файла.</p>
+<p>Файловые менеджеры, такие как <strong><i>PCManFM</i></strong> или <strong><i>Thunar</i></strong>, определяют тип файла на основе нашей MIME-базы данных. Поэтому когда мы кликаем по файлу, чтобы он открылся, система по расширению .bulka понимает, что это наш тип "application/x-bulka". Но если мы хотим, чтобы наш файл открывался с помощью нужной нам программы, то нам надо ещё привязать наш MIME-тип к конкретной программе.</p>
+
+<pre><code class="language-bash">
+   # Проверим, какое приложение является дефолтным для нашего типа:
+   xdg-mime query default application/x-bulka
+
+      # скорее всего эта команда ничего не вернёт, потому что мы пока не указывали ...
+      # ... дефолтное приложение для нашего MIME-типа.
+</code></pre>
+
+<p>Теперь я хочу сделать так, чтобы при клике по файлу с расширением .bulka, он открывался с помощью программы <strong><i>VSCodium</i></strong>:</p>
+<pre><code class="language-bash">
+   # Привязываю VSCodium к типу application/x-bulka:
+   xdg-mime default codium-wayland.desktop application/x-bulka
+
+   # Ещё раз проверяю, какое приложение привязано к нашему типу:
+   xdg-mime query default application/x-bulka
+      # codium-wayland.desktop
+
+   # Проверю также, какое приложение у меня привязано к обычному текстовому файлу:
+   xdg-mime query default text/plain
+      # leafpad.desktop
+</code></pre>
+
+
+<p>Теперь я могу в файловом менеджере кликать по текстовому файлу <strong><i>myfile.bulka</i></strong> и он будет открываться с помощью программы <strong><i>VSCodium</i></strong>. При этом обычный текстовый файл <strong><i>myfile.txt</i></strong> откроется с помощью <strong><i>Leafpad</i></strong>.</p>
+<p>НО! Важно, что все программы опредляют тип по-своему. Если большинство файловых менеджеров опираются на базу данных MIME-типов в нашей системе, то некоторые программы используют утилиту <strong><i>file</i></strong> для определения типа файла. Например, если мы попробуем открыть файл с помощью <strong><i>xdg-open</i></strong>, то этот скрипт определит тип файла с помощью утилиты <strong><i>file</i></strong> и решит, что у нас обычный текстовый файл "text/plain" и соответственно откроет файл с помощью программы <strong><i>Leafpad</i></strong>.</p>
+<pre><code class="language-bash">
+   xdg-open myfile.bulka
+
+      #  должен открыться с помощью Leafpad
+</code></pre>
+
+<p>Файловый менеджер <strong><i>lf</i></strong> также использует <strong><i>file</i></strong>, поэтому откроет наш файл через <strong><i>Leafpad</i></strong>.</p>
+
+<p>Когда я привязываю программу к MIME-типу с помощью <strong><i>xdg-mime</i></strong>, привязка записывается в файл <strong><i>mimeapps.list</i></strong>.</p>
+
+<pre><code class="language-bash"># ~/.config/mimeapps.list:
+# ~/.local/share/applications/mimeapps.list:
+   # /usr/share/applications/mimeapps.list:
+   # /usr/local/share/applications/mimeapps.list:
+
+   [Default Applications]
+   application/x-bulka=leafpad.desktop
+</code></pre>
+
+<h2>Утилита <i>file</i></h2>
+
+<p>Может, можно как-то сделать, чтобы утилита <strong><i>file</i></strong> тоже определяла наш файл не просто как "text/plain", а как "application/x-bulka"? Чтобы быть уверенным, что любая программа определит наш тип точно.</p>
+<p>Это сделать можно. Но поскольку <strong><i>file</i></strong> читает содержимое файла, чтобы определить его тип, нам нужно добавить внутрь файла какой-то опознавательный знак - что-то, что будет отличать наш тип файла, от обычного текстового. Что-то типа сигнатуры. Допустим, пусть у нас файл начинается со строки "BULKA!".</p>
+<pre><code class="language-bash">
+   # содержимое моего файла myfile.bulka:
+   BULKA!
+   Первая строка, которую мы вставляем в файл.
+   Вторая строка.
+</code></pre>
+
+<p>Теперь нам надо указать утилите file, что все текстовые файлы, которые начинаются со строки "BULKA!", относятся к типу "application/x-bulka".</p>
+<pre><code class="language-bash"># файл ~/.magic:
+   0   string BULKA!   application/x-bulka
+   !:mime   application/x-bulka
+</code></pre>
+
+<p>А вот пример файла ~/.magic с несколькими типами:</p>
+<pre><code class="language-bash"># файл ~/.magic:
+
+   0   string   FOO!   application/x-foobar
+   !:mime   application/x-foobar
+
+   0   string KAKA!   application/x-kaka
+   !:mime   application/x-kaka
+
+   0   string KAKA2! application/x-kaka2
+   !:mime application/x-kaka2
+
+   0   string BULKA!   application/x-bulka
+   !:mime application/x-bulka
+</code></pre>
+
+<p>Теперь мы можем проверить тип нашего файла с помощью <strong><i>file</i></strong>:</p>
+<pre><code class="language-bash">   file --mime-type myfile.bulka
+      #  myfile.bulka: application/x-bulka
+</code></pre>
+
+<p>file определяет только по содержимому. А философия Freedesktop MIME: определять только по расширению, а не по магии!!!</p>
+
+<h2>shared-mime-info</h2>
+
+<p><strong><i>shared-mime-info</i></strong> - это стандарт Freedesktop и набор файлов, которые описывают все известные MIME-типы для Linux (и других Unix-подобных систем).</p>
+<pre><code class="language-bash">   # Системные MIME-типы:
+   /usr/share/mime/
+
+   # Пользовательские MIME-типы:
+   ~/.local/share/mime/
+</code></pre>
+
+<ul>
+    <li><strong><i>~/.local/share/mime/globs</i></strong> — основное сопоставление расширение → MIME-тип.</li>
+    <li><strong><i>~/.local/share/mime/globs2</i></strong> — то же самое, но с приоритетами (номер перед типом = вес, чем больше, тем выше приоритет).</li>
+    <li><strong><i>~/.local/share/mime/types</i></strong> — список всех известных MIME-типов (реестр).</li>
+    <li><strong><i>~/.local/share/mime/application/x-bulka.xml</i></strong> — скомпилированная копия моего XML-описания (из packages/).</li>
+    <li><strong><i>~/.local/share/mime/mime.cache</i></strong> — бинарная база, в которую всё это компилируется (её как раз обновляет update-mime-database).</li>
+    <li><strong><i>~/.local/share/mime/packages/application-x-bulochka.xml</i></strong> — это оригинальный XML-файл, который я создал и по которому всё построилось.</li>
+</ul>
+
+<p>Программы, которые используют <strong><i>shared-mime-info</i></strong>, тоже могут определять тип файла по его содержимому. Для этого в XML-файлах предусмотрена директива <strong><i>&lt;magic&gt;</i></strong>. Давайте подправим наш файл <strong><i>application-x-bulochka.xml</i></strong> таким образом, чтобы <strong><i>shared-info-mime</i></strong>-программы прочитывали из первой строки файла нашу сигнатуру "BULKA!".</p>
+<pre><code class="language-xml">&lt;!-- ~/.local/share/mime/packages/application-x-bulochka.xml --&gt;
+
+   &lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+       &lt;mime-type type="application/x-bulka"&gt;
+           &lt;magic priority="80"&gt;
+               &lt;match type="string" value="BULKA!" offset="0"/&gt;
+           &lt;/magic&gt;
+           &lt;!-- Распознавание файла по расширению я удалил --&gt;
+       &lt;/mime-type&gt;
+   &lt;/mime-info&gt;
+</code></pre>
+
+<p>После того, как мы изменили содержимое XML-файла, запустим команду:</p>
+<pre><code class="language-bash">   update-mime-database ~/.local/share/mime
+</code></pre>
+
+<p>Теперь давайте попробуем определить тип файла <strong><i>myfile.bulka</i></strong> с помощью <strong><i>gio</i></strong>:</p>
+<pre><code class="language-bash">
+# Если у нас в файле первая строка: "BULKA!":
+   gio info myfile.bulka | grep content-type
+      #  standard::content-type: application/x-bulka
+      #  standard::fast-content-type: application/octet-stream
+
+# Если мы убираем "BULKA!" из первой строки:
+   gio info myfile.bulka | grep content-type
+      #  standard::content-type: text/plain
+      #  standard::fast-content-type: application/octet-stream
+</code></pre>
+
+<p>То есть теперь <strong><i>gio</i></strong> определяет тип файла на основе его содержимого.</p>
+<p>А теперь давайте усложним XML-правило. <strong><i>&lt;match&gt;</i></strong> может быть и вложенным.</p>
+
+<pre><code class="language-xml">&lt;!-- ~/.local/share/mime/packages/application-x-bulochka.xml --&gt;
+
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+    &lt;mime-type type="application/x-bulka"&gt;
+        &lt;magic priority="80"&gt;
+            &lt;match type="string" value="BULKA!" offset="0"&gt;
+                &lt;match type="string" value="V2" offset="6"/&gt;
+            &lt;/match&gt;
+        &lt;/magic&gt;
+        &lt;!-- Распознавание файла по расширению я удалил --&gt;
+    &lt;/mime-type&gt;
+&lt;/mime-info&gt;
+</code></pre>
+<p>Теперь <strong><i>gio</i></strong> будет определять тип файла как "application/x-bulka" только если первая строка равна: "BULKA!V2".</p>
+
+<p>Ещё пример XML-файла. То же самое, что и в предыдущем примере, но только здесь мы добавили распознавание файла по расширению. Сначал идёт проверка по содержимому. Если "BULKA!" и "V2" не совпали, то тогда мы смотрим на расширение файла. Если оно равно: ".bulka", то тогда тип нашего файла всё равно: "application/x-bulka".</p>
+<pre><code class="language-xml">&lt;!-- ~/.local/share/mime/packages/application-x-bulochka.xml --&gt;
+
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+    &lt;mime-type type="application/x-bulka"&gt;
+        &lt;magic priority="80"&gt;
+            &lt;match type="string" value="BULKA!" offset="0"&gt;
+                &lt;match type="string" value="V2" offset="6"/&gt;
+            &lt;/match&gt;
+        &lt;/magic&gt;
+        &lt;glob pattern="*.bulka"/&gt;
+    &lt;/mime-type&gt;
+&lt;/mime-info&gt;
+</code></pre>
+
+
+<p>В следующем XML-фрагменте мы переместили &lt;glob&gt; НАД &lt;magic&gt;, чтобы продемонстрировать, что порядок написания правил не влияет на приоритет. Приоритет всегда у MAGIC. Сначала проверяется содержимое файла, а потом расширение.</p>
+<pre><code class="language-xml">&lt;!-- ~/.local/share/mime/packages/application-x-bulochka.xml --&gt;
+
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+    &lt;mime-type type="application/x-bulka"&gt;
+        &lt;!-- Тут мы переместили &lt;glob ...&gt; выше - над &lt;magic&gt; --&gt;
+        &lt;glob pattern="*.bulka"/&gt;
+        &lt;magic priority="80"&gt;
+            &lt;match type="string" value="BULKA!" offset="0"&gt;
+                &lt;match type="string" value="V2" offset="6"/&gt;
+            &lt;/match&gt;
+        &lt;/magic&gt;
+    &lt;/mime-type&gt;
+&lt;/mime-info&gt;
+</code></pre>
+
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
