@@ -13,27 +13,7 @@
 
 <h1>MIME2</h1>
 
-<ul>
-<li><a href="https://www.freedesktop.org/wiki/Specifications/AddingMIMETutor/">AddingMIMETutor</a></li>
-<li><a href="https://www.freedesktop.org/wiki/Specifications/config-spec/">https://www.freedesktop.org/wiki/Specifications/config-spec/</a></li>
-<li><a href="https://specifications.freedesktop.org/desktop-entry-spec/0.9.5/mime-types.html">Registering MIME Types</a></li>
-<li><a href="https://specifications.freedesktop.org/shared-mime-info-spec/latest/ar01s02.html">Unified system</a></li>
-</ul>
-
-<p>Пример XML-файла для .png:</p>
-<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
-   &lt;mime-type type="image/png"&gt;
-      &lt;comment xml:lang="en"&gt;PNG image&lt;/comment&gt;
-      &lt;comment xml:lang="af"&gt;png beeld&lt;/comment&gt;
-      ...
-      &lt;magic priority="50"&gt;
-         &lt;match type="string" value="\x89PNG" offset="0"/&gt;
-      &lt;/magic&gt;
-      &lt;glob pattern="*.png"/&gt;
-   &lt;/mime-type&gt;
-&lt;/mime-info&gt;
-</code></pre>
+<p>Я хочу создать текстовый файл с расширением ".bulka". Мне это нужно для того, чтобы при клике по этому текстовому файлу, он открывался с помощью определённой программы. Чтобы обычный текстовый файл открывался с помощью одной программы, например, <strong><i>Leafpad</i></strong>, а текстовый файл с расширением ".bulka" - с помощью <strong><i>VSCodium</i></strong>.</p>
 
 <p>Создадим XML-файл "~/.local/share/mime/packages/application-x-bulochka.xml":</p>
 <pre><code class="language-xml">
@@ -134,6 +114,62 @@
    [Default Applications]
    application/x-bulka=leafpad.desktop
 </code></pre>
+<p>Ещё несколько файлов, раскиданных по системе:</p>
+<pre><code>   # /etc/mime.types
+
+   # /usr/share/mime/mime.cache
+   # ~/.local/share/mime/mime.cache
+
+   # /usr/share/applications/mimeinfo.cache
+   # ~/.local/share/applications/mimeinfo.cache
+
+   # ~/.local/share/applications/mimeapps.list
+   # ~/.config/mimeapps.list
+</code></pre>
+<p>Если я не привязал тип <strong><i>text/x-bulka</i></strong> к какой-либо программе и кликаю по файлу <strong><i>myfile.bulka</i></strong>, то <strong><i>PCManFM</i></strong> предложит мне самому выбрать программу, которой я хочу открывать этот файл. Я выбираю <strong><i>VSCodium</i></strong> и файл открывается с помощью <strong><i>VSCodium</i></strong>. После этого привязка <strong><i>text/x-bulka</i></strong> и <strong><i>codium.desktop</i></strong> сохранится в файл <strong><i>~/.config/mimeapps.list</i></strong> и при последующих кликах по файлу он всегда будет открываться с помощью <strong><i>VSCodium</i></strong>. Теперь все программы, которые используют <strong><i>shared-mime-info</i></strong>, будут открывать файлы с расширеним <strong><i>.bulka</i></strong> с помощью <strong><i>VSCodium</i></strong>.</p>
+
+<h2>Утилита <i>update-desktop-database</i></h2>
+
+<p>Файлы <strong><i>mimeinfo.cache</i></strong> создаются и обновляются утилитой <strong><i>update-desktop-database</i></strong>.</p>
+<p>Утилита <strong><i>update-desktop-database</i></strong> сканирует все .desktop-файлы в каталогах <strong></i>~/.local/share/applications/</i></strong> и <strong><i>/usr/share/applications/</i></strong> и собирает из них информацию о том, какие программы заявляют поддержку каких MIME-типов. И она записывает эту информацию в файл <strong><i>mimeinfo.cache</i></strong> в том же каталоге.</p>
+<p>То есть, <strong><i>mimeinfo.cache</i></strong> - это ускоритель. Программа каждый раз не лазит по всем .desktop-файлам, она заглядывает в <strong><i>mimeinfo.cache</i></strong>.</p>
+<p>Допустим, у меня есть файл leafpad.desktop, в котором написано:</p>
+<pre><code class="language-bash"># /usr/share/applications/leafpad.desktop
+
+  [Desktop Entry]
+  Name=Leafpad
+  Exec=leafpad %f
+  MimeType=text/plain;text/x-bulka;
+</code></pre>
+
+<p>Я запускаю команду:</p>
+<pre><code class="language-bash">  update-desktop-database ~/.local/share/applications
+</code></pre>
+
+<p><ul>
+      <li>Утилита <strong><i>update-desktop-database</i></strong> найдёт все .desktop-файлы в этом каталоге,</li>
+      <li>вытащит оттуда все строки "MimeType=...",</li>
+      <li>соберёт их в кэш <strong><i>~/.local/share/applications/mimeinfo.cache</i></strong>, например:</li>
+</ul></p>
+<pre><code class="language-bash"># ~/.local/share/applications/mimeinfo.cache
+
+  [MIME Cache]
+  text/plain=leafpad.desktop;
+  text/x-bulka=leafpad.desktop;
+</code></pre>
+<p>Обычно <strong><i>update-desktop-database</i></strong> не вызывают вручную. Обычно её вызывает пакетный менеджер автоматически после установки новой программы. Только если я вручную добавил новый .desktop-файл или изменил "<strong><i>MimeType=</i></strong>" в существующем, имеет смысл вызвать <strong><i>update-desktop-database</i></strong>. Или при добавлении нового MIME-типа.</p>
+<p>То есть, чтобы программа официально стала поддерживать мой тип, я должен вручную открыть её .desktop-файл, добавить туда свой тип и запустить команду: update-desktop-database ~/.local/share/applications, чтобы обновить <strong><i>mimeinfo.cache</i></strong>.</p>
+
+<ul><h3>Приблизительная последовательность действий при создании нового MIME-типа:</h3>
+   <li>Создаём XML-файл</li>
+   <li>Запускаем команду: update-mime-database ~/.local/share/mime</li>
+   <li>Открываем файл codium-wayland.desktop и добавляем туда после "MimeTypes=" наш <strong><i>text/x-bulka</i></strong>:
+      <pre><code class="language-bash">MimeType=text/plain;inode/directory;text/x-bulka;</code></pre>
+   </li>
+   <li>Запускаем команду: update-desktop-database ~/.local/share/applications</li>
+   <li>Привязываем к MIME-типу программу: xdg-mime default codium-wayland.desktop text/x-bulka</li>
+</ul>
+
 
 <h2>Утилита <i>file</i></h2>
 
@@ -252,6 +288,7 @@
                 &lt;match type="string" value="V2" offset="6"/&gt;
             &lt;/match&gt;
         &lt;/magic&gt;
+        &lt;!-- Здесь &lt;glob&gt; находится ПОСЛЕ &lt;magic&gt; --&gt;
         &lt;glob pattern="*.bulka"/&gt;
     &lt;/mime-type&gt;
 &lt;/mime-info&gt;
@@ -263,7 +300,7 @@
 
 &lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
     &lt;mime-type type="application/x-bulka"&gt;
-        &lt;!-- Тут мы переместили &lt;glob ...&gt; выше - над &lt;magic&gt; --&gt;
+        &lt;!-- Тут мы переместили &lt;glob&gt; выше - НАД &lt;magic&gt; --&gt;
         &lt;glob pattern="*.bulka"/&gt;
         &lt;magic priority="80"&gt;
             &lt;match type="string" value="BULKA!" offset="0"&gt;
@@ -273,6 +310,36 @@
     &lt;/mime-type&gt;
 &lt;/mime-info&gt;
 </code></pre>
+
+<p>Аттрибут "priority" указывает приоритет данного правила. Например, у PNG-файлов (MIME-тип: <strong><i>image/png</i></strong>) в системе по умолчанию приоритет "50". Если я хочу создать своё правило для <strong><i>image/png</i></strong>, то мне нужно указать приоритет выше "50" и тогда моё правило переопределит системное.</p>
+<p>Давайте посмотрим на пример XML-файла для <strong><i>image/png</i></strong>, который приведён на сайте <a href="https://www.freedesktop.org/wiki/Specifications/AddingMIMETutor/">freedesktop.org</a>:</p>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;
+   &lt;mime-type type="image/png"&gt;
+      &lt;comment xml:lang="en"&gt;PNG image&lt;/comment&gt;
+      &lt;comment xml:lang="af"&gt;png beeld&lt;/comment&gt;
+      ...
+      &lt;magic priority="50"&gt;
+         &lt;match type="string" value="\x89PNG" offset="0"/&gt;
+      &lt;/magic&gt;
+      &lt;glob pattern="*.png"/&gt;
+   &lt;/mime-type&gt;
+&lt;/mime-info&gt;
+</code></pre>
+<p>Здесь "\x89PNG" - это сигнатура первых байтов для формата PNG.</p>
+
+<p></p>
+<pre><code class="language-bash">
+
+</code></pre>
+
+
+<ul>
+<li><a href="https://www.freedesktop.org/wiki/Specifications/AddingMIMETutor/">AddingMIMETutor</a></li>
+<li><a href="https://www.freedesktop.org/wiki/Specifications/config-spec/">https://www.freedesktop.org/wiki/Specifications/config-spec/</a></li>
+<li><a href="https://specifications.freedesktop.org/desktop-entry-spec/0.9.5/mime-types.html">Registering MIME Types</a></li>
+<li><a href="https://specifications.freedesktop.org/shared-mime-info-spec/latest/ar01s02.html">Unified system</a></li>
+</ul>
 
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
