@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+<h1>Directives</h2>
+
+<h2>v-if</h2>
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;!-- Сообщение будет видимым, если "seen" равно "true" --&gt;
+    &lt;div v-if="seen"&gt;Вот моё сообщение.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        const seen = true;
+        return {
+            seen
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<br/>
+<h2>v-on:click</h2>
+<h3>При нажатии кнопки сообщение пропадает:</h3>
+<p>v-on:click = @click</p>
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;div v-if="seen"&gt;Вот моё сообщение.&lt;/div&gt;
+    &lt;button v-on:click="hideButton()"&gt;Кнопка&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        let seen = ref(true);
+        function hideButton() {
+            seen.value = false;
+        }
+        return {
+            seen,
+            hideButton
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

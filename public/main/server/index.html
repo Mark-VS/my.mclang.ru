@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Раздача статики</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+
+<h2>python</h2>
+<pre><code class="language-bash"># Запустить раздачу статических файлов на порту 8000:
+   python -m http.server
+
+# Запустить раздачу на порту 8080 из папки ./public:
+   python -m http.server 8080 --directory ./public
+</code></pre>
+
+<h2>node</h2>
+<pre><code class="language-bash"># Запустить раздачу статики на порту 3000:
+   npx serve
+# Запустить раздачу статики на порту 8080 из папки ./public:
+   npx serve -l 8080 ./public
+
+# Запустить раздачу статики на порту 8080:
+   npx http-server
+# Запустить раздачу статики на порту 3000:
+   npx http-server ./public -p 3000
+
+# Обновляет страницу при изменении файлов:
+   npx lite-server
+</code></pre>
+
+<h2>ruby</h2>
+<pre><code class="language-bash"># Запустить раздачу статики на порту 8080 из текущей папки:
+   ruby -run -e httpd . -p 8080
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

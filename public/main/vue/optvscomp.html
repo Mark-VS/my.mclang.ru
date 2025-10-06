@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/vue">Вернуться назад</a></p>
+
+<h1>Composition API VS Options API</h1>
+
+<h2>Composition API</h2>
+
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+&lt;p class="kaka1" style="background-color: yellow"&gt;Вторая строка.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;div&gt;Вот сообщение: {{ message }}&lt;/div&gt;
+    &lt;div&gt;А вот второе сообщение: {{ getTheMessage() }}&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        const message = "Это моё первое сообщение.";
+        const message2 = ref("");
+        function getTheMessage() {
+            message2.value = "Второе сообощение.";
+            return message2.value;
+        }
+        return {
+            message,
+            getTheMessage
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<h2>Options API</h2>
+<p>Тот же самый код, но только в стиле <strong><i>Options API</i></strong>. HTML-файл остался без изменений. Изменился только JavaScript.</p>
+
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+&lt;p class="kaka1" style="background-color: yellow"&gt;Вторая строка.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;div&gt;Вот сообщение: {{ message }}&lt;/div&gt;
+    &lt;div&gt;А вот второе сообщение: {{ getTheMessage() }}&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    data() {
+        const message = "Это моё первое сообщение.";
+        const message2 = "";
+        return {
+            message,
+            message2
+        }
+    },
+    methods: {
+        getTheMessage() {
+            this.message2 = "Второе сообощение.";
+            return this.message2;
+        }
+    },
+    mounted() {
+        this.getTheMessage();
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<h2>Поподробней про Options API</h2>
+<pre><code class="language-javascript">// Структура компонента Vue:
+
+export default {
+   data() {
+      return {
+         // Данные компонента
+      }
+   },
+   computed: {
+      // Вычисляемые свойства
+   },
+   methods: {
+      // Методы компонента
+   },
+   created() {
+      // Жизненный цикл
+   },
+   mounted() {
+      // Жизненный цикл
+   },
+   ...
+}
+</code></pre>
+
+<ul>
+   <li><strong><i>data</i></strong> - Это специальный объект, хранящий реактивные данные моего компонента. Любые изменения этих данных будут автоматически отражены в интерфейсе.</li>
+   <li><strong><i>computed</i></strong> - Свойства, которые зависят от состояния компонента и автоматически пересчитываются при изменении зависимых данных.</li>
+   <li><strong><i>methods</i></strong> - Именно тут хранятся ваши методы-компоненты. Эти методы могут быть вызваны в любом месте компонента (например, в обработчиках событий, внутри шаблона)</li>
+   <li><strong><i>created</i></strong>, <strong><i>mounted</i></strong> и прочие жизненные циклы - Используются для выполнения действий в конкретные моменты жизненного цикла компонента (создание, монтирование, обновление и т.п.).</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

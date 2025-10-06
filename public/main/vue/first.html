@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/vue">Вернуться назад</a></p>
+
+<h1>Vue</h1>
+
+<h2>Простой пример подключения Vue:</h2>
+
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;html lang="RU"&gt;
+    ...
+
+  &lt;body&gt;
+    &lt;p&gt;Просто бессмысленная строка.&lt;p&gt;
+
+    &lt;div id="app"&gt;Говно: {{ message }}&lt;/div&gt;
+
+    &lt;script type="module" src="vue_example"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+
+<pre><code class="language-javascript">// vue_example.js
+    
+import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+   setup() {
+       const message = "Строка, которую мы вставим в div.";
+       return {
+           message
+       }
+   }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<p>Если всё работает нормально, вместо {{ message }} должна подставиться строка: "Строка, которую мы вставим в div." </p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

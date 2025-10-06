@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Mime2</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
@@ -25,18 +25,15 @@
 </code></pre>
 
 <p>Обновим базу данных MIME:</p>
-<pre><code class="language-bash">
-   update-mime-database ~/.local/share/mime
+<pre><code class="language-bash">   update-mime-database ~/.local/share/mime
 </code></pre>
 
 <p>Проверим, видит ли система наш новый тип:</p>
-<pre><code class="language-bash">
-    grep -R "application/x-bulka" ~/.local/share/mime/
+<pre><code class="language-bash">   grep -R "application/x-bulka" ~/.local/share/mime/
 </code></pre>
 
 <p>Вот вывод, который я получил:</p>
-<pre><code class="language-bash">
-   /home/mark/.local/share/mime/globs:application/x-bulka:*.bulka
+<pre><code class="language-bash">   /home/mark/.local/share/mime/globs:application/x-bulka:*.bulka
    /home/mark/.local/share/mime/types:application/x-bulka
    /home/mark/.local/share/mime/application/x-bulka.xml:<mime-type xmlns="http://www.freedesktop.org/standards/shared-mime-info" type="application/x-bulka">
    grep: /home/mark/.local/share/mime/mime.cache: двоичный файл совпадает
@@ -46,8 +43,7 @@
 
 
 <p>Теперь я хочу создать свой файл с расширением ".bulka":</p>
-<pre><code class="language-bash">
-   echo "Первая строка, которую мы вставляем в файл." >> myfile.bulka
+<pre><code class="language-bash">   echo "Первая строка, которую мы вставляем в файл." >> myfile.bulka
    echo "Вторая строка" >> myfile.bulka
 </pre></code>
 
