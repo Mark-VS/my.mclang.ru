@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/vue">Вернуться назад</a></p>
+
+<h1>Классы</h1>
+
+<p>В следующем примере мы по нажатию на кнопку активируем и деактивируем применение стиля к элементу &lt;div&gt;.</p>
+
+<pre><code class="languages-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;div v-bind:class="{ [myStyle]: isActive}"&gt;Сообщение, к которому должен примениться стиль.&lt;/div&gt;
+    &lt;button v-on:click="toggleStyle"&gt;Кнопка&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<pre><code class="language-css">/* main.css */
+
+.kaka1 {
+   color: red;
+}
+</code></pre>
+
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        const myStyle = "kaka1";
+        const isActive = ref(true);
+        function toggleStyle() {
+            isActive.value = !isActive.value;
+        }
+        return {
+            myStyle,
+            isActive,
+            toggleStyle
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/css.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+</body>
+</html>
