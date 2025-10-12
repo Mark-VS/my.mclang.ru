@@ -5,166 +5,142 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>index4</title>
 	<link href="/assets/styles/main.css" rel="stylesheet">
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+	<link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+	<script src="/assets/highlight/highlight.min.js"></script>
+
 	<a href="/arch">Вернуться назад</a>
 
 	<h3>Переменные окружения</h3>
-	<pre><code>
-	# Какую среду окружения мы сейчас используем (выведет KDE):
-		$XDG_CURRENT_DESKTOP
-	# Выведет plasma
-		$DESKTOP_SESSION
-	# Можно выяснить вот так:
-		ps -e | grep -Ei 'plasma|gnome|xfce|lxqt|mate|cinnamon'
-	# X11 или Wayland
-		$XDG_SESSION_TYPE
-	# Посмотреть id текущей сессии
-		$XDG_SESSION_ID
-	# Посмотреть тип сессии (выведет или x11, или wayland):
-	loginctl show-session $XDG_SESSION_ID -p Type
-		# посмотреть среду окружения через loginctl - НЕ ВСЕГДА РАБОТАЕТ!
-		# loginctl show-session $XDG_SESSION_ID -p Desktop
-	# Посмотреть все сессии:
-		loginctl
-		
-		
-	# Какой shell сейчас использует эмулятор терминала, в котором мы находимся:
-		echo $SHELL
-		  # или:
-		ps -p $$
-		  # или:
-		echo $0
-		
-	# Какой терминал мы сейчас используем:
-		echo $TERM
-		
-	
-	## ИТОГО
-		$$ - специальная переменная shell, которая всегда хранит PID текущего shell-процесса
-		$SHELL - переменная окружения, которая обычно указывает на мой shell
-		$0 - позиционный параметр ноль, который показывает имя запущенной программы.
-			# запущенный в терминале, он выводит мой shell, но внутри запущенного скрипта он выведет имя текущего скрипта
-		$LS_COLORS - текущие цвета
+	<pre><code class="language-bash"># Какую среду окружения мы сейчас используем (выведет KDE):
+	$XDG_CURRENT_DESKTOP
+# Выведет plasma
+	$DESKTOP_SESSION
+# Можно выяснить вот так:
+	ps -e | grep -Ei 'plasma|gnome|xfce|lxqt|mate|cinnamon'
+# X11 или Wayland
+	$XDG_SESSION_TYPE
+# Посмотреть id текущей сессии
+	$XDG_SESSION_ID
+# Посмотреть тип сессии (выведет или x11, или wayland):
+loginctl show-session $XDG_SESSION_ID -p Type
+	# посмотреть среду окружения через loginctl - НЕ ВСЕГДА РАБОТАЕТ!
+	# loginctl show-session $XDG_SESSION_ID -p Desktop
+# Посмотреть все сессии:
+	loginctl
 	
 	
+# Какой shell сейчас использует эмулятор терминала, в котором мы находимся:
+	echo $SHELL
+		# или:
+	ps -p $$
+		# или:
+	echo $0
+	
+# Какой терминал мы сейчас используем:
+	echo $TERM
+	
+
+## ИТОГО
+	$$ - специальная переменная shell, которая всегда хранит PID текущего shell-процесса
+	$SHELL - переменная окружения, которая обычно указывает на мой shell
+	$0 - позиционный параметр ноль, который показывает имя запущенной программы.
+		# запущенный в терминале, он выводит мой shell, но внутри запущенного скрипта он выведет имя текущего скрипта
+	$LS_COLORS - текущие цвета
 	</code></pre>
 
 	<h3>Полезные командочки</h3>
-	<pre><code>
-	
-	# Посмотреть процессы:
-		ps aux | grep swaybg	# BSD-стиль
-		px -ef | grep swaybg	# POSIX / SysV-стиль - почти то же самое
-			a - показать процессы всех пользователей
-			u - добавить колонку с владельцем процесса
-			x - показать процессы без терминала (демоны)
-			-e - все процессы
-			-f - полный формат
-			-p // --pid - можно узнать имя процесса по его pid
-			u и -u - разные опции
-		pgrep swaybg		# просто поиск процесса
-	# Как сохранить заголовки столбцов при выводе процессов:
-		ps aux | head -n 1 && ps aux | grep swaybg		# здесь мы два раза запускаем ps aux
-		ps aux | grep -E "COMMAND|swaybg"		# Здесь мы в регулярном выражении указываем какие строки хотим оставить (COMMAND - точно есть в первой строке)
-		ps -eo user,pid,%cpu,%mem,tty,stat,start,time,cmd | grep swaybg		# здесь мы явно указываем столбцы, которые хотим вывести
-	
-	## Установить Oh My Zsh:
-		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-			## После установки можно выбрать красивую тему в ~/.zshrc (например, ZSH_THEME="agnoster" или robbyrussell по умолчанию).
-	## Для красивой подсветки:
-		git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
-		echo 'source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> ~/.zshrc
-	## Автоподсказки по истории:
-		git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
-		echo 'source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
-	
-	# Посмотреть, сколько занимает место кэш:
-	du -sh ~/.cache/yay
-	# удаляем кэш вручную:
-	rm -rf ~/.cache/yay
+	<pre><code class="language-bash">
+# Посмотреть процессы:
+	ps aux | grep swaybg	# BSD-стиль
+	px -ef | grep swaybg	# POSIX / SysV-стиль - почти то же самое
+		a - показать процессы всех пользователей
+		u - добавить колонку с владельцем процесса
+		x - показать процессы без терминала (демоны)
+		-e - все процессы
+		-f - полный формат
+		-p // --pid - можно узнать имя процесса по его pid
+		u и -u - разные опции
+	pgrep swaybg		# просто поиск процесса
+# Как сохранить заголовки столбцов при выводе процессов:
+	ps aux | head -n 1 && ps aux | grep swaybg		# здесь мы два раза запускаем ps aux
+	ps aux | grep -E "COMMAND|swaybg"		# Здесь мы в регулярном выражении указываем какие строки хотим оставить (COMMAND - точно есть в первой строке)
+	ps -eo user,pid,%cpu,%mem,tty,stat,start,time,cmd | grep swaybg		# здесь мы явно указываем столбцы, которые хотим вывести
 
-	# Посмотреть текущие цвета:
-		echo $LS_COLORS
-		dircolors -p | grep -i other_writable	## для опасных файлов, у которых есть все права доступа
-	## Вывести список БЕЗ яркой подсветки:
-		ls --color=never ~/mnt/usb
-	## Чтобы каждый раз не прописывать аргумент, можно сделать так:
-		alias ls="ls --color=never"	
-	## Убрать alias:
-		unalias ls 		# и перезагружаем терминал
-		
-	## НО ЛУЧШЕ ИЗМЕНИТЬ цветовую схему
-	## Скопировать дефолтную схему цветов:
-		dircolors -p > ~/.dircolors
-	## Заменим
-			STICKY_OTHER_WRITABLE 30;42
-			OTHER_WRITABLE 34;42
-		##	На:
-			STICKY_OTHER_WRITABLE 30 # просто серый текст без фона
-			OTHER_WRITABLE 34        # голубой текст без фона
-	## Добавим в ~/.bashrc или в ~/.zshrc:
-		eval "$(dircolors ~/.dircolors)"
-	## Перезагружаем терминал или применяем сразу:
-		source ~/.zshrc
+## Установить Oh My Zsh:
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+		## После установки можно выбрать красивую тему в ~/.zshrc (например, ZSH_THEME="agnoster" или robbyrussell по умолчанию).
+## Для красивой подсветки:
+	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+	echo 'source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> ~/.zshrc
+## Автоподсказки по истории:
+	git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
+	echo 'source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
 
+# Посмотреть, сколько занимает место кэш:
+du -sh ~/.cache/yay
+# удаляем кэш вручную:
+rm -rf ~/.cache/yay
+
+# Посмотреть текущие цвета:
+	echo $LS_COLORS
+	dircolors -p | grep -i other_writable	## для опасных файлов, у которых есть все права доступа
+## Вывести список БЕЗ яркой подсветки:
+	ls --color=never ~/mnt/usb
+## Чтобы каждый раз не прописывать аргумент, можно сделать так:
+	alias ls="ls --color=never"	
+## Убрать alias:
+	unalias ls 		# и перезагружаем терминал
+	
+## НО ЛУЧШЕ ИЗМЕНИТЬ цветовую схему
+## Скопировать дефолтную схему цветов:
+	dircolors -p > ~/.dircolors
+## Заменим
+		STICKY_OTHER_WRITABLE 30;42
+		OTHER_WRITABLE 34;42
+	##	На:
+		STICKY_OTHER_WRITABLE 30 # просто серый текст без фона
+		OTHER_WRITABLE 34        # голубой текст без фона
+## Добавим в ~/.bashrc или в ~/.zshrc:
+	eval "$(dircolors ~/.dircolors)"
+## Перезагружаем терминал или применяем сразу:
+	source ~/.zshrc
 	</code></pre>
 
 	<h3>Железо</h3>
-	<pre><code>
-		lspci
-		lsusb (usbutils)
-		lsblk
+	<pre><code class="language-bash">lspci
+lsusb (usbutils)
+lsblk
 
-		# Проверим видеокарту:
-		lspci | grep -E "VGA|3D"
-			00:02.0 VGA compatible controller: Intel Corporation Alder Lake-S GT1 [UHD Graphics 730] (rev 0c)
+# Проверим видеокарту:
+lspci | grep -E "VGA|3D"
+	00:02.0 VGA compatible controller: Intel Corporation Alder Lake-S GT1 [UHD Graphics 730] (rev 0c)
 
-		# Посмотреть список микрофонов:
-		pactl list short sources
-		# Или:
-		pw-cli ls Node | grep input
-		# pw-cli - входит в пакет pipewire
+# Посмотреть список микрофонов:
+pactl list short sources
+# Или:
+pw-cli ls Node | grep input
+# pw-cli - входит в пакет pipewire
 
 
-		# Завершить сеанс KDE Plasma 6:
-		qdbus6 org.kde.Shutdown /Shutdown logout
+# Завершить сеанс KDE Plasma 6:
+qdbus6 org.kde.Shutdown /Shutdown logout
 
-			# Завершить сессию в KDE Plasma (я так понимаю, в X11):
-			qdbus org.kde.ksmserver /KSMServer logout 0 0 0
-				#qdbus (qt5-tools)
-		# Завершить сессию в KDE Plasma с Wayland:
-		loginctl terminate-session $XDG_SESSION_ID
-		# список сессий:
-		loginctl
-		# Завершить все сессии текущего пользователя:
-		loginctl terminate-user mark
-			# При этом sddm останется висеть и нужно будет убить процесс sddm	
+	# Завершить сессию в KDE Plasma (я так понимаю, в X11):
+	qdbus org.kde.ksmserver /KSMServer logout 0 0 0
+		#qdbus (qt5-tools)
+# Завершить сессию в KDE Plasma с Wayland:
+loginctl terminate-session $XDG_SESSION_ID
+# список сессий:
+loginctl
+# Завершить все сессии текущего пользователя:
+loginctl terminate-user mark
+	# При этом sddm останется висеть и нужно будет убить процесс sddm	
 	</code></pre>
 
-
-
-	<p></p>
-	<pre><code>
-
-	</code></pre>
-
-	<p></p>
-	<ul>
-		<li></li>
-	</ul>
+	<script src="/assets/highlight/languages/bash.min.js"></script>
+	<script>hljs.highlightAll();</script>
 </body>
 </html>

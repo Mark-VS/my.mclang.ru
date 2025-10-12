@@ -56,6 +56,172 @@ const kukuruza = createApp({
 kukuruza.mount("#app");
 </code></pre>
 
+<h2>Несколько классов одновременно</h2>
+<p>Можно применять/отключать сразу несколько классов одновременно:</p>
+
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;!-- Присваиваем двум классам булевые переменные --&gt;
+    &lt;div v-bind:class="{ kaka1: kaka1IsActive, kaka3: kaka3IsActive }"&gt;Сообщение, к которому должен примениться стиль.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<pre><code class="language-css">/* main.css */
+
+.kaka1 {
+   color: red;
+}
+.kaka3 {
+   text-decoration: underline;
+}
+</code></pre>
+
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        // активируем два класса:
+        const kaka1IsActive = true;
+        const kaka3IsActive = true;
+        return {
+            kaka1IsActive,
+            kaka3IsActive
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<h2>То же самое, но объект создаём заранее в JavaScript</h2>
+<p>Вышеприведённый пример можно переписать таким образом, чтобы мы экспортировали не каждую переменную, а сразу целый объект. И, давайте, сделаем его ещё реактивным.</p>
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;!-- Передаём классу уже созданный в JS реактивный объект --&gt;
+    &lt;div v-bind:class="classObject"&gt;Сообщение, к которому должен примениться стиль.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, reactive } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        const kaka1IsActive = true;
+        const kaka3IsActive = true;
+        // создаём реактивный объект и присваеваем классам булевые значения
+        const classObject = reactive({
+            kaka1: kaka1IsActive,
+            kaka3: kaka3IsActive
+        });
+        return {
+            classObject
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+<h2>computed</h2>
+<p>Такой же пример, но со свойством computed</p>
+
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+&lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+&lt;div id="app"&gt;
+    &lt;div v-bind:class="classObject"&gt;Сообщение, к которому должен примениться стиль.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+<pre><code class="language-javascript">//vue_example.js
+
+import { createApp, ref, computed } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        const error = ref(false);
+        const kaka1IsActive = ref(true);
+        const kaka3IsActive = ref(true);
+        const classObject = computed(() => ({
+            kaka1: kaka1IsActive.value && !error.value,
+            kaka3: kaka3IsActive.value
+        }));
+        return {
+            classObject
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+
+<h2>Меняем классы по кругу</h2>
+<p>kaka1 -> kaka2 -> выключаем классы</p>
+
+<pre><code class="language-xml">&lt;!-- index.html --&gt;
+
+    &lt;p&gt;Просто строка для наглядности - чтобы на странице хоть что-то было.&lt;/p&gt;
+
+    &lt;div id="app"&gt;
+        &lt;div v-bind:class="currentClass"&gt;Сообщение, к которому должен примениться стиль.&lt;/div&gt;
+        &lt;button v-on:click="toggleStyle"&gt;Кнопка&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;script type="module" src="vue_example.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<pre><code class="language-css">/* main.css */
+
+.kaka1 {
+   color: red;
+}
+.kaka2 {
+   color: blue;
+}
+</code></pre>
+
+<pre><code class="language-javascript">// vue_example.js
+
+import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+const kukuruza = createApp({
+    setup() {
+        const classes = ["kaka1", "kaka2", ""];
+        const index = ref(0);
+        const currentClass = ref(classes[index.value]);
+        function toggleStyle() {
+            // Если index.value > 2, то присваиваем index.value опять 0
+            index.value = (index.value + 1) % classes.length;
+            currentClass.value = classes[index.value];
+        }
+        return {
+            currentClass,
+            toggleStyle
+        }
+    }
+});
+
+kukuruza.mount("#app");
+</code></pre>
+
+
 <script src="/assets/highlight/languages/xml.min.js"></script>
 <script src="/assets/highlight/languages/css.min.js"></script>
 <script src="/assets/highlight/languages/javascript.min.js"></script>

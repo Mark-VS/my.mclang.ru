@@ -20,42 +20,50 @@
 <h3>Запуск</h3>
 <pre><code>    dbus-run-session sway > ~/.sway.log 2>&1
     exec sway</code></pre>
-<pre><code>
+<pre><code># Глобальный конфиг:
+	/etc/sway/config
+# Локальный конфиг:
+	~/.config/sway/config
+	
+# Раскладка клавиатуры:
+input * {
+	xkb_layout us,ru
+	xkb_options grp:alt_shift_toggle
+}
 
-    # Глобальный конфиг:
-        /etc/sway/config
-    # Локальный конфиг:
-        ~/.config/sway/config
-        
-    # Раскладка клавиатуры:
-        input * {
-            xkb_layout us,ru
-            xkb_options grp:alt_shift_toggle
-        }
+# Добавим ещё Compose-key на правый Alt:
 
-    # Задать фон:
-        # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-        # output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-        
-        ## Сначала убиваем старый процесс swaybg, потому что при старте sway запускает swaybg в любом случае (без параметров):
-        		exec_always "pkill swaybg; swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
-        ## или (что тоже самое, только через bash. Предыдущий был через shell):
-        		exec_always bash -c "pkill swaybg;  swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
-        
-       
-        		
-        # в глобальном конфиге надо закоментировать строку, которая задаёт фон
-        
-    ## Запуск waybar (две команды - в кавычках!):
-    ## Ищем точное совпадение среди процессов (waybar), если не найдено, то запускаем waybar, а если найдено, то ничего не делаем:
-    	exec_always "pgrep -x waybar || waybar"
-    	# И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
+input * {
+	xkb_layout us,ru
+	xkb_options grp:alt_shift_toggle,compose:ralt
+}
+
+# grp:alt_shift_toggle — это переключение раскладки Alt+Shift
+# compose:ralt — это назначение правого Alt как Compose-клавиши
+
+# Задать фон:
+	# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+	# output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 	
-	# ntfs-3g - нужен для фaйловой системы ntfs
-	sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
+	## Сначала убиваем старый процесс swaybg, потому что при старте sway запускает swaybg в любом случае (без параметров):
+			exec_always "pkill swaybg; swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
+	## или (что тоже самое, только через bash. Предыдущий был через shell):
+			exec_always bash -c "pkill swaybg;  swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
 	
 	
-	## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
+			
+	# в глобальном конфиге надо закоментировать строку, которая задаёт фон
+	
+## Запуск waybar (две команды - в кавычках!):
+## Ищем точное совпадение среди процессов (waybar), если не найдено, то запускаем waybar, а если найдено, то ничего не делаем:
+	exec_always "pgrep -x waybar || waybar"
+	# И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
+
+# ntfs-3g - нужен для фaйловой системы ntfs
+sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
+
+
+## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
 	
 	</code></pre>
 	<h3>РАЗРЕШЕНИЕ И ЧАСТОТА</h3>

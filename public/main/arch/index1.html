@@ -7,831 +7,771 @@
 	<meta name="description" content="Arch">
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
 	<title>Arch</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+	<script src="/assets/highlight/highlight.min.js"></script>
+
 	<a href="/arch">Вернуться назад</a>
 	<h1>Ставим Arch</h1>
 
 	<p>Трали-вали</p>
 	
 	
-	<pre><code>
-	# Посмотреть список доступных раскладок:
-	localectl list-keymaps
-	
-	# Установить русскую раскладку в текущий tty:
-	loadkeys ru
-	# Теперь можно поменять язык на русский сочетанием клавиш "Ctrl + Shift"
-	# Но скорее всего русский язык не будет нормально отображаться.
-	# По умолчанию в системе выставлен дефолтный шритф ядра: default8x16
-	# Доступные шрифты можно посмотреть в /usr/share/kbd/consolefonts/
-	
-	# Поменяем шрифт на cyr-sun16 (или на ter-c32b):
-	setfont cyr-sun16
-	
-	# Если нам нужен шрифт, который можно делать крупней и который поддерживает русскую раскладку, то:
-	setfont latarcyrheb-sun16
-	setfont latarcyrheb-sun32
-	
-	# Find more fonts with Cyrrilic characters:
-	ls /usr/share/kbd/consolefonts | grep -i cyr
-	
-	# Конфиг консольного шрифта:
-	# /etc/vconsole.conf
+	<pre><code class="language-bash"># Посмотреть список доступных раскладок:
+localectl list-keymaps
+
+# Установить русскую раскладку в текущий tty:
+loadkeys ru
+# Теперь можно поменять язык на русский сочетанием клавиш "Ctrl + Shift"
+# Но скорее всего русский язык не будет нормально отображаться.
+# По умолчанию в системе выставлен дефолтный шритф ядра: default8x16
+# Доступные шрифты можно посмотреть в /usr/share/kbd/consolefonts/
+
+# Поменяем шрифт на cyr-sun16 (или на ter-c32b):
+setfont cyr-sun16
+
+# Если нам нужен шрифт, который можно делать крупней и который поддерживает русскую раскладку, то:
+setfont latarcyrheb-sun16
+setfont latarcyrheb-sun32
+
+# Find more fonts with Cyrrilic characters:
+ls /usr/share/kbd/consolefonts | grep -i cyr
+
+# Конфиг консольного шрифта:
+# /etc/vconsole.conf
 	</code></pre>
+
 <h3>Проверим режим загрузки</h3>
-	<pre><code>
-		cat /sys/firmware/efi/fw_platform_size
-		# Если исп. режим BIOS, то никакой инфы не вылезел. А если исп. UEFI, то получим либо 64, либо 32
-		
-		# !!! Если хотим загрузиться в UEFI-режиме, В VirtualBox в настройках ставим галочку "Включить EFI (только специальные ОС)"
+	<pre><code class="language-bash">cat /sys/firmware/efi/fw_platform_size
+# Если исп. режим BIOS, то никакой инфы не вылезел. А если исп. UEFI, то получим либо 64, либо 32
+
+# !!! Если хотим загрузиться в UEFI-режиме, В VirtualBox в настройках ставим галочку "Включить EFI (только специальные ОС)"
 	</code></pre>
 		
 	<h3>Интернет</h3>
-	<pre><code>
-		# посмотреть интерфейс и проверить связь:
-		ip link
-		ping archlinux.org
-		
-		# Посмотреть текущий часовой пояс:
-		timedateclt
-		
-		# Посмотреть время:
-		hwclock
-		
-		# Список доступных часовых поясов:
-		ls /usr/share/zoneinfo
-		
-		# Файл Moscow и Kaliningrad находятся здесь:
-		/usr/share/zoneinfo/Europe/Moscow
-		/usr/share/zoneinfo/Europe/Kaliningrad
-		
-		# Меняем часовой пояс:
-		ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
-		
-		# Проверяем системное время:
-		date
-		# Проверяем аппаратное время:
-		hwclock
-		# Проверяем текущий часовой пояс:
-		timedatectl
+	<pre><code class="language-bash"># посмотреть интерфейс и проверить связь:
+ip link
+ping archlinux.org
+
+# Посмотреть текущий часовой пояс:
+timedateclt
+
+# Посмотреть время:
+hwclock
+
+# Список доступных часовых поясов:
+ls /usr/share/zoneinfo
+
+# Файл Moscow и Kaliningrad находятся здесь:
+/usr/share/zoneinfo/Europe/Moscow
+/usr/share/zoneinfo/Europe/Kaliningrad
+
+# Меняем часовой пояс:
+ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+
+# Проверяем системное время:
+date
+# Проверяем аппаратное время:
+hwclock
+# Проверяем текущий часовой пояс:
+timedatectl
 	</code></pre>
 	
 	<h3>Разметка диска для GPT</h3>
-	<pre><code>
-		# Посмотреть список определившихся блочных устройств:
-		lsblk
-		
-		# Посмотреть подробную информацию о разделах (в том числе метки:):
-		blkid /dev/sda2
-		# Либо:
-		lsblk -f
-		
-		# Или:
-		fdisk -l
-		
-		# Создадим три раздела: /sda1 - boot, /sda2 - swap, /sda3 - linux fs
-		# Проще всего - используя cfdisk
-		Первым должен быть  раздел EFI (не меньше 1GB) - он же boot.
-		
-		# После создания первичного раздела, нужно заменить его тип на EFI System
-		
-		# В fdisk это делается командой t
-		fdisk /dev/sda -> t -> номер_раздела -> L (список доступных) -> q -> номер или alias 
-		
-		# Отформатируем его в файловой системе Fat32:
-		mkfs.fat -F 32 /dev/sda1
-		mkfs.vfat /dev/sda1 - то же самое, что и первая команда. Здесь программа сама выбере тип Fat32
-			# Но если раздел жёсткого диска меньше 512 MB, то вторая команда может выбрать тип FAT16. Так что важно, чтобы диск был больше 512 MB.
-		 
-		# Отформатируем раздел для файла подкачки:
-		mkswap /dev/sda2
-		
-		# Основной раздел отформатируем в файловй системе ext4:
-		mkfs.ext4 /dev/sda3
-		
-		# С помощью fdisk можно посмотреть тип раздела (но не файловую систему раздела): 
-		fdisk -l /dev/sda
-		
-		# С помощью parted:
-		parted /dev/sda print
-		# Тут выводятся флаги. esp-флаг значит: EFI System Partition
-		
-		
-		# Посмотреть файловую систему разделов и метку можно так:
-		lsblk -f
-		
-		# lsblk может вывести тип раздела, но он его выводит в таком вот виде:
-		# 0fc63daf-8483-4772-8e79-3d69d8477de4 - это если у нас GPT (GUID)
-		# 0x83 - это если у нас MBR
-		lsblk -o NAME,FSTYPE,PARTTYPE,PARTLABEL,PARTUUID
-		
-		# Тип раздела можно узнать с помощью gdisk:
-		gdisk /dev/sda -> команда i -> номер раздела
-		gdisk /dev/sda -> команда info -> номер раздела
-			# Partition GUID code: C12A7328-F81F-11D2-BA4B-00A0C93EC93B (EFI system partition) - это тип раздела
-			# Partition unique GUID: 0F6BF88F-6B0E-4C8F-AE89-0E3BDB08FC51 - а это id раздела
-		
-		# А также с помощью:
-		gdisk /dev/sda -> print
-		sgdisk --print /dev/sdaa
-			# Здесь в графе CODE: FF00 - EFI System, 8200 - Swap, 8300 - обычный Linux-раздел
-		
-		# cfdisk
-		# в cfdisk нельзя указать ни Label (файловой системы), ни Name (GPT-раздела)
-		# Но зато здесь отображается и Label, и Name GPT-раздела
-		
-		# метку файловой системы для отформатированного раздела можно установить так
-			# для ext4:
-			e2label /dev/sda3 NewLabel
-			tune2fs -L NewLabel /dev/sda3
-			# для fat32:
-			fatlabel /dev/sda3 NEWLABEL
-			# для swap-раздела:
-			mkswap -L NewSwap /dev/sda2
-			# Если swap-раздел уже был включен (swapon /dev/sda2), то его надо сначала выключить:
-				swapoff /dev/sda2
-				mkswap -L NewSwap /dev/sda2
-				swapon /dev/sda2
-			
-		# при форматировании:
-			mkfs.ext4 -L NewLabel /dev/sda3
-			mkfs.vfat -n NEWLABEL /dev/sda3
-			# или: mkfs.fat -F 32 -n NEWLABEL /dev/sda3
-			mkswap -L SwapName /dev/sda2
-			
-		# Задать имя GPT-раздела можно в parted:
-			parted /dev/sda -> name -> номер раздела -> имя_раздела
-			
-		# sgdisk - это тот же gdisk, но без интерактивного режима
-		
-		# Форматирование жёсткого диска.
-		# Сначала удаляем все разделы на жёстком диске с помощью fdisk, а затем:
-		wipefs -a /dev/sda	# удаляет сигнатуры файловых систем, но не разделы
-		
-		# Либо, если мы хотим сделать всё наоборот, то сначала удаляем сигнатуры на диске и во всех разделах:
-		wipefs -a /dev/sda
-		wipefs -a /dev/sda1
-		wipefs -a /dev/sda2
-		wipefs -s /dev/sda3
-		# И теперь удаляем разделы. Первый вариант проще.
-		
-		# Если я хочу заменить тип таблицы с dos на gpt, можно сделать так:
-		gdisk /dev/sda
-		# Оно спросит, преобразовать ли dos в gpt - отвечаем "да", сохраняем и выходим.
-		# Теперь Disklabel type в fdisk поменялся с dos на gpt.
-		
-		# Либо можно это поменять в самом fdisk:
-		fdisk -> g
-		# Вернуть обратно Disklabel type на dos:
-		fdisk -> o
-		
-	</code></pre>
-	<h3>Разметка диска для MBR</h3>
-	<pre><code>
-		# Для начала надо выяснить, какая метка стоит у диска: MBR или GPT
-		fdisk -l /dev/sda
-		# Disklabel type: dos
-		# Введём команду:
-		fdisk -> g -> write
-		# И теперь Disklabel type: gpt
-		
-		# Надо указать диску метку MBR
-		/dev/sda -> o -> w - создать новую пустую таблицу разделов MBR (DOS)
-		/dev/sda -> g -> w - создать новую пустую таблицу разделов GPT 
-		# Это удалит все существующий разделы и метки (MBR, GPT), если они были
+	<pre><code class="language-bash"># Посмотреть список определившихся блочных устройств:
+lsblk
+
+# Посмотреть подробную информацию о разделах (в том числе метки:):
+blkid /dev/sda2
+# Либо:
+lsblk -f
+
+# Или:
+fdisk -l
+
+# Создадим три раздела: /sda1 - boot, /sda2 - swap, /sda3 - linux fs
+# Проще всего - используя cfdisk
+Первым должен быть  раздел EFI (не меньше 1GB) - он же boot.
+
+# После создания первичного раздела, нужно заменить его тип на EFI System
+
+# В fdisk это делается командой t
+fdisk /dev/sda -> t -> номер_раздела -> L (список доступных) -> q -> номер или alias 
+
+# Отформатируем его в файловой системе Fat32:
+mkfs.fat -F 32 /dev/sda1
+mkfs.vfat /dev/sda1 - то же самое, что и первая команда. Здесь программа сама выбере тип Fat32
+	# Но если раздел жёсткого диска меньше 512 MB, то вторая команда может выбрать тип FAT16. Так что важно, чтобы диск был больше 512 MB.
 	
-		# Теперь создаём разделы.
-		# Если их будет не больше четырёх, то все их делаем primary. Потому что MBR не поддерживает больше 4-х
-		# У меня разметка будет такая:
-			# /dev/sda1 - root - 30GB
-			# /dev/sda2 - swap - 1G
-			# /dev/sda3 - home - 14GB
-			
-		fdisk -> n -> p (primary) -> 1 -> 2048 -> +30GB
-		# Если этот раздел раньше уже был форматирован в какой-то фаловой системе, то мы можем увидеть предупреждение красным цветом, типа:
-		# Partition #1 contains a ext4 signature.
-		# Это ничего страшного. Просто fdisk нас предупреждает, что нашёл старую файловую систему и что там могут быть важные данные.
-		
-		fdisk -> n -> p (primary) -> 2 -> 58595328 -> +1G
-		fdisk -> n -> p (primary) -> 3 -> 60692480 -> 95070847
-		
-		# Посмотрим, что мы создали:
-		fdisk -> p (print)
-		
-		# У нас у второго раздела тип 83 (Linux) - по умолчанию, а нам нужен 82 (swap)
-		fdisk -> t -> 2 -> swap (или 82)
-		
-		# Теперь разметка готова и нужно её применить (записать):
-		fdisk -> w (write)
-		
-		# Форматируем и ставим метки:
-		mkfs.ext4 -L RootPart /dev/sda1
-		mkswap -L SwapPart /dev/sda2
-		mkfs.ext4 -L HomePart /dev/sda3
-		
+# Отформатируем раздел для файла подкачки:
+mkswap /dev/sda2
+
+# Основной раздел отформатируем в файловй системе ext4:
+mkfs.ext4 /dev/sda3
+
+# С помощью fdisk можно посмотреть тип раздела (но не файловую систему раздела): 
+fdisk -l /dev/sda
+
+# С помощью parted:
+parted /dev/sda print
+# Тут выводятся флаги. esp-флаг значит: EFI System Partition
+
+
+# Посмотреть файловую систему разделов и метку можно так:
+lsblk -f
+
+# lsblk может вывести тип раздела, но он его выводит в таком вот виде:
+# 0fc63daf-8483-4772-8e79-3d69d8477de4 - это если у нас GPT (GUID)
+# 0x83 - это если у нас MBR
+lsblk -o NAME,FSTYPE,PARTTYPE,PARTLABEL,PARTUUID
+
+# Тип раздела можно узнать с помощью gdisk:
+gdisk /dev/sda -> команда i -> номер раздела
+gdisk /dev/sda -> команда info -> номер раздела
+	# Partition GUID code: C12A7328-F81F-11D2-BA4B-00A0C93EC93B (EFI system partition) - это тип раздела
+	# Partition unique GUID: 0F6BF88F-6B0E-4C8F-AE89-0E3BDB08FC51 - а это id раздела
+
+# А также с помощью:
+gdisk /dev/sda -> print
+sgdisk --print /dev/sdaa
+	# Здесь в графе CODE: FF00 - EFI System, 8200 - Swap, 8300 - обычный Linux-раздел
+
+# cfdisk
+# в cfdisk нельзя указать ни Label (файловой системы), ни Name (GPT-раздела)
+# Но зато здесь отображается и Label, и Name GPT-раздела
+
+# метку файловой системы для отформатированного раздела можно установить так
+	# для ext4:
+	e2label /dev/sda3 NewLabel
+	tune2fs -L NewLabel /dev/sda3
+	# для fat32:
+	fatlabel /dev/sda3 NEWLABEL
+	# для swap-раздела:
+	mkswap -L NewSwap /dev/sda2
+	# Если swap-раздел уже был включен (swapon /dev/sda2), то его надо сначала выключить:
+		swapoff /dev/sda2
+		mkswap -L NewSwap /dev/sda2
+		swapon /dev/sda2
+	
+# при форматировании:
+	mkfs.ext4 -L NewLabel /dev/sda3
+	mkfs.vfat -n NEWLABEL /dev/sda3
+	# или: mkfs.fat -F 32 -n NEWLABEL /dev/sda3
+	mkswap -L SwapName /dev/sda2
+	
+# Задать имя GPT-раздела можно в parted:
+	parted /dev/sda -> name -> номер раздела -> имя_раздела
+	
+# sgdisk - это тот же gdisk, но без интерактивного режима
+
+# Форматирование жёсткого диска.
+# Сначала удаляем все разделы на жёстком диске с помощью fdisk, а затем:
+wipefs -a /dev/sda	# удаляет сигнатуры файловых систем, но не разделы
+
+# Либо, если мы хотим сделать всё наоборот, то сначала удаляем сигнатуры на диске и во всех разделах:
+wipefs -a /dev/sda
+wipefs -a /dev/sda1
+wipefs -a /dev/sda2
+wipefs -s /dev/sda3
+# И теперь удаляем разделы. Первый вариант проще.
+
+# Если я хочу заменить тип таблицы с dos на gpt, можно сделать так:
+gdisk /dev/sda
+# Оно спросит, преобразовать ли dos в gpt - отвечаем "да", сохраняем и выходим.
+# Теперь Disklabel type в fdisk поменялся с dos на gpt.
+
+# Либо можно это поменять в самом fdisk:
+fdisk -> g
+# Вернуть обратно Disklabel type на dos:
+fdisk -> o	
+	</code></pre>
+
+	<h3>Разметка диска для MBR</h3>
+	<pre><code class="language-bash">
+# Для начала надо выяснить, какая метка стоит у диска: MBR или GPT
+fdisk -l /dev/sda
+# Disklabel type: dos
+# Введём команду:
+fdisk -> g -> write
+# И теперь Disklabel type: gpt
+
+# Надо указать диску метку MBR
+/dev/sda -> o -> w - создать новую пустую таблицу разделов MBR (DOS)
+/dev/sda -> g -> w - создать новую пустую таблицу разделов GPT 
+# Это удалит все существующий разделы и метки (MBR, GPT), если они были
+
+# Теперь создаём разделы.
+# Если их будет не больше четырёх, то все их делаем primary. Потому что MBR не поддерживает больше 4-х
+# У меня разметка будет такая:
+	# /dev/sda1 - root - 30GB
+	# /dev/sda2 - swap - 1G
+	# /dev/sda3 - home - 14GB
+	
+fdisk -> n -> p (primary) -> 1 -> 2048 -> +30GB
+# Если этот раздел раньше уже был форматирован в какой-то фаловой системе, то мы можем увидеть предупреждение красным цветом, типа:
+# Partition #1 contains a ext4 signature.
+# Это ничего страшного. Просто fdisk нас предупреждает, что нашёл старую файловую систему и что там могут быть важные данные.
+
+fdisk -> n -> p (primary) -> 2 -> 58595328 -> +1G
+fdisk -> n -> p (primary) -> 3 -> 60692480 -> 95070847
+
+# Посмотрим, что мы создали:
+fdisk -> p (print)
+
+# У нас у второго раздела тип 83 (Linux) - по умолчанию, а нам нужен 82 (swap)
+fdisk -> t -> 2 -> swap (или 82)
+
+# Теперь разметка готова и нужно её применить (записать):
+fdisk -> w (write)
+
+# Форматируем и ставим метки:
+mkfs.ext4 -L RootPart /dev/sda1
+mkswap -L SwapPart /dev/sda2
+mkfs.ext4 -L HomePart /dev/sda3		
 	</code></pre>	
 	
 	<h3>Монтирование для GPT</h3>
-	<pre><code>
-		# Монтируем корневой раздел /dev/sda3 в каталог /mnt
-		mount /dev/sda3 /mnt
-		
-		# Создаём точку монтирования boot в /mnt:
-		mkdir /mnt/boot
-		
-		# Монтируем системный раздел EFI для UEFI в /mnt/boot
-		mount /dev/sda1 /mnt/boot
-		
-		# Активируем раздел подкачки:
-		swapon /dev/sda2
-		
-		# Чтобы посмотреть, куда примонтированы наши разделы, можно вызвать команду lsblk:
-		lsblk
-		
-		# В дальнейшем genfstab обнаружит смонтированные файловые системы и пространство подкачки.
-	</code></pre>
-	<h3>Монтирование для MBR</h3>
-	<pre><code>
-		# Монтируем корневой раздел /dev/sda1 в каталог /mnt
-		mount /dev/sda1 /mnt
-		
-		# Создаём раздел точку монтирования home в /mnt
-		mkdir /mnt/home
-		
-		# Монтируем раздел /dev/sda3 в /mnt/home
-		mount /dev/sda3 /mnt/home
-		
-		# Активируем раздел подкачки:
-		swapon /dev/sda2
+	<pre><code class="language-bash"># Монтируем корневой раздел /dev/sda3 в каталог /mnt
+mount /dev/sda3 /mnt
 
+# Создаём точку монтирования boot в /mnt:
+mkdir /mnt/boot
+
+# Монтируем системный раздел EFI для UEFI в /mnt/boot
+mount /dev/sda1 /mnt/boot
+
+# Активируем раздел подкачки:
+swapon /dev/sda2
+
+# Чтобы посмотреть, куда примонтированы наши разделы, можно вызвать команду lsblk:
+lsblk
+
+# В дальнейшем genfstab обнаружит смонтированные файловые системы и пространство подкачки.
 	</code></pre>
+
+	<h3>Монтирование для MBR</h3>
+	<pre><code class="language-bash"># Монтируем корневой раздел /dev/sda1 в каталог /mnt
+mount /dev/sda1 /mnt
+
+# Создаём раздел точку монтирования home в /mnt
+mkdir /mnt/home
+
+# Монтируем раздел /dev/sda3 в /mnt/home
+mount /dev/sda3 /mnt/home
+
+# Активируем раздел подкачки:
+swapon /dev/sda2
+	</code></pre>
+
 	<h3>Зеркала</h3>
-	<pre><code>
-		# Зеркала здесь: /etc/pacman.d/mirrorlist
-		# Можно их поменять местами вручную. У тех, что сверху, высший приоритет
-		
-		# Позже pacstrap скопирует этот файл в новую систему, так что если нужно, стоит их подправить.
-		
-		# !!! НИКАКИЕ программы или настройки, кроме файла /etc/pacman.d/mirrorlist, из live-окружения в новую систему не переносятся.
+	<pre><code class="language-bash"># Зеркала здесь: /etc/pacman.d/mirrorlist
+# Можно их поменять местами вручную. У тех, что сверху, высший приоритет
+
+# Позже pacstrap скопирует этот файл в новую систему, так что если нужно, стоит их подправить.
+
+# !!! НИКАКИЕ программы или настройки, кроме файла /etc/pacman.d/mirrorlist, из live-окружения в новую систему не переносятся.
 	</code></pre>
 	
 	<h3>Установка основных пакетов</h3>
-	<pre><code>
-		pacstrap -K /mnt base linux (linux-firmware)
-			# -K - не копировать ключи пакетов из кэша - скачивай пакеты заново (--no-pkg-cache)
-			# пакет base - содержит НЕ все инструменты, имеющиеся на установочном носитиле
-			# linux - ядро
-			# linux-firmware - можно не ставить, если я устанавливаю Arch на VirtualBox
-		
-		# Допустим, у меня установка закончилась и я хочу доустановить ещё пакет intel-ucode.
-		# Тогда я могу ещё раз запустить pacstrap:
-		pacstrap -K /mnt intel-ucode
-		# либо сделать это потом, когда я chroot'нусь в новую систему
-		
-		# В новой системе НЕ БУДЕТ текстовых редакторов!! И не будет dhcpcd!!!
-		pacstrap -K /mnt nano dhcpcd
+	<pre><code class="language-bash">pacstrap -K /mnt base linux (linux-firmware)
+	# -K - не копировать ключи пакетов из кэша - скачивай пакеты заново (--no-pkg-cache)
+	# пакет base - содержит НЕ все инструменты, имеющиеся на установочном носитиле
+	# linux - ядро
+	# linux-firmware - можно не ставить, если я устанавливаю Arch на VirtualBox
+
+# Допустим, у меня установка закончилась и я хочу доустановить ещё пакет intel-ucode.
+# Тогда я могу ещё раз запустить pacstrap:
+pacstrap -K /mnt intel-ucode
+# либо сделать это потом, когда я chroot'нусь в новую систему
+
+# В новой системе НЕ БУДЕТ текстовых редакторов!! И не будет dhcpcd!!!
+pacstrap -K /mnt nano dhcpcd
 	</code></pre>
 	
 	<h3>Настройка системы</h3>
-	<pre><code>
-		# Сейчас у нас в файле /mnt/etc/fstab пусто. Только несколько закомментированных строк.
-		genfstab -U /mnt >> /mnt/etc/fstab
-			# или:
-		genfstab -L /mnt >> /mnt/etc/fstab
-		
-		# Если мы хотим перезаписать файл, то делаем так:
-		genfstab -L /mnt > /mnt/etc/fstab
-		
-		# genfstab - утилита, которая автоматически создаёт таблицу монтирования (fstab) для Linux-системы.
-		# Она сканирует смонтированные разделы (или корневую файловую систему, которую мы ей укажем)
-		# И запишет инфу о том, как монтировать наши разделы в файл, который мы укажем.
+	<pre><code class="language-bash"># Сейчас у нас в файле /mnt/etc/fstab пусто. Только несколько закомментированных строк.
+genfstab -U /mnt >> /mnt/etc/fstab
+	# или:
+genfstab -L /mnt >> /mnt/etc/fstab
+
+# Если мы хотим перезаписать файл, то делаем так:
+genfstab -L /mnt > /mnt/etc/fstab
+
+# genfstab - утилита, которая автоматически создаёт таблицу монтирования (fstab) для Linux-системы.
+# Она сканирует смонтированные разделы (или корневую файловую систему, которую мы ей укажем)
+# И запишет инфу о том, как монтировать наши разделы в файл, который мы укажем.
 	</code></pre>
+
 	<h3>Chroot</h3>
-	<pre><code>
-		# Заходим в новую систему:
-		arch-chroot /mnt
-		
-		# И у нас тут не установлены текстовые редакторы. Нет nano, нет vi.
-		# А ещё нам понадобится dhcpcd, когда мы войдём в новую систему и обнаружим, что там нет интернета
-		
-		# Сначала обновим базу пакетов и ключи:
-		pacman -Sy
-		# И ставим nano:
-		pacman -S nano
-		
-		# Ставим dhcpcd и включаем его:
-		pacman -S dhcpcd
-		systemctl enable dhcpcd
+	<pre><code class="language-bash"># Заходим в новую систему:
+arch-chroot /mnt
+
+# И у нас тут не установлены текстовые редакторы. Нет nano, нет vi.
+# А ещё нам понадобится dhcpcd, когда мы войдём в новую систему и обнаружим, что там нет интернета
+
+# Сначала обновим базу пакетов и ключи:
+pacman -Sy
+# И ставим nano:
+pacman -S nano
+
+# Ставим dhcpcd и включаем его:
+pacman -S dhcpcd
+systemctl enable dhcpcd
 	</code></pre>
 
 	<h3>Время</h3>
-	<pre><code>
-	
-		# Опять создаём часовой пояс - на этот раз для новой системы
-		ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
-		# А можно установить время вот так:
-		timedatectl set-timezone Europe/Moscow
-		
-		# Генерируем файл /etc/adjtime:
-		hwclock --systohc
-		# Эта команда предполагает, что аппаратные часы используют UTC.
-		# То есть мы здесь копируем системное время в аппаратные часы (System -> RTC)
-		# При перезагрузке BIOS/UEFI может отдать системе аппаратное время (особенно, если отключён интернет)
-	
-		
-	</code></pre>	
-	<h3>Локализация</h3>
-	<pre><code>
-	
-		# Редактируем файл /etc/locale.gen - раскомментируем строки:
-		# en_US.UTF-8 UTF-8
-		# ru_RU.UTF-8 UTF-8
-		# А затем сгенерируем эти две локали:
-		locale-gen
+	<pre><code class="language-bash"># Опять создаём часовой пояс - на этот раз для новой системы
+ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+# А можно установить время вот так:
+timedatectl set-timezone Europe/Moscow
 
-		# Теперь нам нужно указать системе, какую локаль использовать по умолчанию.
-		# Для этого создаём файл /etc/locale.conf и пишем в него:
-		LANG=ru_RU.UTF-8
-		
-		# Мы уже меняли раскладку клавиатуры и шрифт. Но при следующей загрузке их не будет.
-		# Поэтому, если нужно, можно их зафиксировать в файле /etc/vconsole.conf:
-		KEYMAP=ru
-		FONT=cyr-sun16
+# Генерируем файл /etc/adjtime:
+hwclock --systohc
+# Эта команда предполагает, что аппаратные часы используют UTC.
+# То есть мы здесь копируем системное время в аппаратные часы (System -> RTC)
+# При перезагрузке BIOS/UEFI может отдать системе аппаратное время (особенно, если отключён интернет)
+	</code></pre>	
+
+	<h3>Локализация</h3>
+	<pre><code class="language-bash">	# Редактируем файл /etc/locale.gen - раскомментируем строки:
+# en_US.UTF-8 UTF-8
+# ru_RU.UTF-8 UTF-8
+# А затем сгенерируем эти две локали:
+locale-gen
+
+# Теперь нам нужно указать системе, какую локаль использовать по умолчанию.
+# Для этого создаём файл /etc/locale.conf и пишем в него:
+LANG=ru_RU.UTF-8
+
+# Мы уже меняли раскладку клавиатуры и шрифт. Но при следующей загрузке их не будет.
+# Поэтому, если нужно, можно их зафиксировать в файле /etc/vconsole.conf:
+KEYMAP=ru
+FONT=cyr-sun16
 	</code></pre>	
 	
 	<h3>Сеть</h3>
-	<pre><code>
-		# Зададим имя хоста. Для этого нужно создать файл /etc/hostname:
-		myhostname
+	<pre><code class="language-bash"># Зададим имя хоста. Для этого нужно создать файл /etc/hostname:
+myhostname
 	</code></pre>
 	
 	<h3>Пароль</h3>
-	<pre><code>
-		# Зададим пароль суперпользователя:
-		passwd
+	<pre><code class="language-bash"># Зададим пароль суперпользователя:
+passwd
 	</code></pre>
+
 	<h3>mkinitcpio</h3>
-	<pre><code>
-	
-		# Команда mkinitcpio -P служит для генерации initramfs
-		# initramfs - это загрузочный образ, который используется ядром Linux при старте системы.
+	<pre><code class="language-bash"># Команда mkinitcpio -P служит для генерации initramfs
+# initramfs - это загрузочный образ, который используется ядром Linux при старте системы.
 
-		# Обычно создание нового образа не требуется.
-		# Потому что, когда pacstrap ставит пакет ядра, после установки он автоматически запускает mkinitcpio.
-	
-		# Если мы хотим изменить правила для сборки образа initramfs, то нам нужно отредактирвать файл /etc/mkinitcpio.conf,
-		# ... а потом пересобрать initramfs командой:
-		mkinitcpio -P
+# Обычно создание нового образа не требуется.
+# Потому что, когда pacstrap ставит пакет ядра, после установки он автоматически запускает mkinitcpio.
+
+# Если мы хотим изменить правила для сборки образа initramfs, то нам нужно отредактирвать файл /etc/mkinitcpio.conf,
+# ... а потом пересобрать initramfs командой:
+mkinitcpio -P
 	</code></pre>
+
 	<h3>Загрузчик в режиме GPT</h3>
-	<pre><code>
-	
-		# Убедимся, что esp смонтирован в /boot:
-		mount | grep " /boot"
-		
-		# Ставим два пакета: grub и efibootmgr
-		pacman -S grub efibootmgr
-		
-		# Теперь запускаем:
-		grub-install --target=x86_64-efi --efi-directory=boot --bootloader-id=GRUB
-		grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-		# Или, если у нас EFI смонтирован не в /boot:
-		grub-install --boot-directory=/mnt/boot --target=x86_64-efi --efi-directory=boot --bootloader-id=GRUB
+	<pre><code class="language-bash">
+# Убедимся, что esp смонтирован в /boot:
+mount | grep " /boot"
 
-		# После установки нужно сгенерировать конфигурационный файл /boot/grub/grub.cfg:
-		grub-mkconfig -o /boot/grub/grub.cfg
+# Ставим два пакета: grub и efibootmgr
+pacman -S grub efibootmgr
 
-		# Проверим загрузочные записи:
-		efibootmgr
-		
+# Теперь запускаем:
+grub-install --target=x86_64-efi --efi-directory=boot --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+# Или, если у нас EFI смонтирован не в /boot:
+grub-install --boot-directory=/mnt/boot --target=x86_64-efi --efi-directory=boot --bootloader-id=GRUB
+
+# После установки нужно сгенерировать конфигурационный файл /boot/grub/grub.cfg:
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Проверим загрузочные записи:
+efibootmgr	
 	</code></pre>
+
 	<h3>Загрузчик в режиме MBR</h3>
-	<pre><code>
+	<pre><code class="language-bash"># Ставим два пакета: grub и os-prober
+pacman -S grub os-prober
 
-		
-		# Ставим два пакета: grub и os-prober
-		pacman -S grub os-prober
-		
-		# Устанавливаем GRUB в MBR (на весь диск, а не на раздел):
-		grub-install --target=i386-pc /dev/sda
-		
-		# Создаём конфигурационный файл:
-		grub-mkconfig -o /boot/grub/grub.cfg
+# Устанавливаем GRUB в MBR (на весь диск, а не на раздел):
+grub-install --target=i386-pc /dev/sda
 
-		
+# Создаём конфигурационный файл:
+grub-mkconfig -o /boot/grub/grub.cfg
 	</code></pre>
-	<h3>Перезагрузка</h3>
-	<pre><code>
-	
-		# Выходим из chroot:
-		exit
-		
-		# Размонтируем все разделы:
-		umount -R /mnt
-		# Нужно обязательно выйти из /mnt, иначе не получится размонтировать раздел.
 
+	<h3>Перезагрузка</h3>
+	<pre><code class="language-bash"># Выходим из chroot:
+exit
+
+# Размонтируем все разделы:
+umount -R /mnt
+# Нужно обязательно выйти из /mnt, иначе не получится размонтировать раздел.
 	</code></pre>
 	
 	<h3>...</h3>
-	<pre><code>
+	<pre><code class="language-bash"># Зашёл в новую систему. Нет интернета.
+# Проверяем состояние интерфейса:
+ip link
+# enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+	# link/ether 08:00:27:f8:4b:11 brd ff:ff:ff:ff:ff:ff
+	# altname enx080027f84b11
 	
-		# Зашёл в новую систему. Нет интернета.
-		# Проверяем состояние интерфейса:
-		ip link
-		# enp0s3: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-			# link/ether 08:00:27:f8:4b:11 brd ff:ff:ff:ff:ff:ff
-			# altname enx080027f84b11
-			
-		# Он выключен: state DOWN
-		# Нам надо его включить:
-		ip link set enp0s3 up
-		
-		# Теперь нам надо получить IP через DHCP:
-		dhcpcd enp0s3
-		
-		# Если мы хотим, чтобы DHCP запускался автоматически:
-		systemctl enable dhcpcd@enp0s3.service
-		systemctl start dhcpcd@enp0s3.service
-		
+# Он выключен: state DOWN
+# Нам надо его включить:
+ip link set enp0s3 up
+
+# Теперь нам надо получить IP через DHCP:
+dhcpcd enp0s3
+
+# Если мы хотим, чтобы DHCP запускался автоматически:
+systemctl enable dhcpcd@enp0s3.service
+systemctl start dhcpcd@enp0s3.service
 	</code></pre>
 	
 	<h3>Для VirtualBox</h3>
-	<pre><code>
-	
-		# Если я ставлю ОС на VirtualBox
-		pacman -S virtualbox-guest-utils
-		
-		# If you use linux-lts
-		sudo pacman -S virtualbox-guest-utils virtualbox-guest-modules-lts
-		
-		# If you use hardened kernel
-		sudo pacman -S virtualbox-guest-utils virtualbox-guest-modules-arch
-		
-		# Включаем нужные службы, чтобы поддерживалась интеграция с хостом (например, автоматическое изменение  разрешения, буфер обмена и т.п.)
-		systemctl enable vboxservice.service 	# для systemd
-		
-		# И запускаем их сейчас:
-		systemctl start vboxservice.service
-		
-		# Чтобы работало 3D-ускорение в VirtualBox, нужен OpenGL. Для этого ставим mesa:
-		sudo pacman -S mesa
-		
-		#
-		pacman -S xorg
-		pacman -S xfce4
-		
-		# xorg-server xorg-xinit xorg-server-utils mesa xterm
-		
-		# Перезагружаемся.
-		# Запускаем xfce4:
-		startx
-		
-		# Если не запустилось, то нужно проверить наличие файла ~/.xinitrc:
-		exec startxfce4
-		
-		# Если его нет, то создаём его:
-		echo "exec startxfce4" > ~/.xinitrc
-		chmod +x ~/.xinitrc
-		
-		startx
-		
+	<pre><code class="language-bash"># Если я ставлю ОС на VirtualBox
+pacman -S virtualbox-guest-utils
+
+# If you use linux-lts
+sudo pacman -S virtualbox-guest-utils virtualbox-guest-modules-lts
+
+# If you use hardened kernel
+sudo pacman -S virtualbox-guest-utils virtualbox-guest-modules-arch
+
+# Включаем нужные службы, чтобы поддерживалась интеграция с хостом (например, автоматическое изменение  разрешения, буфер обмена и т.п.)
+systemctl enable vboxservice.service 	# для systemd
+
+# И запускаем их сейчас:
+systemctl start vboxservice.service
+
+# Чтобы работало 3D-ускорение в VirtualBox, нужен OpenGL. Для этого ставим mesa:
+sudo pacman -S mesa
+
+#
+pacman -S xorg
+pacman -S xfce4
+
+# xorg-server xorg-xinit xorg-server-utils mesa xterm
+
+# Перезагружаемся.
+# Запускаем xfce4:
+startx
+
+# Если не запустилось, то нужно проверить наличие файла ~/.xinitrc:
+exec startxfce4
+
+# Если его нет, то создаём его:
+echo "exec startxfce4" > ~/.xinitrc
+chmod +x ~/.xinitrc
+
+startx	
 	</code></pre>
 	
 	<h3>...</h3>
-	<pre><code>
-	
-		# видео-драйвер для Intel
-		pacman -S x86-video-intel
-		# видеодрайвер для AMD
-		pacman -S x86-video-amdgpu
-		# видеодрайвер для Nvidia
-		pacman -S nvidia
-		# видеодрайвера mesa:
-		pacman -S mesa
-		
-		# Мой модуль для i5-12400: i915 - но он уже встроен в ядро
-		# и видеодрайвер mesa
-		
-		# Если я ставлю ОС на VirtualBox
-		pacman -S virtualbox-guest-utils
-		
-		# x-сервер:
-		pacman -S xort
-		
-		# дисплейный менеджер:
-		pacman -S sddm # или lightdm, gdm
-		systemctl enable sddm
-		
-		# графическая оболочка:
-		pacman -S plasma	# KDE
-		pacman -S gnome 	# GNOME
-		pacman -S xfce4		# XFCE4
-		
-		# Перезагружаемся:
-		reboot
+	<pre><code class="language-bash"># видео-драйвер для Intel
+pacman -S x86-video-intel
+# видеодрайвер для AMD
+pacman -S x86-video-amdgpu
+# видеодрайвер для Nvidia
+pacman -S nvidia
+# видеодрайвера mesa:
+pacman -S mesa
 
+# Мой модуль для i5-12400: i915 - но он уже встроен в ядро
+# и видеодрайвер mesa
+
+# Если я ставлю ОС на VirtualBox
+pacman -S virtualbox-guest-utils
+
+# x-сервер:
+pacman -S xort
+
+# дисплейный менеджер:
+pacman -S sddm # или lightdm, gdm
+systemctl enable sddm
+
+# графическая оболочка:
+pacman -S plasma	# KDE
+pacman -S gnome 	# GNOME
+pacman -S xfce4		# XFCE4
+
+# Перезагружаемся:
+reboot
 	</code></pre>
 	
 	<h3>KDE</h3>
-	<pre><code>
-	
-		sudo pacman -S xorg (xorg-server)
-			# xorg - метапакет, который тянет за собой:
-				# xorg-server
-				# xorg-init
-				# xorg-apps (и не только)
-		sudo pacman -S virtualbox-guest-utils
-			systemctl enable vboxservice
-			systemctl start vboxservice
-		sudo pacman -S plasma kde-applications
-			# plasma тянет за собой и sddm-kcm - Это вроде, не тоже самое, что sddm. sddm надо ставить отдельно.
-		# Минимальный набор:
-		# sudo pacman -S plasma-meta konsole dolphin
-		sudo pacman -S sddm
-			systemctl enable sddm
-			
-			
-		# Удалить KDE:
-		sudo pacman -Rns plasma kde-applications
-		# Чистим неиспользуемые зависимости:
-		sudo pacman -Rns $(pacman -Qdtq)
-		# Можно сначала проверить, что будет удалено:
-		pacman -Qdtq
-	</code></pre>
-	<h3>Ставим XFCE4</h3>
-	<pre><code>
-	
-	# Основа графики
-	pacman -S xorg-server xorg-apps xorg-xinit
-	
-	# Также можно добавить mesa (драйверы OpenGL):
-	pacman -S mesa
-	
-	# Ставим XFCE4 и стандартные утилиты:
-		# xfce4-goodies - дополнительные панели, плагины, системные утилиты
-	pacman -S xfce4 xfce4-goodies
-
-	# Ставим дисплейный менеджер:
-	pacman -S lightdm lightdm-gtk-greeter
-	# Затем включаем и запускаем его:
-	systemctl enable lightdm
-	systemctl start lightdm
-	
-	# Если мы не установили дисплейный менеджер, то надо обязательно написать в файл ~/.xinitrc:
-	exec startxfce4
-	# ... чтобы startx знал, что запускать.
-
-	# Ставим VirtualBox Guest Additions - чтобы мышь, буфер обмена и авторазмер окна работали
-	pacman -S virtualbox-guest-utils
+	<pre><code class="language-bash">sudo pacman -S xorg (xorg-server)
+	# xorg - метапакет, который тянет за собой:
+		# xorg-server
+		# xorg-init
+		# xorg-apps (и не только)
+sudo pacman -S virtualbox-guest-utils
 	systemctl enable vboxservice
 	systemctl start vboxservice
-	
-	# Для того, чтобы в xfce4 можно было в графической среде менять разрешение экрана надо установить:
-	sudo pacman -S xfce4-settings
-	# Теперь можно запустить его через ALT + F2:
-	# xfce4-display-settings
-	
-	
-	
-	
-	# Графика работает херово.
-	# Проверим, работает ли служба vboxservice:
-	systemctl status vboxservice # если стату active - хорошо
-	
-	# Проверим, загружается ли видеомодуль:
-	lsmod | grep vbox
+sudo pacman -S plasma kde-applications
+	# plasma тянет за собой и sddm-kcm - Это вроде, не тоже самое, что sddm. sddm надо ставить отдельно.
+# Минимальный набор:
+# sudo pacman -S plasma-meta konsole dolphin
+sudo pacman -S sddm
+	systemctl enable sddm
 	
 	
-	# Проверка видеодрайвера (графика)
-	sudo pacman -S mesa-demos
-	# И ставим glxinfo
-	sudo pacman -S glxinfo
-	# Затем выполним:
-	glxinfo | grep "OpenGL render"
-	
-	
-	
-	Ты говоришь, что virtualbox-guest-utils + vboxvideo больше не обеспечивают нормальную графику в Arch.
-	Сейчас Arch больше не использует старый vboxvideo драйвер.
-	Вместо этого X11 (или Wayland) пытается использовать модуль modesetting, если vboxvideo не загружен.
-	А modesetting работает плохо в VirtualBox.
-	В качестве альтернативы можно установить xf86-video-vmware
-	
-	
+# Удалить KDE:
+sudo pacman -Rns plasma kde-applications
+# Чистим неиспользуемые зависимости:
+sudo pacman -Rns $(pacman -Qdtq)
+# Можно сначала проверить, что будет удалено:
+pacman -Qdtq
+	</code></pre>
 
-	Ранее популярные способы (VMSVGA + guest-utils) глючат
-	
-	# Удаляем старые пакеты:
-	sudo pacman -Rns virtualbox-guest-utils
-	
-	
-	
-	# ???
-	# xf86-video-vmware - это пакет не нужен. ОН не для VirtualBox'а. Он для VMWare.
-	# ???
-	# vboxvideo - вроде как устаревший драйвер и его теперь не используют. НЕ УСТАРЕВШИЙ. Это kernel driver (не драйвер X11) - предоставляет базовый DRM в VirutalBox guests. Он ЗАМЕНИЛ старый X11-драйвер (xf86-video-vboxvideo). Он работает с современным X11-драйвером modesetting, который использует Mesa/DRI для 2D/3D.
-		# Вместо него Xorg использует драйвер modesetting, который работает лучше (особенно с VMSVGA)
-	# xf86-video-vboxvideo — этот драйвер устарел, ещё более старый, чем vboxvideo... использовался в ядре до версии 5.x - когда vboxvideo ещё не был модулем ядра
-	# Соврменный Xorg использует втроенный (в xorg-server) драйвер modesetting совместно с Mesa!
-	# xf86-video-fbdev (x11 driver) - not deprecated, but avoid if possible
-		# A fallback framebuffer video driver for Xorg
-		# Very basic — no acceleration, no OpenGL, slow
-		# Only used if no better driver is found
-	# xf86-video-vesa -  is a generic, fallback video driver for the Xorg display server.
-		# It provides basic video output using the VESA (Video Electronics Standards Association) BIOS interface.
-		# shouldn't use this....
-	
-	# Узнать какой драйвер Xorg подгружает сейчас:
-	cat /var/log/Xorg.0.log | grep -E "Loading driver|vboxvideo|modesetting"
-	# Или:
-	cat /var/log/Xorg.0.log | grep -i "modesetting"
+	<h3>Ставим XFCE4</h3>
+	<pre><code class="language-bash"># Основа графики
+pacman -S xorg-server xorg-apps xorg-xinit
 
-	# sudo pacman -Syu xorg-server xorg-xinit mesa xf86-video-vesa xf86-video-fbdev
+# Также можно добавить mesa (драйверы OpenGL):
+pacman -S mesa
 
+# Ставим XFCE4 и стандартные утилиты:
+	# xfce4-goodies - дополнительные панели, плагины, системные утилиты
+pacman -S xfce4 xfce4-goodies
+
+# Ставим дисплейный менеджер:
+pacman -S lightdm lightdm-gtk-greeter
+# Затем включаем и запускаем его:
+systemctl enable lightdm
+systemctl start lightdm
+
+# Если мы не установили дисплейный менеджер, то надо обязательно написать в файл ~/.xinitrc:
+exec startxfce4
+# ... чтобы startx знал, что запускать.
+
+# Ставим VirtualBox Guest Additions - чтобы мышь, буфер обмена и авторазмер окна работали
+pacman -S virtualbox-guest-utils
+systemctl enable vboxservice
+systemctl start vboxservice
+
+# Для того, чтобы в xfce4 можно было в графической среде менять разрешение экрана надо установить:
+sudo pacman -S xfce4-settings
+# Теперь можно запустить его через ALT + F2:
+# xfce4-display-settings
+
+
+
+# Графика работает херово.
+# Проверим, работает ли служба vboxservice:
+systemctl status vboxservice # если стату active - хорошо
+
+# Проверим, загружается ли видеомодуль:
+lsmod | grep vbox
+
+
+# Проверка видеодрайвера (графика)
+sudo pacman -S mesa-demos
+# И ставим glxinfo
+sudo pacman -S glxinfo
+# Затем выполним:
+glxinfo | grep "OpenGL render"
+
+
+
+Ты говоришь, что virtualbox-guest-utils + vboxvideo больше не обеспечивают нормальную графику в Arch.
+Сейчас Arch больше не использует старый vboxvideo драйвер.
+Вместо этого X11 (или Wayland) пытается использовать модуль modesetting, если vboxvideo не загружен.
+А modesetting работает плохо в VirtualBox.
+В качестве альтернативы можно установить xf86-video-vmware
+
+
+
+Ранее популярные способы (VMSVGA + guest-utils) глючат
+
+# Удаляем старые пакеты:
+sudo pacman -Rns virtualbox-guest-utils
+
+
+
+# ???
+# xf86-video-vmware - это пакет не нужен. ОН не для VirtualBox'а. Он для VMWare.
+# ???
+# vboxvideo - вроде как устаревший драйвер и его теперь не используют. НЕ УСТАРЕВШИЙ. Это kernel driver (не драйвер X11) - предоставляет базовый DRM в VirutalBox guests. Он ЗАМЕНИЛ старый X11-драйвер (xf86-video-vboxvideo). Он работает с современным X11-драйвером modesetting, который использует Mesa/DRI для 2D/3D.
+	# Вместо него Xorg использует драйвер modesetting, который работает лучше (особенно с VMSVGA)
+# xf86-video-vboxvideo — этот драйвер устарел, ещё более старый, чем vboxvideo... использовался в ядре до версии 5.x - когда vboxvideo ещё не был модулем ядра
+# Соврменный Xorg использует втроенный (в xorg-server) драйвер modesetting совместно с Mesa!
+# xf86-video-fbdev (x11 driver) - not deprecated, but avoid if possible
+	# A fallback framebuffer video driver for Xorg
+	# Very basic — no acceleration, no OpenGL, slow
+	# Only used if no better driver is found
+# xf86-video-vesa -  is a generic, fallback video driver for the Xorg display server.
+	# It provides basic video output using the VESA (Video Electronics Standards Association) BIOS interface.
+	# shouldn't use this....
+
+# Узнать какой драйвер Xorg подгружает сейчас:
+cat /var/log/Xorg.0.log | grep -E "Loading driver|vboxvideo|modesetting"
+# Или:
+cat /var/log/Xorg.0.log | grep -i "modesetting"
+
+# sudo pacman -Syu xorg-server xorg-xinit mesa xf86-video-vesa xf86-video-fbdev
 	</code></pre>
 
 	</code></pre>	
 	<h3>Ставим LXDE:</h3>
-	<pre><code>
-	
-		sudo pacman -S lxde
-		# Ставим openbox, потому что по умолчанию в lxde нет окон:
-		sudo pacman -S openbox	# и выходим из lxde и заходим заново
-		
-		# пишем в ~/.xinitrc:
-		exec startlxde
-		# install a lightweight display manager:
-		sudo pacman -S
-		sudo systemctl enable lxdm.service
-		sudo systemctl start lxdm.service
-		
-		# remove XFCE4 after switchin to LXDE:
-		sudo pacman -Rns xfce4 xfce4-goodies
+	<pre><code class="language-bash">sudo pacman -S lxde
+# Ставим openbox, потому что по умолчанию в lxde нет окон:
+sudo pacman -S openbox	# и выходим из lxde и заходим заново
 
+# пишем в ~/.xinitrc:
+exec startlxde
+# install a lightweight display manager:
+sudo pacman -S
+sudo systemctl enable lxdm.service
+sudo systemctl start lxdm.service
 
+# remove XFCE4 after switchin to LXDE:
+sudo pacman -Rns xfce4 xfce4-goodies
 	</code></pre>
 	
 	<h3>Создадим пользователя</h3>
-	<pre><code>
-	
-	# Список пользователей:
-	cat /etc/passwd
-	# Список простых пользователей (у которых uid > 1000):
-	awk -F: '$3 >= 1000 && $3 < 60000 { print $1 }' /etc/passwd		# >
-	# Список групп:
-	cat /etc/group
-	
-	
-	
-	useradd -m -G wheel -s /bin/bash mark
-	# -m - создаёт домашнюю директорию /home/mark
-	# -G wheel  - добавляет пользователя в группу wheel
-		# wheel - это группа с правом использования sudo (если настроено в /etc/sudoers)
-		# ... то есть, если пользователь в этой группе, он сможет выполнять команды с sudo
-	# -s /bin/bash уставливает оболочку входа - в данном случае /vbin/bash
-		# по умолчанию может быть установлена /bin/sh, /usr/bin/zsh, /bin/nologin или другая оболочка.
-		# Здесь мы явно указываем, что хотим bash в качестве командной оболочки.
-	
-	# Задаём пароль для нашего пользователя:
-	passwd mark
-	
-	
-	# Ставим sudo:
-	pacman -S sudo
-	# Создался файл /etc/sudoers
-	# Команда visudo безопасно открывает этот файл с помощью редактора vi:
-	visudo
-	# Если редактор не установлен, то можно во время запуска указать установленный nano:
-	EDITOR=nano visudo
-	# ... тогда sudoers откроется с помощью nano
-	
-	# Теперь раскомментируем строку:
-	%wheel ALL=(ALL:ALL) ALL
-	# Это разрешает всем пользователям в группе wheel использовать sudo
-	
-	# Теперь авторизуемся как mark:
-	su - mark
-	# И теперь мы можем пользоваться командой sudo:
-	sudo ls /
-	
-	# Проверим, добавлен ли пользователь в группу vboxsf:
-	groups
-	# Lобавляем себя в группу vboxsf:
-	sudo usermod -aG vboxsf mark	
-	# VirtualBox монтирует общие папки от имени группы vboxsf
-	
-	
-	
-	
-	</code></pre>
-	<h3>Автоматическое подключение к интернету.</h3>
-	<pre><code>
-	
-	
-	# Вариант 1: включить службу dhcpcd для интерфейса
-	sudo systemctl enable dhcpcd@enp0s3.service
-	sudo systemctl start dhcpcd@enp0s3.service
-	
-	# Вариант 2: включить NetworkManager (если установлен Plasa):
-	sudo pacman -S networkmanager
-	sudo systemctl enable NetworkManager
-	sudo systemctl start NetworkManager
+	<pre><code class="language-bash"># Список пользователей:
+cat /etc/passwd
+# Список простых пользователей (у которых uid > 1000):
+awk -F: '$3 >= 1000 && $3 < 60000 { print $1 }' /etc/passwd		# >
+# Список групп:
+cat /etc/group
 
+
+
+useradd -m -G wheel -s /bin/bash mark
+# -m - создаёт домашнюю директорию /home/mark
+# -G wheel  - добавляет пользователя в группу wheel
+	# wheel - это группа с правом использования sudo (если настроено в /etc/sudoers)
+	# ... то есть, если пользователь в этой группе, он сможет выполнять команды с sudo
+# -s /bin/bash уставливает оболочку входа - в данном случае /vbin/bash
+	# по умолчанию может быть установлена /bin/sh, /usr/bin/zsh, /bin/nologin или другая оболочка.
+	# Здесь мы явно указываем, что хотим bash в качестве командной оболочки.
+
+# Задаём пароль для нашего пользователя:
+passwd mark
+
+
+# Ставим sudo:
+pacman -S sudo
+# Создался файл /etc/sudoers
+# Команда visudo безопасно открывает этот файл с помощью редактора vi:
+visudo
+# Если редактор не установлен, то можно во время запуска указать установленный nano:
+EDITOR=nano visudo
+# ... тогда sudoers откроется с помощью nano
+
+# Теперь раскомментируем строку:
+%wheel ALL=(ALL:ALL) ALL
+# Это разрешает всем пользователям в группе wheel использовать sudo
+
+# Теперь авторизуемся как mark:
+su - mark
+# И теперь мы можем пользоваться командой sudo:
+sudo ls /
+
+# Проверим, добавлен ли пользователь в группу vboxsf:
+groups
+# Lобавляем себя в группу vboxsf:
+sudo usermod -aG vboxsf mark	
+# VirtualBox монтирует общие папки от имени группы vboxsf
+	</code></pre>
+
+	<h3>Автоматическое подключение к интернету.</h3>
+	<pre><code class="language-bash"># Вариант 1: включить службу dhcpcd для интерфейса
+sudo systemctl enable dhcpcd@enp0s3.service
+sudo systemctl start dhcpcd@enp0s3.service
+
+# Вариант 2: включить NetworkManager (если установлен Plasa):
+sudo pacman -S networkmanager
+sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager
 	</code></pre>
 
 
 	<h3>Среды окружения</h3>
-	<pre><code>
-		# GNOME
-		# KDE Plasma 6 (plasma, kde-applications)
-			# sddm - дисплейный менеджер
-			# sudo systemctl enable sddm.service
-		# XFCE4 (xfce4, xfce4-goodeis, lightdm - диспл. менеджер, lightdm-gtk-greeter - его тема)
-		# LXDE (lxde, openbox - файловый менеджер)
-		# LXQT (lxqt, sddm - диспл. мен.)
-			# оконный менеджер PCManQT - уже входит в уст. пакет lxqt
-		# Cinnamon (cinnamon, muffin - оконный менеджер обяз. для работы, cinnamon-settings-daemon)
-			# nemo-fileroller - архиватор для файлового менеджера Nemo
-			# gvfs - монтирование для внешний носителей
-			# gnome-keyring - для управления паролями ?
-			# blueberry - Bluetooth GUI (если нужно)
-		# Mate (mate, mate-extra - кальк, заставка и т.д)
-		# Enlightenment (enlightenment)
-			# terminology - терминал
-			# connman + econnman - менеджер сети - после установки включить:
-			sudo systemctl enable connman
-			sudo systemctl start connman
-			#
-			sudo pacman -S bluez bluez-utils
-			sudo systemctl enable bluetooth
-			sudo systemctl start bluetooth
-		# Budgie (budgie-desktop gnome-control-center gnome-settings-daemon budgie-panel)
-			# оконный менеджер mutter обязателен для работы budgie
-		# Deepin
-		# UKUI
-		# Pantheon (из elementary OS)
-		# i3
-		# awesome, bspwm, sway, xmonad, herbstluftwm, dwm, awesome
-
-		
-	# В VirtualBox  Cinnamon, Budgie, GNOME, Plasma требуют 3d-ускорения
+	<pre><code class="language-bash"># GNOME
+# KDE Plasma 6 (plasma, kde-applications)
+	# sddm - дисплейный менеджер
+	# sudo systemctl enable sddm.service
+# XFCE4 (xfce4, xfce4-goodeis, lightdm - диспл. менеджер, lightdm-gtk-greeter - его тема)
+# LXDE (lxde, openbox - файловый менеджер)
+# LXQT (lxqt, sddm - диспл. мен.)
+	# оконный менеджер PCManQT - уже входит в уст. пакет lxqt
+# Cinnamon (cinnamon, muffin - оконный менеджер обяз. для работы, cinnamon-settings-daemon)
+	# nemo-fileroller - архиватор для файлового менеджера Nemo
+	# gvfs - монтирование для внешний носителей
+	# gnome-keyring - для управления паролями ?
+	# blueberry - Bluetooth GUI (если нужно)
+# Mate (mate, mate-extra - кальк, заставка и т.д)
+# Enlightenment (enlightenment)
+	# terminology - терминал
+	# connman + econnman - менеджер сети - после установки включить:
+	sudo systemctl enable connman
+	sudo systemctl start connman
+	#
+	sudo pacman -S bluez bluez-utils
+	sudo systemctl enable bluetooth
+	sudo systemctl start bluetooth
+# Budgie (budgie-desktop gnome-control-center gnome-settings-daemon budgie-panel)
+	# оконный менеджер mutter обязателен для работы budgie
+# Deepin
+# UKUI
+# Pantheon (из elementary OS)
+# i3
+# awesome, bspwm, sway, xmonad, herbstluftwm, dwm, awesome
 
 
-	# Чтобы заработало ускорение, одного virtualbox-guest-utils недостаточно..
-	sudo pacman -S virtualbox-guest-utils virtualbox-guest-dkms linux-headers
-	
-	virtualbox-guest-utils — службы и драйверы гостя.
+# В VirtualBox  Cinnamon, Budgie, GNOME, Plasma требуют 3d-ускорения
 
-	virtualbox-guest-dkms — модуль ядра, нужен для работы с vboxvideo.
 
-	linux-headers — обязательно, иначе dkms не сможет собрать модули.
-	
-	Установи графические компоненты:
-	sudo pacman -S mesa libglvnd xorg-server xf86-video-vesa
-	mesa — реализация OpenGL.
-	libglvnd — общая библиотека GL.
-	xf86-video-vesa — базовый X-видео драйвер (или xf86-video-vmware, если используешь режим VMware-совместимости).
-	xorg-server — если не установлен X-сервер.
-	
-	
+# Чтобы заработало ускорение, одного virtualbox-guest-utils недостаточно..
+sudo pacman -S virtualbox-guest-utils virtualbox-guest-dkms linux-headers
+
+virtualbox-guest-utils — службы и драйверы гостя.
+
+virtualbox-guest-dkms — модуль ядра, нужен для работы с vboxvideo.
+
+linux-headers — обязательно, иначе dkms не сможет собрать модули.
+
+Установи графические компоненты:
+sudo pacman -S mesa libglvnd xorg-server xf86-video-vesa
+mesa — реализация OpenGL.
+libglvnd — общая библиотека GL.
+xf86-video-vesa — базовый X-видео драйвер (или xf86-video-vmware, если используешь режим VMware-совместимости).
+xorg-server — если не установлен X-сервер.
+
+
 Включи системную службу:
 
-	sudo systemctl enable vboxservice
-	sudo systemctl start vboxservice
-	
-	
-	Настрой VirtualBox:
-	Контроллер видео	VBoxSVGA (обязательно, не VMSVGA и не VBoxVGA)
-	Видеопамять	128 МБ
-	3D-ускорение	✅ включено
-	2D-ускорение	❌ (не нужно в Linux)
-	
-	Проверь, работает ли OpenGL
-	glxinfo | grep "OpenGL"
-	Если видишь:
-	OpenGL renderer string: Chromium
-	или:
-	OpenGL renderer string: llvmpipe (LLVM ...)
-	значит работает
-	
-	
-	Альтернатива: использовать xf86-video-vmware
-	sudo pacman -S xf86-video-vmware
-	Особенно если в VirtualBox выбран VMSVGA. Тогда убедись, что контроллер — VMSVGA, и также включено 3D.
+sudo systemctl enable vboxservice
+sudo systemctl start vboxservice
+
+
+Настрой VirtualBox:
+Контроллер видео	VBoxSVGA (обязательно, не VMSVGA и не VBoxVGA)
+Видеопамять	128 МБ
+3D-ускорение	✅ включено
+2D-ускорение	❌ (не нужно в Linux)
+
+Проверь, работает ли OpenGL
+glxinfo | grep "OpenGL"
+Если видишь:
+OpenGL renderer string: Chromium
+или:
+OpenGL renderer string: llvmpipe (LLVM ...)
+значит работает
+
+
+Альтернатива: использовать xf86-video-vmware
+sudo pacman -S xf86-video-vmware
+Особенно если в VirtualBox выбран VMSVGA. Тогда убедись, что контроллер — VMSVGA, и также включено 3D.
 	
 
 	
@@ -853,195 +793,174 @@ Section "Device"
 EndSection
 Also, try creating (or modifying) /etc/modules-load.d/virtualbox.conf with:
 	</code></pre>
-	
-	</code></pre>
-	
 
 	<h3>YAY</h3>
-	<pre><code>
-	
-	# 1. Install required dependencies
-	sudo pacman -S --needed git base-devel
-	
-	cd ~
-	
-	# 2. Clone the yay AUR repository
-	git clone https://aur.archlinux.org/yay.git
-	
-	cd yay
-	
-	# Build and install yay
-	makepkg -si
-		# -s = sync dependencies - устанавливает зависимости, указанные в PKGBUILD, автоматически через pacman.
-		# -i = install package after build
+	<pre><code class="language-bash"># 1. Install required dependencies
+sudo pacman -S --needed git base-devel
 
-	# Before installing lumina we need to install Qt QML modules: Qt5Quick, Qt5Qml
-	# Lumina needs them to build QT-based components - but Arch doesn't install them by default.
-	sudo pacman -S qt5-quickcontrols qt5-declarative
-	
-	
-	# Once yay is installed I can now install Lumina DE, for example:
-	yay -S lumina-desktop
+cd ~
 
-	# Lumina also need a window manager to work correctly.
-	# The default window manager for lumina is fluxbox
-	pacman -S fluxbox
+# 2. Clone the yay AUR repository
+git clone https://aur.archlinux.org/yay.git
+
+cd yay
+
+# Build and install yay
+makepkg -si
+	# -s = sync dependencies - устанавливает зависимости, указанные в PKGBUILD, автоматически через pacman.
+	# -i = install package after build
+
+# Before installing lumina we need to install Qt QML modules: Qt5Quick, Qt5Qml
+# Lumina needs them to build QT-based components - but Arch doesn't install them by default.
+sudo pacman -S qt5-quickcontrols qt5-declarative
 
 
+# Once yay is installed I can now install Lumina DE, for example:
+yay -S lumina-desktop
+
+# Lumina also need a window manager to work correctly.
+# The default window manager for lumina is fluxbox
+pacman -S fluxbox
 	</code></pre>	
+
 	<h3>i3</h3>
-	<pre><code>
-	
-	# Добавить русскую раскладку:
-	setxkbmap -layout us,ru -option 'grp:alt_shift_toggle'
-		# or if you wanna use "win + space":
-		setxkbmap -layout us,ru -option 'grp:win_space_toggle'
-	# Посмотреть текущий статус раскладки:
-	setxkbmap -query
-	
-	# Here’s a solid minimal i3 setup:
-	sudo pacman -S i3-wm i3status i3lock dmenu xterm feh picom lxappearance
-		# picom - for transparency
+	<pre><code class="language-bash"># Добавить русскую раскладку:
+setxkbmap -layout us,ru -option 'grp:alt_shift_toggle'
+	# or if you wanna use "win + space":
+	setxkbmap -layout us,ru -option 'grp:win_space_toggle'
+# Посмотреть текущий статус раскладки:
+setxkbmap -query
 
-	# Optional, but recommended:
-	sudo pacman -S thunar pavucontrol network-manager-applet
-	
-	# Wallpaper setter: feh, nitrogen(with GUI)
-	sudo pacman -S feh
-	feh --bg-scale /path/to/your/image.jpg
-		--bg-fill: fill screen (might crop)
-		--bg-center: scale to fit
-		--bg-tile: tile image
-		--bg-scale: scale to fit
-	
-	# config file:
-	~/.config/i3/config
-	# feh config file:
-	~/.fehbg
-	
-	# image viewers: imv, sxiv, gpicview,
-		# GUI with mouse and menus: ristretto, gpicview
-	# Терминалы: alacritty, kitty
-	
-	# to set the previous wallpaper at the start of i3wm, add this line in ~/.config/i3/config:
-	exec --no-startup-id ~/.fehbg
-	
-	# image viewer: sxiv
-	
-	
-	# To reload after changing config:
-	# Mod + Shift + R
-	
-	# Mod + Enter - terminal
-	# Mod + Shift + E - exit
-	# Mod + D - menu
-	
-	# Mod + arrow - pick up the window
-	# Mod + Shift + arrow - grab the window
-	
-	# Mod + W - hz
-	# Mod + E - hz
-	# Mod + R - resize, then use your arrows
-	# Mod + F - спрятать окно ?
+# Here’s a solid minimal i3 setup:
+sudo pacman -S i3-wm i3status i3lock dmenu xterm feh picom lxappearance
+	# picom - for transparency
+
+# Optional, but recommended:
+sudo pacman -S thunar pavucontrol network-manager-applet
+
+# Wallpaper setter: feh, nitrogen(with GUI)
+sudo pacman -S feh
+feh --bg-scale /path/to/your/image.jpg
+	--bg-fill: fill screen (might crop)
+	--bg-center: scale to fit
+	--bg-tile: tile image
+	--bg-scale: scale to fit
+
+# config file:
+~/.config/i3/config
+# feh config file:
+~/.fehbg
+
+# image viewers: imv, sxiv, gpicview,
+	# GUI with mouse and menus: ristretto, gpicview
+# Терминалы: alacritty, kitty
+
+# to set the previous wallpaper at the start of i3wm, add this line in ~/.config/i3/config:
+exec --no-startup-id ~/.fehbg
+
+# image viewer: sxiv
+
+
+# To reload after changing config:
+# Mod + Shift + R
+
+# Mod + Enter - terminal
+# Mod + Shift + E - exit
+# Mod + D - menu
+
+# Mod + arrow - pick up the window
+# Mod + Shift + arrow - grab the window
+
+# Mod + W - hz
+# Mod + E - hz
+# Mod + R - resize, then use your arrows
+# Mod + F - спрятать окно ?
 	</code></pre>
+
 	<h3>sway</h3>
-	<pre><code>
-	
-	## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
-	
-	# install sway
-	sudo pacman -S sway foot
-	# У меня sway v1.11 по умолчанию собран без поддержки Xwayland. И я не могу запускать программы типа feh
-	# Установить sway с поддержкой Xwayland:
-	sudo pacman -S sway xorg-xwayland
-	
-	# sway config files:
-		# /etc/sway/config
-		# ~/.config/sway/config
-	# foot - wayland terminal
-		# Чтобы увеличить шрифт в foot создадим конфиг для него:
-		# ~/.config/foot/foot.ini:
-			# [main]
-			# font=monospace:size=16
-			# И теперь закроем foot и заново запустим, чтобы заново загрузить настройки
+	<pre><code class="language-bash">## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
 
-		# Lock screen: swaylock
-		# Idle behavior: swayidle
-		# Clipboard: wl-clipboard
-		# Notifications: mako
-		# Screenshot tools: grim + slurp
-		# Terminal: foot (or use alacritty, kitty, etc.)
+# install sway
+sudo pacman -S sway foot
+# У меня sway v1.11 по умолчанию собран без поддержки Xwayland. И я не могу запускать программы типа feh
+# Установить sway с поддержкой Xwayland:
+sudo pacman -S sway xorg-xwayland
 
-	# seatd / elogind - для управления доступом к вводу/выводу 
-	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
-	# wlroots - Библиотека, на которой работает sway
+# sway config files:
+	# /etc/sway/config
+	# ~/.config/sway/config
+# foot - wayland terminal
+	# Чтобы увеличить шрифт в foot создадим конфиг для него:
+	# ~/.config/foot/foot.ini:
+		# [main]
+		# font=monospace:size=16
+		# И теперь закроем foot и заново запустим, чтобы заново загрузить настройки
 
-	# wofi / bemenu - лаунчеры
-	# waybar - панель статуса (вместо swaybar)
-	# swaylock, swayidle - Блокировка экрана и автовыход в сон
-	# grightnessctl - Яркость экрана
-	# grim + slurp - Скриншоты экрана
-	# mako - уведомления
-	# networkmanager + nmcli / nmtui - Управление сетью
-		
-		
-		# Добавить раскладку
-		# Создаём конфиг-файл ~/.config/sway/config:
-			input * {
-				xkb_layout us,ru
-				xkb_options grp:alt_shift_toggle
-			}
-		# Перезагружаем sway:
-		swaymsg reload
-		# Now try Alt+Shift - it should switch between English and Russian
-		# Or You may switch layout using this command:
-		swaymsg input "*" xkb_switch_layout next
-		
-		
-		# Завершить сессию:
-		swaymsg exit
+	# Lock screen: swaylock
+	# Idle behavior: swayidle
+	# Clipboard: wl-clipboard
+	# Notifications: mako
+	# Screenshot tools: grim + slurp
+	# Terminal: foot (or use alacritty, kitty, etc.)
+
+# seatd / elogind - для управления доступом к вводу/выводу 
+# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
+# wlroots - Библиотека, на которой работает sway
+
+# wofi / bemenu - лаунчеры
+# waybar - панель статуса (вместо swaybar)
+# swaylock, swayidle - Блокировка экрана и автовыход в сон
+# grightnessctl - Яркость экрана
+# grim + slurp - Скриншоты экрана
+# mako - уведомления
+# networkmanager + nmcli / nmtui - Управление сетью
+	
+	
+# Добавить раскладку
+# Создаём конфиг-файл ~/.config/sway/config:
+	input * {
+		xkb_layout us,ru
+		xkb_options grp:alt_shift_toggle
+	}
+# Перезагружаем sway:
+swaymsg reload
+# Now try Alt+Shift - it should switch between English and Russian
+# Or You may switch layout using this command:
+swaymsg input "*" xkb_switch_layout next
+	
+	
+# Завершить сессию:
+swaymsg exit
 	</code></pre>
 	
 	<h3>Hyprland</h3>
-	<pre><code>
-	
-	sudo pacman -S hyprland
-	
-	# Минимальный набор для запуска:
-	sudo pacman xdg-desktop-portal-hyprland \
-		wlroots \
-		wayland-protocols \
-		polkit \
-		qt5-wayland qt6-wayland \	# Если установлена plasa, то не надо
-		grim slurp \
-		wl-clipboard \
-		swaybg \
-		mako \
-		kitty \	# лёгкий терминал, дефолтный для hyprland
-		rofi \	# лаунчер (аналог dmenu)
-		pipewire wireplumber	# Если установлена plasa, то тоже не надо
-		# Это обеспечит нормальную работу окон, уведомлений, клипа, вывода изображения и звука.
-	# !!! Чтобы работала uwsm-версия, надо ещё установить uwsm
+	<pre><code class="language-bash">sudo pacman -S hyprland
+
+# Минимальный набор для запуска:
+sudo pacman xdg-desktop-portal-hyprland \
+	wlroots \
+	wayland-protocols \
+	polkit \
+	qt5-wayland qt6-wayland \	# Если установлена plasa, то не надо
+	grim slurp \
+	wl-clipboard \
+	swaybg \
+	mako \
+	kitty \	# лёгкий терминал, дефолтный для hyprland
+	rofi \	# лаунчер (аналог dmenu)
+	pipewire wireplumber	# Если установлена plasa, то тоже не надо
+	# Это обеспечит нормальную работу окон, уведомлений, клипа, вывода изображения и звука.
+# !!! Чтобы работала uwsm-версия, надо ещё установить uwsm
 
 
 
-	# Полезные утилиты:
-	sudo pacman -S waybar wofi thunar \
-		brightnessctl playerctl
+# Полезные утилиты:
+sudo pacman -S waybar wofi thunar \
+	brightnessctl playerctl
 	</code></pre>
 	
-	<h3>Что ещё полезно установить:</h3>
-	<pre><code>
-	
 
-
-	</code></pre>
-	
-	<h3>...</h3>
-	<pre><code>
-	
-
-
-	</code></pre>
+	<script src="/assets/highlight/languages/bash.min.js"></script>
+	<script>hljs.highlightAll();</script>
 </body>
 </html>
