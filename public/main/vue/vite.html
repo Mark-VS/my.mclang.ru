@@ -11,15 +11,65 @@
 <script src="/assets/highlight/highlight.min.js"></script>
 <p><a href="/">Вернуться назад</a></p>
 
+<h1>Vite</h1>
+
 <pre><code class="language-bash">
 npm create vite@latest my-vue-app
 
-# Выбираем 
+# Запустить сервер:
+npm run dev
+
+# Если мы после создания проекта не устанавливали зависимости, то сначала надо их установить:
+npm install
+
+# Собрать готовый проект:
+npm run build
 </code></pre>
 
+<p>Подключаем scss:</p>
+<pre><code class="language-xml">
+&lt;style lang="scss" scoped&gt;
+    .zzz {
+        color: red;
+    }
+&lt;/style&gt;
+</code></pre>
+<p>Если мы ещё не устанавливали <strong><i>sass-embedded</i></strong>, то скорее всего получим следующую ошибку: [plugin:vite:css] Preprocessor dependency "sass-embedded" not found. Did you install it? Try `npm install -D sass-embedded`. Поэтому установим <strong><i>sass-embedded</i></strong>:</p>
+
+<pre><code class="language-bash">
+# Установить sass-embedded
+npm install -D sass-embedded
+</code></pre>
+
+<h2>Чтобы алиас "@" заработал:</h2>
+<pre><code class="language-javascript">// vite.config.js
+
+import { defineConfig } from 'vite'
+import logo from '@vitejs/plugin-vue'
+import path from 'path'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})
+</code></pre>
+
+<p>Теперь можно использовать в шаблоне импортированную картинку:</p>
+<pre><code class="language-xml">&lt;!-- src/components/Govno.vue --&gt;
+
+&lt;template&gt;
+    &lt;div&gt;&lt;img v-bind:src="logo" /&gt;&lt;/div&gt;
+&lt;/template&gt;
+</code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>
