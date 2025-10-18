@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/site">Вернуться назад</a></p>
+
+<h1>Hello World!</h1>
+<p>Ура!!</p>
+
+<pre><code class="language-bash"># Структура проекта:
+
+my-fullstack-app/
+├── backend/
+│   └── server.js
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   └── src/
+│       ├── components
+│       │   └── Govno.vue
+│       ├── App.vue
+│       ├── main.js
+│       └── style.css
+└── package.json
+</code></pre>
+
+
+
+<!-- !!! BACKEND !!! -->
+
+<h2>Backend</h2>
+
+<p>Для начала установим</p>
+<pre><code class="language-bash">
+mkdir my-fullstack-app
+cd my-fullstack-app
+
+# Создаём package.json:
+npm init -y
+
+# Устанавливаем express:
+npm install express
+</code></pre>
+
+
+
+<p>Создадим файл server.js:</p>
+<pre><code>// backend/server.js
+
+import express from "express";
+
+const app = express();
+const PORT = 3000;
+
+app.get("/", (req, res) => {
+    res.send("kakashka");
+});
+
+app.get("/api/hello", (req, res) => {
+    res.json({ message: "Это сраное сообщение. Ты рад, что его получил?" });
+});
+
+app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+});
+</code></pre>
+
+
+<p>Чтобы импорты нормально работали, нам нужно указать в файле <strong><i>package.json</i></strong> тип: module.</p>
+<pre><code class="language-json">// package.json
+
+{
+  "name": "my-vue-app3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  // Здесь указываем тип:
+  "type": "module",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
+</code></pre>
+
+
+<!-- !!! FRONTEND !!! -->
+
+<h2>Frontend</h2>
+
+<p>Устанавливаем Vue:</p>
+<pre><code class="language-bash"># Создаём проект в папке frontend ...
+# ... и передаём create-vite в качестве аргумента: --template vue:
+npm create vite@latest frontend -- --template vue
+cd frontend
+npm install
+cd ..
+</code></pre>
+
+
+<ul>
+    <li>npm create ... = yarn create ... = pnpm create ...</li>
+    <li>-- - Двойной дефис разделяет аргументы, которые обрабатывает npm (или сам вызов npm create) и аргументы, которые нужно передать во внутренний исполняемый скрипт (create-vite). Всё, что идёт после --, будет передано пакету create-vite как его собственные опции. Без -- аргументы могли бы интерпретироваться npm-ом, а не самим скриптом создания проекта.</li>
+    <li>--template vue - Это уже аргумент для create-vite. Он говорит: используй шаблон Vue (обычно это эквивалент выбора Vue при интерактивном вводе). Можно передать и другие варианты, например:
+        <ul>
+            <li>--template vue — Vue (JavaScript)</li>
+            <li>--template vue-ts — Vue + TypeScript</li>
+            <li>--template react — React (JS)</li>
+            <li>--template react-ts — React + TypeScript</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>Более подробное объяснение</h3>
+<p>lala</p>
+<pre><code class="language-bash"># Находит пакет create-vite (т.е. тот, у которого имя начинается с create-):
+npm create vite@latest frontend -- --template vue
+
+# То же самое:
+npx create-vite@latest frontend --template vue
+
+# То есть, по сути, npm create = npx create-…
+
+# Можно установить пакет create-vite вручную (глобально):
+npm install -g create-vite
+create-vite frontend --template vue
+
+# Можно установить локально:
+npm install create-vite --save-dev
+npx create-vite frontend --template vue
+npm uninstall create-vite
+
+# То есть следующая строка это то же самое, что и предыдущие три:
+npx create-vite@latest frontend --template vue
+
+# pnpm
+pnpm add --save-dev create-vite
+pnpm create vite frontend --template vue
+pnpm remove create-vite
+
+# yarn
+yarn add create-vite --dev
+yarn create vite frontend --template vue
+yarn remove create-vite
+</code></pre>
+
+
+<p>Чтобы во время разработки запросы <strong><i>/api/...</i></strong> шли на мой сервер Express, а не блокировались браузером (CORS), нужно добавить прокси:</p>
+
+<pre><code class="language-javascript">// vite.config.js
+
+// импортируем defineConfig:
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  // добавляем прокси:
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
+  },
+})
+</code></pre>
+
+
+
+<pre><code class="language-javascript">// frontend/src/main.js
+
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+
+createApp(App).mount('#app')
+</code></pre>
+
+
+<pre><code class="language-xml">// frontend/src/App.vue
+
+&lt;script setup&gt;
+  import Govno from './components/Govno.vue'
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;Govno /&gt;
+&lt;/template&gt;
+
+&lt;style scoped&gt;
+  /* Здесь пока ничего нет */
+&lt;/style&gt;
+</code></pre>
+
+<pre><code class="language-xml">&lt;!-- frontend/src/components/Govno.vue --&gt;
+
+&lt;script setup&gt;
+    import { ref, onMounted } from "vue";
+    
+    const myCount = ref(0);
+    const message = ref("Загрузка ...");
+
+    onMounted(async () => {
+        const res = await fetch('/api/hello')
+        const data = await res.json()
+        message.value = data.message
+    });
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;h1 class="under_govno"&gt;Шаблон&lt;/h1&gt;
+    &lt;div&gt;Счётчик: {{ myCount }}&lt;/div&gt;
+    &lt;div&gt;
+        &lt;button v-on:click="myCount++"&gt;Кнопка&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;p&gt;Сообщение от сервера: {{ message }}&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;style scoped&gt;
+    .under_govno {
+        text-decoration: underline
+    }
+&lt;/style&gt;
+</code></pre>
+
+<p>Запускаем сервер:</p>
+<pre><code class="language-bash">node backend/server.js
+</code></pre>
+
+<p>Запускаем сервер для Vue:</p>
+<pre><code class="language-bash"># Если нужно раздавать файлы из текущей папки:
+npm run dev
+
+# Если нужно указать папку:
+npm run dev --prefix frontend
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
+<script src="/assets/highlight/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
