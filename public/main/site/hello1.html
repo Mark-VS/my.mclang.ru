@@ -38,7 +38,7 @@ my-fullstack-app/
 
 <h2>Backend</h2>
 
-<p>Для начала установим</p>
+<p>Для начала установим <strong><i>Express</i></strong>:</p>
 <pre><code class="language-bash">
 mkdir my-fullstack-app
 cd my-fullstack-app
@@ -52,7 +52,7 @@ npm install express
 
 
 
-<p>Создадим файл server.js:</p>
+<p>Создадим файл <strong><i>server.js</i></strong>:</p>
 <pre><code>// backend/server.js
 
 import express from "express";
@@ -101,7 +101,7 @@ app.listen(PORT, () => {
 
 <h2>Frontend</h2>
 
-<p>Устанавливаем Vue:</p>
+<p>Устанавливаем <strong><i>Vue</i></strong>:</p>
 <pre><code class="language-bash"># Создаём проект в папке frontend ...
 # ... и передаём create-vite в качестве аргумента: --template vue:
 npm create vite@latest frontend -- --template vue
@@ -189,7 +189,7 @@ createApp(App).mount('#app')
 </code></pre>
 
 
-<pre><code class="language-xml">// frontend/src/App.vue
+<pre><code class="language-xml">&lt;!-- frontend/src/App.vue --&gt;
 
 &lt;script setup&gt;
   import Govno from './components/Govno.vue'
@@ -237,11 +237,11 @@ createApp(App).mount('#app')
 &lt;/style&gt;
 </code></pre>
 
-<p>Запускаем сервер:</p>
+<p>Запускаем backend-сервер на порту 3000:</p>
 <pre><code class="language-bash">node backend/server.js
 </code></pre>
 
-<p>Запускаем сервер для Vue:</p>
+<p>Запускаем сервер для <strong><i>Vue</i></strong> на порту 5173:</p>
 <pre><code class="language-bash"># Если нужно раздавать файлы из текущей папки:
 npm run dev
 

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/node/">Вернуться назад</a></p>
+
+<h1>Пакетные менеджеры NodeJS</h1>
+
+<pre><code class="language-json">// package.json
+
+"devDependencies": {
+  "gulp": "^5.0.1"
+}
+</code></pre>
+
+<ul>
+    <li>^ (каретка) ("^5.0.1") –  npm может обновить любую версию с тем же мажорным числом, то есть 5.x.x (например, 5.1.0, 5.2.3), но не 6.0.0.</li>
+    <li>~ (тильда) ("~5.0.1") – npm может обновить только патч-версии, то есть 5.0.x (например, 5.0.2, 5.0.5), но не 5.1.0.</li>
+    <li>Без символов ("5.0.1") – только точно эта версия.</li>
+    <li>* (звёздочка) ("*") – любая версия пакета.</li>
+    <li>Диапазон с минусом или логические операторы ("&gt;=5.0.0 &lt;6.0.0") – Любая версия от 5.0.0 до <6.0.0.</li>
+</ul>
+
+<h2>npm</h2>
+
+<pre><code class="language-bash"># Запуск локального приложения:
+
+npm install --save-dev gulp
+npx gulp --version
+</code></pre>
+
+<pre><code class="language-bash"># Запуск локального gulp:
+npx gulp --version
+
+# скачать последнюю версию, выполнить и потом удалить:
+npx gulp@latest --version
+</code></pre>
+
+<pre><code># Устанавливаю gulp локально  (ставится версия "^5.0.1"):
+npm install gulp --save-dev
+
+# В репозитории появилась версия "5.0.2"
+# Обновляюсь до версии "5.0.2":
+npm update gulp --save-dev
+
+# Вышла версия "6.0.0"
+# Теперь обновляться до неё надо так:
+npm install gulp@latest --save-dev
+</code></pre>
+
+<pre><code class="language-bash">
+
+# Если gulp не найден на компьютере, то 
+# временно его устанавливает, выводит версию и удаляет gulp
+npx gulp --version
+    # а если gulp найден, то просто выводится его версия 
+
+# Временно установливает gulp, выводит версию и удаляет gulp –
+# независимо от того, найден gulp на компьютере, или нет:
+npx gulp@latest --version
+</code></pre>
+
+<p>Куда всё ставится:</p>
+<pre><code class="language-bash">node_modules/gulp/  # сама библиотека gulp, импорт в коде (import gulp from 'gulp')
+node_modules/.bin/gulp/  # тут исполняемый файл (CLI) gulp, запуск gulp из терминала и npm-скриптов
+</code></pre>
+
+
+<!-- !!! КЭШ  !!! -->
+
+
+<h3>КЭШ npm</h3>
+<pre><code class="language-bash">
+# КЭШ npm:
+~/.npm/_cacache/
+
+# Файлы .tgz с пакетами (например gulp-5.0.1.tgz) находятся в папке:
+~/.npm/_cacache/content-v2/
+
+# а их индексы и метаданные — в:
+~/.npm/_cacace/index-v5/
+# Но содержимое в "content-v2/" хранится в зашифрованном виде по хэшам (sha512),
+# поэтому там не видно имён вроде gulp.tgz — только длинные хэш-пути
+# (например ~/.npm/_cacache/content-v2/sha512/ff/9f/...).
+</code></pre>
+
+<pre><code class="language-bash"># Проверка целостности КЭШа, очистка мусора, сжатие КЭШа:
+npm cache verify
+
+# Очистить КЭШ:
+npm cache clean --force
+</code></pre>
+
+<h2>pnpm</h2>
+
+<pre><code class="language-bash"># Устанавливает gulp с дев-зависимостями:
+pnpm add gulp --save-dev
+
+# Устанавливается gulp в раздел с зависимостями для продакшена:
+pnpm add gulp --save-prod
+
+# То же самое:
+pnpm add gulp
+
+# ... в раздел с optional-зависимостями:
+pnpm add gulp --save-optional
+
+# только запускает установленный gulp (не скачивает):
+pnpm exec gulp --version
+
+# Скачивает и запускает gulp в песочнице:
+pnpm dlx gulp
+</code></pre>
+
+<p>Либо можно запустить через package.json:</p>
+<pre><code class="language-json">// package.json
+
+"scripts": {
+  "build": "gulp"
+}
+</code></pre>
+<p>А затем просто выполнить:</p>
+<pre><code class="language-bash">pnpm run build</code></pre>
+
+
+<ul>
+    <li>pnpm exe gulp - ищет gulp в твоём проекте (в node_modules/.bin/)</li>
+    <li>pnpm dlx gulp --version - временно скачивает gulp из npm, если его нет локально, запускает этот скачанный пакет в отдельной песочнице, не использует твои зависимости из проекта, а после завершения удаляет его (не добавляет в node_modules).</li>
+</ul>
+
+<h3>КЭШ pnpm</h3>
+
+<pre><code class="language-bash"># Узнать путь к store
+pnpm store path
+
+# pnpm store:
+.local/share/pnpm/store/v10
+    # хранилище всех пакетов на уровне пользователя
+
+# А здесь хранятся жёсткие ссылки (symlink) на пакеты в store:
+node_modules/
+
+# КЭШ:
+~/.cache/pnpm/
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
