@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/site">Вернуться назад</a></p>
+
+<p>Устанавливаем Vue+TS:</p>
+<pre><code class="language-bash"># Ставим Vue + TypeScript:
+
+pnpm create vite@latest frontend -- --template vue-ts
+# Это просто удобная обёртка над:
+pnpm dlx create-vite@latest frontend --template vue-ts
+
+# Или:
+pnpm add create-vite --save-dev
+pnpm exec create-vite frontend --template vue-ts
+pnpm remove create-vite
+</code></pre>
+
+<p>Как запустить сервер Vue в режиме разработки из папки <strong><i>frontend</i></strong>:</p>
+<pre><code class="language-bash"># с помощью pnpm:
+pnpm --dir frontend run dev
+
+# с помощью npm:
+npm run dev --prefix frontend
+</code></pre>
+
+<p>Создаём компонент Govno.vue:</p>
+<pre><code class="language-javascript">// frontend/src/components/Govno.vue
+
+&lt;script setup&gt;
+    import { ref } from 'vue';
+    const count = ref(0);
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;h1&gt;Говно&lt;/h1&gt;
+
+    &lt;p&gt;Счётчик: {{ count }}&lt;/p&gt;
+    &lt;button v-on:click="count++"&gt;Кнопка&lt;/button&gt;
+&lt;/template&gt;
+
+&lt;style scoped&gt;
+
+&lt;/style&gt;
+</code></pre>
+
+<p>Подключаем компонент Govno в App.vue:</p>
+<pre><code class="language-javascript">// frontend/src/App.vue
+
+&lt;script setup lang="ts"&gt;
+   import Govno from './components/Govno.vue'
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;Govno /&gt;
+&lt;/template&gt;
+</code></pre>
+
+<p>Подключаем главные компонент App.vue в main.ts:</p>
+<pre><code class="language-typescript">// frontend/src/main.ts
+
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+
+createApp(App).mount('#app')
+</code></pre>
+
+<p>После подключения компонента Govno.vue в App.vue, <strong><i>VSCodium</i></strong> начнёт ругаться:</p>
+<pre><code class="language-bash">Could not find a declaration file for module './components/Govno.vue'.
+'/home/mark/projects/vue/pupa/frontend/src/components/Govno.vue' implicitly has an 'any' type.</code></pre>
+
+<p>Нужно просто объявить типизацию для .vue-файлов.</p>
+<p>Для этого создадим <strong><i>env.d.ts</i></strong>:</p>
+<pre><code class="language-typescript">// frontend/src/env.d.ts
+
+/// &lt;reference types="vite/client" /&gt;
+
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
+</code></pre>
+
+<p>Приблизительное содержание tsconfig.app.json:</p>
+<pre><code class="language-json">// frontend/tsconfig.app.json
+
+{
+  "compilerOptions": {
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"]
+}
+</code></pre>
+<p>Тут надо, чтобы в раделе "include" был включён наш созданный ранее <strong><i>env.d.ts</i></strong>.</p>
+<p>Вот мой дефолтный tsconfig.app.json, созданный Vite (тут уже включён наш файл <strong><i>env.d.ts</i></strong>):</p>
+<pre><code class="language-json">// frontend/tsconfig.app.json
+
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+}
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/javascript.min.js"></script>
+<script src="/assets/highlight/languages/typescript.min.js"></script>
+<script src="/assets/highlight/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

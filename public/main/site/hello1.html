@@ -147,9 +147,13 @@ npm uninstall create-vite
 npx create-vite@latest frontend --template vue
 
 # pnpm
-pnpm add --save-dev create-vite
-pnpm create vite frontend --template vue
+pnpm add create-vite --save-dev
+pnpm exec create-vite frontend --template vue
 pnpm remove create-vite
+# Или в одной строке:
+pnpm create vite@latest frontend -- --template vue
+# Это просто удобная обёртка над:
+pnpm dlx create-vite@latest frontend --template vue
 
 # yarn
 yarn add create-vite --dev
@@ -247,6 +251,14 @@ npm run dev
 
 # Если нужно указать папку:
 npm run dev --prefix frontend
+
+# pnpm
+pnpm --dir frontend run dev
+</code></pre>
+
+<pre><code class="language-bash"># Запустить раздачу файлов из frontend/dist:
+
+pnpm dlx serve frontend/dist
 </code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
