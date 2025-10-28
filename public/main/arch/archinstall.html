@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/arch/">Вернуться назад</a></p>
+
+<p>Переписываю index1.html</p>
+
+<h1>Установка Arch</h1>
+
+
+<h2>2. Разметка жёсткого диска</h2>
+
+<p>Посмотреть типы таблицы существующих разделов (Partition Table Type):</p>
+<pre><code class="language-bash"># Здесь столбец PTTYPE покажет тип:
+lsblk -o NAME,SIZE,TYPE,PTTYPE /dev/sda
+
+# Или вот так:
+sudo fdisk -l /dev/sda
+    # ...
+    # Тип метки диска: gpt  // Disklabel type: dos
+
+# Или:
+sudo parted /dev/sda print
+    # ...
+    # Таблица разделов: gpt // Partition Table: gpt
+
+# Или:
+sudo blkid /dev/sda
+    # /dev/sda: PTUUID="e3398c6a-9208-40eb-b2db-c4cbb82a8df7" PTTYPE="gpt"
+
+# То же самое, но развёрнуто:
+sudo blkid -s PTUUID -s PTTYPE /dev/sda
+    # /dev/sda: PTUUID="e3398c6a-9208-40eb-b2db-c4cbb82a8df7" PTTYPE="gpt"
+
+# Вывести только значение:
+sudo blkid -s PTTYPE -o value /dev/sda
+    # gpt
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

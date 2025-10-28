@@ -7,22 +7,27 @@
 	<meta name="description" content="Про хэш.">
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
 	<title>Про Hash</title>
-    <style>
-        body {
-            font-size: 16px;
-            background-color: #282C34;
-            color: #8AA3AD;
-        }
-        a { color: #61AFEF; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 	<a href="/">Вернуться на главную</a>
 	<h1>Hash</h1>
 
 	<h2>SHA256</h2>
 
 	<p>Трали-вали</p>
+
+	<h2>Bash</h2>
+
+	<pre><code class="language-bash">#SHA256:
+sha256sum /tmp/archlinux-2025.10.01-x86_64.iso
+	
+# BLAKE2b:
+b2sum /tmp/archlinux-2025.10.01-x86_64.iso
+	</code></pre>
+
 	<p>PowerShell:</p>
 	<code><pre>
 		# По умолчанию используется SHA256
@@ -56,5 +61,23 @@
 		
 	</pre></code>
 	<p>ChatGPT советует перейти на официальный проект uutils coreutils: <a href="https://github.com/uutils/coreutils/releases">https://github.com/uutils/coreutils/releases</a>, типа там можно найти релиз coreutils-x86_64-pc-windows-msvc.zip, скачать его, распаковать и у нас будет работающая в cmd утилита b2sum. Но что-то я не могу найти на этом гитхабе релиз. Может, просто я слепой.</p>
+
+<pre><code class="language-bash"># Импортируем ключ:
+gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 54449A5C
+
+# 54449A5C – взято со странички Arch с ключами, напротив "PGP fingerprint".
+
+# или:
+curl -O https://gitlab.archlinux.org/archlinux/archlinux-keyring/-/raw/main/keys/pierre@archlinux.org.asc
+# или:
+curl -O https://gitlab.archlinux.org/archlinux/archlinux-keyring/-/raw/main/keys/pierre@archlinux.org.asc
+</code></pre>
+
+<p>Далее можно проверять подпись:</p>
+<pre><code class="language-bash">gpg --verify /tmp/archlinux-2025.10.01-x86_64.iso.sig
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

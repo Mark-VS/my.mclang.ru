@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+<h1>samba</h1>
+
+<p>Устанавливаем samba:</p>
+<pre><code class="language-bash">sudo pacman -S samba
+</code></pre>
+
+<p>Создадим папку, которую хотим расшарить:</p>
+<pre><code class="language-bash">mkdir -p ~/shared
+chmod 777 ~/shared
+</code></pre>
+
+<p>Создадим минимальную рабочую конфигурацию в файле <strong><i>smb.conf</i></strong>:</p>
+<pre><code class="language-ini"># /etc/samba/smb.conf
+
+[global]
+   workgroup = WORKGROUP
+   server string = Arch Linux File Server
+   security = user
+   map to guest = Bad User
+
+[shared]
+   path = /home/mark/shared
+   browseable = yes
+   read only = no
+   guest ok = yes
+
+# И ещё одна секция для другой папки (с фотками):
+[myWindowsDesktop]
+   path = /home/mark/mnt/nvme500/Users/Пользователь/Desktop/temp/2025-10-26
+   browseable = yes
+   read only = no
+   guest ok = yes
+   writable = yes
+</code></pre>
+
+<p>Запускаем и включаем сервисы:</p>
+<pre><code class="language-bash">sudo systemctl enable --now smb nmb
+</code></pre>
+
+<p>Проверить статус:</p>
+<pre><code class="language-bash">systemctl status smb nmb</code></pre>
+
+<p>Проверим, что шаринг работает локально:</p>
+<pre><code class="language-bash">smbclient -L localhost -U%</code></pre>
+
+<p>В Windows введём в <strong><i>Win+R</i></strong>, или в <strong><i>Проводник</i></strong>:</p>
+<pre><code class="language-bash">\\192.168.1.3\shared
+
+# или:
+\\192.168.1.3\myWindowsDesktop
+</code></pre>
+
+<p>Посмотреть ip-адрес в Arch:</p>
+<pre><code class="language-bash">ip addr show | grep inet
+
+# или:
+ifconfig
+</code></pre>
+
+<h2>smb</h2>
+<ul>
+    <li>Это основной сервер Samba, который отвечает за сам протокол SMB (Server Message Block).</li>
+    <li>Через него Windows и Linux обмениваются файлами и принтерами.</li>
+    <li>Он работает по портам 445 и 139.</li>
+    <li>Без него вообще невозможно подключиться к расшаренной папке.</li>
+</ul>
+
+<h2>nmb</h2>
+<ul>
+    <li>Это служба NetBIOS Name Service (аналог «имён компьютеров» в Windows-сети).</li>
+    <li>Она нужна, чтобы Windows могла обнаруживать твой Linux-компьютер по имени, а не только по IP.</li>
+    <li>Работает по порту 137/UDP.</li>
+    <li>Если её не запустить, то к шере можно будет подключиться только по IP (\\192.168.x.x\shared), а не по имени (\\arch-pc\shared).</li>
+</ul>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+    <style>
+        #myTable, #myTable td {
+            border: solid 1px rgb(67, 66, 66);
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+<h1>Unicode</h1>
+
+<table id="myTable">
+
+<!-- --- ДИАКРИТИЧЕСКИЕ ЗНАКИ --- -->
+<tr><th colspan="5">диакритические знаки</th></tr>
+<tr>
+    <td>гравис</td>
+    <td>u300</td>
+    <td>à</td>
+    <td>&amp;#768; / &amp;#x300;</td>
+    <td>Combining grave accent</td>
+</tr>
+<tr>
+    <td>акут</td>
+    <td>u301</td>
+    <td>á</td>
+    <td>&amp;#769; / &amp;#x301;</td>
+    <td>Combining acute accent</td>
+</tr>
+
+<!-- --- ТИРЕ --- -->
+<tr>
+    <th colspan="5">тире</td>
+</tr>
+<tr>
+    <td>hyphen</td>
+    <td>u002D</td>
+    <td>-</td>
+    <td>&amp;#45; / &amp;#x2D;</td>
+    <td>дефис</td>
+</tr>
+<tr>
+    <td>figure dash</td>
+    <td>u2012</td>
+    <td>‒</td>
+    <td>&amp;#8210; / &amp;#x2012;</td>
+    <td>
+        Figure dash (Цифровое тире) — это тире, по ширине равное цифрам в шрифте с табличной шириной (monospaced digits). Он выглядит почти как обычное короткое тире, но используется в типографике и верстке чисел. для чисел: 123‒456<br />
+        Примеры использования:<br />
+        <ul>
+            <li>
+                Телефонный номер: +1‒800‒555‒1234 (здесь ‒ (figure dash) выглядит аккуратнее, чем обычное -.)
+            </li><li>
+            Диапазоны чисел:
+                Страницы 12‒15 (в типографике это предпочтительнее, чем обычный дефис.)
+            </li>
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td>en dash</td>
+    <td>u2013</td>
+    <td>–</td>
+    <td>&amp;#8211; / &amp;#x2013;</td>
+    <td>Короткое тире. <strong><i>en dash</i></strong> означает, что это тире равно по ширине букве "N". Диапазоны, связи (читается как "от ... до"). В то время, как figure dash больше используется для выравнивания чисел.</td>
+</tr>
+<tr>
+    <td>em dash</td>
+    <td>u2014</td>
+    <td>—</td>
+    <td>&amp;#8212; / &amp;#x2014;</td>
+    <td>Вставка мыслей:<br />— Привет, Как тебя зовут?<br />— Привет, меня зовут Какашечник.</td>
+</tr>
+<tr>
+    <td>минус</td>
+    <td>u2212</td>
+    <td>−</td>
+    <td>&amp;#8722; / &amp;#x2212;</td>
+    <td>минус</td>
+</tr>
+
+<!-- --- КАВЫЧКИ --- -->
+<tr><th colspan="5">Кавычки</th></tr>
+<tr>
+    <td>Left-pointing double angle quote</td>
+    <td>u00AB</td>
+    <td>«</td>
+    <td>&amp;laquo;</td>
+    <td>«Привет»</td>
+</tr>
+<tr>
+    <td>Right-pointing double angle quote</td>
+    <td>u00BB</td>
+    <td>»</td>
+    <td>&amp;raquo;</td>
+    <td>«Привет»</td>
+</tr>
+
+</table>
+
+<h2>Как писать unicode-симовлы</h2>
+<p>Нажимаем: <strong><i>Ctrl+Shift+U</i></strong>. Далее вводим код (например, 2013) и нажимаем <strong><i>Enter</i></strong>. После этого <strong><i>u2013</i></strong> должно превратиться в <strong><i>–</i></strong>.</p>
+<p>Нажимаем <strong><i>Compose Key</i></strong>, далее пишем: <strong><i>a</i></strong>, и следом: <strong><i>`</i></strong>. Получается: à. А если <strong><i>a</i></strong> + <strong><i>'</i></strong>, то получим: á.</p>
+<p>Compose Key + - + - + - -> —</p>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

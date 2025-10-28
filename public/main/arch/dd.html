@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/arch/">Вернуться назад</a></p>
+
+
+<h1>dd</h1>
+
+<p>Я взял флэшку, на которую хочу записать образ. Для начала неплохо бы её очистить.</p>
+<p>Я её вставил. И она у меня автоматически примонтировалась по адресу /run/media/mark/ARCH_202507. Перед тем, как её очищать, её нужно отмонтировать.</p>
+
+<pre><code class="language-bash">sudo umount /dev/sdc1
+</code></pre>
+
+<p>Теперь сотрём с неё всё.</p>
+<pre><code class="language-bash">sudo dd if=/dev/zero of=/dev/sdc bs=1M status=progress
+sync
+# если нужно извлечь флэшку, то:
+sudo eject /dev/sdc
+</code></pre>
+
+<p>Далее скачиваем образ. Я скачал его в <strong><i>/tmp/archlinux-2025.10.01-x86_64.iso</i></strong>.</p>
+
+<p>Затем запишем образ:</p>
+<pre><code class="language-bash">sudo dd if=/tmp/archlinux-2025.10.01-x86_64.iso of=/dev/sdc bs=4M status=progress oflag=sync
+sync
+sudo eject /dev/sdc
+</code></pre>
+
+<p>DD (Data Duplicator) - утилита "копирует бит-в-бит".</p>
+<ul>
+    <li>if – input file. Это может быть файл (ISO) или устройство (например, /dev/loop0)</li>
+    <li>of – output file. Диск целиком, а не раздел.</li>
+    <li>bs – block size. Размер блока для чтения/записи.</li>
+    <li>status=progress – Показывает прогресс во время выполнения. Удобно, чтобы видеть, что <strong><i>dd</i></strong> не завис.</li>
+    <li>oflag=sync – флаг, применяемый к выходу. Заставляет <strong><i>dd</i></strong> применять синхронную запись (каждый блок записывается с синхронизацией). Замедляет процесс записи, но повышает надёжность.</li>
+</ul>
+<p>Вместо <strong><i>oflag=sync</i></strong> можно использовать <strong><i>conv=fsync</i></strong>.</p>
+<ul>
+    <li>oflag=sync – сбрасывает КЭШ постоянно;</li>
+    <li>conv=fsync – сбрасывает КЭШ один раз в конце записи.</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

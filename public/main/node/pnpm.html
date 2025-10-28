@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/node">Вернуться назад</a></p>
+
+<h1>pnpm</h1>
+
+<h2>Обновление версии</h2>
+<pre><code class="language-bash"># Обновляем версию pnpm:
+
+pnpm add -g pnpm
+</code></pre>
+
+<p>При первом обновлении скорее всего получим вот такую ошибку:</p>
+<pre><code class="language-bash">ERR_PNPM_NO_GLOBAL_BIN_DIR  Unable to find the global bin directory
+
+Run "pnpm setup" to create it automatically, or set the global-bin-dir setting, or the PNPM_HOME env variable. The global bin directory should be in the PATH.
+</code></pre>
+
+<p>Это означает, что <strong><i>pnpm</i></strong> не знает, куда устанавливать глобальный пакеты. Нужно выполнить настройку окружения:</p>
+<pre><code class="language-bash">pnpm setup
+</code></pre>
+
+<p>Эта команда создаст каталог ~/.local/share/pnpm/ и добавит в ~/.bashrc, ~/.zshrc или ~/.profile строку вроде:</p>
+<pre><code class="language-bash">export PNPM_HOME="/home/mark/.local/share/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+</code></pre>
+
+<p>У меня после запуска <strong><i>pnpm setup</i></strong> добавился следующий блок кода в <strong><i>~/.bashrc</i></strong>:</p>
+<pre><code class="language-bash"># pnpm
+export PNPM_HOME="/home/mark/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+</code></pre>
+
+<p>Потом я перезагружаю <strong><i>bash</i></strong> и пытаюсь обновиться с помощью: <strong><i>pnpm add -g pnpm</i></strong>. Но получаю в ответ, что мне следует обновляться с помощью другой команды:</p>
+<pre><code class="language-bash">pnpm self-update
+</code></pre>
+
+<p>Теперь <strong><i>pnpm</i></strong> полностью управляет собой.</p>
+<p>Изначально я его ставил через <strong><i>npm</i></strong>, а значит и обновлять его надо было через <strong><i>npm</i></strong>:</p>
+<pre><code class="language-bash">npm install -g pnpm
+
+# или:
+sudo npm install -g pnpm
+</code></pre>
+
+<p>А если <strong><i>pnpm</i></strong> был установлен через <strong><i>pacman</i></strong>, то обновляем его так:</p>
+<pre><code class="language-bash">sudo pacman -Syu pnpm
+
+# или сразу всю систему (включая и pnpm):
+sudo pacman -Syu
+</code></pre>
+
+<h2>Установка без npm и pacman:</h2>
+<pre><code class="language-bash">curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+   # Эта команда скачивает официальный скрипт установки,
+   # который делает то же самое, что pnpm setup:
+   # создаёт $PNPM_HOME, добавляет его в PATH и активирует PNPM.
+
+# После этого обновлять pnpm можно так:
+pnpm self-update
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

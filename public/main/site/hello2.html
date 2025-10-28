@@ -33,7 +33,7 @@ npm run dev --prefix frontend
 </code></pre>
 
 <p>Создаём компонент Govno.vue:</p>
-<pre><code class="language-javascript">// frontend/src/components/Govno.vue
+<pre><code class="language-xml">// frontend/src/components/Govno.vue
 
 &lt;script setup&gt;
     import { ref } from 'vue';
@@ -53,7 +53,7 @@ npm run dev --prefix frontend
 </code></pre>
 
 <p>Подключаем компонент Govno в App.vue:</p>
-<pre><code class="language-javascript">// frontend/src/App.vue
+<pre><code class="language-xml">// frontend/src/App.vue
 
 &lt;script setup lang="ts"&gt;
    import Govno from './components/Govno.vue'
@@ -123,10 +123,42 @@ declare module '*.vue' {
 }
 </code></pre>
 
-<script src="/assets/highlight/languages/bash.min.js"></script>
+<h2>Backend</h2>
+
+<p>Ставим типы для Node</p>
+<pre><code class="language-bash"># Ставим типы для Node:
+pnpm add @types/node --save-dev
+</code></pre>
+
+<p>Чуть выше я установил типы для <strong><i>Node.js</i></strong>. Теперь в <strong><i>node_modules/@types/node</i></strong> лежат файлы с описанием всех встроенных модулей <strong><i>Node.js</i></strong> (fs, path, process, Buffer и т. д.).</p>
+<p>Теперь в <strong><i>tsconfig.json</i></strong> мы говорим: «Подключай только типы, относящиеся к Node.js.»:</p>
+<pre><code class="language-json">// tsconfig.json
+  
+"types": ["node"],
+</code></pre>
+
+<p><strong><i>Если не указать тип</i></strong> (то есть просто удалишь строку внутри массива: "types": []), TypeScript сам попробует подключить все типы из node_modules/@types/. Это тоже будет работать, но иногда может подключить лишние типы (например, @types/dom от какой-то другой зависимости). Поэтому в серверных проектах на Node.js принято явно указывать: "node".</p>
+
+<pre><code class="language-bash"># Ставим <strong><i>Express</i></strong> и типы для него:
+pnpm add express --save-prod
+pnpm add @types/express --save-dev
+</code></pre>
+
+<p>Подключение ts-файлов:</p>
+<pre><code class="language-json">// tsconfig.json
+
+{
+   "files": ["./backend/src/server.js"],
+   "compilerOptions": {
+      "rootDir": "./backend/src",
+      "outDir": "./backend/dist"
+      ...
+   }
+}
+</code></pre>
+
 <script src="/assets/highlight/languages/xml.min.js"></script>
-<script src="/assets/highlight/languages/javascript.min.js"></script>
-<script src="/assets/highlight/languages/typescript.min.js"></script>
+<script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/json.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
