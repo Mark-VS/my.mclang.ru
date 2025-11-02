@@ -16,7 +16,14 @@
 <h1>Установка Arch</h1>
 
 
+
+
 <h2>2. Разметка жёсткого диска</h2>
+
+<p>Проверим режим загрузки, чтобы узнать у нас стоит BIOS или UEFI:</p>
+<pre><code class="language-bash">cat /sys/firmware/efi/fw_platform_size
+# Если исп. режим BIOS, то никакой инфы не вылезет. А если исп. UEFI, то получим либо 64, либо 32
+</code></pre>
 
 <p>Посмотреть типы таблицы существующих разделов (Partition Table Type):</p>
 <pre><code class="language-bash"># Здесь столбец PTTYPE покажет тип:
@@ -43,6 +50,94 @@ sudo blkid -s PTUUID -s PTTYPE /dev/sda
 # Вывести только значение:
 sudo blkid -s PTTYPE -o value /dev/sda
     # gpt
+</code></pre>
+
+<p>У меня SSD на 512 GB. Я хочу разбить его на 4 рездела:</p>
+<ul>
+    <li>UEFI – 1 GB</li>
+    <li>swap – 16 GB</li>
+    <li>root – 80 GB</li>
+    <li>home – ≈415 GB</li>
+</ul>
+
+<h2>Форматирование</h2>
+<pre><code class="language-bash"># Форматирование разделов:
+mkfs.fat -F 32 /dev/sda1    # Форматируем в FAT32
+   # mkfs.vfat /dev/sda1    # То же самое
+mkswap /dev/sda2            # Создаём swap-раздел
+mkfs.ext4 /dev/sda3         # Форматируем в ext4
+mkfs.ext4 /dev/sda4         # Форматируем в ext4
+
+# Форматирование и создание метки одновременно:
+mkfs.fat -F 32 -n EFILABEL /dev/sda1    # Форматируем в FAT32
+   # mkfs.vfat -n EFILABEL /dev/sda1    # То же самое
+mkswap -L SwapLabel /dev/sda2           # Создаём swap-раздел
+mkfs.ext4 -L RootLabel /dev/sda3        # Форматируем раздел в ext4
+mkfs.ext4 -L HomeLabel /dev/sda4        # Форматируем раздел в ext4
+
+# Создать метку для уже отформатированных разделов:
+fatlabel /dev/sda1 NEWLABEL     # для FAT32
+tune2fs -L NewLabel /dev/sda3   # для ext4
+e2label /dev/sda4 NewLabel      # для ext4
+mkswap -L NewLabel /dev/sda2    # для swap-раздела
+
+</code></pre>
+
+
+<h2>Установка загрузчика</h2>
+
+
+<pre><code class="language-bash">
+
+grub-install \
+   --target=x86_64-efi \
+   --efi-directory=/boot/efi \
+   --bootloader-id=Arch
+
+# После этого появляется файл:
+   # /boot/efi/EFI/Arch/grubx64.efi
+# А также папка:
+   # /boot/grub/ ...
+   #     fonts
+   #     grubenv
+   #     locale
+   #     themes
+   #     x86_64-efi
+
+# А также запись в NVRAM с помощью efibootmgr – что-то типа:
+   # Boot0003*   Arch    HD(1,GPT,c78dfcd4-7bae-...)/\EFI\Arch\grubx64.efi
+</code></pre>
+
+
+<p>То есть после установки появляется файл <i><strong>/boot/efi/EFI/Arch/grubx64.efi</strong></i>, а также папка <strong><i>/boot/grub/</i></strong>.</p>
+<p><strong><i>grubx64.efi</i></strong> – это основной загрузчик для UEFI. То есть, это исполняемый файл, который запускает прошивка UEFI.</p>
+<p><strong><i>/boot/grub/</i></strong> – это рабочая директория GRUB с его «второй стадей». Отсюда GRUB загружает модули, здесь читает конфигурационный файл grub.cfg.</p>
+<p>Всё это вынесено в разные места, потому что ESP – это специальный FAT-раздел, который должна распознать прошивка UEFI. А <strong><i>/boot/grub/</i></strong> – это обычная часть файловой системы Linux (ext4, например), где удобней хранить тяжёлые файлы GRUB.</p>
+
+<pre><code class="language-bash">grub-install \
+   --target=x86_64-efi \
+   --efi-directory=/boot/efi \
+   --bootloader-id=Arch \
+   --removable      ## копирует загрузчик GRUB в универсальное место
+
+# Эта команда не создаёт запись в NVRAM, а просто копирует загрузчик GRUB
+</code></pre>
+
+<pre><code class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg
+</code></pre>
+
+
+<h2>efibootmgr</h2>
+<pre><code class="language-bash">
+
+# Изменить порядок загрузки:
+sudo efibootmgr -o 0001,0000,0002
+
+# Удалить запись:
+sudo  efibootmgr -b 0003 -B
+
+# Добавить запись:
+sudo efibootmgr -c -d /dev/sda1 1 1 -L "Arch" -l "\EFI\Arch\grubx64.efi"
 </code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
