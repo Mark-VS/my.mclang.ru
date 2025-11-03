@@ -56,6 +56,8 @@ sudo loadkeys -v en 2>&1 | head -n 10
    # предполагается iso-8859-15 euro
    # код клавиши 1, таблица 0 = 27
    # ...
+
+   # аргумент -v выводит инфу в std:err, поэтому нам надо перенаправить его в std:out
 </code></pre>
 
 <p>Пример конфигурационного файла:</p>
@@ -91,6 +93,44 @@ setfont cyr-sun16
 
 <p>А вот <strong><i>loadkeys en</i></strong> подгружает файл <strong><i>/usr/share/kbd/keymaps/pine/en.map.gz</i></strong>.</p>
 
+
+<h2>Локаль</h2>
+
+<pre><code class="language-bash">
+
+/etc/locale.conf
+
+# Текущие переменные окружения:
+locale
+
+# Список доступных локалей:
+locale -a
+
+
+# Установить локаль:
+sudo localectl set-locale LANG=ru_RU.UTF-8
+# Либо вручную вписать в /etc/locale.conf:
+LANG=ru_RU.UTF-8
+
+Локаль ru_RU.UTF-8 хранится в 
+/usr/lib/locale/
+
+locale-gen 
+Все сгенерированные этой командой локали помещаются в один общий бинарный файл:
+/usr/lib/locale/locale-archive
+/usr/lib/locale/C.utf8 - папка с минимальной базовой локалью
+
+/usr/share/i18n/ - здесь хранятся текстовые шаблоны для генерации бинарных файлов локалей
+</code></pre>
+
+<p>То есть:</p>
+<ul>
+    <li><strong><i>/etc/locale.gen</i></strong> - тут мы раскомментируем строку с локалью, которую хотим сгенерировать;</li>
+    <li>Выполняем команду <strong><i>locale-gen</i></strong>, чтобы сгенерировать локаль;</li>
+    <li>Бинарный файл <strong><i>/usr/lib/locale/locale-archive</i></strong> обновляется и сгенерированная локаль попадает в него;</li>
+    <li>Внутри файла <strong><i>/usr/lib/locale/locale-archive</i></strong> может содержаться много локалей, поэтому мы должны указать системе, какую мы хотим использовать. Делается это в файле <strong><i>/etc/locale.conf</i></strong>.</li>
+    <li>А команда <strong><i>locale -a</i></strong> показывает какие локали есть внутри бинарного файла <strong><i>locale-archive</i></strong>.</l>
+</ul>
 
 
 <h2>2. Разметка жёсткого диска</h2>
