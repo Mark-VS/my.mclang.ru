@@ -16,6 +16,81 @@
 <h1>Установка Arch</h1>
 
 
+<h2>vconsole</h2>
+
+<pre><code class="language-bash"># Файлы с раскладками:
+/usr/share/kbd/keymaps/i386/qwerty/
+
+# Файлы со шрифтами:
+/usr/share/kbd/consolefonts/
+
+# Посмотреть список раскладок:
+localectl list-keymaps
+# или:
+ls /usr/share/kbd/keymaps/i386/qwerty/
+
+# Загрузить русскую раскладку
+loadkeys ru
+
+# Загрузить обратно английскую раскладку:
+loadkeys us
+
+# Дефолтная раскладка:
+loadkeys defkeymap
+
+# Установить шрифт с поддержкой  русского языка:
+setfont cyr-sun16
+
+setfont LatArCyrHeb-16
+setfont LatArCyrHeb-16+
+setfont LatArCyrHeb-19
+setfont latarcyrheb-sun16
+setfont latarcyrheb-sun32
+</code></pre>
+
+<h4>Посмотреть, какой файл раскладки загружается</h4>
+<pre><code class="language-bash"># Вывести первые 10 записей:
+sudo loadkeys -v en 2>&1 | head -n 10
+   # Загружается /usr/share/kbd/keymaps/pine/en.map.gz
+   # переключение на linux-keys-bare
+   # предполагается iso-8859-15 euro
+   # код клавиши 1, таблица 0 = 27
+   # ...
+</code></pre>
+
+<p>Пример конфигурационного файла:</p>
+<pre><code class="language-bash"># /etc/vconsole.conf:
+
+KEYMAP=ru
+KEYMAP_TOGGLE=us
+FONT=cyr-sun16
+#FONT_MAP=8859-5
+</code></pre>
+
+<p>Если мы хотим, чтобы конфигурационный файл применился, надо либо перезагрузить систему, либо выполнить:</p>
+<pre><code class="language-bash">sudo systemctl restart systemd-vconsole-setup.service</code></pre>
+
+<p>Причём вот такой конфигурационный файл нифига не применится:</p>
+<pre><code class="language-bash"># /etc/vconsole.conf:
+
+KEYMAP=us
+KEYMAP_TOGGLE=ru
+FONT=cyr-sun16
+#FONT_MAP=8859-5
+</code></pre>
+
+<p>Это то же самое, что выполнить:</p>
+<pre><code class="language-bash">loadkeys us
+loadkeys --toggle ru
+setfont cyr-sun16
+</code></pre>
+
+<p>Когда мы выполняем команду <strong><i>loadkeys ru</i></strong>, это подгружает файл <strong><i>/usr/share/kbd/keymaps/i386/qwerty/ru.map.gz</i></strong></p>
+<p><strong><i>loadkeys us</i></strong> подгружает <strong><i>/usr/share/kbd/keymaps/i386/qwerty/us.map.gz</i></strong>.</p>
+<p><strong><i>loadkeys ruwin_alt_sh-UTF-8</i></strong> подгружает <strong><i>/usr/share/kbd/keymaps/i386/qwerty/ruwin_alt_sh-UTF-8</i></strong></p>
+
+<p>А вот <strong><i>loadkeys en</i></strong> подгружает файл <strong><i>/usr/share/kbd/keymaps/pine/en.map.gz</i></strong>.</p>
+
 
 
 <h2>2. Разметка жёсткого диска</h2>
@@ -120,7 +195,9 @@ grub-install \
    --bootloader-id=Arch \
    --removable      ## копирует загрузчик GRUB в универсальное место
 
-# Эта команда не создаёт запись в NVRAM, а просто копирует загрузчик GRUB
+# Эта команда не создаёт запись в NVRAM
+# Она создаёт файл /boot/efi/EFI/BOOT/BOOTX64.EFI
+# и ставит остальную часть GRUB в /boot/grub/
 </code></pre>
 
 <pre><code class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg
