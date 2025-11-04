@@ -51,6 +51,12 @@
   
   # Узнать, установлен ли у меня пакет:
   pacman -Q xorg-server
+
+  # Список всех пакетов в репозитории multilib:
+  pacman -Sl multilib
+
+  # Список всех пакетов во всех доступных репозиториях:
+  pacman -Sl
 	</code></pre>
 	
 	<ul>
@@ -151,7 +157,16 @@ sudo pacman -U filename.pkg.tar.zst
 </code></pre>
 	
 	<h4>Узнать, какому пакету принадлежит бинарник:</h4>
-	<pre><code class="language-bash">pacman -Qo /usr/bin/package-name</code></pre>
+	<pre><code class="language-bash">pacman -Qo /usr/bin/package-name
+
+# Узнать, какому пакету принадлежит v4l2-ctl:
+pacman -Qo v4l2-ctl
+   # /usr/bin/v4l2-ctl принадлежит v4l-utils 1.32.0-1
+
+# Узнать, какому пакету принадлежит gio:
+pacman -Qo gio
+   # /usr/bin/gio принадлежит glib2 2.86.1-1
+  </code></pre>
 	
 	<h4>Узнать, какому пакету принадлежит утилита:</h4>
 	<pre><code class="language-bash">
@@ -167,6 +182,8 @@ sudo pacman -S net-tools
 # скачать базу данных файлов себе в локальное хранилище (/var/lib/pacman/sync):
 sudo pacman -Fy
 	</code></pre>
+
+  <p>Базы данных core.db, extra.db, multilib.db содержат список пакетов, их версии, зависимости и описания. Но они не содержат полный список файлов внутри пакетов. Поэтому есть дополнительные базы: core.files, extra.files, multilib.files. Все эти базы данных находятся в <strong><i>/var/lib/pacman/sync/</i></strong>.</p>
 	
 	<h4>Расшифровка</h4>
 	<pre><code class="language-bash">
@@ -184,6 +201,9 @@ sudo pacman --upgrade package.pkg.tar.zst
 
 sudo pacman -Fy
 sudo pacman --files --refresh
+
+pacman -Qo v4l2-ctl
+pacman --query --owns v4l2-ctl
 	</code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

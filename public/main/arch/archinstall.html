@@ -103,13 +103,13 @@ sudo localectl set-locale LANG=ru_RU.UTF-8
 # Либо вручную вписать в /etc/locale.conf:
 LANG=ru_RU.UTF-8
 
-Локаль ru_RU.UTF-8 хранится в 
-/usr/lib/locale/
+# Локаль ru_RU.UTF-8 хранится в 
+# /usr/lib/locale/
 
 locale-gen 
-Все сгенерированные этой командой локали помещаются в один общий бинарный файл:
-/usr/lib/locale/locale-archive
-/usr/lib/locale/C.utf8 - папка с минимальной базовой локалью
+   # Все сгенерированные этой командой локали помещаются в один общий бинарный файл:
+   # /usr/lib/locale/locale-archive
+   # /usr/lib/locale/C.utf8 - папка с минимальной базовой локалью
 
 /usr/share/i18n/ - здесь хранятся текстовые шаблоны для генерации бинарных файлов локалей
 </code></pre>
@@ -189,13 +189,120 @@ mkswap -L NewLabel /dev/sda2    # для swap-раздела
 
 </code></pre>
 
+<h2>Монтирование файловой системы</h2>
+
+<pre><code class="language-bash">
+
+mount /dev/sda3 /mnt
+mkdir -p /mnt/boot/efi
+mount /dev/sda1 /mnt/boot/efi
+mount /dev/sda4 /mnt/home
+
+
+</code></pre>
+
+<h2>ставим базовые пакеты</h2>
+
+<pre><code class="language-bash"># базовые пакеты:
+pacman -r /mnt -S base linux linux-firmware
+
+# А также нам понадобятся:
+pacman -r /mnt -S dhcpcd nano
+
+# На оф. сайте Arch говорится, что pacstrap копирует файл /etc/pacman.d/mirrorlist в новую систему
+# Поэтому, наверное, надо его скопировать вручную:
+mkdir -p /mnt/etc/pacman.d
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
+cp /etc/pacman.conf /mnt/etc/pacman.conf
+
+# Чтобы повторить аргумент -K из pacstrap ...
+# ... Ещё нужно инициализировать ключи внутри новой системы:
+arch-chroot /mnt pacman-key --init
+arch-chroot /mnt pacman-key --populate archlinux
+
+   # в новой системе папка /etc/pacman.d/gnupg пустая
+
+   # pacman-key --init – Создаёт локальную криптографическую инфраструктуру
+   # pacman-key --populate archlinux – Добавляет официальные ключи Arch Linux
+
+# Можно просто скопировать ключи из живой системы:
+cp -r /etc/pacman.d/gnupg /mnt/etc/pacman.d/
+
+# Если система старая, то ключи могут быть устаревшими.
+# Тогда их нужно будет обновить:
+pacman-key --refresh-keys
+
+
+# pacstrap -K именно копирует ключи
+</code></pre>
+
+<p>или через pacstrap:</p>
+<pre><code class="language-bash">
+pacstrap -K /mnt base linux linux-firmware
+
+   # -K – keyring, хранилище криптографических ключей
+   # Это хранилище находится здесь: /etc/pacman.d/gnupg
+
+   # pubring.gpg — публичные ключи (разработчики Arch)
+   # trustdb.gpg — уровень доверия ключам
+   # private-keys-v1.d/ — приватные ключи системы
+</code></pre>
+
+<p>Помимо установки пакетов, pacstrap -K также:</p>
+<ul>
+   <li>копирует /etc/pacman.conf</li>
+   <li>копирует /etc/pacman.d/mirrorlist</li>
+   <li>создаёт /mnt/etc/pacman.d/gnupg</li>
+   <li>самое главное: выполняет инициализацию ключей <strong><i>pacman</i></strong> в новой системе:
+     <pre><code class="language-bash"> pacman-key --init
+ pacman-key --populate archlinux</code></pre>
+   </li>
+</ul>
+
+<h2>Настройка системы</h2>
+
+<pre><code class="language-bash">genfstab -U /mnt >> /mnt/etc/fstab
+
+# Или:
+genfstab -L /mnt >> /mnt/etc/fstab
+   # вместо UUID отображать Label
+
+# genfstab - утилита, которая автоматически создаёт таблицу монтирования (fstab) для Linux-системы.
+# Она сканирует смонтированные разделы (или корневую файловую систему, которую мы ей укажем)
+# И запишет инфу о том, как монтировать наши разделы в файл, который мы укажем.
+</code></pre>
+
+<h2>chroot</h2>
+
+<p>Примонтируем оставшуюся файловую систему, которая необходима для полноценной работы:</p>
+<pre><code class="language-bash">mount -t proc /proc /mnt/proc
+mount --make-rslave /proc /mnt/proc
+mount --rbind /sys /mnt/sys
+mount --make-rslave /sys /mnt/sys
+mount --rbind /dev /mnt/dev
+mount --make-rslave /dev /mnt/dev
+mount --rbind /run /mnt/run
+mount --make-rslave /run /mnt/run
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+
+# заходим в систему:
+chroot /mnt /bin/bash
+# или:
+chroot /mnt /usr/bin/bash
+</code></pre>
+
+<p>Либо можно сделать так:</p>
+
+<pre><code class="language-bash">
+arch-chroot /mnt
+</code></pre>
+
 
 <h2>Установка загрузчика</h2>
 
 
-<pre><code class="language-bash">
-
-grub-install \
+<pre><code class="language-bash">grub-install \
    --target=x86_64-efi \
    --efi-directory=/boot/efi \
    --bootloader-id=Arch
@@ -237,6 +344,15 @@ grub-install \
 <pre><code class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</code></pre>
 
 
+<h2>mkinitcpio</h2>
+
+<pre><code class="language-bash">mkinitcpio -P
+</code></pre>
+
+<p>Эта команда нужна только если я ставил ядро НЕ через pacman. Она нужна для генерации initramfs.</p>
+<p>Если во время установки ядра /boot не был смонтирован, или был смонтирован некорректно, то тогда тоже надо будет пересобирать initramfs.</p>
+<p>Если я обновлял <strong><i>/etc/mkinitcpio.conf</i></strong>, то тогда тоже нужно будет пересобрать initramfs.</p>
+
 <h2>efibootmgr</h2>
 <pre><code class="language-bash">
 
@@ -248,6 +364,104 @@ sudo  efibootmgr -b 0003 -B
 
 # Добавить запись:
 sudo efibootmgr -c -d /dev/sda1 1 1 -L "Arch" -l "\EFI\Arch\grubx64.efi"
+</code></pre>
+
+<p>Если прошивка UEFI не нашла запись в NVRAM с сылкой на загрузчик, то она ищет fallback-загрузчик. Fallback-загрузчик должен быть в системном разделе EFI (ESP) в <strong><i>EFI/BOOT/BOOTX64.EFI</i></strong>. UEF-прошивка ищет ESP по его GUID-типу, который должен быть: ESP (EFI System Partition) и он должен быть отформатирован в файловой системе FAT32. В моём случае ESP-раздел находится первым на SSD и примонтирован в <strong><i>/boot/efi</i></strong>. То есть, у меня fallback-загрузчик находится в <strong><i>/boot/efi/EFI/BOOT/BOOTX64.EFI</i></strong>. И соответственно, если UEFI-прошивка не найдёт записи в NVRAM, то она найдёт этот fallback-загрузчик.</p>
+
+
+<h2>Пользователи</h2>
+
+<pre><code class="language-bash"># Создаём пользователя:
+useradd -m -G wheel -s /bin/bash mark
+# или:
+useradd --create-home --groups wheel --shell /bin/bash mark
+   # -m = --create-home – создаёт домашнюю директорию в /home/
+   # -G wheel – добавляет пользователя в группу wheel
+   # -s /bin/bash – устанавливает оболочку входа, в данном случае – /bin/bash
+      # По умолчанию может быть: /bin/sh, /usr/bin/zsh, /bin/nologin
+
+# Задаём пароль для созданного пользователя:
+passwd mark
+</code></pre>
+
+<h2>sudo</h2>
+<pre><code class="language-bash">
+pacman -S sudo
+   # создался файл /etc/sudoers
+# Открыть файл sudoers с помощью vi (по умолчанию):
+visudo
+
+# Открыть /etc/sudoers с помощью nano:
+EDITOR=nano visudo
+
+# Раскомментируем следующую строку:
+%wheel ALL=(ALL:ALL) ALL
+# Это разрешает всем пользователям в группе wheel использовать sudo
+
+# Авторизуемся как mark:
+su - mark
+
+# И теперь мы можем пользоваться командой sudo:
+sudo ls /
+</code></pre>
+
+<h2>Часовой пояс</h2>
+<pre><code class="language-bash">
+
+# Создаём часовой пояс:
+sudo ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+
+# Или:
+timedatectl set-timezone Europe/Moscow
+
+# Генерируем файл /etc/adjtime
+hwclock --systohc
+   # Эта команда предполагает, что аппаратные часы по умолчанию используют UTC.
+   # А мы здесь копируем системное время (UTC+3) в аппаратные часы (System -> RTC)
+   # Это делается, потому что при перезагрузке BIOS/UEFI может отдать системе аппаратное время (особенно, если отключён интернет)
+
+# Системное время можно узнать с помощью:
+date
+</code></pre>
+
+<p><strong><i>/etc/adjtime</i></strong> – это текстовый файл, который хранит служебные данные. Аппаратные часы никогда не идут идеально точно. Они могут спешить/отставать на одну-две секунды в сутки. <strong><i>hwclock</i></strong> следит за этим и записывает корректировку в этот файл.</p>
+<p>Файл <strong><i>/etc/adjtime</i></strong> появляется после первого запуска одной из следующих команд:</p>
+<pre><code class="language-bash">hwclock --systohc
+hwclock --hctosys
+hwclock --adjust
+</code></pre>
+
+<h3>Примечание про UTC и Local</h3>
+<p>Строка "UTC" или "LOCAL" в файле /etc/adjtime определяет в каком формате хранятся аппаратные часы. Linux обычно использует UTC. Windows использует LOCAL. Если файл покажет LOCAL, система считает, что RTC хранит локальное время.</p>
+<ul>
+    <li>RTC – Real-Time Clock (аппаратные часы реального времени), это маленький чип на материнской плате.</li>
+    <li>NTP – Network Time Protocol (сетевой протокол времени), специальный протокол, с помощью которого компьютер синхронизирует своё время через интернет с точными эталонными серверами.</li>
+</ul>
+
+
+<h2>репозитории</h2>
+
+<pre><code class="language-bash">
+# В файле /etc/pacman.conf раскомментируем блок:
+[multilib]
+include = /etc/pacman.d/mirrorlist
+
+# А далее:
+sudo pacman -Sy
+
+</code></pre>
+
+<h2>hostname</h2>
+<pre><code class="language-bash"># /etc/hostname
+
+Govnuter
+</code></pre>
+
+<h2>hosts</h2>
+<pre><code class="language-bash"># /etc/hosts
+
+127.0.0.1   localhost  my.localhost
+::1         localhost  my.localhost
 </code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
