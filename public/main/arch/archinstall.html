@@ -64,28 +64,19 @@ sudo loadkeys -v en 2>&1 | head -n 10
 <pre><code class="language-bash"># /etc/vconsole.conf:
 
 KEYMAP=ru
-KEYMAP_TOGGLE=us
 FONT=cyr-sun16
-#FONT_MAP=8859-5
+</code></pre>
+
+<p>Или вот русская раскладка, которая переключается через ALT+SHIFT:</p>
+<pre><code class="language-bash"># /etc/vconsole.conf:
+
+KEYMAP=ruwin_alt_sh-UTF-8
+FONT=cyr-sun16
 </code></pre>
 
 <p>Если мы хотим, чтобы конфигурационный файл применился, надо либо перезагрузить систему, либо выполнить:</p>
 <pre><code class="language-bash">sudo systemctl restart systemd-vconsole-setup.service</code></pre>
 
-<p>Причём вот такой конфигурационный файл нифига не применится:</p>
-<pre><code class="language-bash"># /etc/vconsole.conf:
-
-KEYMAP=us
-KEYMAP_TOGGLE=ru
-FONT=cyr-sun16
-#FONT_MAP=8859-5
-</code></pre>
-
-<p>Это то же самое, что выполнить:</p>
-<pre><code class="language-bash">loadkeys us
-loadkeys --toggle ru
-setfont cyr-sun16
-</code></pre>
 
 <p>Когда мы выполняем команду <strong><i>loadkeys ru</i></strong>, это подгружает файл <strong><i>/usr/share/kbd/keymaps/i386/qwerty/ru.map.gz</i></strong></p>
 <p><strong><i>loadkeys us</i></strong> подгружает <strong><i>/usr/share/kbd/keymaps/i386/qwerty/us.map.gz</i></strong>.</p>
@@ -128,8 +119,8 @@ locale-gen
     <li><strong><i>/etc/locale.gen</i></strong> - тут мы раскомментируем строку с локалью, которую хотим сгенерировать;</li>
     <li>Выполняем команду <strong><i>locale-gen</i></strong>, чтобы сгенерировать локаль;</li>
     <li>Бинарный файл <strong><i>/usr/lib/locale/locale-archive</i></strong> обновляется и сгенерированная локаль попадает в него;</li>
+    <li>Убедиться, что сгенерированная нами локаль попала в файл <strong><i>locale-archive</i></strong> можно с помощью команды <strong><i>locale -a</i></strong>, которая отображает все доступные локали из <strong><i>locale-archive</i></strong>.</li>
     <li>Внутри файла <strong><i>/usr/lib/locale/locale-archive</i></strong> может содержаться много локалей, поэтому мы должны указать системе, какую мы хотим использовать. Делается это в файле <strong><i>/etc/locale.conf</i></strong>.</li>
-    <li>А команда <strong><i>locale -a</i></strong> показывает какие локали есть внутри бинарного файла <strong><i>locale-archive</i></strong>.</l>
 </ul>
 
 
@@ -232,16 +223,18 @@ grub-install \
 <pre><code class="language-bash">grub-install \
    --target=x86_64-efi \
    --efi-directory=/boot/efi \
-   --bootloader-id=Arch \
-   --removable      ## копирует загрузчик GRUB в универсальное место
+   --removable      ## помещает загрузчик GRUB в универсальное место
 
 # Эта команда не создаёт запись в NVRAM
 # Она создаёт файл /boot/efi/EFI/BOOT/BOOTX64.EFI
-# и ставит остальную часть GRUB в /boot/grub/
+# ... и ставит остальную часть GRUB в /boot/grub/
+
+# Если мы дополнительно передадим флаг "--bootloader-id=Arch", то он проигнорируется:
+# ... "--removable" несовместим с "--bootloader-id" – второй просто игнорируется.
 </code></pre>
 
-<pre><code class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg
-</code></pre>
+<p>И создаём конфигурационный файл:</p>
+<pre><code class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</code></pre>
 
 
 <h2>efibootmgr</h2>
