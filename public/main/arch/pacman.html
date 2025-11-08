@@ -185,6 +185,16 @@ sudo pacman -Fy
 
   <p>Базы данных core.db, extra.db, multilib.db содержат список пакетов, их версии, зависимости и описания. Но они не содержат полный список файлов внутри пакетов. Поэтому есть дополнительные базы: core.files, extra.files, multilib.files. Все эти базы данных находятся в <strong><i>/var/lib/pacman/sync/</i></strong>.</p>
 	
+  <h4>pactree</h4>
+  <pre><code class="language-bash"># Посмотреть зависимости sway
+pactree sway
+   # т.е. мы увидим, что нужно sway, чтобы работать
+
+# Посмотреть обратные зависимости:
+pactree -r sway
+   # т.е. програмы, которые зависят от sway
+  </code></pre>
+
 	<h4>Расшифровка</h4>
 	<pre><code class="language-bash">
 sudo pacman -Syu

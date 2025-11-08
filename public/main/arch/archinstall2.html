@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>archinstall2</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>lolo</h1>
+
+<h2>Форматирование разделов</h2>
+<pre><code class="language-bash">
+# Форматирование разделов:
+mkfs.fat -F 32 /dev/sda1    # Форматируем в FAT32
+   # mkfs.vfat /dev/sda1    # То же самое
+mkswap /dev/sda2            # Создаём swap-раздел
+mkfs.ext4 /dev/sda3         # Форматируем в ext4
+mkfs.ext4 /dev/sda4         # Форматируем в ext4
+
+# Форматирование и создание метки одновременно:
+mkfs.fat -F 32 -n EFILABEL /dev/sda1    # Форматируем в FAT32
+   # mkfs.vfat -n EFILABEL /dev/sda1    # То же самое
+mkswap -L SwapLabel /dev/sda2           # Создаём swap-раздел
+mkfs.ext4 -L RootLabel /dev/sda3        # Форматируем раздел в ext4
+mkfs.ext4 -L HomeLabel /dev/sda4        # Форматируем раздел в ext4
+
+# Создать метку для уже отформатированных разделов:
+fatlabel /dev/sda1 NEWLABEL     # для FAT32
+tune2fs -L NewLabel /dev/sda3   # для ext4
+e2label /dev/sda4 NewLabel      # для ext4
+mkswap -L NewLabel /dev/sda2    # для swap-раздела
+</code></pre>
+
+<h2>Монтирование файловой системы</h2>
+
+<pre><code class="language-bash">
+mount /dev/sda3 /mnt            # монтируем корень системы
+mkdir -p /mnt/boot/efi          # создаём папку под EFI-раздел
+mount /dev/sda1 /mnt/boot/efi   # монтируем EFI-раздел
+mkdir -p /mnt/home              # создаём папку для раздела home
+mount /dev/sda4 /mnt/home       # монтируем home
+swapon /dev/sda2                # включаем раздел подкачки
+</code></pre>
+
+<pre><code class="language-bash">
+mount -t proc /proc /mnt/proc
+mount --rbind /dev /mnt/dev
+mount --rbind /sys /mnt/sys
+mount --rbind /run /mnt/run   # я устанавливал и не монтируя этот раздел
+
+mount --make-rslave /mnt/dev   # не обязательно
+mount --make-rslave /mnt/sys   # не обязательно
+mount --make-rslave /mnt/run   # не обязательно
+</code></pre>
+
+<h3>Что ещё нужно перед установкой базовых пакетов</h3>
+<pre><code class="language-bash">
+# Этот каталог нужен pacman'у:
+mkdir -p /mnt/var/lib/pacman
+   # Если мы его не создадим, то pacman не будет ставить пакеты в новую систему –
+   # он будет ругаться на отсутствие этой папки.
+
+# Ещё нам обязательно понадобится файл (хотя бы пустой):
+/etc/vconsole.conf
+   # Без него initramfs не соберётся,
+   # pacman просто выдаст ошибку во время установки
+</code></pre>
+
+
+<p>Перед тем, как устанавливать базовые пакеты, нужно иметь понятие о том, куда они будут скачиваться во время установки. Это важно, потому что если мы загрузились с флэшки, на которой мало места, то по умолчанию pacman будет скачивать пакеты на неё, но из-за нехватики места пакеты не скачаются и не установятся. Чтобы проверить, куда они скачиваются во время установки, можно ввести команду:</p>
+<pre><code class="language-bash">pacman -v
+
+# Root      : /
+# Conf File : /etc/pacman.conf
+# DB Path   : /var/lib/pacman/
+# Cache Dirs: /var/cache/pacman/pkg/  
+# Hook Dirs : /usr/share/libalpm/hooks/  /etc/pacman.d/hooks/  
+# Lock File : /var/lib/pacman/db.lck
+# Log File  : /var/log/pacman.log
+# GPG Dir   : /etc/pacman.d/gnupg/
+# Targets   : Нет
+</code></pre>
+
+<p><strong><i>Cache Dirs</i></strong> – это и есть папка, куда скачиваются пакеты из репозитория Arch перед установкой. То есть они будут скачиваться на флэшку, с которой мы загрузились. Но нам надо указать папку на SSD, в которую мы устанавливаем Arch, т.е. <strong><i>/mnt/var/cache/pacman/pkg</i></strong>. Укажем этот каталог во время установки базовых пакетов:</p>
+
+<h3>Установка базовых пакетов</h3>
+<pre><code class="language-bash">pacman -r /mnt --cachedir=/mnt/var/cache/pacman/pkg -Sy base linux linux-firmware
+</code></pre>
+
+
+<pre><code class="language-bash">
+genfstab -L /mnt >> /mnt/etc/fstab
+</code></pre>
+
+
+<h3>chroot</h3>
+
+<pre><code class="language-bash">chroot /mnt /bin/bash
+source /etc/profile
+export PS1="(arch-chroot) \u:\w\$ "
+</code></pre>
+
+<p>У нас должна была сохраниться рабочая сеть от системы хоста. Первое, что нам нужно сделать, это обновить ключи, ведь иначе pacman не будет ничего устанавливать. У нас в новой системе отсутствует папка с ключами <strong><i>/etc/pacman.d/gnupg</i></strong>. Можно было её просто скопировать из системы-хоста, а можно просто скачать новые:</p>
+
+<pre><code class="language-bash">pacman-key --init
+pacman-key --populate archlinux
+</code></pre>
+
+<p>Чтобы pacman мог скачивать пакеты из репозиториев, нужно ему указать зеркала с доступными репозиториями в файле <strong><i>/etc/pacman.d/mirrorlist</i></strong>. Во время установки базовых пакетов, этот файл должен был сгенерироваться, но все строки в нём закомментированы. Нам надо раскомментировать ближайшие к нам репозитории. Содержание файла должно быть примерно таким:</p>
+
+<pre><code class="language-bash"># /etc/pacman.d/mirrorlist
+
+Server = https://at.arch.niranjan.co/$repo/os/$arch
+Server = https://de.arch.niranjan.co/$repo/os/$arch
+Server = https://berlin.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://al.arch.niranjan.co/$repo/os/$arch
+Server = https://ro.arch.niranjan.co/$repo/os/$arch
+Server = https://mirror.5i.fi/archlinux/$repo/os/$arch
+...
+</code></pre>
+
+<p>Теперь у <strong><i>pacman</i></strong> есть всё необходимое, чтобы он мог устанавливать пакеты в новую систему.</p>
+
+<pre><code class="language-bash">
+# в новой системе нам понадобится текстовый редактор и интернет – базовый минимум:
+pacman -Syu nano dhcpcd
+
+# и конечно, самое главное: загрузчик и efibootmgr
+pacman -S grub efibootmgr
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

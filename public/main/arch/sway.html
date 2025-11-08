@@ -13,64 +13,95 @@
 
 <h1>sway</h1>
 
-<pre><code class="language-ts">
-	import kaka from 'kaka.js';
+<h3>Установка Sway</h4>
+
+<ul>
+<li>Для запуска <strong><i>sway</i></strong> нам понадобится <strong><i>mesa</i></strong>. Без Mesa <strong><i>sway</i></strong> не запустится на обычной Linux-системе с <strong><i>Intel/AMD</i></strong> GPU. Mesa – это реализация OpenGL для Linux/Unix.</li>
+<li>Также нам понадобится терминал <strong><i>foot</i></strong>. По умолчанию конфигурационный файл sway настроен именно на запуск <strong><i>foot</i></strong> сочетанием клавиш Win+Enter. Если <strong><i>foot</i></strong> не установить, то мы не сможем зайти в терминал.</li>
+</ul>
+<p><strong><i>wlroots</i></strong> (отдельно ставить не надо) – это библиотека для Wayland-композиторов (Sway, Wayfire etc.). Она управляет мониторами, окнами, вводом с клавиатуры и мыши, рендерингом через OpenGL. Sway не напрямую работает с GPU — он использует wlroots, а wlroots уже использует OpenGL (через Mesa) для отрисовки окон и эффектов.</p>
+
+<pre><code class="language-bash"># минимальный минимум для запуска sway:
+sudo pacman -S mesa sway foot
+
+# Для запуска X11-программ:
+sudo pacman -S xorg-xwayland
 </code></pre>
 
 <h3>Запуск</h3>
-<pre><code>    dbus-run-session sway > ~/.sway.log 2>&1
-    exec sway</code></pre>
+<pre><code> dbus-run-session sway > ~/.sway.log 2>&1
+ exec sway</code></pre>
+
+
+<p>Sway запустился. Единственное, что отображается на экране по умолчанию – это <strong><i>swaybar</i></strong> наверху. <strong><i>Swaybar</i></strong> – это встроенная панель, входящая в состав самого пакета sway. Настроить её можно в конфигурационном файле sway, в  разделе <strong><i>bar</i></strong>.</p>
+
+<h4>Основные команды управления sway:</h4>
+<pre><code class="language-bash"># Win+Enter – Открыть окно терминала
+swaymsg kill     # Win+Shift+Q – закрыть окно
+swaymsg exit     # Win+Shift+E – выйти из sway (нужно будет подтвердить, кликнув мышкой)
+swaymsg reload   # Win+Shift+C – перезагрузка конфигурации без выхода из сессии
+</code></pre>
+<p>Первое, что бросается мне в глаза – это мелкий шрифт в терминале. Чтобы его поменять пишем в конфигурационный файл foot:</p>
+<pre><code class="language-ini"># ~/.config/foot/foot.ini
+
+[main]
+font=monospace:size=14      # увеличиваем шрифт с 8 до 14
+dpi-aware=yes
+</code></pre>
+<pre><code class="language-bash"># Можно скопировать шаблон конфига:
+
+cp /etc/xdg/foot/foot.ini ~/.config/foot/foot.ini
+</code></pre>
+
+
+<h3>Конфигурационный файл SWAY</h3>
+
 <pre><code># Глобальный конфиг:
-	/etc/sway/config
+   /etc/sway/config
 # Локальный конфиг:
-	~/.config/sway/config
+   ~/.config/sway/config
 	
 # Раскладка клавиатуры:
 input * {
-	xkb_layout us,ru
-	xkb_options grp:alt_shift_toggle
+   xkb_layout us,ru
+   xkb_options grp:alt_shift_toggle
 }
 
 # Добавим ещё Compose-key на правый Alt:
-
 input * {
-	xkb_layout us,ru
-	xkb_options grp:alt_shift_toggle,compose:ralt
+   xkb_layout us,ru
+   xkb_options grp:alt_shift_toggle,compose:ralt
 }
 
 # grp:alt_shift_toggle — это переключение раскладки Alt+Shift
 # compose:ralt — это назначение правого Alt как Compose-клавиши
 
 # Задать фон:
-	# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-	# output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+   # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+   # output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 	
-	## Сначала убиваем старый процесс swaybg, потому что при старте sway запускает swaybg в любом случае (без параметров):
-			exec_always "pkill swaybg; swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
-	## или (что тоже самое, только через bash. Предыдущий был через shell):
-			exec_always bash -c "pkill swaybg;  swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
-	
-	
-			
-	# в глобальном конфиге надо закоментировать строку, которая задаёт фон
+   ## Сначала убиваем старый процесс swaybg, потому что при старте sway запускает swaybg в любом случае (без параметров):
+      exec_always "pkill swaybg; swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
+   ## или (что тоже самое, только через bash. Предыдущий был через shell):
+      exec_always bash -c "pkill swaybg;  swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
+		
+   # в глобальном конфиге надо закоментировать строку, которая задаёт фон
 	
 ## Запуск waybar (две команды - в кавычках!):
 ## Ищем точное совпадение среди процессов (waybar), если не найдено, то запускаем waybar, а если найдено, то ничего не делаем:
-	exec_always "pgrep -x waybar || waybar"
-	# И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
-
-# ntfs-3g - нужен для фaйловой системы ntfs
-sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
-
+   exec_always "pgrep -x waybar || waybar"
+   # И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
 
 ## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
 	
 	</code></pre>
+
 	<h3>РАЗРЕШЕНИЕ И ЧАСТОТА</h3>
 	
 		
-		<pre><code class="language-bash"># Посмотретьтекущие настройки:
+<pre><code class="language-bash"># Посмотретьтекущие настройки:
    swaymsg -t get_outputs
+      # выведет допустимые разрешения и частоты
 # или:
    wayland-info	## пакет wayland-utils
 # или:
@@ -78,19 +109,12 @@ sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
 
 # Чтобы поменять разрешение и частоту навсегда, надо внести эту строку в ~/.config/sway/config:
    swaymsg output HDMI-A-2 mode 1920x1080@144Hz
-		</code></pre>
+</code></pre>
 		
 		<h4>Чтобы поменять разрешение и частоту навсегда, надо внести эту строку в ~/.config/sway/config:</h4>
 		<pre><code>output HDMI-A-2 mode 1920x1080@144Hz</code></pre>
 	
-	<h3>Установка Sway</h4>
-	<pre><code class="language-bash">
-	# install sway
-	sudo pacman -S sway foot
-	# У меня sway v1.11 по умолчанию собран без поддержки Xwayland. И я не могу запускать программы типа feh
-	# Установить sway с поддержкой Xwayland:
-	sudo pacman -S sway xorg-xwayland
-	</code></pre>
+
 	
 	
 	<h3>Всё остальное</h3>
@@ -251,7 +275,7 @@ sudo mount -t ntfs-3g /dev/sdb1 ~/mnt/usb
 </code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
-<script src="/assets/highlight/languages/typescript.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>
