@@ -14,49 +14,52 @@
     <h1>Pacman</h1>
 
 	<pre><code class="language-bash">
-  # update system
-  # sudo pacman -Syu
-  	-S - Synchronize: Install or update packages
-  	-y - Refresh package database (download the latest package lists)
-  	-u - Upgrade all installed packages to the latest version
-  # Refresh package list (not upgrade):
-  	sudo pacman -Sy
-  
-  # Remove
-  sudo pacman -Rns budgie-desktop gnome xfce4 xfce4-goodies
-  	-R - remove a packager
-  	-n - remove configuration files and mark dependencies as unused
-  	-s - remove unused dependencies that were installed with the package
-  sudo pacman -Rdd linux-firmware
-  	-R - удалить пакет
-  	-d - игнорировать зависимости (один -d)
-  	-dd - игнорировать зависимости дважды (то есть вообще никакие зависимости):
-  		- не проверят, что от пакета кто-то зависит (обратные зависимости);
-  		- не проверять, что сам пакет зависит от чего-то.
-  
-  # Search package in repo
-  sudo pacman -Ss lalal
-  	-S - Syncronize
-  	-s - search
-  # Хочу узнать, что входит в пакет, который я установил.
-  # Например, я ставлю Sway и хочу знать, ЧТО установится:
-  pacman -Qi sway
-  # Найти, установлен ли у меня метапакет. Выведен всё, что он установил:
-  pacman -Qg plasma
-  
-  # Хочу узнать, что входит в пакет, который я ещё не установил:
-  pacman -Si sway
-  # Посмотреть что включает в себя метапакет:
-  pacman -Sg plasma
-  
-  # Узнать, установлен ли у меня пакет:
-  pacman -Q xorg-server
+# update system
+# sudo pacman -Syu
+   -S - Synchronize: Install or update packages
+   -y - Refresh package database (download the latest package lists)
+   -u - Upgrade all installed packages to the latest version
+# Refresh package list (not upgrade):
+   sudo pacman -Sy
 
-  # Список всех пакетов в репозитории multilib:
-  pacman -Sl multilib
+# Remove
+sudo pacman -Rns budgie-desktop gnome xfce4 xfce4-goodies
+   -R - remove a packager
+   -n - remove configuration files and mark dependencies as unused
+   -s - remove unused dependencies that were installed with the package
 
-  # Список всех пакетов во всех доступных репозиториях:
-  pacman -Sl
+sudo pacman -Rdd linux-firmware
+   -R - удалить пакет
+   -d - игнорировать зависимости (один -d)
+   -dd - игнорировать зависимости дважды (то есть вообще никакие зависимости):
+      - не проверят, что от пакета кто-то зависит (обратные зависимости);
+      - не проверять, что сам пакет зависит от чего-то.
+  
+# Найти пакет в репозитории:
+pacman -Ss strawberry
+
+# Вывести подробную информацию об этом пакете:
+pacman -Si strawberry
+
+# Найти пакет среди установленных в системе:
+pacman -Q sway
+
+# Найти пакет среди установленных в системе:
+pacman -Qs sway
+
+# Вывести подробную информацию о нём:
+pacman -Qi sway
+
+# Найти в репозитории пакеты, принадлежащие группе plasma:
+pacman -Sg plasma
+
+# Найти среди установленных пакетов пакеты из группы plasma:
+pacman -Qg plasma
+
+# Список всех пакетов в репозитории multilib:
+pacman -Sl multilib
+# Список всех пакетов во всех доступных репозиториях:
+pacman -Sl
 	</code></pre>
 
   <h3>Логи</h3>
@@ -179,7 +182,7 @@ pacman -Qo gio
   <p>Или, если попытаться перефразировать, я, например, хочу знать, какие файлы и куда раскидывает их по системе пакет, который я ставлю.</p>
 
   <pre><code class="language-bash"># На примере archlinux-keyring:
-   
+
 pacman -Ql archlinux-keyring
   </code></pre>
 	

@@ -479,9 +479,7 @@ grub-install \
 <p>Если я обновлял <strong><i>/etc/mkinitcpio.conf</i></strong>, то тогда тоже нужно будет пересобрать initramfs.</p>
 
 <h2>efibootmgr</h2>
-<pre><code class="language-bash">
-
-# Изменить порядок загрузки:
+<pre><code class="language-bash"># Изменить порядок загрузки:
 sudo efibootmgr -o 0001,0000,0002
 
 # Удалить запись:
@@ -491,7 +489,44 @@ sudo  efibootmgr -b 0003 -B
 sudo efibootmgr -c -d /dev/sda1 1 1 -L "Arch" -l "\EFI\Arch\grubx64.efi"
 </code></pre>
 
-<h2>После установки</h2>
+<h2>9. Завершение</h2>
+
+<p>Теперь выходим из chroot:</p>
+<pre><code class="language-bash">exit</code></pre>
+
+<p>Размонтируем нашу систему (желательно в обратном порядке):</p>
+<pre><code class="language-bash"># Отключаем swap:
+swapoff /dev/sda2
+
+# Размонтируем --bind-монтирования:
+umount -R /mnt/run
+umount -R /mnt/sys
+umount -R /mnt/dev
+umount -R /mnt/proc
+
+# Размонтируем обычные файловые системы:
+umount /mnt/boot/efi
+umount /mnt/home
+umount /mnt
+</code></pre>
+
+<p>Можно сделать это одним махом:</p>
+<pre><code class="language-bash">umount -R /mnt</code></pre>
+
+<p>Если что-то занято, можно посмотреть, что держит точку монтирования:</p>
+<pre><code class="language-bash">fuser -vm /mnt</code></pre>
+
+<p>Разорвать процессы, использующие /mnt:</p>
+<pre><code class="language-bash">fuser -km /mnt</code></pre>
+
+<p>Принудительный lazy-unmount:</p>
+<pre><code class="language-bash">umount -Rl /mnt
+# или:
+umount --recursive --lazy /mnt
+</code></pre>
+
+
+<h2>10. После установки</h2>
 
 <h3>Пользователи</h3>
 
