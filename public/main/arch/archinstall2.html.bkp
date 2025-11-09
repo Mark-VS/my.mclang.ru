@@ -11,7 +11,7 @@
 <script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
-<h1>Установка Arch</h1>
+<h1>дддддд</h1>
 
 <h2>1. vconsole</h2>
 
@@ -365,8 +365,10 @@ mkdir -p /mnt/var/lib/pacman
 <pre><code class="language-bash">pacman -r /mnt --cachedir=/mnt/var/cache/pacman/pkg -Sy base linux linux-firmware
 </code></pre>
 
-<p>Создаём файл fstab:</p>
-<pre><code class="language-bash">genfstab -L /mnt >> /mnt/etc/fstab</code></pre>
+
+<pre><code class="language-bash">
+genfstab -L /mnt >> /mnt/etc/fstab
+</code></pre>
 
 
 <h2>7. chroot</h2>
@@ -409,7 +411,8 @@ pacman -Syu
 
 <p>Теперь у <strong><i>pacman</i></strong> есть всё необходимое, чтобы он мог устанавливать пакеты в новую систему.</p>
 
-<pre><code class="language-bash"># в новой системе нам понадобится текстовый редактор и интернет – базовый минимум:
+<pre><code class="language-bash">
+# в новой системе нам понадобится текстовый редактор и интернет – базовый минимум:
 pacman -Syu nano dhcpcd
 </code></pre>
 

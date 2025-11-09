@@ -58,7 +58,14 @@
   # Список всех пакетов во всех доступных репозиториях:
   pacman -Sl
 	</code></pre>
-	
+
+  <h3>Логи</h3>
+
+  <p>Логи пишутся в <strong><i>/var/log/pacman.log</i></strong>. Если во время установки пакета произошла какая-то ошибка и мы хотим посмотреть подробности, просто смотрим в этот лог и ищем "ERROR":</p>
+  <pre><code class="language-bash">tail -n 50 /var/log/pacman.log</code></pre>
+
+  <h3>КЭШ</h3>
+
 	<ul>
 		<li>/var/cache/pacman/pkg/ - Каталог для кэша → это именно пакеты (*.pkg.tar.zst), которые pacman скачивает.</li>
 		<li>/var/lib/pacman/ - Каталог баз данных → там лежат репозитории (файлы с информацией о пакетах).
@@ -167,6 +174,14 @@ pacman -Qo v4l2-ctl
 pacman -Qo gio
    # /usr/bin/gio принадлежит glib2 2.86.1-1
   </code></pre>
+
+  <h3>Узнать, какие файлы в системе использует пакет</h3>
+  <p>Или, если попытаться перефразировать, я, например, хочу знать, какие файлы и куда раскидывает их по системе пакет, который я ставлю.</p>
+
+  <pre><code class="language-bash"># На примере archlinux-keyring:
+   
+pacman -Ql archlinux-keyring
+  </code></pre>
 	
 	<h4>Узнать, какому пакету принадлежит утилита:</h4>
 	<pre><code class="language-bash">
@@ -184,7 +199,44 @@ sudo pacman -Fy
 	</code></pre>
 
   <p>Базы данных core.db, extra.db, multilib.db содержат список пакетов, их версии, зависимости и описания. Но они не содержат полный список файлов внутри пакетов. Поэтому есть дополнительные базы: core.files, extra.files, multilib.files. Все эти базы данных находятся в <strong><i>/var/lib/pacman/sync/</i></strong>.</p>
-	
+
+  <h3>ключи</h3>
+  
+  <p>Ключи хранятся в папке <strong><i>/etc/pacman.d/gnupg</i></strong>.</p>
+
+  <pre><code class="language-bash"># Обновить пакет archlinux-keyring
+# Это самое важное — без этого новые ключи не появятся:
+sudo pacman -Sy archlinux-keyring
+
+# Если ключи сломались сильно — ставят принудительно:
+sudo pacman -S --needed archlinux-keyring
+
+# Обновить сам keyring в pacman-key:
+sudo pacman-key --refresh-keys
+   # Это перезапросит ключи с ключевых серверов.
+
+# Если --refresh-keys выдаёт ошибки из-за сервера, можно попробовать:
+sudo pacman-key --refresh-keys --keyserver hkps://keyserver.ubuntu.com
+
+# Полная перезагрузка ключей (если всё сломано)
+sudo pacman-key --init
+sudo pacman-key --populate archlinux
+   # только если pacman больше не принимает подписи.
+  </code></pre>
+
+  <p>Внутри пакета <strong><i>archlinux-keyring</i></strong> содержатся публичные ключи всех официальных мейнтейнеров Arch, сертификаты доверия, информация о том, какие ключи отозваны или устарели. То есть это просто набор файлов с ключами.</p>
+
+  <p style="margin-bottom: 2px">что делает <strong><i>pacman-key --init</i></strong>:</p>
+  <ul style="margin-top: 0; margin-bottom: 0">
+    <li>создаёт (генерирует) локальную GnuPG-базу pacman</li>
+    <li>генерирует локальные мастер-ключи (система доверия)</li>
+  </ul>
+  <p style="margin-top: 2px">Т.е., грубо говоря — готовит пустую базу для ключей.</p>
+  <p style="margin-bottom: 2px">А что делает <strong><i>pacman-key --populate archlinux</i></strong>:</p>
+  <ul style="margin-top: 0">
+    <li>берёт ключи из пакета <strong><i>archlinux-keyring</i></strong> и импортирует их в <strong><i>/etc/pacman.d/gnupg/</i></strong></li>
+    <li>устанавливает уровни доверия (trust)</li>
+  </ul>
   <h4>pactree</h4>
   <pre><code class="language-bash"># Посмотреть зависимости sway
 pactree sway
@@ -204,7 +256,7 @@ sudo pacman -Rns
 sudo pacman --remove --nosave --recursive
 
 sudo pacman -Sw vim --cachedir="/home/mark"
-sudo pacman --sync --downloadonly --cachedir="/home/mark"
+sudo pacman --sync --downloadonly vim --cachedir="/home/mark"
 
 sudo pacman -U package.pkg.tar.zst
 sudo pacman --upgrade package.pkg.tar.zst
@@ -214,6 +266,18 @@ sudo pacman --files --refresh
 
 pacman -Qo v4l2-ctl
 pacman --query --owns v4l2-ctl
+
+pacman -Sl multilib
+pacman --sync --list multilib
+
+pacman -Scc
+pacman --sync --clean --clean
+
+pacman -Dk
+pacman --database --check
+
+pacman -Dkk
+pacman --database --check --check
 	</code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
