@@ -29,7 +29,9 @@ sudo pacman -S xorg-xwayland
 </code></pre>
 
 <h3>Запуск</h3>
-<pre><code> dbus-run-session sway > ~/.sway.log 2>&1
+<pre><code> dbus-run-session -- sway
+ dbus-run-session sway
+ dbus-run-session sway > ~/.sway.log 2>&1
  exec sway</code></pre>
 
 

@@ -303,6 +303,14 @@ wipefs -a /dev/sda4
 wipefs -a /dev/sda
 </code></pre>
 
+<h3>Стереть данные</h3>
+<p>Если вдруг нужно <strong>полностью</strong> стереть данные с раздела, или со всего диска, то:</p>
+<pre><code class="language-bash">dd if=/dev/zero of=/dev/sda3 bs=1M status=progress
+sync
+</code></pre>
+
+<p>Или (работает только для SSD и NVMe):</p>
+<pre><code class="language-bash">blkdiscard /dev/sda3</code></pre>
 
 
 <!-- !!! --- МОНТИРОВАНИЕ ФАЙЛОВОЙ СИСТЕМЫ --- !!! -->
@@ -329,6 +337,15 @@ mount --rbind /run /mnt/run   # я устанавливал и не монтир
 mount --make-rslave /mnt/dev   # не обязательно
 mount --make-rslave /mnt/sys   # не обязательно
 mount --make-rslave /mnt/run   # не обязательно
+</code></pre>
+
+<h3>Посмотреть что и куда примонтировано можно так:</h3>
+
+<pre><code class="language-bash"># показать всё дерево примонтированных устройств:
+findmnt
+
+# показать только одну ветку:
+findmnt -R /run
 </code></pre>
 
 <h3>Что ещё нужно перед установкой базовых пакетов</h3>
