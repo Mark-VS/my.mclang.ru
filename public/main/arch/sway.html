@@ -13,6 +13,7 @@
 
 <h1>sway</h1>
 
+<p>!!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo</p>
 <h3>Установка Sway</h4>
 
 <ul>
@@ -56,20 +57,25 @@ cp /etc/xdg/foot/foot.ini ~/.config/foot/foot.ini
 </code></pre>
 
 
+
+
+
 <h3>Конфигурационный файл SWAY</h3>
 
-<pre><code># Глобальный конфиг:
-   /etc/sway/config
-# Локальный конфиг:
-   ~/.config/sway/config
-	
-# Раскладка клавиатуры:
+<p>Конфигурационный файл находится здесь: <strong><i>/etc/sway/config</i></strong>. Скопируем его в домашнюю директорию:</p>
+
+<pre><code class="language-bash">mkdir -p ~/.config/sway
+cp /etc/sway/config ~/.config/sway/</code></pre>
+
+<p>Первое, что следует сделать для удобства – это добавить русскую раскладку и Compose-key:</p>
+<pre><code># Раскладка клавиатуры: английская и русская,
+# смена языка – на Alt+Shift:
 input * {
    xkb_layout us,ru
    xkb_options grp:alt_shift_toggle
 }
 
-# Добавим ещё Compose-key на правый Alt:
+# То же, но добавим ещё Compose-key на правый Alt:
 input * {
    xkb_layout us,ru
    xkb_options grp:alt_shift_toggle,compose:ralt
@@ -77,28 +83,21 @@ input * {
 
 # grp:alt_shift_toggle — это переключение раскладки Alt+Shift
 # compose:ralt — это назначение правого Alt как Compose-клавиши
+</code></pre>
 
-# Задать фон:
-   # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-   # output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-	
-   ## Сначала убиваем старый процесс swaybg, потому что при старте sway запускает swaybg в любом случае (без параметров):
-      exec_always "pkill swaybg; swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
-   ## или (что тоже самое, только через bash. Предыдущий был через shell):
-      exec_always bash -c "pkill swaybg;  swaybg -i /home/mark/Wallpapers/Utterly-Nord/contents/images/3840x2160.png -m fill"
-		
-   # в глобальном конфиге надо закоментировать строку, которая задаёт фон
-	
-## Запуск waybar (две команды - в кавычках!):
-## Ищем точное совпадение среди процессов (waybar), если не найдено, то запускаем waybar, а если найдено, то ничего не делаем:
-   exec_always "pgrep -x waybar || waybar"
-   # И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
+<p>Вместе со <strong><i>sway</i></strong> у нас ещё загрузились в систему несколько обоев для рабочего стола – в папку <strong><i>/usr/share/backgrounds/sway/</i></strong>. А в config'е можно найти вот такую строку:</p>
+<pre><code>output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+</code></pre>
+<p>Это означает, что файл <strong><i>Sway_Wallpaper_Blue_1920x1080.png</i></strong> должен отображаться в качестве фона рабочего стола. Но у нас рабочий стол чёрный. А всё потому, что эта команда в конфиге "под капотом" использует программу <strong><i>swaybg</i></strong> для того, чтобы установить обои. То есть <strong><i>swaybg</i></strong> у нас не установлен, но в дефолтном конфиге уже есть включённая настройка, которая использует <strong><i>swaybg</i></strong> для того, чтобы вывести на рабочий стол обои <strong><i>Sway_Wallpaper_Blue_1920x1080.png</i></strong>. Более того, если мы выйдем в TTY, то увидим что-то типа:</p>
+<pre><code class="lagnuage-bash">00:00:00.356 [sway/config.c:1083] failed to execute 'swaybg' (background configuration probably not applied): No such file or directory
+</code></pre>
 
-## !!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo
-	
-	</code></pre>
+<p>А это значит, что дефолтные обои у нас уже настроены, но пока не установлен <strong><i>swaybg</i></strong>. Из-за этого обои и не отображаются. Поэтому просто устанавливаем <strong><i>swaybg</i></strong> и перезагружаем конфиг: Win+Shift+C. Всё. Обои подгрузились.</p>
 
-	<h3>РАЗРЕШЕНИЕ И ЧАСТОТА</h3>
+
+
+
+<h3>РАЗРЕШЕНИЕ И ЧАСТОТА</h3>
 	
 		
 <pre><code class="language-bash"># Посмотретьтекущие настройки:
@@ -117,7 +116,12 @@ input * {
 		<pre><code>output HDMI-A-2 mode 1920x1080@144Hz</code></pre>
 	
 
-	
+<h3>waybar</h3>
+<pre><code class="language-bash">
+## Запуск waybar:
+   exec_always "pgrep -x waybar || waybar"
+   # И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
+</code></pre>	
 	
 	<h3>Всё остальное</h3>
 	<pre><code class="language-bash">

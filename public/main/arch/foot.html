@@ -4,75 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>foot</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+	<link rel="stylesheet" href="/assets/styles/style.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <p><a href="/arch">Вернуться назад</a></p>
 
 <h1>foot</h1>
-<pre><code>
-    # Глобальный конфигурационый файл находится в /etc/xdg/foot/foot.ini
-    # Локальный конфигурационный файл находится в ~/.config/foot/foot.ini
-    
-    # Копируем его в локальную папку:
-    cp /etc/xdg/foot/foot.ini ~/.config/foot/foot.ini
-    
-    [main]
-    font=monospace:size=14      # увеличиваем шрифт с 12 до 14
-    dpi-aware=yes
-    
-    [colors]
-    alpha=0.84              # Прозрачность
-    background=#171c19      # скопировал из kitty (Atelier Savanna Dark)
-    foreground=87928a       # скопировал из kitty (Atelier Savanna Dark)
+<pre><code class="language-bash">
+ # Глобальный конфигурационый файл находится в /etc/xdg/foot/foot.ini
+ # Локальный конфигурационный файл находится в ~/.config/foot/foot.ini
+ 
+ # Копируем его в локальную папку:
+ cp /etc/xdg/foot/foot.ini ~/.config/foot/foot.ini
+ 
+ [main]
+ font=monospace:size=14      # увеличиваем шрифт с 12 до 14
+ dpi-aware=yes
+ 
+ [colors]
+ alpha=0.84              # Прозрачность
+ background=#171c19      # скопировал из kitty (Atelier Savanna Dark)
+ foreground=87928a       # скопировал из kitty (Atelier Savanna Dark)
   
-    selection-foreground=eeeeee
-    selection-background=505050  
-    
-    
-    # Цветовая палитра, скопированная из kitty (Atelier Savanna Dark)
-    ## Normal/regular colors (color palette 0-7)
-    regular0=171c19  # black
-    regular1=b16139  # red
-    regular2=489963  # green
-    regular3=a07e3b  # yellow
-    regular4=478c90  # blue
-    regular5=55859b  # magenta
-    regular6=1c9aa0  # cyan
-    regular7=87928a  # white
-    ## Bright colors (color palette 8-15)
-    bright0=5f6d64  # black
-    bright1=9f713c  # red
-    bright2=232a25  # green
-    bright3=526057  # yellow
-    bright4=78877d  # blue
-    bright5=dfe7e2  # magenta
-    bright6=867469  # cyan
-    bright7=ecf4ee  # white    
-    
-    ## name: Atelier Savanna Dark
-    ## author: Bram de Haan (https://github.com/atelierbram)
-    ## license: MIT
-    ## upstream: https://github.com/atelierbram/AtelierSchemes-kitty/blob/main/themes/atelier-savanna-dark.conf
-    ## blurb: Base color for Savanna is green, it has greenish colors for the background. “Color-wheel colors” are desaturated considerably, giving this colorscheme a rather under understated appeal and, dear I say it, a ‘natural’ look and feel.
-
-
-    ## На удалённом сервере, на Debian, когда я захожу туда через ssh, не открываются текстовые файлы через терминал. Сервер ругается на неизвестный терминал foot. Для того, чтобы Debian узнал про терминал foot, копируем из своей локальной машины бинарник foot:
-        sudo scp /usr/share/terminfo/f/foot mark@tupniki.ru:/usr/share/terminfo/f/
-        ## После этого nano должен сразу заработать
+ selection-foreground=eeeeee
+ selection-background=505050  
+ 
+ 
+ # Цветовая палитра, скопированная из kitty (Atelier Savanna Dark)
+ ## Normal/regular colors (color palette 0-7)
+ regular0=171c19  # black
+ regular1=b16139  # red
+ regular2=489963  # green
+ regular3=a07e3b  # yellow
+ regular4=478c90  # blue
+ regular5=55859b  # magenta
+ regular6=1c9aa0  # cyan
+ regular7=87928a  # white
+ ## Bright colors (color palette 8-15)
+ bright0=5f6d64  # black
+ bright1=9f713c  # red
+ bright2=232a25  # green
+ bright3=526057  # yellow
+ bright4=78877d  # blue
+ bright5=dfe7e2  # magenta
+ bright6=867469  # cyan
+ bright7=ecf4ee  # white    
+ 
+ ## name: Atelier Savanna Dark
+ ## author: Bram de Haan (https://github.com/atelierbram)
+ ## license: MIT
+ ## upstream: https://github.com/atelierbram/AtelierSchemes-kitty/blob/main/themes/atelier-savanna-dark.conf
+ ## blurb: Base color for Savanna is green, it has greenish colors for the background. “Color-wheel colors” are desaturated considerably, giving this colorscheme a rather under understated appeal and, dear I say it, a ‘natural’ look and feel.
 </code></pre>
 
+<p>На удалённом сервере, на Debian, когда я захожу туда через ssh, не открываются текстовые файлы через терминал. Сервер ругается на неизвестный терминал foot. Для того, чтобы Debian узнал про терминал foot, копируем из своей локальной машины бинарник foot:</p>
+<pre><code class="language-bash">
+sudo scp /usr/share/terminfo/f/foot mark@tupniki.ru:/usr/share/terminfo/f/
+</code></pre>
+<p>После этого nano должен сразу заработать</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>
