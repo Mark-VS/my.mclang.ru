@@ -4,106 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wofi</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+	<link rel="stylesheet" href="/assets/styles/style.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
 <h1>wofi</h1>
-<pre><code>
-
-## Чтобы задать внешний вид wofi нужно создать файл стилей: ~/.config/wofi/style.css
-## У wofi нет дефолтного файла стилей. Дефолтные стили вшити в бинарник
-## Вот пример более-менее нормальной контрастности:
-
-    window {
-        background-color: #262626; /* немного светлее и мягче, чем раньше */
-        color: #999999;            /* тусклый серый */
-        font-family: sans-serif;
-        font-size: 16px;
-    }
-    
-    #input {
-        background-color: #2e2e2e;
-        color: #aaaaaa;            /* менее яркий, но читаемый */
-        border: none;
-        padding: 6px;
-    }
-    
-    #entry {
-        padding: 6px;
-        color: #a0a0a0;
-        background-color: transparent;
-    }
-    
-    #entry:selected {
-        background-color: #3a3a3a; /* приглушённый серый */
-        color: #d0d0d0;            /* тусклый светло-серый */
-    }
-    
-    #scroll {
-        margin: 4px;
-    }
-    
-    #outer-box {
-        padding: 8px;
-    }
 
 
+<p>Чтобы задать внешний вид <strong><i>wofi</i></strong>, нужно создать файл стилей: <strong><i>~/.config/wofi/style.css</i></strong>.</p>
+<p>У wofi нет дефолтного файла стилей. Дефолтные стили вшити в бинарник. Вот пример более-менее нормальной контрастности:</p>
+<pre><code class="language-css"> window {
+     background-color: #262626; /* немного светлее и мягче, чем раньше */
+     color: #999999;            /* тусклый серый */
+     font-family: sans-serif;
+     font-size: 16px;
+ }
+ 
+ #input {
+     background-color: #2e2e2e;
+     color: #aaaaaa;            /* менее яркий, но читаемый */
+     border: none;
+     padding: 6px;
+ }
+ 
+ #entry {
+     padding: 6px;
+     color: #a0a0a0;
+     background-color: transparent;
+ }
+ 
+ #entry:selected {
+     background-color: #3a3a3a; /* приглушённый серый */
+     color: #d0d0d0;            /* тусклый светло-серый */
+ }
+ 
+ #scroll {
+     margin: 4px;
+ }
+ 
+ #outer-box {
+     padding: 8px;
+ }
 
-## Чуть изменённый вариант с желтизной
+</code></pre>
 
-    window {
-        background-color: #262728;        /* серо-угольный с намёком на холодный тон */
-        color: #9d9d95;                   /* чуть желтовато-серый текст */
-        font-family: sans-serif;
-        font-size: 16px;
-    }
-    
-    #input {
-        background-color: #2e2f30;        /* немного голубовато-серый */
-        color: #b0b0a0;                   /* мягкий бежево-серый (жёлтоватый оттенок) */
-        border: none;
-        padding: 6px;
-    }
-    
-    #entry {
-        padding: 6px;
-        color: #a8a89c;                   /* чуть теплый серо-жёлтый */
-        background-color: transparent;
-    }
-    
-    #entry:selected {
-        background-color: #3a3b3e;        /* сдержанный серо-голубой фон */
-        color: #cfd2c2;                   /* светло-серый с лёгким теплом */
-    }
-    
-    #scroll {
-        margin: 4px;
-    }
-    
-    #outer-box {
-        padding: 8px;
-    }
+<p>Чуть изменённый вариант с желтизной:</p>
+<pre><code class="language-css"> window {
+    background-color: #262728;        /* серо-угольный с намёком на холодный тон */
+    color: #9d9d95;                   /* чуть желтовато-серый текст */
+    font-family: sans-serif;
+    font-size: 16px;
+ }
+ 
+ #input {
+    background-color: #2e2f30;        /* немного голубовато-серый */
+    color: #b0b0a0;                   /* мягкий бежево-серый (жёлтоватый оттенок) */
+    border: none;
+    padding: 6px;
+ }
+ 
+ #entry {
+    padding: 6px;
+    color: #a8a89c;                   /* чуть теплый серо-жёлтый */
+    background-color: transparent;
+ }
+ 
+ #entry:selected {
+    background-color: #3a3b3e;        /* сдержанный серо-голубой фон */
+    color: #cfd2c2;                   /* светло-серый с лёгким теплом */
+ }
+ 
+ #scroll {
+    margin: 4px;
+ }
+ 
+ #outer-box {
+    padding: 8px;
+ }
     
 
+</code></pre>
 
-## Ещё чуть-чуть поменял
-## Самый нормальный вроде
-
-window {
+<p>Ещё чуть-чуть поменял. Самый нормальный вроде.</p>
+<pre><code class="language-css">window {
     background-color: #2a2c2c;        /* тусклый тёмно-серый с лёгкой зеленью */
     color: #909285;                   /* бледный, мягкий серо-оливковый */
     font-family: sans-serif;
@@ -135,8 +121,45 @@ window {
 #outer-box {
     padding: 8px;
 }
-    
 </code></pre>
 
+<p>Финальный:</p>
+<pre><code class="language-css">window {
+   background-color: #2a2d2b;        /* графит с едва зелёным подтоном */
+   color: #8c9084;                   /* сдержанный серо-зелёный */
+   font-family: sans-serif;
+   font-size: 16px;
+}
+
+#input {
+   background-color: #333735;        /* тёмный с холодной зеленью */
+   color: #9a9e90;                   /* менее жёлтый, ближе к пыльно-зелёному */
+   border: none;
+   padding: 6px;
+}
+
+#entry {
+   padding: 6px;
+   color: #929787;                   /* тусклый зелёный хаки */
+   background-color: transparent;
+}
+
+#entry:selected {
+   background-color: #434843;        /* блеклый мшистый серо-зелёный */
+   color: #bcc1b2;                   /* светлый, но с зелёным подтоном */
+}
+
+#scroll {
+   margin: 4px;
+}
+
+#outer-box {
+   padding: 8px;
+}
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/css.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

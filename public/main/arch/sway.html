@@ -112,9 +112,23 @@ input * {
    swaymsg output HDMI-A-2 mode 1920x1080@144Hz
 </code></pre>
 		
-		<h4>Чтобы поменять разрешение и частоту навсегда, надо внести эту строку в ~/.config/sway/config:</h4>
-		<pre><code>output HDMI-A-2 mode 1920x1080@144Hz</code></pre>
+<h4>Чтобы поменять разрешение и частоту навсегда, надо внести эту строку в ~/.config/sway/config:</h4>
+<pre><code>output HDMI-A-2 mode 1920x1080@144Hz</code></pre>
 	
+
+<h3>Лаунчер</h3>
+<p>Чтобы можно было удобно запускать приложения:</p>
+<pre><code class="language-bash">sudo pacman -S wofi
+
+# И создаём конфиг:
+mkdir -p ~/.config/wofi
+</code></pre>
+
+<h3>Браузер</h3>
+<p>Теперь неплохо бы установить браузер, чтобы можно было выходить в интернет. Firefox вроде бы как нативно поддерживает wayland.</p>
+<pre><code class="language-bash">sudo pacman -S firefox
+</code></pre>
+
 
 <h3>waybar</h3>
 <pre><code class="language-bash">
