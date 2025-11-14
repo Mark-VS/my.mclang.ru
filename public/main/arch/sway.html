@@ -29,7 +29,15 @@ sudo pacman -S mesa sway foot
 sudo pacman -S xorg-xwayland
 </code></pre>
 
-<h3>Запуск</h3>
+<h2>Инструменты sway</h2>
+<p>Вместе со sway ставятся также и утилиты-помощники:</p>
+<ul>
+	<li>swaymsg</li>
+	<li>swaynag</li>
+</ul>
+
+
+<h2>Запуск</h2>
 <pre><code> dbus-run-session -- sway
  dbus-run-session sway
  dbus-run-session sway > ~/.sway.log 2>&1
@@ -60,7 +68,7 @@ cp /etc/xdg/foot/foot.ini ~/.config/foot/foot.ini
 
 
 
-<h3>Конфигурационный файл SWAY</h3>
+<h2>Конфигурационный файл SWAY</h2>
 
 <p>Конфигурационный файл находится здесь: <strong><i>/etc/sway/config</i></strong>. Скопируем его в домашнюю директорию:</p>
 
@@ -116,7 +124,15 @@ input * {
 <pre><code>output HDMI-A-2 mode 1920x1080@144Hz</code></pre>
 	
 
-<h3>Лаунчер</h3>
+<h2>Переменные среды</h2>
+<ul>
+	<li>XDG_CURRENT_DESKTOP: sway</li>
+	<li>XDG_SESSION_TYPE: wayland (значение по умолчанию)</li>
+	<li>WAYLAND_DISPLAY: wayland-1 (значение по умолчанию)</li>
+	<li>DISPLAY: :0 (значение по умолчанию)</li>
+</ul>
+
+<h2>Лаунчер</h2>
 <p>Чтобы можно было удобно запускать приложения:</p>
 <pre><code class="language-bash">sudo pacman -S wofi
 
@@ -124,11 +140,37 @@ input * {
 mkdir -p ~/.config/wofi
 </code></pre>
 
+<p>Запуск wofi:</p>
+<pre><code class="language-bash">wofi --show drun
+
+# или:
+wofi --show run
+</code></pre>
+
+<p>В конфиге запуск лаунчера уже назначен на сочетание клавиш <strong><i>Win+D</i></strong>. По умолчанию там указан лаунчер <strong><i>wmenu-run</i></strong>. Просто закомментируем его и назначим наш <strong><i>wofi</i></strong>.</p>
+<pre><code class="language-bash"># Your preferred application launcher
+# set $menu wmenu-run
+set $menu wofi --show drun
+
+# Start your launcher
+bindsym --to-code  $mod+d exec $menu
+</code></pre>
+
+
+
+<h2>Текстовый редактор</h2>
+
+<p>Например, <strong><i>Featherpad</i></strong>.</p>
+
 <h3>Браузер</h3>
 <p>Теперь неплохо бы установить браузер, чтобы можно было выходить в интернет. Firefox вроде бы как нативно поддерживает wayland.</p>
 <pre><code class="language-bash">sudo pacman -S firefox
 </code></pre>
 
+<h3>Файловый менеджер</h3>
+
+<h3>ntfs-3g</h3>
+<p>Понадобится, если планируем подключать диски с файловой системой NTFS.</p>
 
 <h3>waybar</h3>
 <pre><code class="language-bash">

@@ -14,10 +14,15 @@
 
 <h1>wlogout</h1>
 
+<p>Для работы <strong><i>wlogout</i></strong> необходимо дать разрешение пользователю выключать систему. Иначе при попытке выключить/перезагрузить компьютер мы будем получать сообщение типа: "Access denied". Обычно wlogout вызывает команду: <strong><i>systemctl poweroff</i></strong>, или <strong><i>systemctl reboot</i></strong>. Поэтому нам надо установить <strong><i>polkit-gnome</i></strong> или <strong><i>lxqt-policykit</i></strong> и добавить в конфиг:</p>
+<pre><code>exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
+# или:
+exec /usr/bin/lxqt-policykit-agent
+</code></pre>
+<p>После перезагрузки системы (Win+Shift+C) всё заработает. Проверим, чтобы на фоне работал демон <strong><i>polkitd</i></strong>.</p>
 
-<pre><code>
-# Конфигурационные файлы:
+<pre><code># Конфигурационные файлы:
 ~/.config/wlogout/style.css - описывает внешний вид (цвета, шрифты, размеры)
 ~/.config/wlogout/layout - описывает кнопки (power, reboot, logout и т. д.)
 </code></pre>
