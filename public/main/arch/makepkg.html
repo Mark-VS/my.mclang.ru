@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>makepkg</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>makepkg</h1>
+<p>На примере установки yay:</p>
+<pre><code class="language-bash"># Ставим инструменты сборки:
+sudo pacman -S --needed base-devel git
+# (base-devel нужен для makepkg, git — чтобы скачать исходники).
+
+# Клонируем репозиторий yay:
+git clone https://aur.archlinux.org/yay.git
+cd yay
+
+makepkg
+</code></pre>
+<p>У нас в папке <strong><i>yay</i></strong> содержится файл <strong><i>PKGBUILD</i></strong>. Это скрипт, который скачивает исходники и собирает из них <strong><i>.pkg.tar.zst</i></strong>-файл для установки в <strong><i>Arch</i></strong>.</p>
+
+<pre><code class="language-bash">makepkg -s
+</code></pre>
+
+<p style="margin-bottom: 0">После сборки пакета у нас появились две папки:</p>
+<ul style="margin-top: 0">
+    <li><strong><i>pkg/</i></strong> – структура будущего пакета (куда <strong><i>make install</i></strong> ставит файлы).</li>
+    <li><strong><i>src/</i></strong> – распакованные исходники, патчи, git-клонированные репозитории и всё, что нужно для сборки.</li>
+</ul>
+<p style="margin-bottom: 0">И три файла:</p>
+<ul style="margin-top: 0">
+    <li>yay-12.5.2-2-x86_64.pkg.tar.zst</li>
+    <li>yay-12.5.2.tar.gz</li>
+    <li>yay-debug-12.5.2-2-x86_64.pkg.tar.zst</li>
+</ul>
+<p><strong><i>yay-12.5.2.tar.gz</i></strong> – это скачанный архив с исходниками. Затем исходники распаковываются в папку <strong><i>src</i></strong>.</p>
+<p><strong><i>yay-12.5.2-2-x86_64.pkg.tar.zst</i></strong> – это собранный пакет, который мы будем устанавливать в систему. Впринципе, всё остальное, кроме этого файла, можно удалить.</p>
+
+<p>Устанавливаем <strong><i>yay</i></strong>:</p>
+<pre><code class="language-bash">sudo pacman -U yay-12.5.2-2-x86_64.pkg.tar.zst
+</code></pre>
+
+<p>Также можно передать команде <strong><i>makepkg</i></strong> аргумент <strong><i>-i</i></strong>, что значит "install". Тогда <strong><i>makepkg</i></strong> после сборки пакета автоматически запустит <strong><i>pacman -U &lt;package_name&gt;</i></strong>:</p>
+<pre><code class="language-bash">makepkg -si
+</code></pre>
+
+<p>А ещё можно сделать вот так:</p>
+<pre><code class="language-bash">makepkg -Ccsi
+
+# Или:
+makepkg --cleanbuild --clean --syncdeps --isntall
+
+--cleanbiuld – удаляет папку src/, всё, что было загружено и распаковано в неё ранее, удаляет старые результаты предыдущей сборки
+</code></pre>
+
+<p style="margin-bottom: 0"><strong><i>--clean</i></strong> (-c) очищает:</p>
+<ul style="margin-top: 0">
+    <li>src/</li>
+    <li>pkg/</li>
+    <li>любые временные сборочные файлы</li>
+    <li>сгенерированные патчи, логи сборки и прочее</li>
+</ul>
+<p style="margin-bottom: 0">но оставляет:</p>
+<ul style="margin-top: 0">
+    <li>PKGBUILD</li>
+    <li>.SRCINFO</li>
+    <li>загруженные исходники (yay-12.5.2.tar.gz)</li>
+    <li>готовые пакеты (yay-12.5.2-2-x86_64.pkg.tar.zst)</li>
+</ul>
+
+<p style="margin-bottom: 0">Оба флага (-С и -с) очищают <strong><i>src/</i></strong>, но делают это в разное время и в этом их главное различие.</p>
+<ul style="margin-top: 0">
+    <li>-C – очищает перед сборкой</li>
+    <li>-c – очищает после сборки</li>
+</ul>
+<p>То есть, если у нас в папке уже есть старые исходники, то команда <strong><i>makepkg -s</i></strong> не будет туда распаковывать новые. Она вообще не будет распаковывать исходники из скачанного архива. Поэтому существует аргумент <strong><i>-C</i></strong>, чтобы удалить <strong><i>src/</i></strong> ПЕРЕД распаковкой исходников.</p>
+
+<pre><code class="language-bash"># -verifysource – только загрузить (Загрузить исходные файлы (если необходимо) и провести проверки целостности)
+# -o, --nobuild – только загрузить и распаковать
+
+makepkg --verifysource --syncdeps    # скачает файлы и проверит (не распакует), установит deps
+makepkg -o --syncdeps                # скачает, распакует, установит deps, но не соберёт
+</code></pre>
+
+
+<p>Всё по-порядку:</p>
+<pre><code class="lagnuage-bash"># Скачаем исходники:
+makepkg --verifysource
+   # эта команда отделяет распаковку от сборки
+   # без выполнения этой команды "makepkg -s" не только устанавливает зависимости, но и собирает пакет
+   # теперь же "makepkg -s" только установит зависимости, без сборки пакета.
+
+# удалим старые исходники, если они есть:
+makepkg -C
+
+makepkg -o 
+   # если файл уже скачан, то makepkg не будет его качать заново, ...
+   # ... а просто распакует уже имеющийся в src/.
+
+# затем установить зависимости:
+makepkg -s
+
+# собрать пакет, но не устанавливать (по умолчанию начнёт устанавливать):
+makepkg -b
+
+# устанавливаем собранный пакет:
+makepkg -i
+
+# подчистить всё:
+makepkg -c
+
+</code></pre>
+
+<p>Ещё раз:</p>
+<pre><code class="language-bash">1. makepkg --verifysource      # скачать архивы
+2. makepkg --claenbuild        # очистить старый src/
+3. makepkg --nobuild           # распаковать исходники
+4. makepkg --syncdeps          # установить зависимости (сборка не запустится)
+5. makepkg --buildonly         # собрать пакет, но не устанавливать
+6. makepkg --install           # собрать и установить
+7. makepkg --clean             # подчистить src/ и pkg/ после
+
+# Всё то же самое:
+makepkg -Ccsi
+</code></pre>
+
+<pre><code class="language-bash"># По сути, две нижеследующие команды эквивалентны:
+
+makepkg -s
+
+makepkg --verifysource -o -s
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>du</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>du</h1>
+
+<p>Узнать, сколько занимает места домашняя директория:</p>
+<pre><code class="language-bash">du -sh /home/mark</code></pre>
+
+<p>иногда могут выводится подобные сообщения с последующим зависанем:</p>
+<pre><code class="language-bash">du: невозможно прочитать каталог '/home/mark/Загрузки/spacefm-git/pkg': Отказано в доступе
+du: невозможно прочитать каталог '/home/mark/docker/mariadb/sys': Отказано в доступе
+du: невозможно прочитать каталог '/home/mark/docker/mariadb/jopa': Отказано в доступе
+du: невозможно прочитать каталог '/home/mark/docker/mariadb/mysql': Отказано в доступе
+du: невозможно прочитать каталог '/home/mark/docker/mariadb/performance_schema': Отказано в доступе
+du: невозможно прочитать каталог '/home/mark/.cache/yay/spacefm-git/pkg': Отказано в доступе
+</code></pre>
+
+<p>тогда можно сделать так:</p>
+<pre><code class="language-bash"># игнорировать ошибки и продолжать подсчёт:
+du -sh /home/mark 2>/dev/null
+   # 960G /home/mark
+</code></pre>
+
+<p>Но и тут наблюдается довольно странное поведение. В результате я получил 960G, хотя весь мой раздел, куда смонтирован <strong><i>/home/mark</i></strong>, весит 32GB. Да и вообще, весь SSD целиком – на 128GB. Откуда взялись 960G?</p>
+<p>Так происходит, потому что <strong><i>du</i></strong> обходит все смонтированные точки, если не указать аргумент <strong><i>--one-file-system</i></strong>. А у меня примонтирован внешний usb-disk, на котором реальных 931,5 GB. То есть они сложились с моими ~30 GB и получилось то, что получилось.</p>
+
+<p>То есть, чтобы посчитать размер реального раздела, можно сделать так:</p>
+<pre><code class="language-bash">du -sh --one-file-system /home/mark 2>/dev/null
+    # 30G	/home/mark
+</code></pre>
+
+<p>Вот это уже больше похоже на правду.</p>
+<p>Также можно воспользоваться утилитой <strong><i>df</i></strong>:</p>
+
+<pre><code class="language-bash">df -h /dev/sda3
+   # Файловая система Размер Использовано  Дост Использовано% Cмонтировано в
+   # /dev/sda3           32G          30G  245M          100% /home
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
