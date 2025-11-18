@@ -156,23 +156,31 @@ set $menu wofi --show drun
 bindsym --to-code  $mod+d exec $menu
 </code></pre>
 
+<h2>wlogout</h2>
+<p>Чтобы выключить нормально систему.</p>
 
 
 <h2>Текстовый редактор</h2>
 
 <p>Например, <strong><i>Featherpad</i></strong>.</p>
 
-<h3>Браузер</h3>
+<h2>Браузер</h2>
 <p>Теперь неплохо бы установить браузер, чтобы можно было выходить в интернет. Firefox вроде бы как нативно поддерживает wayland.</p>
 <pre><code class="language-bash">sudo pacman -S firefox
 </code></pre>
 
-<h3>Файловый менеджер</h3>
+<h2>Файловый менеджер</h2>
 
-<h3>ntfs-3g</h3>
+<h2>ntfs-3g</h2>
 <p>Понадобится, если планируем подключать диски с файловой системой NTFS.</p>
 
-<h3>waybar</h3>
+<h2>Видео-проигрыватель</h2>
+<p>mpv – и вот тут уже пригодится VAAPI (intel-media-driver, libva-utils)</p>
+
+<h2>Аудио-проигрыватель</h2>
+<p>И тут придётся разобраться с ALSA, PipeWire... pavucontrol</p>
+
+<h2>waybar</h2>
 <pre><code class="language-bash">
 ## Запуск waybar:
    exec_always "pgrep -x waybar || waybar"

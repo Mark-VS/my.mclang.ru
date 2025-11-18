@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>systemd</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>systemd</h1>
+
+
+<p>юнит-файлы:</p>
+<pre><code class="language-bash">
+/usr/lib/systemd/system/   # юнит-файлы, установленные пакетами (основные, системные).
+/etc/systemd/system/       # юнит-файлы, созданные пользователем или изменённые вручную.
+
+/etc/systemd/system/       # директория для активации
+</code></pre>
+
+<p style="margin-bottom: 4px">Например, вот эта команда:</p>
+<pre style="margin-top: 4px; margin-bottom: 4px"><code class="language-bash">sudo systemctl enable dhcpcd.service
+   # Created symlink '/etc/systemd/system/multi-user.target.wants/dhcpcd.service' → '/usr/lib/systemd/system/dhcpcd.service'.
+</code></pre>
+<p style="margin-top: 4px">создала символическую ссылку на системный <strong><i>dhcpcd.service</i></strong> в <strong><i>/etc/systemd/system/multi-user.target.wants/</i></strong>.</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

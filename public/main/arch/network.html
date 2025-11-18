@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сеть</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Сеть</h1>
+<pre><code class="language-bash"># Посмотреть таблицу маршрутов:
+
+ip route show
+   # default via 192.168.1.1 dev enp2s0 proto dhcp src 192.168.1.3 metric 1002 
+   # 172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
+   # 192.168.1.0/24 dev enp2s0 proto dhcp scope link src 192.168.1.3 metric 1002 
+</code></pre>
+<p>default via 192.168.1.1 dev enp2s0 proto dhcp src 192.168.1.3 metric 1002</p>
+<ul>
+    <li>default – маршрут по умолчанию</li>
+    <li>via 192.168.1.1 – адрес шлюза</li>
+    <li>dev enp2s0 – имя сетевого интерфейса, через который пакет выйдет</li>
+    <li>proto dhcp – протокол, который создал этот маршрут. NetworkManager получил параметры маршрутов через DHCP от роутера.</li>
+    <li>src 192.168.1.3 – IP, который будет использоваться как исходный</li>
+    <li>metric 1002 – это вес маршрута</li>
+</ul>
+
+<p>192.168.1.0/24 dev enp2s0 proto dhcp scope link src 192.168.1.3 metric 1002</p>
+<ul>
+    <li>...</li>
+    <li>scope link – этот маршрут доступен только через L2-сеть (через прямое подключение к интерфейсу), т.е. внутри локальной сети, без выхода на gateway.</li>
+    <li>...</li>
+</ul>
+
+<h3>Сетевые менеджеры</h3>
+<ul>
+    <li>systemd-networkd</li>
+    <li>NetworkManager</li>
+    <li>dhcpcd</li>
+    <li>connman</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
