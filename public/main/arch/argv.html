@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>argv[0]</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>argv[0]</h1>
+
+<p>execve(path, argv, envp)</p>
+
+<p><strong><i>execve</i></strong> — это системный вызов ядра Linux. <strong><i>execve</i></strong> – это системный вызов, вызывается из <strong><i>C-кода</i></strong>, через <strong><i>glibc</i></strong>, внутри бинарников.</p>
+
+
+<p>Формальная сигнатура (из C):</p>
+<pre><code class="language-bash">int execve(
+    const char *path,
+    char *const argv[],
+    char *const envp[]
+);
+</code></pre>
+
+<p>Когда я пишу в shell:</p>
+<pre><code class="language-bash">firefox
+</code></pre>
+<ul>
+   <li>bash делает fork() → появляется дочерний процесс</li>
+   <li>в дочернем процессе bash делает:</li>
+</ul>
+<pre><code class="language-bash">execve("/usr/lib/firefox/firefox", argv, envp);
+</code></pre>
+
+<p style="margin-bottom: 6px">Если программа запускается вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">execve("/usr/lib/firefox/firefox", ["/usr/lib/firefox/firefox"], envp);
+</code></pre>
+<p style="margin-top: 6px">... то процесс будет отображаться как <strong><i>/usr/lib/firefox/firefox</i></strong>.</p>
+
+<p style="margin-bottom: 6px">А если вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">execve("/usr/lib/firefox/firefox", ["firefox"], envp);
+</code></pre>
+<p style="margin-top: 6px">... то процесс будет отображаться как <strong><i>firefox</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Если запустить вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">execve("/bin/sleep", ["firefox", "9999"], envp);
+</code></pre>
+<p style="margin-top: 6px">... то процесс в <strong><i>ps</i></strong> будет отображаться как <strong><i>firefox 9999</i></strong>, хотя реально исполняется <strong><i>/bin/sleep</i></strong>.</p>
+
+
+<p>У <strong><i>execve</i></strong> три параметра:</p>
+<ul>
+   <li>path
+      <pre><code>"/usr/lib/firefox/firefox"</code></pre>
+      Файл, который реально запускается
+   </li>
+   <li>argv
+      <pre><code>argv[0] = "/usr/lib/firefox/firefox";
+argv[1] = "-contentproc";
+argv[2] = "...";
+argv[3] = NULL;</code></pre>
+      Аргументы программы
+   </li>
+   <li>argv
+      <pre><code>PATH=/usr/bin:/bin
+HOME=/home/mark
+DISPLAY=:0
+WAYLAND_DISPLAY=wayland-1</code></pre>
+      Переменные окружения процесса
+   </li>
+</ul>
+
+<h3>Как в bash управлять argv[0]</h3>
+
+<p>передать в argv[0] laja:</p>
+<pre><code class="language-bash">exec -a laja /usr/bin/thunar
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь проверяем процесс:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ps aux | grep "laja"
+   # mark      418054  1.9  0.3 1839244 60444 pts/2   Ssl+ 23:38   0:00 laja
+   # mark      418795  0.0  0.0   6648  4288 pts/6    S+   23:39   0:00 grep --color=auto laja
+</code></pre>
+<p style="margin-top: 6px">То есть у нас теперь запущен <strong><i>/usr/bin/thunar</i></strong>, но в <strong><i>ps</i></strong> он отображается как <strong><i>laja</i></strong>.</p>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

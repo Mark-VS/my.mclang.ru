@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nginx</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>nginx</h1>
+
+<!-- <h2>Ставим nginx:</h2> -->
+<pre><code class="language-bash">sudo pacman -S nginx
+</code></pre>
+
+<pre><code class="language-bash"># Главный конфиг:
+  /etc/nginx/nginx.conf
+
+# Виртуальные хосты (обычно создают вручную):
+/etc/nginx/sites-available/
+/etc/nginx/sites-enabled/
+</code></pre>
+
+<p>Блок <strong><i>server {...}</i></strong> переносим из /etc/nginx/nginx.conf в /etc/nginx/sites-available/mysitename. А в /etc/nginx.conf добавляем в самом низу блока http:</p>
+<pre><code class="language-bash"># include /etc/nginx/conf.d/*.conf;
+include /etc/nginx/sites-enabled/*;
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -157,8 +157,19 @@ bindsym --to-code  $mod+d exec $menu
 </code></pre>
 
 <h2>wlogout</h2>
-<p>Чтобы выключить нормально систему.</p>
+<p>AUR. Для работы необходим <strong><i>xwayland</i></strong>.</p>
+<p>Чтобы можно было нормально выходить из системы.</p>
+<p>При этом у меня по умолчанию не создался .desktop-файл в <strong><i>/usr/share/applications</i></strong>, поэтому <strong><i>wofi</i></strong> не запускает <strong><i>wlogout</i></strong>. Создадим сами wlogout.desktop в <strong></i>~/.local/share/applications</i></strong>.</p>
 
+<pre><code class="language-ini">[Desktop Entry]
+Type=Application
+Name=wlogout
+Exec=wlogout
+Terminal=false
+</code></pre>
+<p>И обновим кэш:</p>
+<pre><code class="language-bash">update-desktop-database ~/.local/share/applications
+</code></pre>
 
 <h2>Текстовый редактор</h2>
 
@@ -170,6 +181,10 @@ bindsym --to-code  $mod+d exec $menu
 </code></pre>
 
 <h2>Файловый менеджер</h2>
+<ul>
+   <li>thunar</li>
+   <li>pcmanfm</li>
+</ul>
 
 <h2>ntfs-3g</h2>
 <p>Понадобится, если планируем подключать диски с файловой системой NTFS.</p>
@@ -177,8 +192,146 @@ bindsym --to-code  $mod+d exec $menu
 <h2>Видео-проигрыватель</h2>
 <p>mpv – и вот тут уже пригодится VAAPI (intel-media-driver, libva-utils)</p>
 
+<p>Чтобы проверить, установлен VAAPI, или нет, сначала поставим libva-utils:</p>
+<pre><code class="language-bash">sudo pacman -S libva-utils
+
+# И запустим:
+vainfo
+</code></pre>
+<p>Если VA-API работает — увидим что-то вроде «VA-API version: …», список поддерживаемых кодеков и драйвер. Если команда выдаёт ошибку ("cannot open driver", "va_openDriver failed" и т.п.), значит либо драйвер не установлен/не подходит, либо конфигурация не позволяет VA-API работать.</p>
+
+<p>Если intel-media-driver не установлен, тогда ставим его:</p>
+<pre><code class="language-bash">sudo pacman -S intel-media-driver
+
+# И опять проверяем:
+vainfo
+</code></pre>
+
+<p>Установим mpv:</p>
+<pre><code class="language-bash">sudo pacman -S mpv
+</code></pre>
+
+<p>Чтобы проверить, использует ли mpv аппаратное декодирование, запустим видео файл:</p>
+<pre><code class="language-bash">mpv --hwdec=vaapi --vo=gpu --gpu-context=wayland some_video.mkv
+
+  # ...
+  # Using hardware decoding (vaapi).
+  # AO: [pipewire] 48000Hz stereo 2ch floatp
+  # VO: [gpu] 1024x576 vaapi[nv12]
+  # AV: 00:00:38 / 01:20:45 (1%) A-V:  0.000 Cache: 598s/150MB
+</code></pre>
+<p>Здесь мы видим строку: <i>Using hardware decoding (vaapi)</i>. Значит, аппаратное декодирование работает.</p>
+
+<p>Если мы хотим получить больше информации, например, узнать используется wayland или xwayland, то можно запустить команду вот так:</p>
+<pre><code class="language-bash">mpv --hwdec=vaapi --vo=gpu --gpu-context=wayland --msg-level=vo=v some_video.mkv
+</code></pre>
+<ul>
+   <li>--hwdec=vaapig – включить аппаратное ускорение</li>
+   <li>--vo=gpu – в качестве Video Output исользовать OpenGL/Vulkan</li>
+   <li>--gpu-context=wayland – использовать в качестве контекста wayland</li>
+</ul>
+
+<p>Чтобы все эти опции запускались, когда мы кликаем по файлу, нужно прописать их в конфиг:</p>
+<pre><code class="language-bash"># ~/.config/mpv/mpv.conf
+
+hwdec=vaapi
+vo=gpu
+gpu-context=wayland
+</code></pre>
+<p>Теперь можно просто запускать файл командой:</p>
+<pre><code class="language-bash">mpv filename.mkv
+</code></pre>
+
+<p>ГПТ посоветовал такой конфиг для макс. качества изображения:</p>
+<pre><code class="language-bash">hwdec=vaapi
+vo=gpu
+gpu-context=wayland
+profile=gpu-hq
+scale=ewa_lanczossharp
+cscale=ewa_lanczossharp
+dscale=mitchell
+video-sync=display-resample
+interpolation
+tscale=oversample
+</code></pre>
+
 <h2>Аудио-проигрыватель</h2>
 <p>И тут придётся разобраться с ALSA, PipeWire... pavucontrol</p>
+
+<h2>Громкость</h2>
+<p>Чтобы можно было регулировать громкость звука в системе, поставим <strong><i>pavucontrol</i></strong>:</p>
+<pre><code class="language-bash">sudo pacman -S pavucontrol
+</code></pre>
+
+
+<h2>swaybar – раскладка</h2>
+<p>По умолчанию в waybar'е отображается только год, месяц, дата и текущее время. За этот вывод в конфиге отвечает вот этот блок:</p>
+
+<pre><code class="language-bash">#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    position bottom
+
+    # When the status_command prints a new line to stdout, swaybar updates.
+    # The default just shows the current date and time.
+    status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+
+    colors {
+        statusline #ffffff
+        background #323232
+        inactive_workspace #32323200 #32323200 #5c5c5c
+    }
+}
+</code></pre>
+
+<p>Всю работу здесь выполняет эта строка:</p>
+<pre><code class="language-bash">status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+</code></pre>
+
+<p>Создадим файл ~/.config/sway/status.sh:</p>
+<pre><code class="language-bash">#!/bin/bash
+
+while true; do
+    # Получаем раскладку
+    layout=$(swaymsg -t get_inputs | jq -r '.[] | select(.type=="keyboard") | .xkb_active_layout_name' | head -n 1)
+
+    # Преобразуем в RU/EN
+    case "$layout" in
+        "Russian") layout="RU" ;;
+        "English (US)") layout="EN" ;;
+    esac
+
+    # Вывод строки в бар
+    echo "$layout | $(date +'%Y-%m-%d %H:%M:%S')"
+
+    sleep 1
+done
+</code></pre>
+
+<p>Сделаем этот файл исполняемым:</p>
+<pre><code class="language-bash">chmod +x ~/.config/sway/status.sh
+</code></pre>
+
+<p>И теперь заменим <strong><i>status_command</i></strong> в конфиге на:</p>
+<pre><code class="language-bash">status_command ~/.config/sway/status.sh
+</code></pre>
+
+<p>А ещё мне не нравится чисто белый цвет текста в статус-баре. Мне больше нравится цвет: #BAC3BC.</p>
+
+<pre><code class="language-bash">
+bar {
+   ...
+   colors {
+      statusline #bac3bc
+      ...
+   }
+}
+</code></pre>
+
+<p>Осталось перезагрузить конфиг sway (Mod+Shift+C) и в панели появится обозначение текущей раскладки.</p>
+
 
 <h2>waybar</h2>
 <pre><code class="language-bash">
@@ -186,8 +339,79 @@ bindsym --to-code  $mod+d exec $menu
    exec_always "pgrep -x waybar || waybar"
    # И надо обязательно закомментировать блок "bar", который отвечает за запуск swaybar, иначе при старте запустится дефолтный swaybar
 </code></pre>	
+
+
+<h3>swaylock и swayidle</h3>
+
+<pre><code class="language-bash"># Устанавливаем их:
+
+sudo pacman -S swaylock swayidle
+
+# Запустить блокировщик с тёмным фоном:
+swaylock -c 222222
+
+#
+swayidle -w \
+   timeout 300 'swaylock -c 222222' \
+   timeout 600 'swaymsg "output * dpms off"' \
+      resume 'swaymsg "output * dpms on"'
+</code></pre>
+
+<ul>
+   <li>-w – wait – не форкается в фон, а висит на переднем плане</li>
+   <li>swaymsg "output * dpms off" – выключить мониторы по DPMS (экран гаснет, как будто ушёл спать)</li>
+   <li>swaymsg "output * dpms on" – включить мониторы обратно</li>
+   <li>timeout 300 'команда' – выполнять команду по истечении 300 секунд</li>
+   <li>resume – привязан к timeout 600 – запускать команду при любом вводе (движение мыши, нажатие клавиши)</li>
+</ul>
+
+<p>Можно просто добавить команду запуска <strong><i>swayidle</i></strong> в конфиг <strong><i>sway</i></strong>:</p>
+<pre><code class="language-bash"># ~/.config/sway/config
+
+exec swayidle -w \
+   timeout 300 'swaylock -c 222222' \
+   timeout 600 'swaymsg "output * dpms off"' \
+      resume 'swaymsg "output * dpms on"'
+</code></pre>
+
+<pre><code class="language-bash"># Получаю такое вот странное предупреждение, хотя всё работет:
+
+swayidle -w timeout 10 'swaylock -c 222222'
+  # 2025-12-03 00:35:36 - [Line 277] Failed to parse get BlockInhibited property: Invalid argument
+</code></pre>
+
+<p>Строка означает: «не получилось корректно прочитать свойство BlockInhibited у logind, но идём дальше». Предупреждение полность безопасное. У swayidle есть логика общения с org.freedesktop.login1 через D-Bus. Причём включает она это автоматически, если login1 присутствует (как раз как у меня).</p>
+
+<p style="margin-bottom: 6px">Проверка свойства BlockInhibited:</p>
+<pre style="margin-top: 6px"><code class="language-bash">busctl introspect org.freedesktop.login1 /org/freedesktop/login1 | grep BlockInhibited
+  # .BlockInhibited    property  s    ""   emits-change
+</code></pre>
+
+<ul>
+   <li>"" – пустая строка означает, что сейчас ничего не блокирует idle/sleep (ни плееры, ни другие программы)</li>
+   <li>emits-change — logind шлёт сигнал, если значение меняется</li>
+</ul>
+
+<p>Посмотреть список ингибиторов:</p>
+<pre><code class="language-bash">systemd-inhibit --list
+</code></pre>
 	
-	<h3>Всё остальное</h3>
+<pre><code class="language-bash"># Запускаем:
+systemd-inhibit --what=idle sleep 10
+
+# И проверяем ингибиторы:
+systemd-inhibit --list
+</code></pre>
+
+<h2>Калькулятор</h2>
+<ul>
+   <li>qalculate-gtk</li>
+   <li>gnome-calculator</li>
+   <li>kcalc</li>
+</ul>
+
+
+<h3>Всё остальное</h3>
 	<pre><code class="language-bash">
 	# grim + slurp - Скриншоты экрана
 	# imagemagick - узнать цвет пикселя
@@ -261,28 +485,7 @@ bindsym --to-code  $mod+d exec $menu
 		bindsym $mod+Shift+p exec ~/.local/bin/pipette   
 		</code></pre>
 		
-		<h3>swaylock и swayidle</h3>
-		<pre><code class="language-bash">
-		## Утстановим swaylock и swayidle
-			sudo pacman -S swaylock swayidle
-		## Запуситить блокировщик с тёмным фоном:
-			swaylock -c 222222
-			
-		## Вот так будет выглядеть команда, которая блокирует экран через 5 мин, а через 10 мин. откючает питание монитора	
-		swayidle -w \
-    		timeout 300 'swaylock -c 222222' \
-    		timeout 600 'swaymsg "output * dpms off"' \
-    		resume 'swaymsg "output * dpms on"'
-    	## Эту команду надо вставить в ~/.config/sway/config (с добавлением "exec"):
-    	exec swayidle -w \
-    		timeout 300 'swaylock -c 222222' \
-    		timeout 600 'swaymsg "output * dpms off"' \
-    		resume 'swaymsg "output * dpms on"'
-    		
-    			# * - все мониторы
-				# "output * dpms off" - выключить все мониторы
-				# "output * dpms on" - включить все мониторы
-		</code></pre>
+
 		
 		<pre><code class="language-bash">
 	# seatd / elogind - для управления доступом к вводу/выводу 
@@ -326,22 +529,6 @@ bindsym --to-code  $mod+d exec $menu
 	# appflowy (AUR), anytype (AUR) - free notion
 	# focalboard (AUR) - free trello
 	# nextcloud - ХЗ. Что-то с хранением файлов на сервере. В том числе аудио- и видеозвонки и Sceen Sharing
-					
-		# Добавить раскладку
-		# Создаём конфиг-файл ~/.config/sway/config:
-			input * {
-				xkb_layout us,ru
-				xkb_options grp:alt_shift_toggle
-			}
-		# Перезагружаем sway:
-		swaymsg reload
-		# Now try Alt+Shift - it should switch between English and Russian
-		# Or You may switch layout using this command:
-		swaymsg input "*" xkb_switch_layout next
-		
-		
-		# Завершить сессию:
-		swaymsg exit
 </code></pre>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeaDBeeF 2</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>DeaDBeeF 2</h1>
+
+<p>Скачиваем исходники. В моём случае это файл <strong><i>deadbeef-1.10.0.tar.bz2</i></strong>. Распаковываем его и заходим в папку <strong><i>deadbeef-1.10.0</i></strong>.</p>
+<p>Если мы запустим команду:</p>
+<pre><code class="language-bash">./configure --help
+</code></pre>
+<p>то можем увидеть там вот такие строки:</p>
+<pre><code class="language-bash">...
+
+ --disable-gtk3          disable GTK3 version of gtkui plugin (default: enabled)
+ --disable-gtk2          disable GTK2 version of gtkui plugin (default: enabled)
+ ...
+</code></pre>
+
+<p>Это означает, что у <strong><i>DeaDBeeF</i></strong> плагин <strong><i>GTKUI</i></strong> может быть GTK2 или GTK3. По умолчанию оба включены. Если в системе найдётся gtk2, то будет собран плагин GTK2-плагин. Если в системе будет найден gtk3, то соберётся GTK3-плагин. Если в системе будут найдены и gtk2, и gtk3, то установятся оба плагина. Если я хочу, чтобы собрался только GTK3, то могу явно отключить GTK2 с помощью флага <strong><i>--disable-gtk2</i></strong>. То есть надо запустить:</p>
+<pre><code class="language-bash">./configure --disable-gtk2
+</code></pre>
+
+<p>При попытке выполнить этот скрипт сначала сначала вылезает сообщение про то, что нужен <strong><i>clang</i></strong>. После того, как я установил <strong><i>clang</i></strong>, вылезает сообщение:</p>
+<pre><code class="language-bash">checking whether C compiler accepts -fblocks... no
+configure: error: Clang is required to build DeaDBeeF. Please check the README file.
+</code></pre>
+<p>гпт говорит, что это из-за того, что у меня отсутствует libblocksruntime. В Arch нет такой библиотеки.</p>
+<p><strong><i>libdispatch-git</i></strong> из AUR должен содержать в себе библиотеку <strong><i>libblocksruntime</i></strong>. А вот <strong><i>libdispatch</i></strong> из репозитория extra НЕ содержит <strong><i>libblocksruntime</i></strong>. И если я хочу собрать DeaDBeeF с поддержкой GCD/-fblocks на Arch, то мне надо удалить libdispatch из extra и установить из AUR.</p>
+
+
+<p>Собираем без gtk2-плагина:</p>
+<pre><code class="language-bash">./configure --disable-gtk2
+make -j$(nproc)
+sudo make install
+</code></pre>
+
+
+<ul>
+   <li>clang (gcc не поддерживается)</li>
+   <li>libdispatch – у меня уже установлена (Это библиотека Apple (GCD — Grand Central Dispatch), портированная под Linux.)</li>
+   <li>libblocksruntime – Библиотека поддержки «блоков» (blocks) из Apple Clang. Ставится как зависимость <strong><i>libdispatch</i></strong>. Тоже уже есть.</li>
+</ul>
+
+<p>-----</p>
+
+<p>Зависимости, которые посоветовал сраный чат:</p>
+<ul>
+   <li>base-devel</li>
+   <li>gtk2/gtk3</li>
+   <li>Звуковые библиотеки: alsa-lib, pulseaudio, libsndfile, libmad, libvorbis, libogg, flac, wavpack</li>
+   <li>Видеокодеки / мультимедиа: ffmpeg, libjpeg-turbo, libpng, jansson</li>
+   <li>Локализация: gettext, intltool</li>
+   <li>Оптимизация сборки: yasm для – сборки некоторых оптимизированных кодеков (MP3, FLAC)</li>
+</ul>
+
+<pre><code class="language-bash">sudo pacman -S base-devel git gtk3 alsa-lib pulseaudio libsndfile libmad libvorbis libogg flac wavpack ffmpeg libjpeg-turbo libpng jansson gettext intltool yasm
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>swaybar</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>swaybar</h1>
+
+<p>В дефолтном конфиге <strong><i>sway</i></strong> есть блок, отвечающий за отображение статус-бара. Выглядит он так:</p>
+
+<pre><code class="language-bash">#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    position bottom
+
+    # When the status_command prints a new line to stdout, swaybar updates.
+    # The default just shows the current date and time.
+    status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+
+    # отключить трей (по умолчанию он включён):
+    tray_output none
+       # например, qbittorrent при установке пихает в трей значок
+
+    colors {
+        statusline #ffffff
+        background #323232
+        inactive_workspace #32323200 #32323200 #5c5c5c
+    }
+}
+</code></pre>
+
+<p>По умолчанию в статус-баре отображается год, месяц, дата и время. И за их отображение отвечает конкретно вот эта строка:</p>
+
+<pre><code class="language-bash">status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+</code></pre>
+<ul>
+   <li>statusline #ffffff – это цвет текста, который мы выводим в статус-бар;</li>
+   <li>background #323232 – это фон самого статус-бара;</li>
+   <li>#32323200 – это цвет обводки неактивного воркспейса</li>
+   <li>#32323200 – это цвет фона неактивного воркспейса</li>
+   <li>#5c5c5c – цвет текста неактивного воркспейса</li>
+</ul>
+
+<p><strong><i>statusline #FFFFFF</i></strong> – дефолтный белый цвет слишком яркий. #BAC3BC – более приятный для глаза.</p>
+
+<p>В status_command можно вписывать любую bash-команду. Но она должна быть вечной и не завершаться. Если я, например, хочу, чтобы у меня в статус-баре отображалась строка "Какашка" и я напишу вот такую команду:</p>
+
+<pre><code class="language-bash">status_command echo "Какашка"
+</code></pre>
+<p>то она не сработает. Вместо неё мы увидим в статус-баре сообщение об ошибке. Правильно будет написать вот так:</p>
+<pre><code class="language-bash">status_command while true; do echo "Какашка"; sleep 1; done
+</code></pre>
+
+<p><strong>Вывод</strong>: swaybar требует бесконечного цикла. Любой статус-командный скрипт должен работать постоянно и время от времени печатать новые строки.</p>
+
+
+<h2>RU / EN</h2>
+
+<p>Очень удобно, когда мы видим в статус-баре отображение текущей раскладки. Для этого создадим скрипт <strong><i>~/.config/sway/status.sh</i></strong>:</p>
+
+<pre><code class="language-bash">#!/bin/bash
+
+while true; do
+    # Получаем раскладку
+    layout=$(swaymsg -t get_inputs | jq -r '.[] | select(.type=="keyboard") | .xkb_active_layout_name' | head -n 1)
+
+    # Преобразуем в RU/EN
+    case "$layout" in
+        "Russian") layout="RU" ;;
+        "English (US)") layout="EN" ;;
+    esac
+
+    # Вывод строки в бар
+    echo "$layout | $(date +'%Y-%m-%d %H:%M:%S')"
+
+    sleep 1
+done
+</code></pre>
+
+<p>Сделаем этот файл исполняемым:</p>
+<pre><code class="language-bash">chmod +x ~/.config/sway/status.sh
+</code></pre>
+
+<p>И меняем <strong><i>status_command</i></strong> в конфиге на:</p>
+<pre><code class="language-bash">status_command ~/.config/sway/status.sh
+</code></pre>
+
+<p>Теперь можно перезагрузить конфиг (Mod+Shift+C) и в статус баре появится отображение раскладки.</p>
+
+<h2>DeaDBeeF</h2>
+
+<p>Отобразить в статус-баре строку "DeaDBeeF", когда проигрыватель <strong><i>DeaDBeeF</i></strong> запущен и не отображать её, когда <strong><i>DeaDBeeF</i></strong> закрыт:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+echo '{"version":1}'
+echo '['
+
+while true; do
+    if pgrep deadbeef >/dev/null; then
+        txt='DeaDBeeF'
+        sep=9          # ширина текста
+    else
+        txt=''
+        sep=0          # скрыть блок
+    fi
+
+    echo "[{\"full_text\":\"$txt\", \"separator_block_width\": $sep}],"
+
+    sleep 2
+done
+</code></pre>
+<p>Команда <strong><i>pgrep deadbeef</i></strong> ищет процесс по имени и выводит его PID.</p>
+<p style="margin-bottom: 6px">Можно заметить, что в этом скрипте нет закрывающей квадратной скобки. Она и не нужна. Всё потому что <strong><i>Swaybar</i></strong> (как и i3bar) использует <strong><i>streaming JSON</i></strong> — это не обычный JSON-файл, а бесконечный поток. Сначала мы видим заголовок:</p>
+<pre style="margin-top: 6px"><code class="language-bash">{"version":1}
+[
+</code></pre>
+<p style="margin-bottom: 6px">а потом идёт бесконечная серия JSON-массивов, каждый на одной строке, например:</p>
+<pre style="margin-top: 6px"><code class="language-bash">[{"full_text":"DeaDBeeF"}],
+
+# или:
+[{"full_text":""}],
+</code></pre>
+
+<p>Тут есть нюанс с шебангом. Пример выше не работает, если указать ему в качестве шебанга:</p>
+<pre><code class="language-bash">#!/bin/bash
+</code></pre>
+<p style="margin-bottom: 6px;">или:</p>
+<pre style="margin-top: 6px"><code class="language-bash">#!/usr/bin/bash
+</code></pre>
+<p style="margin-bottom: 6px">или:</p>
+<pre style="margin-top: 6px"><code class="language-bash">#!/usr/sh
+</code></pre>
+
+<p style="margin-bottom: 6px">Вернее, работает, но неправильно. Надпись "DeaDBeeF" отображается постоянно, вне зависимости от того, запущен проигрыватель <strong><i>DeaDBeeF</i></strong>, или нет. Но если указать вот такой шебанг:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px;"><code class="language-bash">#!/usr/bin/env bash
+</code></pre>
+<p style="margin-top: 6px;">то всё работает нормально.</p>
+<p>В последнем примере запускается обычный bash. А вот в предыдущих примерах запускается bash в POSIX-режиме.</p>
+<p>У нас /usr/bin/sh является ссылкой на /usrb/bin/bash. Но сам <strong><i>bash</i></strong>, когда видит, что он запущен как <strong><i>sh</i></strong>, то он как бы запускается в POSIX-совместимом режиме. Когда я пишу шебанг <strong><i>#!/bin/sh</i></strong> или запускаю скрипт вот так:</p>
+<pre><code class="language-bash">/bin/sh script.sh
+</code></pre>
+<p><strong><i>Bash</i></strong> видит, что он был запущен как <strong><i>sh</i></strong>, и ограничивает свои возможности, соблюдая POSIX-стандарт.</p>
+
+
+<p>Тоже работает:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+echo '{"version":1}'
+echo '['
+
+while true; do
+    if pgrep deadbeef >/dev/null; then
+        txt='DeaDBeeF'
+    else
+        txt=''  # обязательно пустая строка
+    fi
+
+    # Даже если txt пустой — выводим блок!
+    echo "[{\"full_text\":\"$txt\"}],"
+
+    sleep 2
+done
+</code></pre>
+
+<p>Я хочу, чтобы в статус-баре отображался PID-процесса, когда запущен проигрыватель DeaDBeeF, и чтобы, когда проигрыватель закрыт, оторажалась строка: "DeaDBeeF закрыт". Вот пример кода:</p>
+<pre><code class="language-bash">#!/bin/bash
+
+while true; do
+    # Ищем именно DeaDBeeF, а не всё что содержит "deadbeef"
+    result=$(pgrep -f '^(/usr/bin/)?deadbeef( |$)')
+    # Здесь мы ищем строку, которая начинается с /usr/bin/deadbeef
+    #   или с deadbeef, а потом следует либо пробел, либо конец строки 
+
+    if [ -n "$result" ]; then
+        txt="$result"
+    else
+        txt='DeaDBeeF закрыт'
+    fi
+
+    echo "$txt"
+
+    sleep 2
+done
+</code></pre>
+
+<pre><code class="language-bash"># Вот эта команда как раз
+# отображает PID процесса проигрывателя DeaDBeeF:
+
+pgrep -f '^/usr/bin/deadbeef( |$)'
+   # 304080
+
+# А эта ищет и /usr/bin/deadbeef и просто deadbeef.
+# (/usr/bin/)? означает необязательную часть
+pgrep -f '^(/usr/bin/)?deadbeef( |$)'
+   # 304080
+
+# другие попытки запустить команду.
+# Вот эта находит два процесса:
+pgrep deadbeef
+  # 294375
+  # 304080
+
+# Вот эта находит три процесса:
+pgrep -f deadbeef
+   # 285013
+   # 294375
+   # 304080
+
+# вот эта находит один процесс:
+pgrep -f /usr/bin/deadbeef
+   # 304080
+
+# Но всё-таки последняя команда не защищена от нахождения ...
+# ... процессов типа: /usr/bin/deadbeef-someplugin, например, ...
+# ... т.к. ищется подстрока
+</code></pre>
+
+<p>Разъяснение регулярного выражения:</p>
+<ul>
+   <li>^ – начало строки. Команда должна начинаться с /usr/bin/deadbeef</li>
+   <li>( |$) – либо пробел (дальше аргументы), либо конец строки → запрещает окончания типа /usr/bin/deadbeef123 или /usr/bin/deadbeef-plugin</li>
+</ul>
+
+<p><strong><i>if [ -n "$result" ]; then</i></strong> эквивалентен <strong><i>if (result != "") {</i></strong>.</p>
+<p><strong><i>[</i></strong> – в bash это не оператор, это команда <strong><i>test</i></strong>.</p>
+<pre><code class="language-bash"># Проверяем пустая строка, или нет:
+test -n STRING
+
+# то же самое:
+[ -n STRING ]
+
+# опция -n означает:
+#    вернуть статус 0 (true), если длина строки ненулевая,
+#    вернуть статус 1 (false), если строка пустая.
+</code></pre>
+
+<p>Теперь можно переписать предыдущий пример таким образом, чтобы в статус-баре отображалась строка "DeaDBeeF", если проигрыватель <strong><i>DeaDBeeF</i></strong> запущен и чтобы ничего не отображалось, когда проигрыватель не запущен.</p>
+
+<pre><code class="language-bash">#!/bin/bash
+
+while true; do
+   if pgrep -f '^/usr/bin/deadbeef( |$)' >/dev/null; then
+      txt='DeaDBeeF'
+   else
+      txt=''
+   fi
+   echo "$txt"
+   sleep 1
+done
+</code></pre>
+
+<h3>Объединяем два скрипта в один файл</h3>
+<p>Пусть у нас будет скрипт <strong><i>status.sh</i></strong> главным файлом, а <strong><i>deadbeef-status.sh</i></strong> мы будем подгружать в него. Тогда перепишем deadbeef-status.sh таким образом, чтобы он был без цикла. Ведь мы будем его вызывать из цикла другого файла. Поэтому здесь он должен иметь одиночный вызов:</p>
+
+<pre><code class="language-bash">#!/bin/bash
+
+if pgrep -f '^/usr/bin/deadbeef( |$)' >/dev/null; then
+    echo "DeaDBeeF"
+else
+    echo ""
+fi
+</code></pre>
+
+<p>А главный файл <strong><i>~/.config/sway/status.sh</i></strong>, в который мы будем подгружать статус <strong><i>DeaDBeeF</i></strong>, будет выглядеть примерно так:</p>
+<pre><code class="language-bash">#!/bin/bash
+
+while true; do
+    # Получаем раскладку
+    layout=$(swaymsg -t get_inputs | jq -r '.[] | select(.type=="keyboard") | .xkb_active_layout_name' | head -n 1)
+
+    case "$layout" in
+        "Russian") layout="RU" ;;
+        "English (US)") layout="EN" ;;
+    esac
+
+    # Получаем статус DeaDBeeF (одиночный запуск второго скрипта)
+    deadbeef_status=$("$HOME/.config/sway/deadbeef-status.sh")
+
+    # Собираем строку
+    if [ -n "$deadbeef_status" ]; then
+        echo "$deadbeef_status | $layout | $(date +'%Y-%m-%d %H:%M:%S')"
+    else
+        echo "$layout | $(date +'%Y-%m-%d %H:%M:%S')"
+    fi
+
+    sleep 1
+done
+</code></pre>
+
+
+<h3>Статус DeaDBeeF</h3>
+<pre><code class="language-bash">#!/bin/bash
+
+prev_pos=""   # переменная, куда мы сохараним пред. позицию
+while true; do
+   # Если DeaDBeeF запущен, то ...
+   if pgrep -f '^/usr/bin/deadbeef( |$)' >/dev/null; then
+      deadbeef_status=$(deadbeef --nowplaying '%e' 2>/dev/null)
+      # Если ничего не проигрывается, то:
+      if [[ -z "$deadbeef_status" || "$deadbeef_status" == nothing* ]]; then
+         echo "DeaDBeeF ■ "
+         prev_pos=""
+      # а если проигрывается, надо понять, пауза сейчас или нет:
+      else
+         # Если предыдущая позиция равна текущей, тогда пауза:
+         if [[ "$deadbeef_status" == "$prev_pos" ]]; then
+            echo "DeaDBeeF ⏸ "
+         # Иначе – не пауза:
+         else
+            echo "DeaDBeeF ▶"
+         fi
+      fi
+      # Обновляем предыдущую позицию:
+      prev_pos="$deadbeef_status"
+   else
+      # Если DeaDBeef выклчен, то стираем его из статус-бара
+      echo ''
+   fi
+
+   sleep 1
+
+done
+</code></pre>
+
+<p>В следующем примере мы добавим переменную <strong><i>prev_track</i></strong>, которая будет хранить предыдущее имя трэка. Это нужно, чтобы при каждой новой проверке убедиться, что играет тот же трек, иначе "пауза" может появиться если на первой секунде переключать треки – всегда будет сравниваться 0:00 и 0:00 и тогда скрипт распознает это как пауза.</p>
+<pre><code class="language-bash">#!/bin/bash
+
+prev_pos=""   # предыдущая позиция
+prev_track="" # предыдущий трэк
+
+while true; do
+
+   if pgrep -f '^/usr/bin/deadbeef( |$)' >/dev/null; then
+
+      nowplaying=$(deadbeef --nowplaying '%e|%t' 2>/dev/null)
+      IFS='|' read -r deadbeef_status current_track <<< "$nowplaying"
+      # IFS – Internal Field Separator, переменная окружения
+
+      if [[ -z "$deadbeef_status" || "$deadbeef_status" == nothing* ]]; then
+         echo "DeaDBeeF ■ "
+         prev_pos=""
+         prev_track=""
+      else
+         if [[ "$deadbeef_status" == "$prev_pos" && "$current_track" == "$prev_track" ]]; then
+            echo "DeaDBeeF ⏸ "
+         else
+            echo "DeaDBeeF ▶"
+         fi
+      fi
+
+      prev_pos="$deadbeef_status"
+      prev_track="$current_track"
+   else
+      echo ''
+   fi
+
+   sleep 1
+
+done
+</code></pre>
+
+<p>Выносим определение статуса в отдельную функцию:</p>
+<pre><code class="language-bash">#!/bin/bash
+
+prev_pos=""
+prev_track=""
+
+get_deadbeef_status() {
+   local prev="$1" prev_t="$2"
+   local nowplaying
+   local status_to_return
+   local current_pos current_track
+
+   nowplaying=$(deadbeef --nowplaying '%e|%t' 2>/dev/null)
+   IFS="|" read -r current_pos current_track <<< "$nowplaying"
+   if [[ -z "$nowplaying" || "$nowplaying" == nothing* ]]; then
+      status_to_return="■ "
+      current_pos=""
+   else
+      if [[ "$current_pos" == "$prev" && "$current_track" == "$prev_t" ]]; then
+         status_to_return="⏸ "
+      else
+         status_to_return="▶"
+      fi
+   fi
+   printf "%s|%s|%s\n" "$current_pos" "$current_track" "$status_to_return"
+}
+
+while true; do
+   result=""
+   if pgrep -f '^/usr/bin/deadbeef( |$)' >/dev/null; then
+      result="$(get_deadbeef_status "$prev_pos" "$prev_track")"
+      IFS="|" read -r prev_pos prev_track deadbeef_status <<< "$result"
+      echo "DeaDBeeF $deadbeef_status"
+   else
+      echo ''
+   fi
+
+   sleep 1
+done
+</code></pre>
+
+
+<h2>POSIX</h2>
+
+<p>Переменная POSIXLY_CORRECT показывает используется ли в данный момент POSIX-совместимый режим.</p>
+<pre><code class="language-bash">bash --posix -c 'echo $POSIXLY_CORRECT'
+   # y
+
+bash -c 'echo $POSIXLY_CORRECT'
+   # скорее всего ничего не выводит
+</code></pre>
+
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -28,13 +28,12 @@ exec /usr/bin/lxqt-policykit-agent
 </code></pre>
 
 <h4>~/.config/wlogout/style.css:</h4>
-<pre><code class="language-css">
-window {
+<pre><code class="language-css">window {
     background-color: rgba(30, 30, 30, 0.9);
 }
 
 button {
-    background-color: #1e1e2e;
+    background: #1e1e2e;
     border-radius: 15px;
     margin: 10px;
     padding: 20px;
@@ -48,6 +47,30 @@ button:focus {
     color: #000000;
 }
 </code></pre>
+
+<p>Тут следует обратить внимание на то, что в блоке <strong><i>button</i></strong> для задания фона используется свойство <strong><i>background</i></strong>, а не <strong><i>background-color</i></strong>, как в блоке <strong><i>window</i></strong>.</p>
+
+<p>Ещё один вариант <strong><i>style.css</i></strong>:</p>
+<pre><code class="language-css">window {
+    background-color: rgba(30, 30, 30, 0.9);
+}
+
+button {
+    background: rgba(63, 63, 87, 0.6);
+    border-radius: 15px;
+    margin: 10px;
+    padding: 20px;
+    border: 2px solid #7f6fb0; 
+    color: #cccccc;
+    font-size: 20px;
+}
+
+button:focus {
+    background-color: rgba(137, 180, 250, 0.8);
+    color: #000000;
+}
+</code></pre>
+
 
 <h4>~/.config/wlogout/layout:</h4>
 <pre><code class="language-css">
@@ -88,6 +111,8 @@ button:focus {
     "keybind" : "r"
 }
 </code></pre>
+
+
 
 <script src="/assets/highlight/languages/css.min.js"></script>
 <script>hljs.highlightAll();</script>
