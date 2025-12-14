@@ -37,6 +37,14 @@ yay -Scc
 # Но всё-равно в ~/.cache/yay остаются клоны репозиториев и некоторые файлы
 </code></pre>
 
+<pre><code class="language-bash">yay -Rns $(yay -Qdtq)  # Удаляет ненужные зависимости, если они остались
+</code></pre>
+
+<h3>Удалить все локальные файлы сборки</h3>
+<pre><code class="language-bash">
+rm -rf ~/.cache/yay/freenet
+</code></pre>
+
 <pre><code class="language-bash">## Пропустить стадию проверки
 yay -S portfolio-file-manager --mflags "--nocheck"
 # Когда я ставил portfolio-file-manager, то пакет ставился нормально, но не проходил проверку и из-за этого установка отменялась.

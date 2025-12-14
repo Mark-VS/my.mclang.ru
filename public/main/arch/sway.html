@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sway</title>
-    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 	<link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
@@ -263,6 +263,19 @@ tscale=oversample
 <pre><code class="language-bash">sudo pacman -S pavucontrol
 </code></pre>
 
+<h2>Изображения</h2>
+<p style="margin-bottom: 6px">Ставим прогрмму <strong><i>imv</i></strong> или <strong><i>feh</i></strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S imv
+
+# для того, чтобы смотреть характеристики изображения:
+sudo pacman -S imagemagick
+
+# Теперь можно открыть изображение:
+imv images/screenshot.png
+
+# Или посмотреть его характеристики:
+identify images/screenshot.png
+</code></pre>
 
 <h2>swaybar – раскладка</h2>
 <p>По умолчанию в waybar'е отображается только год, месяц, дата и текущее время. За этот вывод в конфиге отвечает вот этот блок:</p>

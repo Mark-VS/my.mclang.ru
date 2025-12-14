@@ -4,26 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GTK 3.0</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
 <h1>GTK3</h1>
-<pre><code>
-<pre><code>
+<pre><code class="language-bash">
     ## GTK2
         pcmanfm, dillo
     ## GTK3 Приложения
@@ -47,5 +36,198 @@
         
 </code></pre>
 
+<h3>Темы для GTK-3 приложений</h3>
+<p>Все темы находятся в <strong><i>/usr/share/themes</i></strong>. То есть посмотреть. какие темы у меня установлены, можно так:</p>
+<pre><code class="language-bash">ls /usr/share/themes
+   # Default  Emacs
+</code></pre>
+<p>У меня по умолчанию нашлись только две темы: Default и Emacs.</p>
+
+<p>Шрифты находятся в <strong><i>/usr/share/fonts</i></strong>. Личные шрифты – в <strong><i>~/.fonts</i></strong> или в <strong><i>~/.local/share/fonts</i></strong>.</p>
+
+<pre><code class="language-bash">
+ls /usr/shre/fonts
+   # Adwaita  encodings  gnu-free  gsfonts  liberation  noto  noto-cjk
+
+sudo pacman -S ttf-ubuntu-font-family
+ # теперь появилась папка /usr/share/fonts/ubuntu
+
+# Меняем шрифт:
+gsettings set org.gnome.desktop.interface font-name "Ubuntu 13"
+</code></pre>
+
+<p>Иконки:</p>
+<pre><code class="language-bash">ls /usr/share/icons
+</code></pre>
+
+<pre><code class="language-bash"># Ставим пакет gnome-themes-extra
+sudo pacman -S gnome-themes-extra
+
+ls /usr/share/themes
+   # Adwaita  Adwaita-dark  Default  Emacs  HighContrast
+</code></pre>
+<p>Теперь у меня появились три новые темы: <strong><i>Adwaita</i></strong>, <strong><i>Adwaita-dark</i></strong> и <strong><i>HighContrast</i></strong>.</p>
+
+<ul>
+   <li>gnome-themes-extra – Adwaita, Adwaita-dark, HighContrast</li>
+   <li>adapta-gtk-theme – Adapta, Adapta-Eta, Adapta-Nokto, Adapta-Nokto-Eta</li>
+</ul>
+
+
+<h3>Где хранятся настройки темы</h3>
+<p>ГПТ говорит, что в файле <strong><i>~/.config/gtk-3.0/settings.ini</i></strong>. У меня по умолчанию этого файла нет. И любые попытки указать тему в этом файле ни к чему не приводят. Тема не меняется.</p>
+<p>Вручную менять тему можно через переменную <strong><i>GTK_THEME</i></strong>.</p>
+<p>Также менять тему можноз и с помощью <strong><i>gsettings</i></strong> и с помощью <strong><i>lxappearance</i></strong>. А также с помощью <strong><i>gnome-tweaks</i></strong>.</p>
+
+<h3>Подробная инфа про GTK3:</h3>
+<p>Можно посмотреть на страничке <a href="https://wiki.archlinux.org/title/GTK">https://wiki.archlinux.org/title/GTK</a>.</p>
+
+<h3>gsettings</h3>
+<p>Поменяем тему на <strong><i>Adwaita-dark</i></strong>:</p>
+<pre><code class="language-bash">gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
+gsettings set org.gnome.desktop.interface icon-theme "Adwaita"
+
+# Шрифт:
+gsettings set org.gnome.desktop.interface font-name "FontName"
+
+# Шрифт для подсказок
+gsettings set org.gnome.desktop.interface monospace-font-name "Monospace 11"
+
+# Тема курсора:
+gsettings set org.gnome.desktop.interface cursor-theme "Adwaita"
+
+# Размер шрифта интерфейса:
+gsettings set org.gnome.desktop.interface text-scaling-factor 1.1
+   # Значение по умолчанию: 1.0
+
+# Настройка темы звуков:
+gsettings set org.gnome.desktop.sound theme-name "freedesktop
+</code></pre>
+
+<h3>Доступные шрифты</h3>
+<pre><code class="language-bash">fc-list
+
+# Доступные семейства шрифтов:
+fc-list : family
+
+# с нормальной сортировкой:
+fc-list : family | sort | uniq
+
+# Найти установленные Ubuntu-шрифты:
+fc-list : family | grep "Ubuntu"
+</code></pre>
+
+<p>Для управления шрифтами также можно использовать графические приложения: <strong><i>GNOME Fonts</i></strong> или <strong><i>Font Manager</i></strong>.</p>
+
+<p>Отменить все изменения через gsettings:</p>
+<pre><code class="language-bash">gsettings reset org.gnome.desktop.interface gtk-theme
+gsettings reset org.gnome.desktop.interface gtk-icon-theme
+</code></pre>
+
+<p>Можно сразу запустить какое-нибудь GTK-3 приложение, чтобы убедиться, что цвета изменились. Например, PCManFM, или DeaDBeeF, Thunar, Chromium, Firefox или что-нибудь ещё.</p>
+
+<h3>Цвет текста</h3>
+<p>Дефолтный цвет текста настраивается в файле ~/.config/gtk-3.0/gtk.css:</p>
+<pre><code class="language-bash">* {
+    color: #B0B0B0; /* Серый цвет */
+}
+</code></pre>
+
+<h3>вручную</h3>
+
+<p>GTK3-приложение при запуске берёт тему из переменной <strong><i>GKT_THEME</i></strong>. Поэтому нам надо в <strong><i>GKT_THEME</i></strong> записать название: Adwaita-dark. А потом из этого же терминала запустить приложение:</p>
+<pre><code class="language-bash"># Создаём переменную с названием темы:
+export GTK_THEME=Adwaita-dark
+
+# Запускаем GTK3-приложение:
+thunar
+</code></pre>
+
+<p>Или можно одной строчкой вот так:</p>
+<pre><code class="language-bash">GTK_THEME=Adwaita-dark thunar
+</code></pre>
+
+<p>Чтобы эта переменная применялась к любому терминалу, надо прописать её в <strong><i>~/.bashrc</i></strong>. Но приложения по-прежнему не будут видеть эту переменную, если мы их будем запускать через <strong><i>wofi</i></strong>. Для того, чтобы и запущенными из <strong><i>wofi</i></strong>, они видели переменную <strong><i>GTK_THEME</i></strong>, нам надо объявить её в <strong><i>~/.profile</i></strong>:</p>
+<pre><code class="language-bash"># ~/.profile
+    
+export GTK_THEME=Adwaita-dark
+</code></pre>
+
+
+<h2>Иконки</h2>
+
+<p>Pacman</p>
+<ul>
+   <li>papirus-icon-theme – Papirus, Papirus-Dark, Papirus-Light</li>
+   <li>breeze-icons – breeze, breeze-dark</li>
+   <li>oxygen-icons – oxygen</li>
+   <li>icon-library – hicolor</li>
+</ul>
+
+<p>AUR</p>
+<ul>
+   <li>moka-icon-theme-git – Moka</li>
+   <li>numix-icon-theme-git – Numix, Numix-Light</li>
+   <li>flat-remix (~400 MB – 36 наборов) – долго ставится... УЖАСНЫЕ ЦВЕТА. НЕ СТАВИТЬ!!! Куча иконок: Flat-Remix-Black-Dark, Flat-Remix-Black-Ligth, Flat-Remix-Light-darkPanel, Flat-Remix-Blue-Dark, Flat-Remix-Blue-Light, ... (36 штук)</li>
+   <li>tela-icon-theme (~300 MB – 45 наборов) – долго ставится... Tela и Tela-nord - неплохиеt</li>
+   <li>tela-circle-icon-theme-nord – </li>
+   <li>zafiro-icon-theme-git (~100 MB) – Zafiro – Вообще ничего не меняется, не работают.. Во время обновления Updating icon theme caches... происходит какая-то ошибка</li>
+   <li>nitrux-icon-theme (~45 MB) – nitrux-icon-theme</li>
+   <li>la-capitaine-icon-theme – la-capitaine</li>
+   <li>suru-plus-dark-git – Suru++-Dark</li>
+   <li>arc-icon-theme – Arc</li>
+   <li>qogir-icon-theme (~113 MB – 9 наборов) – Qogir, Qogir-Dark, Qogir-Light, Qogir-Manjaro, Qogir-Manjaro-Dark, Qogir-Manjaro-Light, Qogir-Ubuntu, Qogir-Ubuntu-Dark, Qogir-Ubuntu-Light.</li>
+   <li>faenza-icon-theme – Faenza, Faenza-Ambience, Faenza-Dark, Faenza-Darker, Faenza-Darkest, Faenza-Radiance</li>
+   <li>mate-icon-theme – mate</li>
+   <li>yaru-icon-theme (96 MB – 20 наборов) – Yaru, Yaru-blue, Yaru-magenta, Yaru-olive, ...</li>
+   <li>gnome-icon-theme – gnome</li>
+   <li>gnome-icon-theme-symbolic – ...</li>
+   <li>evopop-icon-theme – EvoPop – Icon theme from Solus OS and Budgie Desktop</li>
+   <li>humanity-icon-theme – Humanity icons from Ubuntu without modification</li>
+   <li>paper-icon-theme – Paper is an open source desktop theme and icon project by Sam Hewitt</li>
+   <li>elementary-xfce-icons – ... – Elementary icon theme with improved Xfce support</li>
+   <li>elementary-xfce-icons-git – Elementary icon theme with improved Xfce support (Git version)</li>
+   <li>mist-icon-theme – Mist</li>
+   <li>buuf-icon-theme – ...</li>
+   <li>oranchelo-icon-theme – ...</li>
+   <li>ubo-icons – ...</li>
+   <li>square-beam-icon-theme – ...</li>
+   <li>candy-icons – ...</li>
+   <li>neo-candy-icons – ...</li>
+   <li>colloid-catppuccin-theme – ...</li>
+   <li>ozon-icon-theme – ...</li>
+   <li>sonar-icon-theme – ...</li>
+   <li>neowaita-git – ...</li>
+   <li>newaita-icons-git – ...</li>
+   <li>morewaita-icon-theme – ...</li>
+   <li>nuovext-icon-theme – ...</li>
+   <li>mato-icons-git – ...</li>
+   <li>evolvere-icons – ...</li>
+   <li>marwaita-icons-git – ...</li>
+   <li>kora-icon-theme – ...</li>
+   <li>zorin-icon-themes – ...</li>
+   <li>mint-y-icons-git – ...</li>
+   <li>plane-icon-theme – ...</li>
+   <li>win11-icon-theme – ...</li>
+   <li>haiku-icon-theme – ...</li>
+   <li>ultra-flat-icons-orange  – ...</li>
+   <li>ultra-flat-icons-blue – ...</li>
+   <li>gruvbox-icon-theme – ...</li>
+   <li>gruvbox-plus-icon-theme – ...</li>
+   <li>gnomish-icons-git – ...</li>
+   <li>mcmuse-circle – ...</li>
+   <li>elementary-blue-icon-theme – ...</li>
+   <li>amarena-gtk-theme – ...</li>
+   <li>contemporary-icons – ...</li>
+   <li>acyls-icon-theme – ...</li>
+   <li>tangerine-icon-theme – ...</li>
+   <li>pandwaita – ...</li>
+
+   <li>you-get-git – A YouTube/Youku/Niconico video downloader written in Python 3.</li>
+   <li>icon-explorer –  A small utility to examine app icons for installed icon themes.</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>
