@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>environment</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Environment</h1>
+
+<h2>Переменные shell</h2>
+<pre style="margin-bottom: 6px"><code class="language-bash"># Присваиваем переменной значение:
+QT_QPA_PLATFORMTHEME=qt6ct
+
+# проверяем:
+echo QT_QPA_PLATFORMTHEME
+  # qt6ct
+</code></pre>
+<p style="margin-top: 6px">Отлично. Всё работает.</p>
+
+<p style="margin-bottom: 6px">То же самое можно сделать так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Присваиваем переменной значение:
+env QT_QPA_PLATFORMTHEME=qt6ct
+
+# проверяем:
+echo QT_QPA_PLATFORMTHEME
+  # qt6ct
+</code></pre>
+<p style="margin-top: 6px">Тоже всё работает. В <strong>bash</strong> команда <strong><i>env</i></strong> создаёт <strong>shell</strong>-переменную. В других шеллах эта команда может вести себя по-другому. Например, создавать environment-переменную. Но в <strong>bash</strong> два вышеприведённых примера эквивалентны.</p>
+
+<p style="margin-bottom: 6px">Но если мы сейчас попробуем запустить <strong>Qt6</strong>-приложение (пусть это будет <strong>feather</strong>) в том же терминале таким вот образом:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">featherpad
+</code></pre>
+<p style="margin-top: 6px">то обнаружим, что приложение не видит эту переменную.</p>
+
+<p style="margin-bottom: 6px">Чтобы передать значение переменной программе, нужно сделать это в той же строке, где мы это приложение запускаем:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># либо так:
+QT_QPA_PLATFORMTHEME=qt6ct featherpad
+
+# либо так:
+env QT_QPA_PLATFORMTHEME=qt6ct featherpad
+</code></pre>
+<p style="margin-top: 6px">Вот сейчас <strong>featherpad</strong> увидит переменную <strong><i>QT_QPA_PLATFORM</i></strong> и применит <strong>Qt</strong>-стиль, который указан в <strong>qt6ct</strong>.</p>
+
+<h2>Environment</h2>
+<p><strong>Environment</strong> (окружение процесса) – это набор пар ИМЯ=ЗНАЧЕНИЕ, который передаётся каждому запущенному процессу при старте.</p>
+<p>Посмотреть значения <strong>environment</strong>-переменных можно так:</p>
+<pre><code class="language-bash"># Посмотреть все переменные:
+env
+
+# Посмотреть значение конкретной переменной:
+printenv XDG_SESSION_TYPE
+</code></pre>
+
+<pre style="margin-bottom: 6px"><code class="language-bash"># присваиваем значение переменной:
+QT_QPA_PLATFORMTHEME=qt6ct
+
+# выводим его:
+echo $QT_QPA_PLATFORMTHEME
+  # qt6ct
+
+printenv QT_QPA_PLATFORMTHEME
+  # ничего не вывелось
+</code></pre>
+<p style="margin-top: 6px">То есть тут мы присвоили значение переменной внутри нашего shell. Но <strong>shell</strong>-переменная ≠ <strong>environment</strong>-переменная. Поэтому если мы запустим <strong>featherpad</strong> без явной передачи переменной, то <strong>featherpad</strong> эту переменную не увидит.</p>
+
+<p>Если мы хотим создать именно <strong>environment</strong>-переменную, то это делается так:</p>
+<pre><code class="language-bash">export QT_QPA_PLATFORMTHEME=qt6ct
+
+# теперь мы можем проверить её:
+printenv QT_QPA_PLATFORMTHEME
+  # qt6ct
+
+# и теперь можно запустить featherpad:
+featherpad
+  # стиль применился
+</code></pre>
+
+<h2>.bashrc, .profile</h2>
+
+<ul>
+  <li>~/.profile</li>
+  <li>~/.bash_profile</li>
+  <li>~/.bashrc</li>
+</ul>
+
+<p>Если я впишу в ~/.profile:</p>
+<pre><code class="language-bash">export QT_QPA_PLATFORMTHEME=qt6ct
+</code></pre>
+<p>... то переменная не попадёт в <strong><i>environment</i></strong>. Потому что я запускаю <strong>sway</strong> из <strong>shell</strong>'а и <strong>sway</strong> наследует <strong><i>environment</i></strong> текущего <strong>shell</strong>.</p>
+
+<pre><code class="language-bash"># Проверим, логин ли у меня shell:
+shopt -q login_shell && echo LOGIN || echo NOT_LOGIN
+  # NOT_LOGIN
+
+# поэтому .profile не работает
+</code></pre>
+
+<h3>Что читает bash в каждом случае</h3>
+<h4>login-shell</h4>
+<ul>
+   <li>/etc/profile</li>
+   <li>~/.bash_profile</li>
+   <li>~/.bash_login</li>
+   <li>~/.profile</li>
+</ul>
+
+<h4>обычный интерактивный shell</h4>
+<ul>
+   <li>~/.bashrc</li>
+</ul>
+
+<p>При логине bash читает <strong><i>~/.bash_profile</i></strong>. Я могу выполнить скрипт <strong><i>~/.profile</i></strong> внутри <strong><i>~/.bash_profile</i></strong>:</p>
+<pre><code class="language-bash"># ~/.profile
+
+export QT_QPA_PLATFORMTHEME=qt6ct
+</code></pre>
+<pre style="margin-bottom: 6px"><code class="language-bash"># ~/.bash_profile
+
+source ~/.profile
+</code></pre>
+<p style="margin-top: 6px">Можно конечно объявить <strong>environment</strong>-переменную прямо в <strong><i>~/.bash_profile</i></strong>, но <strong><i>~/.profile</i></strong> + <strong><i>source</i></strong> – считается классическим UNIX-подходом.</p>
+
+<h3>Откуда PATH?</h3>
+<p>Если у меня не работают <strong><i>/etc/profile</i></strong> и <strong><i>~/.profile</i></strong>, откуда тогда <strong><i>PATH</i></strong>? Ответ:</p>
+<ul>
+   <li>systemd</li>
+   <li>PAM</li>
+   <li>compiled defaults bash</li>
+   <li>/etc/environment</li>
+   <li>/etc/security/pam_env.conf</li>
+</ul>
+
+<p>В современной Linux-системе <strong><i>environment</i></strong> – это продукт <strong>PAM</strong> + <strong>systemd</strong>, а <strong>shell</strong> – просто потребитель.</p>
+
+<p style="margin-bottom: 6px">PAM подгружает модули из <strong><i>/etc/pam.d/login</i></strong> и <strong><i>/etc/pam.d/system-login</i></strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># /etc/pam.d/system-login
+# ...
+session   optional   pam_env.so
+session   required   pam_systemd.so
+# ...
+</code></pre>
+
+<p style="margin-bottom: 6px">А сами значения приходят отсюда:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># /etc/login.defs
+# ...
+ENV_PATH        PATH=/usr/local/sbin:/usr/local/bin:/usr/bin
+ENV_SUPATH     PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/usr/bin
+# ...
+</code></pre>
+<p style="margin-top: 6px">Это и есть базовый <strong><i>PATH</i></strong>.</p>
+
+<h3>PAM</h3>
+
+<p><strong>PAM</strong> – Pluggable Authentication Modules (Подключаемые модули аутентификации). Это слой между программой и системой, который решает: кто ты, можно ли тебя пустить и с какими условиями. Без <strong>PAM</strong> каждая программа должна была бы сама проверять пароль, настроивать сессию, задавать переменные. А с <strong>PAM</strong> всё это вынесено в единый механизм.</p>
+<p><strong>Как выглядит PAM на практике</strong>. Каждая программа имеет файл в <strong><i>/etc/pam.d/</i></strong>. Внутри – цепочка модулей.</p>
+
+<h2>login-shell</h2>
+<p><strong>login-shell</strong> – это <strong>shell</strong>, запущенный с флагом <i>--login</i>. Только <strong>login-shell</strong> читает <strong><i>.profile</i></strong>.</p>
+
+<h3>Ещё один способ задать environment-переменную</h3>
+<p>Вариант 2. Рекомендуемый для Wayland (лучший): Использовать systemd user environment (я его советовал не случайно).</p>
+<pre><code class="language-bash">mkdir -p ~/.config/environment.d
+nano ~/.config/environment.d/99-qt.conf
+</code></pre>
+
+<pre style="margin-bottom: 6px"><code class="language-bash"># ~/.config/environment.d/99-qt.conf
+
+QT_QPA_PLATFORMTHEME=qt6ct
+</code></pre>
+<p style="margin-top: 6px">Но у меня этот способ не работает. Насколько я понял, у меня нет полноценной "systemd-user session". У меня сессия: TTY -> login -> bash (не login-shell) -> sway.</p>
+
+<p style="margin-bottom: 6px">Проверить видит ли systemd переменную:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверим systemd-user:
+systemctl --user show-environment
+
+# Можно проверить так:
+systemctl --user show-environment
+</code></pre>
+
+<h3>Как сделать полноценную session</h3>
+<p>1. Включить linger, чтобы user systemd жил независимо от логина:</p>
+<pre><code class="language-bash">loginctl enable-linger $USER
+</code></pre>
+<p>2. Перезагрузиться и заново войти в TTY</p>
+<p>3. Проверить:</p>
+<pre><code class="language-bash">systemctl --user show-environment
+</code></pre>
+<p>Должны появиться переменные из ~/.config/environment.d/</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Звук</h1>
+
+
+<ul>
+   <li>audacity</li>
+   <li>qtractor</li>
+</ul>
+
+<pre><code class="language-bash">lsusb
+   # ...
+   # Bus 001 Device 007: ID 08bb:2902 Texas Instruments PCM2902 Audio Codec
+   # ...
+</code></pre>
+
+<p>Проверим, что ALSA видит карту:</p>
+<pre><code class="language-bash">aplay -l
+   # ...
+   # card 2: CODEC [USB Audio CODEC], device 0: USB Audio
+   # ...
+</code></pre>
+<p>Это UMC22 (PCM2902)</p>
+
+<p>Проверим вход (микрофон):</p>
+<pre><code class="language-bash">arecord -l
+   # ...
+   # card 2: CODEC [USB Audio CODEC], device 0: USB Audio
+   # ...
+</code></pre>
+<p>UMC22 видна как устройство захвата. То есть микрофон физически доступен системе.</p>
+
+<p>В PipeWire можно добавить усиление:</p>
+<pre><code class="language-bash">sudo pacman -S easyeffects
+</code></pre>
+
+<p>Установим плагины. Иначе Gain, Compressor и Limiter не будут работать.</p>
+<pre><code class="language-bash">sudo pacman -S lsp-plugins
+</code></pre>
+<pre><code class="language-bash">sudo pacman -S calf
+
+# calf limiter должен работать лучше, чем lsp
+
+sudo pacman -S lv2
+#
+</code></pre>
+
+<p>После установки нужно перезапустить EasyEffects.</p>
+
+<p>Преобразовать стерео в моно:</p>
+<p>Треки - Микшировать - Стерео в моно</p>
+
+<p>превратить моно в стерео:</p>
+<p>Скопировать одну монодорожку (Правка - Копировать)</p>
+<p>Добавить вторую монодорожку (Треки - Добавить новый - Монотрек)</p>
+<p>Вставить сюда скопированную дорожку</p>
+<p>В одной дорожке Панорама: Pan → Left, на другой дорожке Панорама: Pan → Right</p>
+<p>Выделяем обе дорожки и: Треки (Tracks) → Микшировать (Mix) → Свести и обработать (Mix and Render)</p>
+
+
+<p>Настройки компрессора</p>
+<ul>
+   <li>Threshold: −20 dB</li>
+   <li>Ratio: 3:1</li>
+   <li>Attack: 5 ms</li>
+   <li>Release: 100 ms</li>
+   <li>Make-up gain: +6 dB</li>
+</ul>
+
+<p>Limiter:</p>
+<ul>
+   <li>Ceiling: −1 dB</li>
+</ul>
+
+<h3>Carla</h3>
+<p>Carla — это хост для LV2 плагинов,</p>
+
+<h3>KXStudio</h3>
+<p>Сначала нужно добавить репозиторий KXStudio.</p>
+
+<pre><code class="language-bash">
+
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

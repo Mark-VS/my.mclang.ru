@@ -250,6 +250,41 @@ pactree -r sway
    # т.е. програмы, которые зависят от sway
   </code></pre>
 
+
+<h2>Подключаем Chaotic AUR</h2>
+
+<p style="margin-bottom: 6px">Всю инструкцию по подключению можно найти на официальной страничке.</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+sudo pacman-key --lsign-key 3056513887B78AEB
+sudo pacman -U https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst
+sudo pacman -U https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst
+</code></pre>
+<h4 style="margin-bottom: 6px">пояснения</h4>
+<ul style="margin-top: 6px">
+   <li>pacman-key – обёртка над gpg</li>
+   <li>--recv-key – скачать публичный ключ</li>
+   <li>3056513887B78AEB – ID GPG-ключа Chaotic-AUR</li>
+   <li>keyserver.ubuntu.com – сервер ключей</li>
+</ul>
+<p>На этом этапе публичный ключ загружен. Но ему ещё не доверяют. Это выглядит так: «Я знаю этот паспорт, но не уверен, что он настоящий». Поэтому далее надо выполнить локальное подписание ключа.</p>
+<ul>
+   <li>--lsign-key = locally sign</li>
+</ul>
+<p>Тут я подписываю ключ своим ключом <strong><i>pacman</i></strong>. Это не отправляется в интернет – только у меня. То есть я как бы говорю: «Я лично доверяю этому ключу на этом компьютере». Без этого шага <strong><i>pacman</i></strong> откажется устанавливать пакеты.</p>
+<ul>
+   <li>Установка <strong>keyring</strong>-пакета. <strong><i>chaotic-keyring</i></strong> – пакет с набором всех GPG-ключей, которыми подписываются пакеты <strong>Chaotic-AUR</strong>. Аналог <strong><i>archlinux-keyring</i></strong>. Без предыдущего шага установить этот пакет не получится, потому что он тоже подписан ключом, который я добавил чуть выше. Сначала я доверяю главному ключу, потом он разрешает доверять всем остальным.</li>
+   <li>Установка mirrorlist. Это список зеркал репозитория. Зачем устанавливать это отдельно? Потому что <strong><i>pacman</i></strong> не знает откуда скачивать пакеты <strong>Chaotic-AUR</strong>. <strong><i>mirrorlist</i></strong> – это просто конфиг, не код.</li>
+</ul>
+<p>Добавляем в <strong><i>/etc/pacman.conf</i></strong> в самый низ:</p>
+<pre><code class="language-bash">[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+</code></pre>
+
+<p>Обновляем базы:</p>
+<pre><code class="language-bash">sudo pacman -Sy
+</code></pre>
+
+
 	<h4>Расшифровка</h4>
 	<pre><code class="language-bash">
 sudo pacman -Syu

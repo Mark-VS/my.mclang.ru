@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>OBS</h1>
+
+<p>Установка:</p>
+<pre><code class="language-bash">sudo pacman -S obs-studio
+</code></pre>
+
+<p>В <strong><i>OBS</i></strong> есть два типа кодирования:</p>
+<ol>
+   <li><strong><i>Аппаратное</i></strong>q (через видеокарту)
+      <ul>
+         <li>NVENC (NVIDIA)</li>
+         <li>AMD AMF</li>
+         <li>VAAPI (Intel / AMD)</li>
+      </ul>
+   </li>
+   <li><strong><i>Программное</i></strong> (через CPU)
+      <ul>
+         <li>x264 -> Самый надёжный вариант</li>
+      </ul>
+   </li>
+</ol>
+<p>На Arch <strong><i>OBS</i></strong> часто по умолчанию выбирает NVENC или VAAPI, даже если видеокарта – не NVIDIA, или драйвер не установлен вообще.</p>
+
+<p><strong><i>Выбор кодировщика</i></strong>: Файл → Настройки → Вывод. Здесь нужно поменять режим вывода с "Простой" на "Расширенный", чтобы можно было выбрать кодировщик с аппаратным ускорением. Или можно просто оставить <strong><i>x264</i></strong> – так стабильнее.</p>
+<p>Кодировщик звука по умолчанию: <strong><i>libfdk AAC</i></strong>. Доступен также <strong><i>FFmpeg AAC</i></strong>. Лучше оставить <strong><i>libfdk AAC</i></strong> по умолчанию. Это AAC-кодировщик от Fraunhofer (очень качественный). <strong><i>OBS</i></strong> использует его напрямую. Лучшее качество звука при том же битрейте. К минусам можно отнести чуть большую нагрузку, но она незаметна.</p>
+<p>Доступные форматы записи:</p>
+<ul>
+   <li>Flash Video (.flv)</li>
+   <li><strong><i>Видеоформат «Матрёшка» (.mkv)</i></strong></li>
+   <li>MPEG-4 (.mp4)</li>
+   <li>QuickTime (.mov)</li>
+   <li><strong><i>Гибридный MP4 [БЕТА] (.mp4)</i></strong></li>
+   <li>Гибридный MOV [БЕТА] (.mov)</li>
+   <li>Фрагментированный MP4 (.mp4)</li>
+   <li>Фрагментированный MOV (.mov)</li>
+   <li>MPEG-TS (.ts)</li>
+   <li>HLS (m3u8 _ .ts)</li>
+</ul>
+
+<p>Лучше записывать в .mkv. Если нужен .mp4, то: <i>Файл → Ремультиплексировать записи</i>.</p>
+
+<p>Список доступных кодировщиков видео на вкладке «Запись»:</p>
+<ul>
+   <li><strong><i>(Использовать кодировщик потока)</i></strong></li>
+   <li>AOM AV1</li>
+   <li>FFmpeg VAAPI H.264</li>
+   <li>FFmpeg VAAPI HEVC</li>
+   <li>QuickSync H.264</li>
+   <li>QuickSync HEVC</li>
+   <li>SVT-AV1</li>
+   <li><strong><i>x264</i></strong></li>
+</ul>
+<p>Здесь выбираем <strong><i>x264</i></strong> вместо дефолтного <strong><i>(Использовать кодировщик потока)</i></strong>, чтобы не зависеть от настроек трансляции и чтобы была доступна кнока "Пауза".</p>
+
+<p>Preset (Пресет) определяет баланс между скоростью и качеством:</p>
+<ul>
+   <li>ultrafast — минимальная нагрузка на CPU, качество хуже, файлы крупные.</li>
+   <li>superfast / veryfast — самый распространённый вариант для игр, хороший баланс.</li>
+   <li>faster / fast / medium — повышает качество, нагрузка на CPU выше.</li>
+   <li>slow / slower / placebo — максимум качества, нагрузка очень высокая.</li>
+</ul>
+<p>Для обычного игрового захвата на x264 лучше выбрать veryfast. Если CPU позволяет, можно пробовать faster.</p>
+
+<h3>Rate Control (Управление битрейтом)</h3>
+<ul>
+   <li>CBR (Constant Bitrate) → постоянный битрейт, подходит для стриминга.</li>
+   <li>VBR (Variable Bitrate) → переменный битрейт, чаще для локальной записи.</li>
+   <li>CRF (Constant Rate Factor) → оптимальный вариант для записи на диск.</li>
+</ul>
+
+<ul>
+   <li>CFT = 18 - 23</li>
+   <li>Интервал ключевых кадров (0: авто) = 0 (для стриминга - 2)</li>
+   <li>Провиль: high</li>
+   <li>Настройка (Tune): "Нет" или "film"</li>
+   <li>Параметры x264 (через пробел): bframes=2 ref=2 deblock=1:1 psy=1/li>
+</ul>
+
+<p>У <strong><i>OBS</i></strong> на Wayland нет прямого захвата окна или игры, как в X11. Всё делается через <strong><i>PipeWire</i></strong> + <strong><i>xdg-desktop-portal</i></strong>. <strong><i>OBS</i></strong> не видит окна напрямую — он просит разрешение у композитора.</p>
+
+<p>Список источников:</p>
+<ul>
+  <li>Захват входного потока аудио (PulseAudio)</li>
+  <li>Захват выходного потока аудио (PulseAudio)</li>
+  <li>Изображение</li>
+  <li>Источник медиа</li>
+  <li>Клиент ввода JACK</li>
+  <li>Слайдшоу</li>
+  <li>Сцена</li>
+  <li>Текст (FreeType 2)</li>
+  <li>Устройство захвата аудио (ALSA)</li>
+  <li>Устройство захвата видео (PipeWire) (БЕТА)</li>
+  <li>Устройство захвата видео (V4L2)</li>
+  <li>Фоновый цвет</li>
+</ul>
+
+<p>В этом списке нет захвата экрана. Чтобы он появился нужно:</p>
+<pre><code class="language-bash">sudo pacman -S pipewire pipewire-pulse wireplubmer xdg-desktop-portal xdg-portal-desktop-wlr
+    # Это всё, что нужно для flatpack-версии
+
+pacman -S qt5-wayland qt5ct
+
+# и нужно настроить переменную окружения:
+export QT_QPA_PLATFORM=wayland
+export XDG_CURRENT_DESKTOP=sway
+export XDG_SESSION_DESKTOP=sway
+export XDG_CURRENT_SESSION_TYPE=wayland
+
+
+# dd
+export QT_QPA_PLATFORMTHEME="qt5ct"
+</code></pre>
+
+<p>В списке источников появился пункт "Захват экрана (PipeWire)". Но я даже не заметил, когда он появился. У меня установлен qt6-wayland. Я установил xdg-desktop-portal-wlr, перезагрузился. Переустановил OBS. Но не заметил, что пункт появился. А спустя пол часа смотрю: а он уже есть в списке. В какой момент он появился – я так и не понял.</p>
+
+<p><strong><i>wlrobs</i></strong> – An obs-studio plugin that allows you to screen capture on wlroots based wayland compositors. Он есть в AUR. Ссылка: <a href="https://hg.sr.ht/~scoopta/wlrobs">https://hg.sr.ht/~scoopta/wlrobs</a>.</p>
+<p>После установки плагина <strong><i>wlrobs</i></strong> в источниках пояивилось ещё два пункта:</p>
+<ul>
+   <li>Wayland output(dmabuf)</li>
+   <li>Wayland output(scpy)</li>
+</ul>
+<p>И первый из них (<strong><i>Wayland output(dmabuf)</i></strong>) работает лучше.</p>
+
+<p>Ссылочки: <a href="https://bbs.archlinux.org/viewtopic.php?id=278713">https://bbs.archlinux.org/viewtopic.php?id=278713</a>, <a href="https://obsproject.com/forum/threads/no-window-capture-arch-kde-wayland.176497/">https://obsproject.com/forum/threads/no-window-capture-arch-kde-wayland.176497/</a></p>
+<p>Подробная статья про OBS на Arch + Wayland: <a href="https://wiki.archlinux.org/title/Open_Broadcaster_Software">https://wiki.archlinux.org/title/Open_Broadcaster_Software</a></p>
+
+
+<ul>
+   <li>CBR</li>
+   <li>Битрейт: 6000 Kbps</li>
+   <li>Использовать свой размер буфера: unchecked</li>
+   <li>Интервал ключевых кадров (0: авто): 0 s</li>
+   <li>Предустановка нагрузки на ЦП (выше = меньше): faster</li>
+   <li>Профиль: (Нет)</li>
+   <li>Настройка: (Нет)</li>
+   <li>Параметры x264 (через пробел): пусто</li>
+</ul>
+
+
+<h2>Самое главное!</h2>
+<p>Чтобы запись была плавной и без подёргиваний, нужно поменять разрешение монитора. У меня по умолчанию оно выставлено в 144 Hz. А игровое видео я записывал с частотой в 60 fps. И видео получалось немного дёрганным. Просто нужно выставить разрешение на мониторе:</p>
+<pre><code class="language-bash">swaymsg output HDMI-A-2 mode 1920x1080@60Hz
+</code></pre>
+<p>Потом выставляем в OBS целочисленные FPS в 60 и записываем видео.</p>
+
+<h3>звук</h3>
+<p>Добавляем в источник "Захват входного потока аудио (PulseAudio)". При этом если мы сейчас поставим запись, то будет записывать две копии аудиодорожки. Это потому что по умолчанию в разделе "Аудио" тоже включён микрофон. Надо его отключить. Настройки → Аудио → Общие устройства аудио → Микрофон/дополнительный звук</p>
+<p>Behringer UMC22 по умолчанию пишет только в левый канал. В правом – тишина. Чтобы исправить это, заходим в Микшер звука (Audio Mixer) и в "Расширенные свойства звука" (Advanced Audio Properties). В колонке Mono ставим галочку. Всё. Теперь OBS будет писать в оба канала.</p>
+
+<h2>wf-recorder</h2>
+
+<p>Нужен pipewire, xdg-desktop-portal, xdg-desktop-portal-wlr</p>
+
+<pre><code class="language-bash">wf-recorder
+
+# файл video.mkv, битрейт: 60
+wf-recorder -f video.mkv -r 60
+
+# если ещё хочу записывать звук:
+wl-recorder -f video.mkv -r 60 -i -a
+
+# 
+wf-recorder -c h264_vaapi -d /dev/dri/renderD128 -p color_range=2
+
+# записываем через software x264 (рекомендую):
+# Нагрузка будет выше, но цвета должны быть лучше
+wf-recorder -c libx264 -p color_range=2 -f out.mp4
+
+# Вот так у меня виснет:
+wf-recorder -c libx264 -p preset=slow -p crf=18 -r 60
+# А вот так уже норм:
+wf-recorder -c libx264 -p preset=faster -p crf=18 -r 60
+
+# Решило проблему с цветами:
+wf-recorder \
+  --pixel-format rgb24 \
+  -c libx264rgb \
+  -f out.mkv
+
+# Тоже работает:
+  wf-recorder \
+  -c libx264 \
+  -p vf=eq=gamma=0.85 \
+  -f out.mp4
+
+
+# Рекомендовано гпт:
+wf-recorder \
+  --pixel-format rgb24 \
+  -c libx264rgb \
+  -p crf=18 \
+  -f out.mkv
+</code></pre>
+
+<pre><code class="language-bash"># Несжатое видео:
+wf-recorder --pixel-format rgb24 -c rawvideo -f capture.avi
+
+# Нормальное сжатие:
+ffmpeg -i capture.avi \
+  -c:v libx264rgb \
+  -preset slow \
+  -crf 18 \
+  final.mkv
+</code></pre>
+
+<p>НО! avi - старый формат. Он почему-то меняет rgb на bgr. Если я хочу записывать несжатое видео, то лучше писать его в bgr:</p>
+<pre><code class="language-bash">wf-recorder --pixel-format bgr24 -c rawvideo -f capture.avi
+
+# А потом сжимаем его:
+ffmpeg -i capture.avi -c:v libx264rgb -preset slow -crf 18 final.mkv
+</code></pre>
+
+<p>Либо можно писать несжатое видео в .nut. Тогда не будет RGB-брака.</p>
+<pre><code class="language-bash">
+wf-recorder --pixel-format rgb24 -c rawvideo -f capture.nut
+</code></pre>
+
+
+
+<h3>v4l2-ctl</h3>
+
+
+<p>Проверим, видит ли система камеру:</p>
+<pre><code class="language-bash">
+ls /dev/video*
+   # /dev/video0  /dev/video1
+</code></pre>
+
+
+<pre><code class="language-bash">
+sudo pacman -S v4l-utils
+
+# Проверяем версию
+v4l2-ctl --version
+
+# Проверим камеру через v4l-utils:
+v4l2-ctl --list-devices
+</code></pre>
+
+<p>Форматы, которые поддерживает веб-камера:
+<pre><code class="language-bash">v4l2-ctl --list-formats-ext
+</code></pre>
+
+
+<h3>s</h3>
+
+<p>Экран</p>
+<pre><code class="language-bash">
+mkfifo /tmp/screen_fifo
+wf-recorder -f /tmp/screen_fifo.mkv -g 1920x1080+0+0
+</code></pre>
+
+<p>Веб-камера + наложение:</p>
+<pre><code class="language-bash">
+ffmpeg -y -i /tmp/screen_fifo.mkv -f v4l2 -i /dev/video0 \
+-filter_complex "[1:v] scale=320:240 [cam]; [0:v][cam] overlay=W-w-10:H-h-10" \
+-c:v libx264 -preset veryfast -crf 23 final_output.mkv
+</code></pre>
+
+<pre><code class="language-bash"># нихрена нерабочий
+
+ffmpeg -y -i /tmp/screen_fifo.mkv -f v4l2 -i /dev/video0 \
+-filter_complex "[1:v] scale=320:-1:force_original_aspect_ratio=decrease [cam]; [0:v][cam] overlay=W-w-10:H-h-10" \
+-c:v libx264 -preset veryfast -crf 23 final_output.mkv
+</code></pre>
+
+
+
+<p>Моя проблемка: <a href="https://obsproject.com/forum/threads/system-stuttering-when-using-pipewire-screen-capture-on-kde-plasma.172753/">https://obsproject.com/forum/threads/system-stuttering-when-using-pipewire-screen-capture-on-kde-plasma.172753/</a></p>
+
+
+
+<h3>веб-камера</h3>
+
+<pre><code class="language-bash"># v4l2src содержится именно в этом пакете (good plugins):
+sudo pacman -S gst-plugins-good
+
+# элемент x264enc содержится в плагине gst-plugins-ugly
+sudo pacman -S gst-plugins-ugly
+</code></pre>
+
+<p>Проверим, видит ли GStreamer источник камеры:</p>
+<pre><code class="language-bash">
+gst-device-monitor-1.0 Video
+</code></pre>
+
+<p>Запускаем запись:</p>
+<pre><code class="language-bash">gst-launch-1.0 v4l2src device=/dev/video0 ! videoconvert ! x264enc ! mp4mux ! filesink location=output.mp4
+
+# Чуть изменённый вариант (с параметром "e"):
+gst-launch-1.0 -e v4l2src device=/dev/video0 ! videoconvert ! x264enc ! mp4mux ! filesink location=output.mp4
+</code></pre>
+<p>В примере выше мы записываем файл .mp4. И его нужно корректно завершать. Если мы просто нажмём Ctrl+C, то файл потом не запустится. Поэтому надо запускать запись с параметром <strong><i>-e</i></strong>. Тогда Ctrl+C нормально завершит запись. -e = End Of Stream корректно.</p>
+
+<p>Запись в формате .mkv:</p>
+<pre><code class="language-bash">
+gst-launch-1.0 v4l2src device=/dev/video0 ! videoconvert ! x264enc ! matroskamux ! filesink location=output.mkv
+</code></pre>
+
+<h2>Kooha</h2>
+
+<pre><code class="language-bash">
+
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop Files</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Desktop Files</h1>
+
+<pre><code class="language-bash"># Глобальная директория:
+/usr/share/applications/
+
+# Пользовательская директория:
+~/.local/share/applications/
+</code></pre>
+
+
+<p>Допустим, у меня установлена игра Stardew Valley в <strong><i>~/'GOG Games'/'Stardew Valley'/</i></strong>. Для запуска игры нужно запустить скрипт <strong><i>start.sh</i></strong> в этой папке.</p>
+
+<p>.desktop-файл — это не просто «ярлык», а описание приложения по стандарту <strong><i>freedesktop.org</i></strong>.</p>
+<pre><code class="language-bash">[Desktop Entry]
+Type=Application
+Name=Stardew Valley
+Comment=Farming RPG
+Exec=/home/username/games/StardewValley/start.sh
+Path=/home/username/games/StardewValley
+Terminal=false
+Categories=Game;
+
+# Icon=/home/username/games/StardewValley/icon.png
+</code></pre>
+
+<p>Минимум, который реально нужен:</p>
+<pre><code class="language-bash">[Desktop Entry]
+Type=Application
+Name=Stardew Valley
+Exec=/path/to/start.sh
+</code></pre>
+
+<p>Далее обновляем КЭШ:</p>
+<pre><code class="language-bash"># Обычно не обязательно, но полезно:
+update-desktop-database ~/.local/share/applications/
+</code></pre>
+
+<p>В Sway иногда нужен env, особенно для игр:</p>
+<pre><code class="language-bash">Exec=env XDG_SESSION_TYPE=wayland /home/username/games/StardewValley/start.sh
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

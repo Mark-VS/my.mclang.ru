@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Wine</h1>
+
+<p>Установка:</p>
+<pre><code class="language-bash">sudo pacman -S wine wine-mono wine-gecko winetricks
+</code></pre>
+
+<ul>
+   <li>wine-mono – это свободная реализация Mono, предназначенная для запуска программ на .NET в Wine. Она эмулирует работу .NET Framework (старый), позволяя запускать программы, написанные на C#, которые зависят от .NET.</li>
+   <li>wine-gecko – HTML / встроенный браузер</li>
+   <li>winetricks – Установка зависимостей (менеджер зависимостей)</li>
+   <li>vcrun – Visual C++</li>
+   <li>dotnet – .NET Core/5/6 (новый) !!! Новый .NET Core ставить в Linux – не в Wine !!! (sudo pacman -S dotnet-sdk)</li>
+   <li>dxvk – DirectX → Vulkan</li>
+</ul>
+
+<p>Создать префикс:</p>
+<pre><code class="language-bash">WINEPREFIX=~/wine/myapp winecfg
+</code></pre>
+<p>Это создаст папку <strong><i>~/wine/myapp</i></strong> и откроет <strong><i>winecfg</i></strong> только для этой программы.</p>
+
+<p>Запуск программы из этого префикса:</p>
+<pre><code class="language-bash">WINEPREFIX=~/wine/myapp wine program.exe
+</code></pre>
+
+<h3>префикс</h3>
+<p>Для обычного случая:</p>
+<pre><code class="language-bash">winecfg
+</code></pre>
+
+<p>Для отдельного префикса:</p>
+<pre><code class="language-bash">WINEPREFIX=~/wine/myapp winecfg
+</code></pre>
+
+<p>Для 32-битного префикса:</p>
+<pre><code class="language-bash">WINEARCH=win32 WINEPREFIX=~/wine/oldapp winecfg
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

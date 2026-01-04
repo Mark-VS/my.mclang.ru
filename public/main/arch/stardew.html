@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stardew</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>stardew</h1>
+
+<h2>Локальный мультиплеер</h2>
+
+<p>Для того, чтобы работал локальный мультиплеер, необходим плагин <strong><i>Stardew Multiplayer Server Mod</i></strong>. Его можно скачать с сайта <a href="https://www.nexusmods.com/stardewvalley/mods/20659?tab=description">nexusmods.com</a>.</p>
+<p>Но прежде, чем ставить мод, необходимо установить <strong><i>SMAPI</i></strong>. Это загрузчик(менеджер) модов. Официальный сайт: <a href="https://smapi.io">smapi.io</a>. Скачиваем оттуда SMAPI в <strong>zip</strong>-архиве, распаковываем архив и запускаем скрипт <strong><i>install on Linux.sh</i></strong>. Указываем путь к установленной игре. В моём случае это дефолтный путь: <strong><i>~/'GOG Games'/'Stardew Valley'/game/</i></strong>. Теперь, когда мы запускаем игру привычным образом, то она запускается через <strong><i>SMAPI</i></strong>. В процессе запуска игры <strong><i>SMAPI</i></strong> подгружает моды из папки <strong><i>~/'GOG Games'/'Stardew Valley'/game/Mods/</i></strong>. У меня в этой папке уже есть <strong><i>ConsoleCommands</i></strong> и <strong><i>SaveBackup</i></strong>. Видимо, они поставились вместе с установкой <strong><i>SMAPI</i></strong>.</p>
+<p>Теперь скачиваем <strong><i>Stardew Multiplayer Server Mod</i></strong>. Он представляет собой <strong>zip-архив</strong>. Распаковываем его. Внутри папка с тремя файлами: <strong><i>config.json</i></strong>, <strong><i>manifest.json</i></strong> и <strong><i>Stardew-Multiplayer-Server.dll</i></strong>. Закидываем эту папку в <strong><i>~/'GOG Games'/'Stardew Valley'/game/Modes/</i></strong>. Теперь можно запускать <strong><i>Stardew Valley</i></strong> и мод подгрузится из папки <strong><i>~/'GOG Games'/'Stardew Valley'/game/Mods/'Stardew Multiplayer Server Mod'/</i></strong>.</p>
+<p>Если мод не работает, то можно изучить конфиг <strong><i>~/.config/StardewValley/ErrorLogs/SMAPI-latest.txt</i></strong>.</p>
+
+<pre><code class="language-bash"># Распаковать SMAPI:
+unzip 'SMAPI 4.3.2 4.3.2.zip' -d smapi 
+
+# Распаковать Stardew Multiplayer Server Mod:
+unzip 'Stardew Multiplayer Server Mod-20659-1-0-6-1733899146.zip' -d StardewMultiplayerMod
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

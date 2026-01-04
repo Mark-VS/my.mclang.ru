@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sway-extra</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>sway extra</h1>
+
+<h2>scratchpad</h2>
+
+<p>В следующем примере мы запускаем <strong>foot</strong> с <i>--app-id scratch-term</i>. Потом прячем окно с этим <strong><i>app-id</i></strong> в <strong>scratchpad</strong>. И даём возможность достать терминал именно с этим <strong><i>app-id</i></strong>.</p>
+<pre><code class="language-bash">bindsym --to-code $mod+p exec foot --app-id scratch-term
+for_window [app_id="scratch-term"] move scratchpad
+bindsym --to-code $mod+Shift+p [app_id="scratch-term"] scratchpad show
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

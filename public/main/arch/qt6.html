@@ -4,39 +4,278 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qt6</title>
-    <style>
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-size: 1.14rem;
-            background-color: #282C34;
-            color: #8AA3AD;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        a { color: #61AFEF; }
-        code { font-size: 1rem; }
-    </style>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
+<script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
 <h1>Qt</h1>
 
-<ul>
-<li>
 <h3>Переменные</h3>
-<pre>
-    QT_QPA_PLATFORM=wayland
-    QT_QPA_PLATFORMTHEME=qt6ct
-    QT_QPA_PALETTE="WindowText:#FF0000;Text:FF0000;ButtonText:#FF0000"
-    QT_STYLE_OVERRIDE=kvantum
-    QT_STYLE_SHEET=/home/mark/redtext.qss
-</pre>
-</li>
 
-<li><h3>Qt6ct</h3>
-<pre><code>
+<p style="margin-bottom: 6px">Пока я не задал:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">QT_QPA_PLATFORMTHEME=qt6ct
+</code></pre>
+<p style="margin-top: 6px">— <strong><i>qt6ct</i></strong> вообще не участвует.</p>
+
+<p style="margin-bottom: 6px">Некоторые переменные, которые могут пригодиться:</p>
+<ul style="margin-top: 6px">
+    <li>QT_QPA_PLATFORM=wayland</li>
+    <li>QT_QPA_PLATFORMTHEME=qt6ct</li>
+    <li>QT_QPA_PALETTE="WindowText:#FF0000;Text:FF0000;ButtonText:#FF0000"</li>
+    <li>QT_STYLE_OVERRIDE=kvantum</li>
+    <li>QT_STYLE_SHEET=/home/mark/redtext.qss</li>
+</ul>
+
+<p style="margin-bottom: 6px">Основная переменная: <strong>QT_STYLE_OVERRIDE</strong>. Она содержит в себе стиль. По умолчанию она пустая. А если она пустая, то <strong>Qt</strong>-приложения откатываются на <strong><i>Fusion</i></strong>. Так что скорее всего по умолчанию все приложения запускаются именна в стиле <strong><i>Fusion</i></strong>. В <strong>Qt</strong> также всегда предустановлены ещё два стиля: <strong><i>Breeze</i></strong> и <strong><i>Windows</i></strong>. Если я хочу запустить, например, программу <strong><i>Featherpad</i></strong> с применённым стилем <strong><i>Breeze</i></strong>, то это можно сделать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">QT_STYLE_OVERRIDE=Breeze featherpad
+</code></pre>
+
+
+<p><strong><i>Breeze</i></strong>, <strong><i>Fusion</i></strong>, <strong><i>Windows</i></strong> – это встроенные <strong>Qt</strong>-стили. Они – часть <strong>Qt</strong>. Они не лежат в <strong><i>/usr/share/themes/</i></strong>. Не устанавливаются пакетами. Если <strong>Qt</strong> вообще работает, то <strong><i>Breeze</i></strong>, <strong><i>Fusion</i></strong> и <strong><i>Windows</i></strong> всегда есть.</p>
+<p style="margin-bottom: 6px"><strong>Qt</strong>-стили – это плагины. Физически они находятся в <strong><i>/usr/lib/qt6/plugins/styles/</i></strong>.</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ls /usr/lib/qt6/plugins/styles/
+  # breeze6.so  libqt6ct-style.so
+</code></pre>
+<p style="margin-top: 6px"><strong><i>breeze6.so</i></strong> – это плагин <strong>Breeze</strong>. Стили <strong>Fusion</strong> и <strong>Windows</strong> встроены в <strong>Qt</strong>. А <strong><i>libqt6ct-style.so</i></strong> – это не стиль, а переключатель, который подменяет стиль через <strong>qt6ct</strong>.</p>
+<p>Можно ли установить ещё <strong>Qt</strong>-стили как <strong><i>.so</i></strong> ? Почти нет! В <strong>Qt6</strong> классических <strong>QStyle</strong>-плагинов почти не осталось. Фактически есть один путь: <strong>Kvantum</strong>.</p>
+
+<h3>Kvantum</h3>
+<p>Kvantum – не QStyle, а SVG-движок, полноценный QStyle-бэкенд. Работает в <strong><i>Qt5</i></strong> и <strong><i>Qt6</i></strong>.</p>
+<pre><code class="language-bash">sudo pacman -S kvantum
+</code></pre>
+<ul>
+   <li>kvantum – движок для qt6</li>
+   <li>kvantum-qt5 – движок для qt5</li>
+</ul>
+
+<p>После установки <strong>kvantum</strong>, в <strong>qt6ct</strong> в списке тем появились: <strong><i>kvantum</i></strong> и <strong><i>kvantum-dark</i></strong>.</p>
+<p>Темы устанавливаются в <strong><i>/usr/share/Kvantum/</i></strong>. У меня там уже установлено достаточно много. Видимо, в пакете <strong>Kvantum</strong> они есть по умолчанию. А Utterly-Nord... я ставил эту тему для KDE ради обоев. Возможно, она тоже сюда поставилась. Utterly-Nord содержит в том числе и Kvantum-темы.</p>
+<p style="margin-bottom: 6px">После установки <strong>Kvantum</strong> запускаем <strong><i>kvantummanager</i></strong>. Здесь есть несколько вкладок:</p>
+<ul style="margin-top: 6px; margin-bottom: 10px">
+   <li>Установка/Обновление тем</li>
+   <li>Изменение или удаление тем</li>
+   <li>Настройка активной темы</li>
+   <li>Темы приложений</li>
+</ul>
+<ul style="margin-top: 10px">
+   <li>На первой вкладке мы можем установить тему. Что это значит? Если мы выберем тему из /usr/share/Kvantum и нажмём "Установить", то эта тема скопируется из <strong><i>/usr/share/Kvantum/</i></strong> в <strong><i>~/.config/Kvantum/</i></strong>. У локальной версии будет приоритет.</li>
+   <li>На второй вкладке как раз можно применить тему ко всем Qt6-приложениям. Выбираем тему и нажимаем <i>"Использовать тему"</i>. Я обычно ставлю <strong><i>Utterly-Nord-Solid</i></strong>.</li>
+   <li>На третьей вкладке настраиваем текущую тему.</li>
+   <li>На четвёртой вкладке можно применить тему к конкретному приложению.</li>
+</ul>
+<p style="margin-bottom: 6px">Когда я применяю темы в <strong><i>kvantummanager</i></strong>, то конфигурация записывается в файл <strong><i>~/.config/Kvantum/kvantum.kvconfig</i></strong>. Так что можно просто вписывать названия тем туда, если не хочется использовать графическое приложение:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">[General]
+theme=Utterly-Nord
+</code></pre>
+<p style="margin-top: 6px">А настройки конкретных тем, например <strong>Utterly-Nord-Solid</strong>, находятся в файле <strong><i>~/.config/Kvantum/Utterly-Nord-Solid#/Utterly-Nord-Solid#.kvconfig</i></strong>.</p>
+
+<h3>Прозрачность</h3>
+<p style="margin-bottom: 6px">Если нужно понизить прозрачность в <strong><i>Utterly-Nord</i></strong>, то это можно сделать в файле <strong><i>~/.config/Kvantum/Utterly-Nord/Utterly-Nord.kvconfig</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">[%General]
+reduce_window_opacity=40    # прозрачность окон, 0 - убрать прозрачность
+reduce_menu_opacity=40      # просзрачность меню
+
+opaque=app1,app2,...        # если сюда вписать приложение, то прозрачность к нему не будет применяться
+opaque_colors=false
+
+[Hacks]
+transparent_ktitle_label=true
+transparent_dolphin_view=true
+transparent_pcmanfm_sidepane=true
+transparent_menutitle=true
+transparent_pcmanfm_view=true
+</code></pre>
+
+<p style="margin-top: 6px">Либо в самом <strong>kvantummanager</strong>:
+Настройка активной темы -> Компоновка и общий вид -> Уменьшить непрозрачность меню на 10%
+    уменьшаем до 0, но меню всё равно немного прозрачное.
+</p>
+
+<h4>Текст: цвет, размер</h4>
+<p>~/.config/Kvantum/Utterly-Nord-Solid#/Utterly-Nord-Solid#.kvconfig</p>
+<pre><code class="language-bash"># ~/.config/Kvantum/Utterly-Nord-Solid#/Utterly-Nord-Solid#.kvconfig
+...
+[GeneralColors]
+text.color=#eceff4
+window.text.color=#eceff4
+button.text.color=#eceff4
+disabled.text.color=#d8dee9
+tooltip.text.color=#eceff4
+...
+</code></pre>
+<ul>
+   <li>window.color – в <strong>featherpad</strong> и в <strong>falkon</strong> влияет на цвет неактивных кнопок-иконок. Фон всплывающего окна, когда я разворачиваю URL-строку. А также фон окна "О программе" в <strong>falkon</strong>. В <strong>Strawberry</strong> – неактивная кнопка на панели управления, а также цвет хрени с цветомузыкой. В <strong>qtractor</strong> контентный фон меняется.</li>
+   <li>base.color – в <strong>qtractor</strong> меняется фон некоторых областей. В <strong>strawberry</strong> меняется почти весь фон.</li>
+   <li>alt.base.color – в <strong>strawberry</strong> меняет фон некоторых композиций (через одну).</li>
+   <li>button.color – хз</li>
+   <li>light.color – хз</li>
+   <li>mid.light.color – хз</li>
+   <li>dark.color – хз</li>
+   <li>highlight.color – подсвечивается фон текста на выбранном треке в плейлисте в Strawberry</li>
+
+   <li>text.color – в <strong>falkon</strong> меняет цвет текста в URL-строке и в строке duck-поисковика. В <strong>qbittorrent</strong> – тоже текст в строке поиска. В <strong>featherpad</strong> вообще ничего не меняет. В <strong>qtractor</strong> тоже ничего не меняет. В <strong>strawberry</strong> поменялись некоторые надписи.</li>
+   <li>window.text.color – в <strong>featherpad</strong> меняется цвет кнопок-иконок. В <strong>strawberry</strong> некоторые надписи тоже меняеются. В <strong>qtractor</strong> – тоже некоторые надписи. В <strong>qbittorrent</strong> – тоже.</li>
+   <li>button.text.color – хз</li>
+   <li>tooltip.text.color – цвет текста во всплывающих окнах-подсказках. Также в браузере <strong><i>falkon</i></strong> цвет текста, который показывает куда ведёт ссылка, на которую я навожу курсор. Меняется во всех приложениях.</li>
+   <li>link.color – цвет текста ссылок. Например, если открыть окно "О программе" в featherpad, или в falkon, там будет ссылка на оф. сайт или контакты разработчиков.</li>
+   <li>link.visited.color – хз</li>
+</ul>
+
+<pre><code class="language-bash">
+# пункты меню
+[PanelButtonCommand]
+text.normal.color        # цвет текста в пунктах меню / цвет текста в заголовках вкладок в falkon/featherpad
+text.focus.color         # цвет текста на вкладке falkon при наведении
+text.press.color         # активный плейлист в strawberry
+text.toggle.color        # активная вкладка в falkon и в featherpad
+
+[GeneralColors]
+disabled.text.color        # цвет текста в выделенных пунктах меню / в неактивных пунктах меню
+   # здесь почему-то не все цвета работают
+   # green, blue, purple, grey – работают; yellow, white – нет
+   # #ffff00 (чисто жёлтый), #ffff99 (светло-жёлтый) – не работает
+   # #ffd700 (золотистый), #ffeb3b, ffc107 (оранжево-жёлтый) – работает
+     # #d8dee9 – становится чисто белым
+text.color               # в featherpad – цвет текста в строке состояния, в "о программе", в окошке открытия/сохранения файла
+window.text.color        # в falkon – цвет текста в URL-строке, в строке поиска, в "о программе", в окошке открытия/сохранения файла. А также при нажатии на кнопки-иконки в featherpad.
+   # text.color и window.text.color обычно проявляются в окнах "о программе", "открыть файл" и т.д.
+link.color          # цвет текста ссылок. Например, в featherpad если мы откроем окно "О программе", там будет ссылка на страничку автора.
+                    # в falkon будет ссылка на официальный сайт. 
+</code></pre>
+
+<p style="margin-bottom: 6px">То есть:</p>
+<ul style="margin-top: 6px">
+    <li>Если мы хотим изменить цвет текста, который мы будем вводить вручную, то нам надо изменять пункт <strong><i>text.color</i></strong>. Сюда относится поиск (Ctrl+F), URL-строка в браузере, имя файла в окне "открыть файл" и т.д. А также список файлов и папок в окне открытия/сохранения файла.</li>
+    <li><strong><i>window.text.color</i></strong> – этим цветом отображается текст окна: например, информация в окне "о программе", или текст в строке состояния в featherpad/strawberry, или текст в окне "Вы хотите сохранить изменения перед выходом из программы?". В <strong><i>featherpad</i></strong> также эти цветом отображаются кнопки-иконки на панели.</li>
+</ul>
+<ul>
+    <li><strong><i>text.normal.color</i></strong> – дефолтный цвет текста в меню и панелях. Сюда относится цвет текста в пунктах меню, в заголовках вкладок</li>
+    <li><strong><i>text.focus.color</i></strong> – цвет пунктов меню и вкладок, на которые я навожу курсор. Цвет текста кнопок "Сохранить", "Отменить" и т.д., когда они в фокусе. Цвет текста в окне открытия файла, когда я навожу курсор на файл.</li>
+    <li><strong><i>text.toggle.color</i></strong> – активная вкладка</li>
+</ul>
+
+
+
+
+<h2>Особенности применения цетовых схем:</h2>
+<p>Поведение какое-то нелогичное. Например, вот две настройки:</p>
+<pre><code class="language-bash">[GeneralColors]
+text.color=white
+...
+[PanelButtonCommand]
+text.focus.color=blue
+...
+</code></pre>
+<p>Этими цветами отображается текст в окне открытия файла. Список файлов и папок отображается белым цветом, а когда я навожу курсор на конкретный файл, то текст становится синим. А когда я убираю курсор с имени файла, то курсор становится опять белым.</p>
+<pre><code class="language-bash">[GeneralColors]
+text.color=yellow
+...
+[PanelButtonCommand]
+text.focus.color=blue
+...
+</code></pre>
+<p>Теперь цвет текста файлов жёлтый. Когда я навожу курсор, он становится синим. Всё работает ожидаемо.</p>
+<pre><code class="language-bash">[GeneralColors]
+text.color=brown
+...
+[PanelButtonCommand]
+text.focus.color=blue
+...
+</code></pre>
+<p>Теперь цвет текста в именах файлов коричнывый. Но когда я навожу курсор на конкретный файл, цвет текста не становится синим - он остаётся коричневым.</p>
+<pre><code class="language-bash">[GeneralColors]
+text.color=black
+...
+[PanelButtonCommand]
+text.focus.color=blue
+...
+</code></pre>
+<p>Цвет текста у файлов чёрный. Навожу курсор на файл - цвет по-прежнему чёрный. Не меняется при наведении на синий.</p>
+
+<h3>ответ гпт</h3>
+<p>В <strong><i>Kvantum</i></strong> здесь действительно есть логика, но она неочевидная и связана не с самим цветом, а с контрастом, яркостью и внутренними проверками темы/Qt. Kvantum / Qt не всегда применяет text.focus.color, если считает, что новый цвет “хуже читается” или “недостаточно отличается” от обычного текста или фона. <strong><i>text.color</i></strong> – базовый цвет текста. Это обычный, неактивный цвет. <strong><i>text.focus.color</i></strong> – не «обязательный». Этот цвет НЕ применяется напрямую всегда. Он проходит через Qt-проверки контраста, особенно в: <strong><i>QListView</i></strong>, <strong><i>QFileDialog</i></strong> и <strong><i>tem views (списки, деревья)</i></strong>. Главная причина: яркость. Если <strong><i>text.color</i></strong> темнее или близок по яркости к <strong><i>text.focus.color</i></strong>, Qt решает, что “смысла менять цвет нет”.</p>
+<p><strong>Короткое правило, которое реально работает</strong>: если базовый цвет текста тёмный — hover-цвет должен быть СИЛЬНО светлее, иначе <strong>Qt</strong> его просто проигнорирует.</p>
+
+<h4 style="margin-bottom: 6px">Что неплохо бы поменять в Utterly-Nord-Solid:</h4>
+<pre style="margin-top: 6px"><code class="language-bash">[GeneralColors]
+text.color=#87928a             # светло-серый
+# window.text.color=#6F8476    # добавляем чуть-чуть болотно-зелёного оттенка
+# window.text.color=#708E7A    # ещё чуть светлее и зелёно-болотнее
+window.text.color=#6E937A      # чуть больше зеленоватости
+tooltip.text.color=#6AAFD8     # цвет текста во всплывающих окнах-подсказках
+
+[PanelButtonCommand]
+text.normal.color=#87928a      # светло-серый
+# disabled.text.color=#5F6762  # если оставить по умолчанию, то disabled будет белым.
+disabled.text.color=#545B57    # ещё более блеклый/затемнённый
+</code></pre>
+
+<p style="margin-bottom: 6px">Некоторые дефолтные настройки в Utterly-Nord-Solid#:</p>
+<pre style="margin-top: 6px"><code class="language-bash">[GeneralColors]
+link.color=#81a1c1    # цвет ссылок. Например, в featherpad в "О программе" в тексте есть ссылки
+</code></pre>
+
+
+<p>Потестить <strong>qt</strong>-стили можно на featherpad, strawberry, qtractor, sqlitebrowser, falkon, qimgv, qps (Qt Task Manager)</p>
+
+
+<h3>Шрифт</h3>
+<p>Шрифт можно задать в <strong><i>qt6ct</i></strong>.</p>
+
+<p>Нормальные стили: KvAdaptaDark, KvGnomeDark, KvGnomish, KvMojave, KvantumAlt, Utterly-Nord, Utterly-Nord-Solid (Без прозрачности)</p>
+<p>Последнее, что я ставил: <strong><i>Liberation Mono 12</i></strong>.</p>
+
+<h3>Подводим итог</h3>
+<p>Я хочу запустить приложение <strong><i>featherpad</i></strong> с применённым Kvantum-стилем <strong>Utterly-Nord</strong>. Я в <strong><i>kvantummanager</i></strong> выбираю тему "Utterly-Nord". Я выбираю в <strong>qt6ct</strong> стиль <strong><i>kvantum</i></strong>. Я присваиваю переменной <strong>QT_QPA_PLATFORMTHEME</strong> значение <strong><i>qt6ct</i></strong> и запускаю <strong><i>featherpad</i></strong>.</p>
+<pre><code class="language-bash"># Или так:
+QT_QPA_PLATFORMTHEME=qt6ct featherpad
+   # предпочтительней
+   # минимальный и корректный вариант для Sway
+
+# или можно так:
+QT_STYLE_OVERRIDE=Kvantum featherpad
+</code></pre>
+
+<p style="margin-bottom: 6px">Что делает <strong>Qt</strong> – по шагам:</p>
+<ul style="margin-top: 6px">
+   <li>Загружается QPA-платформа</li>
+   <li>Загружается <strong><i>QT_QPA_PLATFORMTHEME=qt6ct</i></strong> – теперь Qt знает, что все настройки надо брать из qt6ct</li>
+   <li>Обрабатывается <strong><i>QT_STYLE_OVERRIDE=Kvantum</i></strong> – <strong>Qt</strong> видит, что стиль задан вручную. QT_STYLE_OVERRIDE имеет приоритет над QT_QPA_PLATFORM</li>
+</ul>
+
+<p style="margin-bottom: 6px">Можно сделать вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">QT_QPA_PLATFORMTHEME=qt6ct QT_STYLE_OVERRIDE=Breeze featherpad
+</code></pre>
+<p style="margin-top: 6px">Тут получается, что я переопределил временно стиль на <strong>Breeze</strong>, но оставил иконки, шрифты, DPI – из <strong>qt6ct</strong> (А в <strong>qt6ct</strong> у меня выставлен стиль kvantum).</p>
+
+<p style="margin-bottom: 6px">Переменная <strong>QT_QPA_PLATFORM</strong> у меня по умолчанию пустая. Но <strong>Qt</strong> видит, что у меня в <strong>XDG_SESSION_TYPE</strong> есть значение <strong><i>wayland</i></strong> и берёт его оттуда. Но если мне по каким-то причинам нужно точно указать, чтобы Qt шёл через Wayland (например, если он запускается через XWayland), то:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">QT_QPA_PLATFORM=wayland featherpad
+</code></pre>
+<p style="margin-top: 6px">Но лучше так не делать. Потому что некоторые приложения работают только через <strong>XWayland</strong> или имеют баги в native <strong>Wayland</strong>. Я лишаю Qt свободы выбора, которую разработчики <strong>осознанно заложили</strong>. А также ломаю fallback: если <strong>Wayland</strong> временно недоступен, <strong>Qt</strong> не сможет откатиться на <strong>xcb</strong>.</p>
+
+<p style="margin-bottom: 6px">Принудительно через <strong>XWayland</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">QT_QPA_PLATFORM=xcb featherpad
+</code></pre>
+
+<h2>Qt6ct</h2>
+
+<p style="margin-bottom: 6px">Когда я запускаю <strong><i>qt6ct</i></strong>, то вижу предупреждение: "Приложение не настроено. Переменная среды <strong>QT_QPA_PLATFORMTHEME</strong> не установлена (требуемые значения: <strong>qt6ct</strong> или <strong>qt5ct</strong>)". Поэтому сначала устанавливаем эту переменную, а потом запускаем <strong><i>qt6ct</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># устанавливаем env-переменную и запускаем программу:
+export QT_QPA_PLATFORMTHEME=qt6ct
+featherpad
+
+# или передаёт в программу shell-переменную:
+QT_QPA_PLATFORMTHEME=qt6ct featherpad
+
+# или вот так:
+env QT_QPA_PLATFORMTHEME=qt6ct featherpad
+</code></pre>
+
+<p style="margin-bottom: 6px">То есть, что нужно, чтобы тема применилась: в <strong><i>qt6ct</i></strong> я устанавливаю какую-нибудь тему (например, Breeze). Далее я присваиваю переменной <strong>QT_QPA_PLATFORMTHEME</strong> значение <strong>qt6ct</strong>. И теперь программы будут запускаться в стиле Breeze.</p>
+<pre style="margin-top: 6px"><code>
     ## Для начала ставим Qt6ct, чтобы настраивать стили:
         sudo pacman -S qt6ct
         
@@ -111,9 +350,8 @@
     ## А если запустим любое Qt6-приложение, то цветовая схема применится:
         QT_QPA_PLATFORMTHEME=qt6c6 strawberry
 </code></pre>
-</li>
 
-<li><h3>Kvantum</h3>
+<h3>Kvantum</h3>
 <pre><code>
     ## Если нам нужно устанавливать новые схемы и более гибко управлять темами, то нам понадобится Kvantum.
         sudo pacman -S kvantum
@@ -281,10 +519,9 @@
     
     ## Но у мне этот способ не заработал.
         
-</code></pre></li>
+</code></pre>
 
-
-</ul>
-
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

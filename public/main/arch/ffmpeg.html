@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ffmeg</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>ffmpeg</h1>
+
+
+<h3>Показать информацию про звук (кодировщик, частоту дискретизации)</h3>
+<p>Первый способ:</p>
+<pre><code class="language-bash">ffmpeg -i input.mkv
+</code></pre>
+<p>Второй способ:</p>
+<pre><code class="language-bash">ffprobe -i input.mkv -show_streams -select_streams a
+   
+  # выводит то же, что и предыдущая команда,
+  # плюс блок "[STREAM]":
+
+  # ...
+  # [STREAM]
+  # index=1
+  # codec_name=aac
+  # codec_type=audio
+  # sample_rate=48000
+  # channels=2
+  # ...
+  # [/STREAM]
+</code></pre>
+
+<p>У меня есть файл <strong><i>input.mkv</i></strong>. В этом файле у меня звук закодирован с помощью <strong><i>FFmpeg AAC</i></strong>. Частота дискретизации звука: <strong><i>48 kHz</i></strong>. Кодировщик видео: <strong><i>x264</i></strong>. Я хочу изменить частоту звука с <strong><i>48 kHz</i></strong> на <strong><i>44.1 kHz</i></strong>.</p>
+<pre><code class="language-bash"># Эта команда перекодирует и видео тоже:
+ffmpeg -i input.mkv -ar 44100 output.mkv
+
+# Меняем частоту дискретизации и перекодируем звук:
+ffmpeg -i input.mkv -c:v copy -ar 44100 -c:a aac output.mkv
+   # при этом видео мы оставляем как есть
+</code></pre>
+<ul>
+   <li>-i – input – входной файл</li>
+   <li>-c:v copy – копирует видео без перекодирования</li>
+   <li>-ar 44100 – audio rate – меняет частоту аудио</li>
+   <li>-c:a aac – кодирует звук в AAC (100% совместим с KDEnlive)</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

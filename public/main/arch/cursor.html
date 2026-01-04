@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursor</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Cursor</h1>
+
+<p style="margin-bottom: 6px">В не-GNOME среде такой способ не работает:</p>
+<pre style="margin-top: 6px"><code class="language-bash">gsettings set org.gnome.desktop.interface cursor-theme "Adwaita"
+</code></pre>
+
+<p style="margin-bottom: 6px">Установим курсоры <strong><i>bibata-cursor-theme</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">yay -S bibata-cursor-theme
+</code></pre>
+<p>В <strong><i>/usr/share/icons/</i></strong> появились папки: <strong><i>Bibata-Modern-Amber</i></strong>, <strong><i>Bibata-Modern-Amber-Right</i></strong>, ...</p>
+
+<p style="margin-bottom: 6px">Смена курсора без сохранения (после перезагрузки <strong><i>sway</i></strong> курсор сбросится):</p>
+<pre style="margin-top: 6px"><code class="language-bash">swaymsg seat seat0 xcursor_theme Bibata-Modern-Amber 24
+</code></pre>
+
+<p style="margin-bottom: 6px">Чтобы курсор не сбрасывался добавим его в конфиг ~/.config/sway/config в начало (до exec, bindsym и т.д.):</p>
+<pre style="margin-top: 6px"><code class="language-bash">seat seat0 xcursor_theme Bibata-Modern-Amber 24
+</code></pre>
+
+<p><strong>Official Arch Repository</strong></p>
+<ul>
+   <li>Adwaita – GNOME standard cursors</li>
+   <li>breeze_cursors</li>
+   <li>capitaine-cursors</li>
+   <li>vimix-cursors</li>
+   <li>xcursor-comix</li>
+   <li>xcursor-themes – handhelds, redglass, whiteglass</li>
+   <li>xcursor-vanilla-dmz – white cursor</li>
+   <li>xcursor-vanilla-dmz-aa – black cursor</li>
+</ul>
+<p><strong>AUR</strong></p>
+<ul>
+   <li>xcursor-arch-cursor-complete (ArchCursorComplete)</li>
+   <li>bibata-cursor-theme</li>
+   <li>Qogir (+ иконки)</li>
+   <li>oreo-cursors-bin</li>
+   <li>oreo-cursors-git</li>
+   <li>oreo-nord-cursors-git</li>
+</ul>
+
+<h3>seat</h3>
+
+<p><strong><i>Seat</i></strong> — это набор устройств ввода, которые работают вместе: клавиатура, мышь, тачпад, графический планшет и т.д. Один <strong><i>seat</i></strong> = одно «рабочее место». То есть: один экран, один пользователь, один комплект ввода. <strong><i>seat0</i></strong> – основной (первый) <strong><i>seat</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Показать <i><strong>seat</strong>ы</i>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">swaymsg -t get_seats
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong><i>seat0</i></strong> существует "физически" в <strong><i>systemd-logind</i></strong>. Посмотреть можно так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">loginctl list-seats
+  # SEAT 
+  # seat0
+  #
+  # 1 seats listed.
+</code></pre>
+<p style="margin-top: 6px"><strong><i>seat0</i></strong> нет в <strong><i>/dev/input/</i></strong>.</p>
+
+<h3>logind</h3>
+<p><strong><i>logind</i></strong> – это диспетчер пользователей, сессий и устройств ввода/вывода. <strong><i>seat</i></strong> существует только потому что <strong><i>logind</i></strong> его создаёт.</p>
+
+<p style="margin-bottom: 6px">Посмотреть сессии:</p>
+<pre style="margin-top: 6px"><code class="language-bash">loginctl
+</code></pre>
+
+<p style="margin-bottom: 6px">Детали сессии:</p>
+<pre style="margin-top: 6px"><code class="language-bash">loginctl session-status
+</code></pre>
+
+<p style="margin-bottom: 6px">Детали <strong><i>seat0</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">loginctl seat-status seat0
+</code></pre>
+
+<p>Переменные окружения:</p>
+<ul>
+   <li>XCURSOR_THEME</li>
+   <li>XCURSOR_SIZE</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

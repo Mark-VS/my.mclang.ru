@@ -14,8 +14,15 @@
 <h1>wofi</h1>
 
 
+<p>Запуск <strong><i>wofi</i></strong>:</p>
+<pre><code class="language-bash">wofi --show drun
+
+# Без учёта регистра:
+wofi --show drun --insensitive
+</code></pre>
+
 <p>Чтобы задать внешний вид <strong><i>wofi</i></strong>, нужно создать файл стилей: <strong><i>~/.config/wofi/style.css</i></strong>.</p>
-<p>У wofi нет дефолтного файла стилей. Дефолтные стили вшити в бинарник. Вот пример более-менее нормальной контрастности:</p>
+<p>У <strong><i>wofi</i></strong> нет дефолтного файла стилей. Дефолтные стили вшити в бинарник. Вот пример более-менее нормальной контрастности:</p>
 <pre><code class="language-css"> window {
      background-color: #262626; /* немного светлее и мягче, чем раньше */
      color: #999999;            /* тусклый серый */
