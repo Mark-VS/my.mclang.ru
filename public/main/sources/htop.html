@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>htop</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>htop</h1>
+
+<p style="margin-bottom: 6px">Зависимости:</p>
+<ul style="margin-top: 6px">
+   <li>ncurses</li>
+</ul>
+
+<p>Страничка на GitHub: <a href="https://github.com/htop-dev/htop">github.com/htop-dev/htop</a></p>
+
+<p style="margin-bottom: 6px">Скачиваем исходники:</p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/htop-dev/htop.git
+cd htop
+</code></pre>
+
+<p style="margin-bottom: 6px">Либо скачиваем архив <a href="https://github.com/htop-dev/htop/releases">отсюда</a> и распаковываем его:</p>
+<pre style="margin-top: 6px"><code class="language-bash">tar -xJvf htop-3.4.1.tar.xz
+cd htop-3.4.1
+</code></pre>
+
+<h2>Сборка</h2>
+
+<ul>
+   <li>Makefile.am – шаблон для Automake. Не нужен напрямую.</li>
+</ul>
+
+<pre><code class="language-bash">./configure
+
+# Или можно указать путь установки:
+./configure --prefix=/usr/local
+</code></pre>
+
+<p style="margin-bottom: 6px">У нас появился Makefile. Теперь запускаем make:</p>
+<pre style="margin-top: 6px"><code class="language-bash">make</code></pre>
+
+<p style="margin-bottom: 6px">Собрался бинарник <i><strong>htop</strong></i>. Проверим работоспособность:</p>
+<pre style="margin-top: 6px"><code class="language-bash">./htop</code></pre>
+
+<h2>Установка</h2>
+
+<pre style="margin-bottom: 6px"><code class="language-bash">sudo make install
+  # /usr/bin/mkdir -p '/usr/local/bin'
+  # /usr/bin/install -c htop '/usr/local/bin'
+  # /usr/bin/mkdir -p '/usr/local/share/icons/hicolor/scalable/apps'
+  # /usr/bin/install -c -m 644 htop.svg '/usr/local/share/icons/hicolor/scalable/apps'
+  # /usr/bin/mkdir -p '/usr/local/share/applications'
+  # /usr/bin/install -c -m 644 htop.desktop '/usr/local/share/applications'
+  # /usr/bin/mkdir -p '/usr/local/share/man/man1'
+  # /usr/bin/install -c -m 644 htop.1 '/usr/local/share/man/man1'
+  # /usr/bin/mkdir -p '/usr/local/share/pixmaps'
+  # /usr/bin/install -c -m 644 htop.png '/usr/local/share/pixmaps'
+  # make[1]: выход из каталога «/home/mark/Downloads/htop-3.4.1»
+</code></pre>
+<p style="margin-top: 6px">Впринципе в выводе видно, что и куда установилось. Можно также заглянуть в файл <strong><i>Makefile.am</i></strong> – там тоже можно найти пути установки.</p>
+
+<h2>Удаление</h2>
+
+<pre><code class="language-bash">sudo make uninstall</code></pre>
+
+
+<p>Проверить есть ли цель install / uninstall можно так:</p>
+<pre><code class="language-bash">grep install Makefile
+grep uninstall Makefile
+
+# Или:
+make --dry-run install
+make --dry-run uninstall
+</code></pre>
+
+<h2>Итого</h2>
+
+<pre><code class="language-bash"># Скачиваем исходники:
+git clone https://github.com/htop-dev/htop.git
+cd htop
+
+# Собираем:
+./configure
+make
+
+# Копируем в систему:
+sudo make install
+
+# Удаляем программу:
+sudo make uninstall
+</code></pre>
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

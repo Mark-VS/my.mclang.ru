@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>toilet</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>toilet</h1>
+
+<p style="margin-bottom: 6px">Официальная страничка проекта: <a href="http://caca.zoy.org/wiki/toilet">caca.zoy.org/wiki/toilet</a>.</p>
+<p style="margin-top: 6px">Страничка на GitHub: <a href="https://github.com/cacalabs/toilet">https://github.com/cacalabs/toilet</a>.</p>
+
+<pre><code class="language-bash">git clone https://github.com/cacalabs/toilet.git
+cd toilet</code></pre>
+
+<p>Здесь, в отличие от <strong><i>figlet</i></strong>, нет файла <strong><i>Makefile</i></strong>. Зато есть <strong><i>Makefile.am</i></strong>. Это файл для <strong>GNU Automake</strong>. am = AutoMake. Его нельзя использовать напрямую командой <strong><i>make</i></strong>. Он служит шаблоном, из которого автоматически генерируется обычный <strong><i>Makefile</i></strong>.</p>
+<p>figlet – старый, простой проект. Содержит один ручной Makefile.</p>
+<p style="margin-bottom: 6px">toilet – более "правильный" GNU-style проект. Использует autotools:</p>
+<ul style="margin-top: 6px; margin-bottom: 6px">
+   <li>autoconf</li>
+   <li>automake</li>
+   <li>libtool (иногда)</li>
+</ul>
+
+<h2>Установка</h2>
+<p style="margin-top: 6px">Здесь сборка происходит в несколько этапов.</p>
+
+<ul>
+   <li>
+      <p style="margin-bottom: 6px"><strong>bootstrap</strong> – это авторский скрипт проекта. Он запускает <code style="background-color: #161616 ">autoreconf -i</code>. Иногда – <code style="background-color: #161616 ">libtoolize</code>. Гарантирует, что сборка будет в том виде, как задумали разработчики. Поэтому если <strong>bootstrap</strong> есть – используем его.</p>
+      <pre style="margin-top: 6px; margin-bottom: 8px"><code class="language-bash">./bootstrap</code></pre>
+      <p style="margin-top: 6px; margin-bottom: 6px">После этого у меня появилось 4 файла: aclocal.m4, config.h.in, configure, Makefile.in. Всё это генерация инфраструктуры сборки.</p>
+      <ul style="margin-top: 6px; margin-bottom: 6px">
+         <li>
+            <p style="margin-top: 6px; margin-bottom: 0"><strong>aclocal.m4</strong>:</p>
+            <ul style="margin-top: 0; margin-bottom: 0">
+               <li>содержит макросы autoconf</li>
+               <li>собирается из системных макросов и макросов проекта</li>
+               <li>используется autoconf при генерации configure</li>
+            </ul>
+            <p style="margin-top: 0; margin-bottom: 4px">Это «библиотека инструкций» для configure-скрипта.</p>
+         </li>
+         <li><p style="margin-top: 0; margin-bottom: 0"><strong>config.h.in</strong> – Шаблон заголовочного файла. После <code style="background-color: #161616">./configure</code> из него будет создан <strong><i>config.h</i></strong>.</p></li>
+         <li><p style="margin-top: 0; margin-bottom: 0"><strong>configure</strong> – главный конфигурационный скрипт. Проверяет: компилятор, библиотеки, заголовки, поддержку UTF-8, local и т.п. Создаёт <strong><i>Makefile</i></strong>, <strong><i>config.h</i></strong>. Это мост между системой и исходниками.</p></li>
+         <li><p style="margin-top: 0"><strong>Makefile.in</strong> – Шаблон Makefile. После <code style="background-color: #161616">./configure</code> будет превращён в <strong><i>Makefile</i></strong>.</p></li>
+      </ul>
+      
+   </li>
+   <li>
+      <p style="margin-bottom: 6px">Создаём реальный <strong><i>Makefile</i></strong>:</p>
+      <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">./configure</code></pre>
+      <p style="margin-top: 6px">Создались: Makefile, config.h, stamp-h1, config-status, config.log</p>
+      <ul>
+         <li><strong>Makefile</strong> – самый главный файл на этом этапе. Его читает <strong><i>make</i></strong>.</li>
+         <li><strong>config.h</strong> – сгенерирован из config.h.in. Используется исходниками (<code style="background-color: #161616">#include "config.h"</code>). Позволяет писать переносимый код.</li>
+         <li><strong>stamp-h1</strong> – метка времени. Служебный файл. Он нужен make, чтобы понять, актуален ли config.h, нужно ли его пересоздавать.</li>
+         <li><strong>config.status</strong> – Скрипт-«повторитель» – Позволяет пересобрать конфигурацию без повторного запуска всех тестов: <code style="background-color: #161616">./config.status</code>.</li>
+         <li><strong>config.log</strong> – подробнейший лог диагностики. Если <code style="background-color: #161616">./configure</code> падает – смотрим сюда.</li>
+      </ul>
+   </li>
+   <li>
+      <p style="margin-bottom: 6px">Собираем бинарник:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">make</code></pre>
+      <p style="margin-bottom: 6px">Бинарник <strong><i>toilet</i></strong> появился в папке <strong><i>./src</i></strong>. Его можно сразу запустить, но необходимо передать путь к шрифтам:</p>
+      <pre style="margin-top: 6px"><code class="language-bash"># Укажем путь к папке со шрифтами:
+./src/toilet -d fonts Привет
+
+# Или укажем путь к конкретному шрифту:
+./src/toilet -f fonts/ascii9.tlf Привет
+   # шрифт ascii9.tlf выбирается по умолчанию.</code></pre>
+      <p style="margin-bottom: 6px">Шрифты, которые поддерживают кириллицу:</p>
+      <ul style="margin-top: 6px">
+         <li>smascii9, smascii12</li>
+         <li>ascii9, ascii12</li>
+         <li>bigascii9, bigascii12</li>
+         <li>mono9, mono12</li>
+         <li>smmono9, smmono12</li>
+         <li>bigmono9, bigmono12</li>
+         <li>biggray9, biggray12</li>
+      </ul>
+    </li>
+    <li>
+       <p style="margin-bottom: 6px">Устанавливаем программу в систему:</p>
+       <pre style="margin-top: 6px"><code class="language-bash">sudo make install</code></pre>
+       <p style="margin-bottom: 6px">Теперь система видит программу и мы можем запускать её вот так:</p>
+       <pre style="margin-top: 6px"><code class="language-bash">toilet Привет!
+
+# Или с указанием шрифта:
+toilet -f smmono9 Привет!</code></pre>
+       <p style="margin-bottom: 6px">То есть, <code style="background-color: #161616">sudo make install</code> делает следующее:</p>
+       <ul style="margin-top: 6px">
+          <li><i>/usr/local/bin/</i>– сюда копируется бинарник</li>
+          <li><i>/usr/local/share/figlet/</i> – шрифты скопировались в папку программы <strong><i>figlet</i></strong>. У меня ранее была установлена <strong><i>figlet</i></strong>. Если бы она не была установлена, вероятно, шрифты скопировались бы не сюда.</li>
+          <li><i>/usr/local/share/man/man1/toilet.1</i> – man-страничка</li>
+       </ul>
+    </li>
+</ul>
+
+<h2>Удаление</h2>
+
+<p>В <strong><i>figlet</i></strong> можно было легко понять, куда <code style="background-color: #161616">make install</code> ставит файлы, просто прочитав <strong><i>Makefile</i></strong>. Но у нас <strong><i>Makefile</i></strong> сгенерирован с помощью <strong><i>autotools</i></strong> и вся информация в нём размазана и абстрагирована.</p>
+<p style="margin-bottom: 6px">Чтобы понять, куда ставятся данные и что вообще устанавливается, можно запустить:</p>
+<pre style="margin-top: 6px"><code class="language-bash">make install -n
+# или:
+make install --dry-run
+
+# куда ставятся man-странички:
+man -w toilet
+
+# где бинарник:
+which toilet
+</code></pre>
+
+<p>В <strong>autotools</strong>-проектах цель <i>uninstall</i> обычно генерируется автоматически, если в <strong><i>Makefile.am</i></strong> описана установка.</p>
+<p style="margin-bottom: 6px">Проверить, есть ли цель "uninstall" можно так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">make -n uninstall
+# или:
+make uninstall -n
+   # флаг -n означает "ничего не далать – просто показать"
+</code></pre>
+
+<p style="margin-bottom: 6px">Можно посмотреть в <strong><i>Makefile</i></strong>, есть ли вообще <i>uninstall</i>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grep uninstall Makefile
+</code></pre>
+
+<p style="margin-bottom: 6px">Удаляем <strong><i>toilet</i></strong> с помощью <i>uninstall</i>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo make uninstall</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">И всё! Все файлики удалились. И бинарник, и шрифты, и man-страничка.</p>
+<p style="margin-top: 6px"><strong>Важно!</strong> <code style="background-color: #161616">sudo make uninstall</code> нужно запускать из каталога с исходниками – оттуда, откуда изначально происходила установка.</p>
+
+<h2>Итого</h2>
+
+<p style="margin-bottom: 6px">Повторим всё в одном блоке:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Скачиваем исходники:
+git clone https://github.com/cacalabs/toilet.git
+cd toilet
+
+# Собираем бинарник
+./bootstrap
+./configure
+make
+
+# Копируем программу в систему:
+sudo make install
+
+# удаляем программу из системы:
+sudo make uninstall
+</code></pre>
+
+<h2>какая-то доп. фигня</h2>
+<p>make ищет файлы с именами: <strong><i>Makefile</i></strong>, <strong><i>makefile</i></strong>, <strong><i>GNUmakefile</i></strong>. А про <strong><i>Makefile.am</i></strong> она не знает.</p>
+<p>aclocal – служебная программа из набора GNU Autotools (Autoconf / Automake). Создаёт файл aclocal.m4. Используется перед запуском autoconf или automake. aclocal собирает m4-макросы, которые нужны autoconf.</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

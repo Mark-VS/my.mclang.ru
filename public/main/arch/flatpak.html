@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flatpak</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>flatpak</h1>
+
+<p style="margin-bottom: 6px">Устанавливаем <strong>flatpak</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S flatpak
+</code></pre>
+
+<pre><code class="language-bash">sudo flatpak remote-add --if-not-exists flathub \
+  https://flathub.org/repo/flathub.flatpakrepo
+
+# Проверка:
+flatpak remotes
+</code></pre>
+
+<ul>
+   <li>/var/lib/flatpak/exports/bin/</li>
+   <li>/var/lib/flatpak/exports/share/applications/ – .desktop файлы для всех приложений</li>
+   <li>/var/lib/flatpak/exports/share/icons/ – иконки приложений</li>
+   <li>/var/lib/flatpak/exports/share/mime/ – mime-типы приложений</li>
+</ul>
+
+
+<pre><code class="language-bash"># Установить игру ricochlime:
+flatpak install flathub com.adilhanney.ricochlime
+
+# Запустить её:
+flatpak run com.adilhanney.ricochlime
+</code></pre>
+
+<p>Проверить, установлена ли игра:</p>
+<pre><code class="language-bash">flatpak list | grep ricochlime
+  # Ricochlime	com.adilhanney.ricochlime	1.12.4	stable	system
+</code></pre>
+
+<p>Если система не видит .desktop-файлы, то можно запустить:</p>
+<pre><code class="language-bash">flatpak update
+flatpak repair
+</code></pre>
+
+<p style="margin-bottom: 6px">Вот что мне выдал flatpak:</p>
+<pre style="margin-top: 6px"><code class="language-bash">flatpak update
+
+  # Обратите внимание, что каталог 
+  # 
+  # '/home/mark/.local/share/flatpak/exports/share'
+  # 
+  # не находится по пути поиска, заданном переменной окружения XDG_DATA_DIRS,
+  # поэтому приложения, установленные Flatpak, могут не отображаться на вашем
+  # рабочем столе до перезапуска сеанса.
+  # 
+  # Поиск обновлений…
+  # 
+  # Нечего выполнять.
+</code></pre>
+
+
+<pre><code class="language-bash">sudo update-desktop-database /var/lib/flatpak/exports/share
+update-desktop-database ~/.local/share/flatpak/exports/share
+</code></pre>
+<p>Но ничего не помогало, пока я не перезагрузил комп. После перезагрузки система сразу стала видеть .desktop-файлы в /var/lib/flatpak/exports/share/applications:</p>
+<pre><code class="language-bash"># После перезагрукзи:
+
+echo $XDG_DATA_DIRS
+  # /home/mark/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+</code></pre>
+
+
+<pre><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

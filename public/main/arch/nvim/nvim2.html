@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim2</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>nvim2</h1>
+
+<p style="margin-bottom: 6px; text-decoration: underline">Структура файлов:</p>
+<pre style="margin-top: 6px">~/.config/nvim
+├── lua
+│   ├── config
+│   │   └── lazy.lua
+│   └── plugins
+│       ├── spec1.lua
+│       ├── **
+│       └── spec2.lua
+└── init.lua</pre>
+
+<h2>Lazy</h2>
+
+<p>Официальный сайт <strong>lazy.nvim</strong>: <a href="https://lazy.folke.io/">lazy.folke.io</a></p>
+
+<p style="margin-bottom: 6px">Далее кусок кода с оф. сайта – для установки <strong>lazy.nvim</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+-- Setup lazy.nvim
+require("lazy").setup({
+
+})
+
+</code></pre>
+
+<p style="margin-bottom: 6px">Пример сетапа с оф. сайта:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- Setup lazy.nvim
+require("lazy").setup({
+  spec = {
+    -- import your plugins
+    { import = "plugins" },
+  },
+  -- Configure any other settings here. See the documentation for more details.
+  -- colorscheme that will be used when installing plugins.
+  install = { colorscheme = { "habamax" } },
+  -- automatically check for plugin updates
+  checker = { enabled = true },
+})
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Установим плагин hop (т.е. добавим его в <strong><i>setup</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   { 'phaazon/hop.nvim' }
+})
+</code></pre>
+
+<p style="margin-bottom: 6px">И подключим файл ~/.config/nvim/lua/core/plugins.lua:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+require('core.plugins')
+</code></pre>
+
+<h2>neo-tree</h2>
+<p>Оф. страничка neo-tree: <a href="https://github.com/nvim-neo-tree/neo-tree.nvim">github.com/nvim-neo-tree/neo-tree.nvim</a></p>
+
+<p style="margin-bottom: 6px">Добавим <strong>neo-tree</strong> в <strong><i>setup</i></strong> (с черырьмя зависимостями, которые ему необходимы):</p>
+<pre style="margin-top: 6px"><code class="language-lua">~/.config/nvim/core/plugins.lua
+
+require("lazy").setup({
+   { 'phaazon/hop.nvim' },
+   {
+      'nvim-neo-tree/neo-tree.nvim',
+      branch = 'v3.x',
+      dependencies = {
+         'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons',
+         'MunifTanjim/nui.nvim', 's1n7ax/nvim-window-picker'
+      }
+   },
+})
+</code></pre>
+<p>Теперь можно запустить <strong>Lazy</strong> и установить <strong>neo-tree</strong> и все его зависимости. И вот они установлены, НО не инициализированы.</p>
+<p style="margin-bottom: 6px">И вот можно пользоватьсяe деревом файлов:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/plugins/neotree.lua
+:Neotree reveal left # открывает дерево слева
+:Neotree close       # закрывает окно с деревом
+:Neotree float       # открывает дерево во всплывающем окне
+</code></pre>
+
+<h2>Маппинги</h2>
+
+<p style="margin-bottom: 6px">Для удобства создадим маппинги. Они у нас будут в файле ~/.config/nvim/lua/core/mappings.lua:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/core/mappings
+
+vim.g.mapleader = " "
+
+-- NeoTree
+vim.keymap.set('n', '<leader>e', ':Neotree float focus<CR>')
+vim.keymap.set('n', '<leader>o', ':Neotree float git_status<CR>')
+</code></pre>
+
+<p style="margin-bottom: 6px">Подключим <strong><i>mappings.lua</i></strong> в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+require('core.plugins')
+require('core.mappings')
+</code></pre>
+
+<p style="margin-top: 6px">Теперь можно запустить <strong>nvim</strong> и использовать <strong><i>Пробел, e</i></strong> для открытия всплывающего окна с деревом файлов и <strong><i>Пробел, o</i></strong> – для git-статуса.</p>
+
+<h2 style="margin-bottom: 6px">TreeSitter</h2>
+<p style="margin-top: 6px">Оф. страничка: <a href="https://github.com/nvim-treesitter/nvim-treesitter">github.com/nvim-treesitter/nvim-treesitter</a></p>
+
+<p>У меня после установки treesitter доступны только пять команд:</p>
+<ul>
+   <li>:TSInstall</li>
+   <li>:TSInstallFromGrammar</li>
+   <li>:TSLog</li>
+   <li>:TSUninstall</li>
+   <li>:TSUpdate</li>
+</ul>
+<p>А остальных, типа TSInstallInfo, TSBufInfo, TSToggle, нет.</p>
+
+<p style="margin-bottom: 6px">Добавим в <strong><i>setup</i></strong> <strong>nvim-treesitter</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/core/pligins.lua
+
+require("lazy").setup({
+   { 'phaazon/hop.nvim' },
+   {
+      'nvim-neo-tree/neo-tree.nvim',
+      branch = 'v3.x',
+      dependencies = {
+         'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons',
+         'MunifTanjim/nui.nvim', 's1n7ax/nvim-window-picker'
+      }
+   },
+   { 'nvim-treesitter/nvim-treesitter' },
+})
+</code></pre>
+<p style="margin-top: 6px">И установим его, запустив <strong>Lazy</strong>.</p>
+
+<p style="margin-bottom: 6px">Включить treesitter-подсветку в vim:</p>
+<pre style="margin-top: 6px"><code class="language-lua">
+:lua vim.treesitter.start()   # включить подсветку
+:lua vim.treesitter.stop()    # отключить подсветку
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Полезные команды</p>
+<pre style="margin-top: 6px"><code class="language-lua">:h treesitter-highlight   # посмотреть справку по подсветке
+:h nvim-treesitter-commands # посмотреть доступные команды
+
+:set filetype   # выведет тип текущего файла
+:set filetype=  # присвоит пустое значение текущему типу. Подсветка уйдёт
+:set filetype=lua  # присвоит обратно тип и вернёт подсветку
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/plugins/neotree.lua
+    lala
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

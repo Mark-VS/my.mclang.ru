@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kdenlive</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>kdenlive</h1>
+
+<h2>Горячие клавиши</h2>
+<ul>
+   <li>Разрезать видео: Shift+R (S)</li>
+   <li>Сгруппировать дорожки: Ctrl+G</li>
+   <li>Разгруппировать дорожки: Ctrl+Shift+G</li>
+   <li>Удалить участок монтажного стола с заполнением пробела: Shift+X</li>
+   <li>Поставить метку: G</li>
+</ul>
+
+<h2>Как выровнить звук. дорожку</h2>
+
+<p>У нас есть кусок видео, который мы покрамсали и кусок аудио, который изначально был привязан к этому видео, но потом мы его сдвигали много раз и изначальная привязка потерялась. Как вернуть им изначальную синхронизацию?</p>
+<ul>
+   <li>Для начала их нужно выделить видео и аудио и сгруппировать их: Ctrl+G.</li>
+   <li>Теперь выделяем видео (аудио тоже выделится) и нажимаем ПКМ. Выбираем из контекстного меню: Align to Reference -> Создать звуковую привязку.</li>
+   <li>Обратно разгруппировываем их: Ctrl+Shift+G</li>
+   <li>Теперь кликаем ПКМ по звуку и выбираем в контекстном меню: Align to Reference -> Выровнить звук по привязке. И звук должен принять изначальное синхронизированное положение относительно видео.</li>
+</ul>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

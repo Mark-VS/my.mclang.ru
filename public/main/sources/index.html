@@ -11,10 +11,96 @@
 		<script src="/assets/highlight/highlight.min.js"></script>
 		<a href="/">Вернуться назад</a>
 		
-		<ul>
-		<li><a href="python.html">python</a></li>
+		<p style="margin-bottom: 6px">C. Без зависимостей</p>
+		<ul style="margin-top: 6px">
+			<li><a href="sl.html">sl</a> (ручной Makefile) – нет install, один файл</li>
+            <li><a href="figlet.html">figlet</a> (ручной Makefile) – есть install, но нет uninstall</li>
+			<li><a href="toilet.html">toilet</a> (autotools) – с bootstrap</li>
+			<li><a href="htop.html">htop</a> (autotools) – без bootstrap</li>
+			<li><a href="fastfetch.html">fastfetch</a> (cmake)</li>
+			<li>-</li>
+			<li>strawberry player (cmake)</li>
+		</ul>
+
+		<p style="margin-bottom: 6px">Rust</p>
+		<ul style="margin-top: 6px">
+			<li><a href="macchina.html">macchina</a></li>
+			<li><a href="leenfetch.html">leenfetch</a></li>
+			<li><a href="yazi.html">yazi</a></li>
+		</ul>
+
+		<p style="margin-bottom: 6px">Zig</p>
+		<ul style="margin-top: 6px">
+			<li><a href="zig.html">zig</a></li>
+			<li><a href="flow.html">flow</a></li>
+			<li><a href="ghostty.html">ghostty</a></li>
+		</ul>
+
+		<p style="margin-bottom: 6px">bash</p>
+		<ul style="margin-top: 6px">
+			<li>screenfetch – предшественник <i>neofetch</i>, устаревший</li>
+			<li><a href="neofetch.html">neofetch</a></li>
+			<li>hyfetch – форк neofetch</li>
+			<li><a href="pfetch.html">pfetch</a> – POSIX shell, очень быстрый, минималистичный</li>
+		</ul>
+
+		<p style="margin-bottom: 6px">Perl:</p>
+		<ul style="margin-top: 6px">
+			<li><a href="cowsay.html">cowsay</a></li>
+		</ul>
+
+		<p style="margin-bottom: 6px">Ruby</p>
+		<ul style="margin-top: 6px">
+            <li><a href="lolcat.html">lolcat</a></li>
+		</ul>
+
+		<p style="margin-bottom: 6px">Python</p>
+		<ul style="margin-top: 6px">
+			<li><a href="python.html">python</a></li>
+			<li><a href="ponysay.html">ponysay</a></li>
 		</ul>
 				
+
+		<hr />
+
+		<ul>
+			<li>Makefile.am / configure → autotools</li>
+			<li>CMakeLists.txt → <strong><i>cmake</i></strong></li>
+			<li>meson.build → Meson → Ninja</li>
+			<li>-</li>
+			<li><strong><i>Ninja</i></strong> – это альтернатива <strong><i>make</i></strong>.</li>
+			<li>cmake может собрать как <strong><i>Makefile</i></strong>, так и <strong><i>build.ninja</i></strong>.</li>
+			<li>Т.е. <strong><i>cmake</i></strong> – можно выбрать генератор, а вот <strong><i>Meson</i></strong> – это почти всегда <strong><i>Ninja</i></strong>.</li>
+			<li>bootstrap / autogen.sh — это не система сборки. Это подготовительный скрипт, который создаёт configure и Makefile.in для autotools-проектов.</li>
+		</ul>
+
+		<h3 style="margin-bottom: 6px">autotools (классика Unix)</h3>
+		<p style="margin-top: 6px; margin-bottom: 6px">Инструменты:</p>
+		<ul style="margin-top: 6px">
+			<li>autoconf</li>
+			<li>automake</li>
+			<li>libtool</li>
+		</ul>
+
+		<p style="margin-bottom: 6px">Что происходит:</p>
+		<pre style="margin-top: 6px"><code class="language-bash">configure.ac + Makefile.am
+        ↓ (autoconf / automake)
+configure + Makefile.in
+        ↓ (./configure)
+Makefile
+        ↓ (make)
+бинарник</code></pre>
+
+		<p style="margin-bottom: 6px">Ещё одна схема:</p>
+		<pre style="margin-top: 6px"><code class="language-bash">CMakeLists.txt
+      ↓
+    CMake
+   ↙      ↘
+Makefile   build.ninja
+   ↓            ↓
+ make         ninja
+		</code></pre>
+
 		<script src="/assets/highlight/languages/bash.min.js"></script>
 		<script>hljs.highlightAll();</script>
 	</body>

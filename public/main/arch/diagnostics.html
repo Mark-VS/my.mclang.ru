@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diagnostics</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>diagnostics</h1>
+
+<ul>
+   <li>htop</li>
+   <li>btop</li>
+</ul>
+
+
+<h2>iotop</h2>
+
+<p><strong>iotop</strong> — это утилита для мониторинга ввода-вывода (I/O) на диске в реальном времени, похожая на <strong>top</strong>, но для операций с диском.</p>
+<pre><code class="language-bash">sudo pacman -S iotop
+sudo iotop -oPa
+
+  # -o или --only — показывать только процессы, которые совершают I/O-операции
+  # -P — показывать только процессы (не потоки)
+  # -a — показывать накопленную статистику (с момента запуска iotop)
+</code></pre>
+
+<h2>Память (khugepaged)</h2>
+
+<pre><code class="language-bash"># Проверить использование памяти и swap
+free -h
+
+# Посмотреть статистику по huge pages
+cat /proc/meminfo | grep -i huge
+</code></pre>
+
+<pre><code class="language-bash"># Следите за журналом в реальном времени
+sudo journalctl -f
+</code></pre>
+
+<h2>диск</h2>
+<p>Проверить состояние. smartctl – часть пакета smartmontools.</p>
+<pre><code class="language-bash"># Проверьте SMART-статус
+sudo smartctl -a /dev/sda
+# Или для вашего конкретного диска
+sudo smartctl -a /dev/disk/by-id/ata-HGST_HTS541010A9E680_JA1000102WT6VM
+</code></pre>
+
+<pre><code class="language-bash"># Посмотреть все подключённые диски
+
+sudo lshw -class disk   # находит только nvme
+sudo lshw -class storage -class disk   # находит больше
+</code></pre>
+
+<h2>хз</h2>
+
+<p>какие-то процессы</p>
+
+<ul>
+   <li><strong>khugepaged</strong> — ядерный процесс для управления Huge Pages</li>
+   <li>jbd2/sda3-8 и jbd2/sda4-8 — журналирование файловых систем (ext4?)</li>
+</ul>
+
+
+<pre><code class="language-bash">
+
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

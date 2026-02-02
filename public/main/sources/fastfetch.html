@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fastfetch</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>fastfetch</h1>
+
+<p>Страничка на GitHub: <a href="https://github.com/fastfetch-cli/fastfetch">github.com/fastfetch-cli/fastfetch</a></p>
+
+<p style="margin-bottom: 6px">Что необходимо для сборки. Это посоветовал гпт. У меня всё уже было установлено по умолчанию.</p>
+<ul style="margin-top: 6px">
+   <li>cmake</li>
+   <li>gcc</li>
+   <li>pkgconf</li>
+   <li>wayland</li>
+   <li>libx11</li>
+   <li>libxrandr</li>
+   <li>libdrm</li>
+   <li>mesa</li>
+   <li>vulkan-icd-loader</li>
+</ul>
+
+<pre><code class="language-bash">sudo pacman -S --needed \
+  cmake gcc \
+  pkgconf wayland \
+  libx11 libxrandr \
+  libdrm mesa \
+  vulkan-icd-loader
+</code></pre>
+
+<p style="margin-bottom: 6px">Клонируем репозиторий с помощью <strong><i>git</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/fastfetch-cli/fastfetch.git
+cd fastfetch
+</code></pre>
+
+<p style="margin-bottom: 6px">Либо скачиваем архив <a href="https://github.com/fastfetch-cli/fastfetch/releases">отсюда</a> и распаковываем его:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">tar -xzvf fastfetch-linux-amd64.tar.gz
+cd fastfetch-linux-amd64
+</code></pre>
+<p style="margin-top: 6px">Если скачали архив, то тут уже есть собранный бинарник под нашу систему. В архиве собраны бинарники под разные архитектуры.</p>
+
+<h2>Сборка</h2>
+
+<p>По файлу <strong><i>CMakeLists.txt</i></strong> видно, что используется не <strong><i>autotools</i></strong>, а <strong><i>CMake</i></strong>.</p>
+<p style="margin-bottom: 6px">Перед тем, как использоваться <strong><i>cmake</i></strong>, создаём отдельную папку. Заходим в эту папку и оттуда запускаем <strong><i>cmake</i></strong>. Чтобы не смешивать полученные файлы с исходниками.</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir build
+cd build
+cmake ..
+</code></pre>
+
+<p style="margin-bottom: 6px">Собираем:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">make</code></pre>
+<p style="margin-top: 6px">Появились бинарники: <strong><i>fastfetch</i></strong> и <strong><i>flashfetch</i></strong>.</p>
+
+<h2>Установка</h2>
+
+<p style="margin-bottom: 6px">Проверяем, есть ли цель <code style="background-color: #161616">install</code> и <code style="background-color: #161616">uninstall</code>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grep install Makefile
+grep uninstall Makefile
+</code></pre>
+
+<p style="margin-bottom: 6px">Установка есть, а удаления нет. Ещё раз проверим:</p>
+<pre style="margin-top: 6px"><code class="language-bash">make --dry-run uninstall
+  # make: *** Нет правила для сборки цели «uninstall».  Останов.
+</code></pre>
+
+<p style="margin-bottom: 6px">Устанавливаем программу в систему:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo make install</code></pre>
+
+<p style="margin-bottom: 6px">Теперь можно запускать программу:</p>
+<pre style="margin-top: 6px"><code class="language-bash">fastfetch --logo arch</code></pre>
+
+<h3>Как убрать палитру цветов в выводе</h3>
+
+<pre style="margin-bottom: 6px"><code class="language-bash"># Создаём дефолтный конфиг:
+fastfetch --gen-config</code></pre>
+<p style="margin-top: 6px">Конфиг появляется здесь: <strong><i>~/.config/fastfetch/config.json</i></strong>. Удаляем из него блок <strong><i>color</i></strong> в конце.</p>
+<p style="margin-bottom: 6px">В этом же конфиге также можно указать логотип дистрибутива, который мы хотим выводить по умолчанию. Для этого нужно добавить блок <strong><i>logo</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-json">{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+  "logo": {
+    "source": "slackware"
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    ...
+  ]
+}
+</code></pre>
+
+<h2>Удаление</h2>
+
+<p style="margin-bottom: 6px">Это всё, что поставилось во время установки:</p>
+<ul style="margin-top: 6px">
+   <li>/usr/bin/fastfetch</li>
+   <li>/usr/bin/flashfetch</li>
+   <li>/usr/share/bash-completion/completions/fastfetch</li>
+   <li>/usr/share/zsh/site-functions/_fastfetch</li>
+   <li>/usr/share/fish/vendor_completions.d/fastfetch.fish</li>
+   <li>/usr/share/fastfetch/presets/</li>
+   <li>/usr/share/licenses/fastfetch/LICENSE</li>
+   <li>/usr/share/man/man1/fastfetch.1</li>
+</ul>
+
+<pre><code class="language-bash"># Сначала удаляем файлы:
+sudo rm -f /usr/bin/fastfetch \
+   /usr/bin/flashfetch \
+   /usr/share/bash-completion/completions/fastfetch \
+   /usr/share/zsh/site-functions/_fastfetch \
+   /usr/share/man/man1/fastfetch.1
+
+# А потом каталоги:
+sudo rm -rf /usr/bin/fastfetch \
+   /usr/share/fastfetch \
+   /usr/share/licenses/fastfetch
+</code></pre>
+
+<h2>Итого</h2>
+
+<pre><code class="language-bash"># Скачиваем исходники:
+git clone https://github.com/fastfetch-cli/fastfetch.git
+cd fastfetch
+
+# Создаём файлы сборки:
+mkdir build && cd build
+cmake ..
+
+# Собираем программу:
+make
+
+# Устанавливаем программу:
+sudo make install
+
+# Удаляем программу:
+sudo rm -f /usr/bin/fastfetch \
+   /usr/bin/flashfetch \
+   /usr/share/bash-completion/completions/fastfetch \
+   /usr/share/zsh/site-functions/_fastfetch \
+   /usr/share/man/man1/fastfetch.1
+sudo rm -rf /usr/bin/fastfetch \
+   /usr/share/fastfetch \
+   /usr/share/licenses/fastfetch
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

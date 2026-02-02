@@ -416,133 +416,237 @@ systemd-inhibit --what=idle sleep 10
 systemd-inhibit --list
 </code></pre>
 
-<h2>Калькулятор</h2>
+<h2>Что дальше</h2>
 <ul>
-   <li>qalculate-gtk</li>
-   <li>gnome-calculator</li>
-   <li>kcalc</li>
+   <li>mako – уведомления</li>
+   <li>grim – скриншоты</li>
+   <li>slurp – выделение</li>
+   <li>wl-clipboard – копирование в буфер обмена</li>
+   <li>imagemagick – пипетка</li>
+   <li>tesseract – OCR</li>
 </ul>
 
+<h2>Уведомления</h2>
 
-<h3>Всё остальное</h3>
-	<pre><code class="language-bash">
-	# grim + slurp - Скриншоты экрана
-	# imagemagick - узнать цвет пикселя
-		sudo pacman -S grim slurp imagemagic
-		grim out.png	## делает скриншот
-		grim -g "$(slurp)" out.png		## делает скриншот выделенной области
-		grim -g "$(slurp -p)" -t ppm - | convert - txt:- | grep -m1 -oP '#\w{6}'
-			slurp -p — ждёт клик по экрану и возвращает координаты 1×1 пикселя
-			grim -g — делает скриншот только этого пикселя
-			convert — анализирует цвет и выводит HEX
-			grep — оставляет только #RRGGBB
-
-
-
-	## Создаём скрипт, который определяет цвет пикселя в файле ~/.local/bin/pipette:
-		
-		#!/usr/bin/env bash						## - шейбанг (shebang)
-
-		# Делаем скрин выделенной области
-		COLOR=$(grim -g "$(slurp -p)" -t ppm - \
-    		| convert - txt:- \
-    		| grep -m1 -oP '#\w{6}')
-		
-		# Если пользователь нажал Esc и цвет не выбран
-		[ -z "$COLOR" ] && exit 0
-		
-		# Копируем цвет в буфер обмена
-		echo -n "$COLOR" | wl-copy
-		
-		# Создаем маленькую цветную иконку 64x64 для уведомления
-		convert -size 64x64 xc:"$COLOR" /tmp/color.png
-		
-		# Показываем уведомление
-		notify-send -i /tmp/color.png "Цвет скопирован" "$COLOR"
-	</code></pre>	
-	
-	<h3>Уведомления</h3>
-	<pre><code class="language-bash">	
-		# Ставим mako:
-			sudo pacman -S mako
-		# Теперь можно выводить увеодмления через:
-			mako "Header" "This it the message"
-		## Конфигурационный файл здесь: ~/.config/mako/config:
-		## Пример простого конфига:
-			# Время показа уведомления
-			default-timeout=3000
-			
-			# Цвета и прозрачность
-			background-color=#222222
-			text-color=#eeeeee
-			border-color=#555555
-			
-			# Толщина и закругление рамки
-			border-size=2
-			border-radius=8
-			
-			# Положение экрана (например, сверху-право)
-			anchor=top-right
-			
-			# Отступы
-			margin=10
-			padding=10
+<p style="margin-bottom: 6px">Для вывода уведомлений на экран установим <strong>mako</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S mako
 </code></pre>
 
-		<pre><code class="language-bash">
-		## Win+Print - Делаем скриншот всего экрана:
-		bindsym $mod+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png; grim "$file" && notify-send "Скриншот" "Сохранён в $file"'
-		## Win+Shift+Print - Делаем скриншот выделенной области:
-		bindsym $mod+Shift+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png; grim -g "$(slurp)" "$file" && notify-send "Скриншот" "Сохранён в $file"'		
-		## Win+Shift+p - Узнать цвет пипеткой (запускаем скрипт из файла ~/.local/bin/pipette):
-		bindsym $mod+Shift+p exec ~/.local/bin/pipette   
-		</code></pre>
-		
-
-		
-		<pre><code class="language-bash">
-	# seatd / elogind - для управления доступом к вводу/выводу 
-	# xdg-desktop-portal-wlr - для поддержки XDG-порталов (например, открыть файл в диалоге)
-	# wlroots - Библиотека, на которой работает sway
-
-
-	# dillo - минималистичный браузер
-	# falkon - браузер чуть получше
-	# Loupe - нормальный вьюер
-	# wofi / bemenu - лаунчеры
-	# waybar - панель статуса (вместо swaybar)
-	# swaylock, swayidle - Блокировка экрана и автовыход в сон
-	# brightnessctl - Яркость экрана
-	# Wlogout (AUR) — красивое окно выхода/перезагрузки/выключения.
-	# mc - GNU Midnight Commander - файловый менеджер
-	# lf - файловый менеджер
-	# krusader - файловый менеджер / подтягивает и kde/qt библиотеки
-	# qtfm - минималистичный графический файловый менеджер на qt
-	# pcmanfm / pcmanfm-gtk3 / pcmanfm-qt - графический файловый менеджер не gtk/qt
-		# lxappearance - настройка gtk-тем
-		# adapta-gtk-theme - Adapta-Notko
-	
-	## Торент-клиенты
-		# fragments - на gkt
-		# qbittorrent - на qt
-		
-	## Аудиоплееры
-		# DeaDBeef	- на хз
-		# Amberol	- на gtk
-				
-	# mako - уведомления
-	# networkmanager + nmcli / nmtui - Управление сетью
-	
-	# cava - терминальный аудио-визуализатор
-	# xfe (AUR) - простенький графический файловый менеджер, без зависимостей типа GTK или QT
-	# worker (AUR) - графический файловый менеджер, ещё проще
-	
-	# mattermost - что-то типа Slack или Microsoft Teams
-	# logseq (AUR)- бесплатный аналог obsidian
-	# appflowy (AUR), anytype (AUR) - free notion
-	# focalboard (AUR) - free trello
-	# nextcloud - ХЗ. Что-то с хранением файлов на сервере. В том числе аудио- и видеозвонки и Sceen Sharing
+<p style="margin-bottom: 6px">Проверить работу <strong>mako</strong> можно вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">notify-send "Заголовок" "А содержание самого сообщения."
 </code></pre>
+<p style="margin-top: 6px">В правом верхнем углу должно появиться сообщение. Чтобы его убрать нужно кликнуть по нему мышкой.</p>
+
+<p style="margin-bottom: 6px">Закрыть сообщение:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Закрыть текущее сообощение:
+makoctl dismiss
+
+# Закрыть все сообощения:
+mako dismiss --all
+</code></pre>
+
+<p><a href="/arch/mako.html">Подробнее о mako</a></p>
+
+
+<h2>Скриншоты</h2>
+
+<p style="margin-bottom: 6px">Скриншоты экрана делаются с помощью <strong>grim</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S grim
+</code></pre>
+
+<p style="margin-bottom: 6px">Сделаем скриншот экрана:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grim filename.png
+</code></pre>
+
+<p style="margin-bottom: 6px">Создадим уникальное имя для скриншота с датой и временем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grim ~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S-%3N).png
+</code></pre>
+
+<p style="margin-bottom: 6px">Частая практика в скриптах:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Сначала присваиваем переменной путь к файлу:
+FILE=~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S-%3N).png
+grim "$FILE"
+</code></pre>
+
+<p style="margin-bottom: 6px">А теперь всё это можно запихнуть в конфиг sway и назначить горячую клавишу:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># ~/.config/sway/config
+	
+bindsym --to-code $mod+Print exec sh -c 'file=~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S-%3N).png; grim "$file" && notify-send "Скриншот" "Сохранён в $file"'
+</code></pre>
+<p style="margin-top: 6px">Теперь сочетание клавиш <strong><i>Win+PrintScreen</i></strong> будет создавать скриншот всего экрана и сохранять его в png-файл в папку <strong><i>~/Pictures/</i></strong>.</p>
+
+
+<h2>slurp</h2>
+
+<p><strong>slurp</strong> работает через протокол <strong>wlroots</strong>. Для работы ему нужно фокусное приложение или композитор, который позволяет ему рисовать рамку выделения.</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S slurp
+</code></pre>
+
+<p style="margin-bottom: 6px">Если запустить <strong>slurp</strong> без параметров, то по умолчанию применяется параметр <strong><i>-d</i></strong> (те есть выделить область):</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">slurp
+
+# То же самое:
+slurp -d
+
+# Выделить один пиксель:
+slurp -p
+</code></pre>
+<p style="margin-top: 6px">После того, как мы выбрали область, или кликнули по пикселю, то в терминал выводится либо координаты выбранной области, либо координата одного пикселя.</p>
+
+<p style="margin-bottom: 6px">А теперь объединим grim и slurp – чтобы вывести скриншот определённой области на экране:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grim -g "$(slurp -d)" ~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S-%3N).png
+
+# Или с переменной:
+FILE=~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S-%3N).png
+grim -g "$(slurp)" "$FILE"
+</code></pre>
+
+<p style="margin-bottom: 6px">А теперь всё это запихнём в конфиг <strong>Sway</strong> и назначим сочетание клавиш: <strong><i>Win+Shift+PrintScreen</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># ~/.config/sway/config
+	
+bindsym --to-code $mod+Shift+Print exec sh -c 'FILE=~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S-%3N).png; grim -g "$(slurp)" "$FILE" && notify-send "Скриншот" "Сохранён в $file"'
+</code></pre>
+
+
+<h2>Пипетка</h2>
+
+<p style="margin-bottom: 6px">Здесь нам поможет <strong>imagemagick</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S imagemagick
+</code></pre>
+
+<p style="margin-bottom: 6px">Чтобы скопировать цвет в буфер обмена нам также понадобится <strong>wl-clipboard</strong>.</p>
+<p style="margin-top: 6px"><a href="/arch/clipboard.html">Подробней про wl-clipboard</a>.</p>
+
+<p style="margin-bottom: 6px">Создадим скрипт <strong><i>~/scripts/pipette.sh</i></strong>, который будет определять цвет пикселя, по которому мы кликнули, копировать в буфер обмена его HEX и выводить в mako:</p>
+<pre style="margin-top: 6px"><code class="language-bash">#!/usr/bin/env bash
+
+# Делаем скрин выделенной области
+COLOR=$(grim -g "$(slurp -p)" -t ppm - | magick - txt:- | grep -m1 -oP '#\w{6}')
+
+# Если пользователь нажал Esc и цвет не выбран
+[ -z "$COLOR" ] && exit 0
+
+# Копируем цвет в буфер обмена
+echo -n "$COLOR" | wl-copy
+
+# Создаем маленькую цветную иконку 64x64 для уведомления
+magick -size 64x64 xc:"$COLOR" /tmp/color.png
+
+# Показываем уведомление
+notify-send -i /tmp/color.png "Цвет скопирован" "$COLOR"
+</code></pre>
+
+<p style="margin-bottom: 6px">А теперь проверим рабочесть этого скрипта:</p>
+<pre style="margin-top: 6px"><code class="language-bash">chmod +x ~/scripts/pipette.sh
+~/scripts/pipette.sh
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё нормально, то добавим его в конфиг <strong>Sway</strong>. Привяжем к сочетанию клавиш <strong><i>Win+Shift+P</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">bindsym --to-code $mod+Shift+p exec ~/scripts/pipette.sh
+</code></pre>
+
+
+<p style="margin-bottom: 6px"><code style="background-color: #161616; padding-left: 6px; padding-right: 6px">grim -g "$(slurp -p)" -t ppm -</code> → PPM в <strong>stdout</strong></p>
+<ul style="margin-top: 6px">
+   <li><code style="background-color: #161616; padding-left: 6px; padding-right: 6px">-t ppm</code> или <code style="background-color: #161616; padding-left: 6px; padding-right: 6px">--type ppm</code> – это тип (format) изображения, который <strong>grim</strong> должен выдать</li>
+   <li>PPM = Portable Pixmap – это текстовый / бинарный формат изображения, очень простой</li>
+   <li>Дефис в конце команды <code style="background-color: #161616">&nbsp-&nbsp</code> означает "stdout", то есть не сохранять файл на диск, а вывести результат в стандартный поток вывода (терминал или пайп).</li>
+</ul>
+
+<p style="margin-bottom: 6px"><code style="background-color: #161616; padding-left: 10px; padding-right: 10px">magick - txt:-</code> → превращает PPM в текст с цветами пикселей</p>
+<ul style="margin-top: 6px">
+   <li><strong>magick</strong> – это новая команда <strong>ImageMagick 7</strong>, заменяет старый <strong>convert</strong>. Позволяет обрабатывать изображения, конвертировать их, получать информацию о пикселях и т.д.</li>
+   <li><code style="background-color: #161616; padding-left: 6px; padding-right: 6px">-</code> (первый дефис) – означает <strong>stdin</strong>, то есть читаем изображение из стандартного потока.</li>
+   <li><code style="background-color: #161616; padding-left: 6px; padding-right: 6px">txt:</code> – это формат Text (текстовый), который <strong>ImageMagick</strong> умеет выдавать: каждый пиксель превращается в строку вида: <code style="background-color: #161616; padding-left: 6px; padding-right: 6px">0,0: (255, 0, 0)  #FF0000  srgb(255,0,0)</code></li>
+   <li><code style="background-color: #161616; padding-left: 6px; padding-right: 6px">-</code> (второй дефис – после <code style="background-color: #161616; padding-left: 6px; padding-right: 6px">txt:</code>) – выводить текст в <strong>stdout</strong>, а не в файл.</li>
+</ul>
+
+<p><code style="background-color: #161616; padding-left: 6px; padding-right: 6px">grep -m1 -oP '#\w{6}</code> → берёт первый HEX-цвет #RRGGBB.</p>
+
+<h2>Tesseract</h2>
+
+<p><strong>Tesseract</strong> – это OCR-движок (Optical Character Recognition).</p>
+
+<p style="margin-bottom: 6px">Устанавливаем его:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S tesseract
+</code></pre>
+
+<p style="margin-bottom: 6px">И сразу же проверяем список доступных языков:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">tesseract --list-langs
+  # List of available languages in "/usr/share/tessdata/" (2):
+  # afr
+  # osd
+</code></pre>
+<p style="margin-top: 6px">У меня доступны только африкаанс и <strong>osd</strong> — orientation & script detection (служебный, не для текста).</p>
+
+<p style="margin-bottom: 6px">Установим английский и русский языки:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S tesseract-data-eng tesseract-data-rus
+
+# Также могут быть полезны:
+  # tesseract-data-deu – немецкий
+  # tesseract-data-fra – французский
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь можно протестировать распознавание языка:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">tesseract ~/Pictures/kakashka.png ~/Pictures/output
+
+# с явным указанием языка:
+tesseract ~/Pictures/kakashka.png ~/Pictures/output3 -l eng
+
+# можно смешивать языки:
+tesseract ~/Pictures/kakashka.png ~/Pictures/output3 -l eng+rus
+
+# вевести результат в терминал:
+tesseract ~/Pictures/kakashka.png stdout -l eng
+</code></pre>
+<p style="margin-top: 6px">Создался файл <strong><i>~/Pictures/output.txt</i></strong>. Обратите внимание, что <strong>tesseract</strong> автоматическ добавляет <strong><i>.txt</i></strong> к имени файлу.</p>
+
+<p style="margin-bottom: 6px">А теперь выведем в терминал то, что захватили с экрана:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grim -g "$(slurp)" -t png - | tesseract stdin stdout -l eng
+</code></pre>
+
+<p style="margin-bottom: 6px">Создадим скрипт, который будет копировать всё, что мы захватили с экрана, в буфер обмена и выводить в <strong>mako</strong> сообщение:</p>
+<pre style="margin-top: 6px"><code class="language-bash">#!/usr/bin/env bash
+
+# Языки OCR (eng или eng+rus)
+LANGS="eng+rus"
+
+# Делаем скрин выделенной области и распознаём текст
+TEXT=$(grim -g "$(slurp)" -t png - \
+  | tesseract stdin stdout -l "$LANGS" 2>/dev/null)
+
+# Если пользователь нажал Esc или текст пуст
+[ -z "$TEXT" ] && exit 0
+
+# Копируем в буфер
+echo -n "$TEXT" | wl-copy
+
+# Укорачиваем текст для уведомления
+PREVIEW=$(echo "$TEXT" | head -n 5)
+
+# Уведомление
+notify-send "OCR: текст скопирован" "$PREVIEW"
+</code></pre>
+
+<p style="margin-bottom: 6px">Делаем скрипт исполняемым и запускаем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">chmod +x ~/scripts/ocr.sh
+~/scripts/ocr.sh
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё в порядке, добавим его в конфиг <strong>Sway</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># ~/.config/sway/config
+
+bindsym --to-code $mod+t ~/scripts/ocr.sh
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+
+
+
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/ini.min.js"></script>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mako</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>mako</h1>
+
+
+<p style="margin-bottom: 6px">Установим <strong>mako</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S mako
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверить работу <strong>mako</strong> можно вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">notify-send "Заголовок" "А содержание самого сообщения."
+</code></pre>
+<p style="margin-top: 6px">В правом верхнем углу должно появиться сообщение. Чтобы его убрать нужно кликнуть по нему мышкой.</p>
+
+<p style="margin-bottom: 6px">Закрыть сообщение:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Закрыть текущее сообощение:
+makoctl dismiss
+
+# Закрыть все сообощения:
+mako dismiss --all
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong>mako</strong> – это D-Bus service, реализующий интерфейс <strong><i>org.freedesktop.Notifications</i></strong>. Это выглядит примерно вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">notify-send
+↓
+dbus
+↓
+mako (автозапуск)
+</code></pre>
+
+<h2>Конфигурационный файл</h2>
+<p>Должен располагаться здесь: <strong><i>~/.config/mako/config</i></strong>.</p>
+
+<pre><code class="language-bash"># Время показа уведомлений: 3 сек.
+default-timeout=3000
+
+# Цвет фона, текста и рамки:
+background-color=#222222
+text-color=#000000
+border-color=#126321
+
+# Толщина и закругление рамки:
+border-size=2
+border-radius=8
+
+# Положение экрана (например, сверху-справа):
+anchor=top-right
+
+# Отступы:
+margin=10
+padding=10
+
+# Прозрачность:
+RRGGBBAA
+   RR GG BB – цвет
+   AA – прозрачность
+
+То есть FF – полностью НЕПРОЗРАЧНЫЙ, а 00 – полностью прозрачный
+F5 – 95% прозрачности
+E6 – 90% прозрачности
+D9 – 85% прозрачности
+CC – 80% прозрачности
+B3 – 70% прозрачности
+99 – 60% прозрачности
+80 – 50% прозрачности
+
+# Чёрный цвет фона с 80% прозрачности:
+background-color=#000000CC
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong>!!! Важно !!!</strong> После того, как мы изменили config-файл, нужно перезагрузить <strong>mako</strong> командой:</p>
+<pre style="margin-top: 6px"><code class="language-bash">makoctl reload
+</code></pre>
+
+<h2>Прозрачность</h2>
+
+<p style="margin-bottom: 6px">Прозрачность указывается в формате <strong><i>RRGGBBAA</i></strong>:</p>
+<ul style="margin-top: 6px">
+    <li>RR GG BB – цвет</li>
+    <li>AA – прозрачность</li>
+</ul>
+
+<p style="margin-bottom: 6px">То есть, FF – полностью НЕПРОЗРАЧНЫЙ, а 00 – полностью прозрачный</p>
+<ul style="margin-top: 6px">
+   <li>F5 – 95% прозрачности</li>
+   <li>E6 – 90% прозрачности</li>
+   <li>D9 – 85% прозрачности</li>
+   <li>CC – 80% прозрачности</li>
+   <li>B3 – 70% прозрачности</li>
+   <li>99 – 60% прозрачности</li>
+   <li>80 – 50% прозрачности</li>
+</ul>
+
+<p style="margin-bottom: 6px">Пример прозрачного фона:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Чёрный цвет фона с 80% прозрачности:
+background-color=#000000CC
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

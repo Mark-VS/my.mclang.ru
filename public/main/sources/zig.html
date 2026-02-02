@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zig</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>Zig</h1>
+
+<p>Официальный сайт: <a href="https://ziglang.org/">ziglang.org</a></p>
+
+<p style="margin-bottom: 6px">Скачиваем архив <strong><i>zig-x86_64-linux-0.16.0-dev.2193+fc517bd01.tar.xz</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">tar -xvJf zig-x86_64-linux-0.16.0-dev.2193+fc517bd01.tar.xz
+cd zig-x86_64-linux-0.16.0-dev.2193+fc517bd01
+</code></pre>
+
+<h2>Установка:</h2>
+
+<pre><code class="language-bash"># Просто копируем папку в систему:
+sudo cp -r zig-x86_64-linux-0.16.0-dev.2193+fc517bd01 /opt/zig
+sudo ln -s /opt/zig/zig /usr/local/bin/zig
+
+# Проверяем:
+zig env
+# Посмотреть версию:
+zig version
+</code></pre>
+
+<h2>Удаление</h2>
+
+<pre><code class="language-bash">sudo rm -fr /opt/zig
+sudo rm -f /usr/local/bin/zig
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

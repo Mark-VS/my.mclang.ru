@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>neofetch</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>neofetch</h1>
+
+<p>Страничка на GitHub: <a href="https://github.com/dylanaraps/neofetch">github.com/dylanaraps/neofetch</a></p>
+
+<p style="margin-bottom: 6px">Скачиваем исходники:</p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/dylanaraps/neofetch.git
+cd neofetch
+</code></pre>
+
+<p style="margin-bottom: 6px">Поскольку <strong><i>neofetch</i></strong> написан на bash, то внутри уже имеется рабочий shell-скрипт: <strong><i>neofetch</i></strong>. Его сразу можно запустить:</p>
+<pre style="margin-top: 6px"><code class="language-bash">./neofetch</code></pre>
+<p>Makefile здесь нужен только для установки. Можно туда зайти и посмотреть куда будет ставиться neofetch.</p>
+
+<h2>Установка</h2>
+
+<pre><code class="language-bash">sudo make install
+</code></pre>
+
+<p style="margin-bottom: 6px">В систему скопировалось два файлика. Сам shell-скрипт попал в <strong><i>/usr/bin/neofetch</i></strong>, а man-страничка – в <strong><i>/usr/share/man/man1/neofetch.1</i></strong>. Проверить можно так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Проверяем где сам скрипт:
+which neofetch
+
+# Проверяем где man-страничка:
+man --where neofetch
+</code></pre>
+<p style="margin-top: 6px">Следует <strong>обратить внимание</strong>: установка произошла не в пользовательскую <strong><i>/usr/local/bin/</i></strong>, а в системную <strong><i>/usr/bin/</i></strong> папку. man-странички также установлись в <strong><i>/usr/share/man/man1/</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Теперь можно пользоваться программой:</p>
+<pre style="margin-top: 6px"><code class="language-bash">neofetch --color_blocks off --ascii_distro debian
+</code></pre>
+
+
+<h2>Итого:</h2>
+<pre><code class="language-bash"># Скачиваем shell-скрипт:
+git clone https://github.com/dylanaraps/neofetch.git
+cd neofetch
+
+# Устанавливаем его в систему:
+sudo make install
+
+# Удаление из системы:
+sudo make uninstall
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

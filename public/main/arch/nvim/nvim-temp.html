@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telescope</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>Telescope Temp</h1>
+
+<p>Временная страничка с последним рабочим конфигом nvim.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">~/.config/nvim/init.lua
+
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+-- Setup lazy.nvim
+require("lazy").setup({
+   spec = {
+      { import = "plugins.treesitter" },
+      { import = "plugins.lualine" },
+      { import = "plugins.neotree" },
+      { import = "plugins.cmp" },
+      { import = "plugins.telescope" },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+
+-- vim.cmd.colorscheme('habamax')
+-- vim.cmd('colorscheme habamax')
+vim.api.nvim_command('colorscheme habamax')
+
+
+-- :highlight Normal guibg=#21252B
+-- :hi Normal guibg=#21252B
+vim.api.nvim_set_hl(0, "Normal", { bg = "#21252B"})
+
+-- :set number
+-- :set nu
+vim.opt.number = true
+
+-- :set numberwidth=4
+-- :set signcolumn=yes
+vim.opt.signcolumn = "yes"
+vim.opt.statuscolumn = "%l %s"
+
+require("lsp")
+
+</code></pre>
+
+<p style="margin-bottom: 6px">LSP</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/lsp.lua
+
+-- 1. Описание сервера
+vim.lsp.config['tsserver'] = {
+  cmd = { 'typescript-language-server', '--stdio' },
+  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', '.git' },
+  settings = {}, -- настройки tsserver можно оставить пустыми
+}
+-- Lua
+vim.lsp.config['lua_ls'] = {
+  cmd = { 'lua-language-server' },
+  filetypes = { 'lua' },
+  root_markers = { '.git', '.luarc.json', '.luarc.jsonc' },
+  settings = {
+    Lua = {
+      runtime = {
+        version = 'LuaJIT', -- важно для Neovim
+      },
+      diagnostics = {
+        globals = { 'vim' }, -- чтобы не ругался на vim.*
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file('', true),
+        checkThirdParty = false,
+      },
+    },
+  },
+}
+
+-- 2. Включение сервера
+vim.lsp.enable('tsserver')
+vim.lsp.enable('lua_ls')
+</code></pre>
+
+<p style="margin-bottom: 6px">Tree-sitter</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/treesitter.lua
+
+return {
+   'nvim-treesitter/nvim-treesitter',
+   lazy = false,
+   build = ':TSUpdate',
+   config = function()
+      require'nvim-treesitter'.install { "javascript", "typescript", "html", "css", "lua" }
+   end
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Lualine</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/lualine.lua
+
+return {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+        require'lualine'.setup {
+            options = {
+		 theme = 'nord',
+	    }
+	}
+    end
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">nvim-cmp</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/cmp.lua
+
+return {
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      -- completion
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+
+      -- snippets
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+      'rafamadriz/friendly-snippets',
+    },
+    config = function()
+      local cmp = require('cmp')
+      local luasnip = require('luasnip')
+
+      -- Загружаем сниппеты из friendly-snippets
+      require('luasnip.loaders.from_vscode').lazy_load()
+
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
+        },
+
+        mapping = cmp.mapping.preset.insert({
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+        }),
+
+        sources = {
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'buffer' },
+          { name = 'path' },
+        },
+      })
+    end,
+  },
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Neotree</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/neotree.lua
+
+return {
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "nvim-tree/nvim-web-devicons", -- optional, but recommended
+    },
+    lazy = false, -- neo-tree will lazily load itself
+  }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Telescope</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/telescope.lua
+
+return {
+  {
+    'nvim-telescope/telescope.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make',
+      },
+    },
+    config = function()
+      local telescope = require('telescope')
+      -- Здесь добавляем переменную builtin:
+      local builtin = require('telescope.builtin')
+      telescope.setup({
+        defaults = {
+          mappings = {
+            i = {
+              ['<Esc>'] = require('telescope.actions').close,
+            },
+          },
+        },
+      })
+      telescope.load_extension('fzf')
+      -- А здесь добавляем горячие клавиши:
+      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
+      vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
+      vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Buffers' })
+      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Help tags' })
+    end,
+  }
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">
+
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

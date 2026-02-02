@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leap</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1 style="margin-bottom: 6px">Leap</h1>
+<p style="margin-top: 6px">Страничка на Codeberg: <a href="https://codeberg.org/andyg/leap.nvim">codeberg.org/andyg/leap.nvim</a></p>
+
+<p style="margin-bottom: 6px">Ставим <strong>leap.nvim</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/leap.lua
+
+return {
+  {
+    'https://codeberg.org/andyg/leap.nvim',
+    keys = {
+      { 's', '<Plug>(leap)', mode = {'n','x','o'} },
+      { 'S', '<Plug>(leap-from-window)', mode = 'n' },
+    },
+  }
+}
+</code></pre>
+
+<p style="kargin-bottom: 6px">И подключаем его в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+require("lazy").setup({
+   spec = {
+      { import = "plugins.leap" },
+      -- { ... },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+-- ...
+</code></pre>
+
+<p style="margin-bottom: 6px">Управление</p>
+<ul style="margin-top: 6px; margin-bottom: 6px">
+   <li>s → прыжок только по видимой части экрана</li>
+   <li>S → прыжок в другое окно (если открыто несколько)</li>
+</ul>
+<p style="margin-top: 6px">Далее вводим две буквы для поиска и видим куда можно прыгнуть.</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

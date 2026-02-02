@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cowsay</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>cowsay</h1>
+
+<p style="margin-bottom: 6px">Официальный сайт: <a href="https://cowsay.diamonds/">cowsay.diamonds</a></p>
+<p style="margin-top: 6px">Страничка на GitHub: <a href="https://github.com/cowsay-org/cowsay">github.com/cowsay-org/cowsay</a></p>
+
+<p style="margin-bottom: 6px">Скачиваем <strong>perl</strong>-скрипт:</p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/cowsay-org/cowsay.git
+cd cowsay
+</code></pre>
+
+<p style="margin-bottom: 6px">Или скачиваем архив c <a href="https://github.com/cowsay-org/cowsay/releases">GitHub</a> или с <a href="https://cowsay.diamonds/">оф. сайта</a>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">tar -xzvf cowsay-3.8.4.tar.gz
+cd cowsay-3.8.4
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим:</p>
+<pre style="margin-top: 6px"><code class="language-bash">./bin/cowsay "Привет!"
+
+# укажем животное:
+./bin/cowsay -f kitty "Привет"
+./bin/cowsay -f moofasa "Привет"
+./bin/cowsay -f tux "Привет"
+
+# Или можно явно указать файл с говорящим: 
+./bin/cowsay -f ./share/cowsay/cows/default.cow "Hello"
+./bin/cowsay -f ./share/cowsay/cows/milk.cow "Hello"
+</code></pre>
+
+
+<h2>Установка</h2>
+
+<pre><code class="language-bash">sudo make install</code></pre>
+
+
+<h2>Удаление</h2>
+
+<pre><code class="language-bash">sudo make uninstall</code></pre>
+
+<pre><code class="language-bash">
+    github.com/cowsay-org/cowsay
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

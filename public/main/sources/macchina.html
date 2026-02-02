@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>macchina</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>macchina</h1>
+
+<p>Страничка на GitHub: <a href="https://github.com/Macchina-CLI/macchina">github.com/Macchina-CLI/macchina</a></p>
+
+<p style="margin-bottom: 6px">Проверим, есть ли у нас <strong><i>Rust</i></strong> и <strong><i>Cargo</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rustc --version
+cargo --version
+</code></pre>
+
+<p style="margin-bottom: 6px">Пробуем собрать программу в текущей папке:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cargo build --release
+</code></pre>
+
+<p style="margin-bottom: 6px">Без аргумента <code style="background-color: #161616">--release</code> <strong><i>Cargo</i></strong> по умолчанию собирает debug-сборку.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Если не произошло никаких ошибок, то бинарник должен лежать в <strong><i>./target/release/macchina</i></strong>.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Если всё оk – можно запустить программу:</p>
+<pre style="margin-top: 6px"><code class="language-bash">./target/release/macchina
+</code></pre>
+
+<h2>Установка</h2>
+
+<p style="margin-bottom: 6px">Или можно установить в систему:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">cargo install --path .
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">Здесь аргумент <code style="background-color: #161616">--path .</code> указывает на каталог, в котором лежит <strong><i>Cargo.toml</i></strong>.</p>
+<p style="margin-top: 6px"><code style="background-color: #161616">cargo install --path .</code> создаёт временный каталог, копирует туда исходники проекта, собирает проект заново (всегда в --release, со своим профилем), кладёт бинарник в <strong><i>~/.cargo/bin/</i></strong> и удаляет временные файлы. Папка <strong><i>target</i></strong> моего проекта вообще не используется.</p>
+
+
+<p style="margin-bottom: 6px"><strong><i>Cargo</i></strong> установил бинарник в <strong><i>~/.cargo/bin/macchina</i></strong>. Если директории <strong><i>$HOME/.cargo/bin</i></strong> ещё нет в нашем <strong><i>PATH</i></strong>, то нужно её добавить:</p>
+<pre style="margin-top: 6px"><code class="language-bash">export PATH="$HOME/.cargo/bin:$PATH"
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь система видит <strong><i>macchina</i></strong> и можно запускать его так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">macchina
+</code></pre>
+
+
+<p style="margin-bottom: 6px">По умолчанию при установке в систему темы и ascii-логотипы не копируются из папки с исходниками в <strong><i>~/.config/macchina/</i></strong>. А также не создаётся конфиг <strong><i>~/.config/macchina/macchina.toml</i></strong>. Поэтому сделаем всё это вручную. А также установим man-странички:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cp -r ~/Downloads/macchina/contrib/themes ~/.config/macchina/
+cp -r ~/Downloads/macchina/contrib/ascii ~/.config/macchina/
+touch ~/.config/macchina/macchina.toml
+
+mkdir -p ~/.local/share/man/man1 ~/.local/share/man/man7
+cp ~/Downloads/macchina/doc/macchina.1 ~/.local/share/man/man1/
+cp ~/Downloads/macchina/doc/macchina.7 ~/.local/share/man/man7/
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь нам нужно в конфиге указать тему, которую мы хотим использовать:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># ~/.config/macchina/macchina.toml
+
+theme = "Helium"
+</code></pre>
+
+<p style="margin-bottom: 6px">А в теме отключаем скрытие ascii-лого и указываем путь к нему:</p>
+<pre style="margin-top: 6px"><code class="language-ini"># ~/.config/macchina/themes/Helium.toml
+...
+
+hide_ascii = false
+
+...
+
+[custom_ascii]
+path = "~/.config/macchina/ascii/archlinux.ascii"
+
+...
+</code></pre>
+
+<h3>документация</h3>
+
+<p style="margin-bottom: 6px">Проверяем, видит ли man наши странички:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">man 1 macchina
+  # Нет справочной страницы для macchina в разделе 1
+</code></pre>
+<p style="margin-top: 6px">У меня не видит.</p>
+
+<p style="margin-bottom: 6px">Проверим, какие пути видит наша система:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">manpath
+  # /usr/local/man:/usr/local/share/man:/usr/share/man:/usr/lib/jvm/default/man
+echo $MANPATH
+   # тут пусто – ничего не выводится
+</code></pre>
+<p style="margin-top: 6px"><strong><i>manpath</i></strong> сначала проверяет файл <strong><i>/etc/man_db.conf</i></strong> на наличие путей, а затем проверяет переменную среды <strong><i>$MANPATH</i></strong>. И если эта переменная содержит пути, то <strong><i>manpath</i></strong> тоже добавляет их к списку путей, которые нужно проверить на наличие <strong>man</strong>-страничек.</p>
+
+
+<pre><code class="language-bash">export MANPATH="$HOME/.local/share/man:$MANPATH"
+
+manpath
+  # manpath: предупреждение: найдена переменная среды $MANPATH, добавляется в конец /etc/man_db.conf
+  # /home/mark/.local/share/man:/usr/local/man:/usr/local/share/man:/usr/share/man:/usr/lib/jvm/default/man
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь система видит папку <strong><i>~/.local/share/man</i></strong> и <strong>man</strong>-странички оттуда доступны для <strong>man-db</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">man 1 macchina    # выводит первый раздел
+man 7 macchina    # выводит седьмой раздел
+</code></pre>
+
+
+<h2>Удаление</h2>
+
+<pre><code class="language-bash">rm ~/.cargo/macchina       # Удаляем бинарник
+rm -r ~/.config/macchina   # Удаляем конфиг, темы и лого
+# Удаляем документацию:
+rm ~/.local/share/man/man1/macchina.1
+rm ~/.local/share/man/man7/macchina.7
+</code></pre>
+
+
+
+<h2>Итого</h2>
+<pre><code class="language-bash"># Собираем проект
+cargo build --release
+
+# Устанавливаем (пересобрав):
+cargo install --path .
+
+# Копируем темы и asci-лого:
+cp -r ~/Downloads/macchina/contrib/themes ~/.config/macchina/
+cp -r ~/Downloads/macchina/contrib/ascii ~/.config/macchina/
+# Создаём конфиг
+touch ~/.config/macchina/macchina.toml
+
+# Создаём папки для документации, если их ещё нет:
+mkdir -p ~/.local/share/man/man1 ~/.local/share/man/man7
+# И копируем туда man-странички:
+cp ~/Downloads/macchina/doc/macchina.1 ~/.local/share/man/man1/
+cp ~/Downloads/macchina/doc/macchina.7 ~/.local/share/man/man7/
+
+# Удаляем всё, что поставили:
+rm ~/.cargo/macchina
+rm -r ~/.config/macchina
+rm ~/.local/share/man/man1/macchina.1
+rm ~/.local/share/man/man7/macchina.7
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

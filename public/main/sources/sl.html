@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sl</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>sl</h1>
+
+<p style="margin-bottom: 6px">Страничка на GitHub: <a href="https://github.com/mtoyoda/sl">github.com/mtoyoda/sl</a></p>
+<p style="margin-top: 6px">Форк: <a href="https://github.com/eyJhb/sl">github.com/eyJhb/sl</a></p>
+
+<p style="margin-bottom: 6px">Скачиваем исходники:</p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/mtoyoda/sl.git
+# Или:
+git clone https://github.com/eyJhb/sl.git
+
+# Переходим в папку:
+cd sl
+</code></pre>
+
+<h2>Сборка</h2>
+
+<p style="margin-bottom: 6px">Собираем бинарник:</p>
+<pre style="margin-top: 6px"><code class="language-bash">make</code></pre>
+
+<p style="margin-bottom: 6px">У нас появился бинарник <strong><i>sl</i></strong>. Мы можем сразу же его запустить:</p>
+<pre style="margin-top: 6px"><code class="language-bash">./sl</code></pre>
+
+<h2>Установка</h2>
+
+<p>У нас в <strong><i>Makefile</i></strong> нет цели <i>install</i>. Проверить можно так:</p>
+<pre><code class="language-bash">make install --dry-run
+  # make: *** Нет правила для сборки цели «install».  Останов.
+
+# или посмотрим с помощью grep:
+grep Makefile install
+</code></pre>
+
+<p style="margin-bottom: 6px">Поэтому просто скопируем бинарник:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo cp sl /usr/local/bin/
+
+# Или:
+sudo install -m 755 sl /usr/local/bin/sl
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь программа установлена в систему. Её можно запускать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sl
+</code></pre>
+
+<h2>Удаление</h2>
+
+<p style="margin-bottom: 6px">Просто удаляем бинарник:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo rm -f /usr/local/bin/sl</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim4</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>nvim4</h1>
+
+
+<h2>lsp</h2>
+
+
+
+<p style="margin-bottom: 6px">Для начала установим <strong>typescript</strong> и <strong>typescript-language-server</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo npm install --global typescript typescript-language-server
+</code></pre>
+
+<p style="margin-bottom: 6px">Запустить <strong>typescript-language-server</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">typescript-language-server --stdio
+</code></pre>
+
+<p style="margin-bottom: 6px">Вот пример файла с настройкой и запуском <strong>LSP</strong>-сервера:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/lsp.lua
+
+-- 1. Описание сервера
+vim.lsp.config['tsserver'] = {
+  cmd = { 'typescript-language-server', '--stdio' },
+  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', '.git' },
+  settings = {}, -- настройки tsserver можно оставить пустыми
+}
+
+-- 2. Включение сервера
+vim.lsp.enable('tsserver')
+</code></pre>
+
+<p style="margin-bottom: 6px">И давайте подключим этот <strong>LSP</strong>-сервер в самом низу файла <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+
+require("lsp")
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверить, работает ли <strong>LSP</strong>-сервер:</p>
+<pre style="margin-top: 6px"><code class="language-bash">:checkhealth vim.lsp
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Ещё один способ проверить, работает ли <strong>LSP</strong>-сервер:</p>
+<pre style="margin-top: 6px"><code class="language-lua">:lua print(vim.inspect(vim.lsp.get_clients({bufnr=0})))
+
+-- Если вывод: "{}", то значит LSP-сервер не работает
+-- А если вывод есть, то всё в порядке.
+
+-- Если запустить эту команду в .js- / .ts-файле, то получим вывод,
+-- а если запустить, например, в .lua-файле, то получим: "{}".
+-- Значит, для .lua LSP-сервер не работает.
+</code></pre>
+
+<p>Если открыть .js-файл, то мы можем заметить напротив некоторых строк пометки (если включен signcolumn - vim.opt.signcolumn = "yes"):</p>
+<ul>
+   <li>E → Error (ошибка типа, синтаксическая ошибка, LSP или компилятор)</li>
+   <li>W → Warning (предупреждение)</li>
+   <li>I → Info (информация, подсказка от LSP)</li>
+   <li>H → Hint (совет, подсказка)</li>
+</ul>
+<p>Как посмотреть подсказку / комментарий. Нужно переместиться на строку с подсказкой / ошибкой и нажать "K".</p>
+
+<h2>nvim-cmp</h2>
+
+<p style="margin-bottom: 6px">Также для работы понадобятся:</p>
+<ul style="margin-top: 6px">
+   <li>cmp-nvim-lsp – источник автодополнения от LSP</li>
+   <li>cmp-buffer – слова из текущего файла</li>
+   <li>cmp-path – источник путей файловой системы</li>
+</ul>
+<p>Сам <strong>nvim-cmp</strong> ничего не предлагает. <strong>nvim-cmp</strong> – это менеджер меню, а варианты ему приносят источники (sources). Каждая строка в <strong><i>dependencies</i></strong> – один источник данных. <strong>cmp-nvim-lsp</strong> – самый важный источник. Это мост между <strong>LSP</strong> и <strong>nvim-cmp</strong>. <strong>LSP</strong> не участвует в автодополнении без <strong>cmp-nvim-lsp</strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/cmp.lua
+
+return {
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+    },
+    config = function()
+      local cmp = require('cmp')
+
+      cmp.setup({
+        completion = {
+          completeopt = 'menu,menuone,noselect',
+        },
+
+        mapping = cmp.mapping.preset.insert({
+          ['&lt;C-Space&gt;'] = cmp.mapping.complete(),
+          ['&lt;CR&gt;'] = cmp.mapping.confirm({ select = true }),
+          ['&lt;Tab&gt;'] = cmp.mapping.select_next_item(),
+          ['&lt;S-Tab&gt;'] = cmp.mapping.select_prev_item(),
+        }),
+
+        sources = {
+          { name = 'nvim_lsp' },
+          { name = 'buffer' },
+          { name = 'path' },
+        },
+      })
+    end,
+  },
+}
+</code></pre>
+
+<ul>
+   <li>Ctrl+Space – вызвать автодополнение вручную</li>
+   <li>Tab / Shift+Tab – навигация</li>
+   <li>Enter – выбрать</li>
+</ul>
+
+<p><strong><i>cmp.mapping</i></strong> – это не <i>vim.keymap</i>. Это внутренняя система обработки клавиш плагина <strong>nvim-cmp</strong>. Она работает только когда активно completion-меню. Это логика <strong>UI</strong>-автодополнения, а не редактора.</p>
+
+<p style="margin-bottom: 6px">А затем подключаем <strong>nvim-cmp</strong> в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+require("lazy").setup({
+   spec = {
+      { ... },
+      { import = "plugins.cmp" },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+</code></pre>
+<p style="margin-top: 6px">Теперь можно открыть <strong><i>.js</i></strong>- или <strong><i>.ts</i></strong>-файл и автодополнение должно работать.</p>
+
+<h2>Сниппеты</h2>
+
+<p style="margin-bottom: 6px">Подправим файл <strong><i>~/.config/nvim/lua/plugins/cmp.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/cmp.lua
+
+return {
+{
+  'hrsh7th/nvim-cmp',
+  dependencies = {
+    -- completion
+    'hrsh7th/cmp-nvim-lsp',
+    'hrsh7th/cmp-buffer',
+    'hrsh7th/cmp-path',
+
+    -- snippets
+    'L3MON4D3/LuaSnip',
+    'saadparwaiz1/cmp_luasnip',
+    'rafamadriz/friendly-snippets',
+  },
+  config = function()
+    local cmp = require('cmp')
+    local luasnip = require('luasnip')
+
+    -- Загружаем сниппеты из friendly-snippets
+    require('luasnip.loaders.from_vscode').lazy_load()
+
+    cmp.setup({
+      snippet = {
+	expand = function(args)
+	  luasnip.lsp_expand(args.body)
+	end,
+      },
+
+      mapping = cmp.mapping.preset.insert({
+	['&lt;C-Space&gt;'] = cmp.mapping.complete(),
+	['&lt;CR&gt;'] = cmp.mapping.confirm({ select = true }),
+
+	['&lt;Tab&gt;'] = cmp.mapping(function(fallback)
+	  if cmp.visible() then
+	    cmp.select_next_item()
+	  elseif luasnip.expand_or_jumpable() then
+	    luasnip.expand_or_jump()
+	  else
+	    fallback()
+	  end
+	end, { 'i', 's' }),
+
+	['&lt;S-Tab&gt;'] = cmp.mapping(function(fallback)
+	  if cmp.visible() then
+	    cmp.select_prev_item()
+	  elseif luasnip.jumpable(-1) then
+	    luasnip.jump(-1)
+	  else
+	    fallback()
+	  end
+	end, { 'i', 's' }),
+      }),
+
+      sources = {
+	{ name = 'nvim_lsp' },
+	{ name = 'luasnip' },  -- добавим ещё и luasnip
+	{ name = 'buffer' },
+	{ name = 'path' },
+      },
+    })
+  end,
+},
+}
+</code></pre>
+<p style="margin-top: 6px">Теперь, когда мы запустим <strong><i>.js</i></strong>- или <strong><i>.ts</i></strong>-файл и начнём набирать код – например, <code style="background-color: #161616">for</code>, – то в выпадающем списке появится выбор сниппета: <i>for~ snippet</i>.</p>
+
+
+<h2>lua-languager-server</h2>
+
+
+<p style="margin-bottom: 6px">Для начала установим <strong>lua-languager-server</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S lua-language-server
+
+# Проверяем:
+lua-language-server --version
+</code></pre>
+
+<p style="margin-bottom: 6px">Добавляем <strong>LSP</strong>-сервер для Lua в <strong><i>~/.config/nvim/lua/lsp.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/lua/lsp.lua
+
+-- 1. Описание TypeScript- / JavaScript-сервера:
+vim.lsp.config['tsserver'] = {
+  cmd = { 'typescript-language-server', '--stdio' },
+  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', '.git' },
+  settings = {}, -- настройки tsserver можно оставить пустыми
+}
+
+-- 2. Описание Lua-сервера:
+vim.lsp.config['lua_ls'] = {
+  cmd = { 'lua-language-server' },
+  filetypes = { 'lua' },
+  root_markers = { '.git', '.luarc.json', '.luarc.jsonc' },
+  settings = {
+    Lua = {
+      runtime = {
+        version = 'LuaJIT', -- важно для Neovim
+      },
+      diagnostics = {
+        globals = { 'vim' }, -- чтобы не ругался на vim.*
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file('', true),
+        checkThirdParty = false,
+      },
+    },
+  },
+}
+
+-- 3. Включение серверов:
+vim.lsp.enable('tsserver')
+vim.lsp.enable('lua_ls')
+</code></pre>
+<p style="margin-top: 6px">Теперь <strong>nvim-cmp</strong> и сниппеты должны понимать и <strong>Lua</strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

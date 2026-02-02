@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Буфер обмена</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Буфер обмена (clipboard)</h1>
+
+<p style="margin-bottom: 6px">В <strong>Wayland</strong> нет глобального clipboard-сервиса, как в <strong>X11</strong>. Буфер обмена реализует compositor, то есть сам <strong>Sway</strong>. То есть, когда я нажимаю <strong><i>Ctrl+C</i></strong>, приложение само передаёт данные compositor'у. А когда я нажимаю <strong><i>Ctrl+V</i></strong>, compositor отдаёт данные другому приложению.</p>
+<p>!!! В <strong>Wayland</strong> есть важное ограничение: <strong>буфер обмена живёт, пока живо приложение-источник</strong>. Если я запустил, например, <strong>FeatherPad</strong>, выделил текст и скопировал его в буфер обмена, то я смогу его вставить в другое приложение только если <strong>FeathPad</strong> запущен. Если я закрою <strong>FeatherPad</strong>, то <strong><i>Ctrl+V</i></strong> в другом приложении ничего не вставит.</p>
+<p>Вроде бы как можно обойти это ограничение. Есть такие инструменты как <strong><i>cliphist</i></strong>, <strong><i>clipman</i></strong>. По идее, они должны сохранять историю. Но я пока с ними не разобрался. У меня они ничего не сохраняют после закрытия источника.</p>
+
+<h2>wl-clipboard</h2>
+
+<p style="margin-top: 6px; margin-bottom: 6px">Зачем тогда нужен пакет <strong><i>wl-clipboard</i></strong>, если GUI-приложения и так могут напрямую отправлять данных в буфер обмена <strong>Sway</strong>?</p>
+<p style="margin-top: 6px; margin-bottom: 6px"><strong><i>wl-clipboard</i></strong> добавляет две команды:</p>
+<ul style="margin-top: 6px">
+   <li>wl-copy – положить данные в буфер из <strong>stdin</strong>;</li>
+   <li>wl-paste – прочитать данные из буфера в <strong>stdout</strong>.</li>
+</ul>
+<p style="margin-bottom: 6px">То есть, <strong><i>wl-clipboard</i></strong> ≠ буфер обмена.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Буфер обмена (clipboard) у меня и так есть. Его даёт <strong>Sway</strong>.</p>
+<p style="margin-top: 6px"><strong><i>wl-clipboard</i></strong> – это мост между CLI и Wayland clipboard.</p>
+
+<h2 style="margin-bottom: 6px">wl-copy</h2>
+<p style="margin-top: 6px; margin-bottom: 6px">Копируем сообщение с помощью <strong><i>wl-copy</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">echo "Зелёные помидоры падают с дерева прямо в рот дяде Паше" | wl-copy
+</code></pre>
+
+<h2 style="margin-bottom: 6px">wl-paste</h2>
+<p style="margin-top: 6px; margin-bottom: 6px">А затем это сообщение можно вставить в любое приложение с помощью <strong><i>Ctrl+V</i></strong>.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Или вывести прямо в терминал:</p>
+<pre style="margin-top: 6px"><code class="language-bash">wl-paste
+
+# убрать перевод строки в конце:
+wl-paste -n
+</code></pre>
+
+<p style="margin-bottom: 6px">Можно следить за изменением буфера обмена:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">wl-paste --watch echo "clipboard changed"
+</code></pre>
+<p style="margin-top: 6px">Каждый раз, когда в буфер обмена попадёт что-то новое, будет выводиться надпись: "clipboard changed".</p>
+
+<pre style="margin-bottom: 6px"><code class="language-bash">wl-paste --list-types
+  # text/plain
+  # text/plain;charset=utf-8
+  # TEXT
+  # STRING
+  # UTF8_STRING
+</code></pre>
+<p style="margin-top: 6px">Всё, что мы получили в выводе – это форматы (MIME-типы), в которых доступно одно и то же содержимое. Когда приложение кладёт текст в буфер обмена, оно не кладёт "просто текст". Оно говорит compositor'у: я могу отдать это содержимое вот в таких форматах. А получающее приложение выбирает любой формат, который понимает.</p>
+<p style="margin-bottom: 6px">Когда мы просто пишем команду <code style="background-color: #161616">wl-paste</code> без явного указания MIME-типа, то <strong>wl-paste</strong> сам подбирает лучший подходящий текстовый тип. Обычно это <code style="background-color: #161616">text/plain;charset=utf-8</code>.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Но можно и самому явно указать тип:</p>
+<pre style="margin-top: 6px"><code class="language-bash">wl-paste --type text/plain
+
+# или:
+wl-paste --type UTF8_STRING
+</code></pre>
+
+<h2>Подводя итог</h2>
+<p>GUI-приложения не используют <strong>wl-copy</strong>. Они напрямую отправляют скопированные данные композитору, а тот отдаёт их другому приложению. <strong>wl-clipboard</strong> – это мост между CLI и Wayland'овским буфером обмена.</p>
+<p>Многие приложения, такие например, как <strong>NormCap</strong>, используют под капотом <strong>wl-clipboard</strong>, поэтому без него они не будут ничего копировать в буфер обмена.</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

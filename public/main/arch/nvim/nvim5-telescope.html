@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telescope</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>Telescope</h1>
+
+<p style="margin-bottom: 6px">Обязательная зависимость: <strong><i>nvim-lua/plenary.nvim</i></strong></p>
+<p style="margin-top: 6px">Опционально, но ОЧЕНЬ желательно для скорости: <strong><i>nvim-telescope/telescope-fzf-native.nvim</i></strong></p>
+
+<p style="margin-bottom: 6px">Теперь установим <strong>Telescope</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/telescope.lua
+
+return {
+  {
+    'nvim-telescope/telescope.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make',
+      },
+    },
+    config = function()
+      local telescope = require('telescope')
+      telescope.setup({
+        defaults = {
+          mappings = {
+            i = {
+              ['<Esc>'] = require('telescope.actions').close,
+            },
+          },
+        },
+      })
+      telescope.load_extension('fzf')
+    end,
+  }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">И подключаем в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+require("lazy").setup({
+   spec = {
+      { import = "plugins.treesitter" },
+      { import = "plugins.lualine" },
+      { import = "plugins.neotree" },
+      { import = "plugins.cmp" },
+      -- ...
+      -- Здесь подключаем Telescope:
+      { import = "plugins.telescope" },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+-- ...
+</code></pre>
+<p>Чтобы проверить,  работает <strong>Telescope</strong>, или нет, введём команду: <code style="background-color: #161616">:Telescope find_files</code>.</p>
+
+
+<p style="margin-bottom: 6px">Полезные команды:</p>
+<ul style="margin-top: 6px">
+   <li>:Telescope find_files – поиск файлов</li>
+   <li>:Telescope find_grep – поиск по тексту</li>
+   <li>:Telescope buffers – открытые буферы</li>
+   <li>:Telescope help_tags – help NeoVim</li>
+   <li>:Telescope lsp_definitions – перейти к определению</li>
+   <li>:Telescope lsp_references – кто использует символ</li>
+</ul>
+<p><code style="background-color: #161616">:Telescope find_files</code> – это <strong>CLI-обёртка</strong> над тем же самым: <code style="background-color: #161616">require('telescope.builtin').find_files()</code>.</p>
+
+<h2>Горячие клавиши</h2>
+<p style="margin-bottom: 6px">Назначим горячие клавиши, добавив следующий код в <strong><i>~/.config/nvim/init.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">-- ~/.config/nvim/init.lua
+
+local builtin = require('telescope.builtin')
+
+vim.keymap.set('n', '<leader>ff', builtin.find_files)
+vim.keymap.set('n', '<leader>fg', builtin.live_grep)
+vim.keymap.set('n', '<leader>fb', builtin.buffers)
+vim.keymap.set('n', '<leader>fh', builtin.help_tags)
+</code></pre>
+<p style="margin-top: 6px">Теперь <strong><i>&lt;Space&gt;ff</i></strong> – файлы, <strong><i>&lt;Space&gt;fg</i></strong> – поиск по проекту и т.д.</p>
+
+<p style="margin-bottom: 6px">А лучше всего перенести горячие клавиши в <strong><i>~/.config/nvim/lua/plugins/telescope.lua</i></strong>. Вот изменённый вариант файла:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/telescope.lua
+
+return {
+  {
+    'nvim-telescope/telescope.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make',
+      },
+    },
+    config = function()
+      local telescope = require('telescope')
+      -- Здесь добавляем переменную builtin:
+      local builtin = require('telescope.builtin')
+      telescope.setup({
+        defaults = {
+          mappings = {
+            i = {
+              ['<Esc>'] = require('telescope.actions').close,
+            },
+          },
+        },
+      })
+      telescope.load_extension('fzf')
+      -- А здесь добавляем горячие клавиши:
+      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
+      vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
+      vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Buffers' })
+      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Help tags' })
+    end,
+  }
+}
+</code></pre>
+<p style="margin-top: 6px">В предыдущем примере у горячих клавиш появился параметр <strong><i>desc</i></strong>. Это описание маппинга. Этот параметр не обязателен, но будет полезен для плагина <strong>which-key</strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

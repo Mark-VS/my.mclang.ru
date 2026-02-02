@@ -9,7 +9,6 @@ const MAIN_PAGE = "index.html";
 
 const mainPage = join(__dirname, MAIN_PAGE);
 
-
 const HTTP_PORT = 3001;
 const app = express();
 

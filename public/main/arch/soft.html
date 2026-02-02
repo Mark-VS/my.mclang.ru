@@ -13,6 +13,34 @@
 
 <h1>soft</h1>
 
+<p style="margin-bottom: 6px">Wayland-композиторы:</p>
+<ul style="margin-top: 6px">
+    <li>sway</li>
+    <li>river</li>
+    <li>dwl</li>
+    <li>cage</li>
+</ul>
+
+<p style="margin-bottom: 6px">Wayland terminal emulators:</p>
+<ul style="margin-top: 6px">
+    <li>foot – C</li>
+    <li>havoc (AUR) – C</li>
+    <li>wlterm / wterm (AUR) – xterm fow wayland, старый</li>
+</ul>
+<p style="margin-bottom: 6px">Терминалы с Wayland-бэкендом:</p>
+<ul style="margin-top: 6px">
+   <li>alacritty – Rust, поддерживает Wayland через свой winit-бэкенд</li>
+   <li>wezterm – Rust + Lua – через собственный рендеринг – большой Rust-проект</li>
+</ul>
+
+<p style="margin-bottom: 6px">Лаунчеры:</p>
+<ul style="margin-top: 6px">
+   <li>wofi (C) – GTK3</li>
+   <li>bemenu (С) – сам рисует окно – использует wayland-client + wlroots-подобные протоколы – минималистичный интерфейс, dmenu-стиль</li>
+   <li>fuzzel (C) – сам рисует окно – Wayland-only</li>
+   <li>tofi (C) – ультра-минимализм под Wayland</li>
+</ul>
+
 <p style="margin-bottom: 6px">браузеры</p>
 <ul style="margin-top: 6px">
    <li>Abrowser (AUR: abrowser-bin) – на основе firefox, gtk2, gtk3 – установлен на Trisquel</li>
@@ -21,7 +49,33 @@
    <li>Falkon (falkon) – на основе chromium, qt6</li>
    <li>Firefox → Iceweasel (firefox) – gtk3</li>
    <li>Opera (AUR) – gtk3, qt6, qt5</li>
+   <li>-</li>
+   <li>dillo – FLTK – минималистичный браузер</li>
 </ul>
+
+<p style="margin-bottom: 6px">Текстовые редакторы</p>
+<ul style="margin-top: 6px">
+   <li>featherpad – qt</li>
+   <li>mousepad</li>
+   <li>kate (KDE Applications)</li>
+   <li>leafpad (AUR) – A notepad clone for GTK+ 2.0</li>
+</ul>
+
+<p style="margin-bottom: 6px">Редакторы кода:</p>
+<ul style="margin-top: 6px">
+   <li>Flow Control (AUR: flow-control-bin) – написан на Zig</li>
+   <li>Lapce – Rust + GTK3</li>
+   <li>Geany – C + GTK3</li>
+   <li>VSCodium – TypeScript + Electron</li>
+</ul>
+
+<p style="margin-bottom: 6px">Электорнные книги:</p>
+<ul style="margin-top: 6px">
+   <li>Calibre – qt6</li>
+   <li>CoolReader – qt5</li>
+   <li>foliate – gtk4</li>
+</ul>
+
 
 <p style="margin-bottom: 6px">Почтовые клиенты:</p>
 <ul style="margin-top: 6px">
@@ -35,17 +89,30 @@
 <ul style="margin-top: 6px">
    <li>pcmanfm (pcmanfm – gtk3, pcmanfm-qt – qt)</li>
    <li>thunar – gtk3</li>
+   <li>krusader – qt6</li>
+   <li>qtfm – qt5</li>
+   <li>xfe (AUR) - простенький графический файловый менеджер, без зависимостей типа GTK или QT</li>
+   <li>worker (AUR) - графический файловый менеджер, ещё проще</li>
+</ul>
+
+<p style="margin-bottom: 6px">Консольные файловые менеджеры:</p>
+<ul style="margin-top: 6px">
+   <li>yazi</li>
+   <li>lf</li>
+   <li>mc – GNU Midnight Commander</li>
 </ul>
 
 <p style="margin-bottom: 6px">Просмотрщики изображений:</p>
 <ul style="margin-top: 6px">
    <li>imv / imv-dir</li>
+   <li>Loupe – GTK4</li>
    <li>qimgv</li>
    <li>viewnior – в Trisquel по умолчанию</li>
 </ul>
 
 <p style="margin-bottom: 6px">Аудио:</p>
 <ul style="margin-top: 6px">
+   <li>amberol – gtk4</li>
    <li>audacious – qt6</li>
    <li>deadbeef (AUR) – gtk3</li>
    <li>strawberry – qt6</li>
@@ -65,6 +132,7 @@
 <p style="margin-bottom: 6px">Видеоредакторы:</p>
 <ul style="margin-top: 6px">
    <li>kdenlive – qt6</li>
+   <li>shotcut – qt6</li>
 </ul>
 
 <p style="margin-bottom: 6px">Запись экрана:</p>
@@ -89,6 +157,7 @@
 <ul style="margin-top: 6px">
    <li>qbittorrent – qt6</li>
    <li>transmission (transmission-gtk – gtk4, transmission-qt – qt6)</li>
+   <li>fragments – gtk4</li>
 </ul>
 
 <p style="margin-bottom: 6px">RSS-ридер:</p>
@@ -102,9 +171,27 @@
    <li>krita (krita) – qt5</li>
 </ul>
 
-<pre><code class="language-bash">
-    lala
-</code></pre>
+<p style="margin-bottom: 6px">Всякие полезности</p>
+<ul style="margin-top: 6px">
+   <li>brightnessctl – управление яркостью экрана</li>
+   <li>light – управление яркостью экрана</li>
+   <li>cava – терминальный аудиовизуализатор</li>
+   <li>filelight – qt6 – отображает в графическом формате заполненность дискового пространства</li>
+   <li>--</li>
+   <li>mattermost - что-то типа Slack или Microsoft Teams</li>
+   <li>logseq (AUR)- бесплатный аналог obsidian</li>
+   <li>appflowy (AUR), anytype (AUR) - free notion</li>
+   <li>focalboard (AUR) - free trello</li>
+   <li>nextcloud - ХЗ. Что-то с хранением файлов на сервере. В том числе аудио- и видеозвонки и Sceen Sharing</li>
+</ul>
+
+<h2>Калькулятор</h2>
+<ul>
+   <li>qalculate-gtk</li>
+   <li>gnome-calculator</li>
+   <li>kcalc</li>
+   <li>qalculate (qalculate-qt, qalculate-gtk)</li>
+</ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

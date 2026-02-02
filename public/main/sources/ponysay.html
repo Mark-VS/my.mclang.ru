@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ponysay</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>ponysay</h1>
+
+<p style="margin-bottom: 6px">Официальный сайт: <a href="https://erkin.party/ponysay/">erkin.party/ponysay</a></p>
+<p style="margin-top: 6px">Страничка на GitHub: <a href="https://github.com/erkin/ponysay">github.com/erkin/ponysay</a></p>
+
+<p><strong><i>ponysay</i></strong> is written in <strong>Python 3</strong>.</p>
+
+<p>В <strong><i>README.md</i></strong> указаны все необходимые зависимости и процесс установки.</p>
+
+<p style="margin-bottom: 6px"><strong>Проверка зависимостей:</strong></p>
+<pre style="margin-top: 6px"><code class="language-bash">./dependency-test.sh
+</code></pre>
+
+<h2>Установка</h2>
+
+<p style="margin-bottom: 6px">Бинарники ставятся в <strong><i>/usr/bin</i></strong>. Их три штуки: ponysay, ponythink и ponysay-tool.</p>
+<pre style="margin-top: 6px"><code class="language-bash">./setup.py --freedom=partial install
+   
+# Или
+sudo python3 setup.py --freedom=partial install
+</code></pre>
+
+
+
+<p style="margin-bottom: 6px">Если хочется поставить программу в папку <strong><i>~/.local/</i></strong>, то можно воспользоваться аргументом <strong><i>--private</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">python3 setup.py --freedom=partial --private install
+</code></pre>
+
+<h2>Удаление</h2>
+
+<p style="margin-bottom: 6px">Не уверен, что это всё, что установилось. Но это всё, что я нашёл. Поэтому лучше ставить в <strong><i>~/.local/</i></strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo rm -f /usr/bin/{ponysay,ponysay-tool,ponythink}
+sudo rm -rf /usr/share/ponysay
+sudo rm -rf /usr/share/licenses/ponysay
+sudo rm -f /usr/share/man/man6/{ponysay,ponysay-tool,ponythink}.6.gz
+sudo rm -f /usr/share/info/{ponysay,ponysay-tool,ponythink}.info.gz
+</code></pre>
+
+<p><strong><i>/usr/lib/python3.14/site-packages/</i></strong> – Здесь тоже вроде нет никаких файлов.</p>
+<p><strong><i>/lib/python3.14/site-packages/</i></strong>, <strong><i>/lib64/python3.14/site-packages/</i></strong> – здесь тоже.</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

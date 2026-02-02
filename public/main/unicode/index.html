@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Unicode</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
     <style>
@@ -138,12 +138,56 @@
     <td>f(x) ≃ g(x)</td>
 </tr>
 
+<!-- --- kakaka --- -->
+
+<tr><td colspan="5" style="text-align: left"><p style="margin-bottom: 6px; font-weight: bold">файловое дерево:</p><pre style="margin-top: 6px">~/.config/nvim
+├── lua
+│   ├── config
+│   │   └── lazy.lua
+│   └── plugins
+│       ├── spec1.lua
+│       ├── **
+│       └── spec2.lua
+└── init.lua</pre></td></tr>
+<tr>
+    <td>-</td>
+    <td>-</td>
+    <td>├</td>
+    <td>-</td>
+    <td>-</td>
+</tr>
+<tr>
+    <td>-</td>
+    <td>-</td>
+    <td>─</td>
+    <td>-</td>
+    <td>-</td>
+</tr>
+<tr>
+    <td>-</td>
+    <td>-</td>
+    <td>│</td>
+    <td>-</td>
+    <td>-</td>
+</tr>
+<tr>
+    <td>-</td>
+    <td>-</td>
+    <td>└</td>
+    <td>-</td>
+    <td>-</td>
+</tr>
+
 </table>
 
 <h2>Как писать unicode-симовлы</h2>
-<p>Нажимаем: <strong><i>Ctrl+Shift+U</i></strong>. Далее вводим код (например, 2013) и нажимаем <strong><i>Enter</i></strong>. После этого <strong><i>u2013</i></strong> должно превратиться в <strong><i>–</i></strong>.</p>
-<p>Нажимаем <strong><i>Compose Key</i></strong>, далее пишем: <strong><i>a</i></strong>, и следом: <strong><i>`</i></strong>. Получается: à. А если <strong><i>a</i></strong> + <strong><i>'</i></strong>, то получим: á.</p>
-<p>Compose Key + - + - + - -> —</p>
+<p style="margin-bottom: 6px">Если мы в графической среде, то:</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Нажимаем: <strong><i>Ctrl+Shift+U</i></strong>. Далее вводим код (например, 2013) и нажимаем <strong><i>Enter</i></strong>. После этого <strong><i>u2013</i></strong> должно превратиться в <strong><i>–</i></strong>.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Нажимаем <strong><i>Compose Key</i></strong>, далее пишем: <strong><i>a</i></strong>, и следом: <strong><i>`</i></strong>. Получается: à. А если <strong><i>a</i></strong> + <strong><i>'</i></strong>, то получим: á.</p>
+<p style="margin-top: 6px">Compose Key + - + - + - -> —</p>
+
+<p style="margin-bottom: 6px">Если мы в терминале, то:</p>
+<p style="margin-top: 6px">Ctrl+v u 2013</p>
 
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

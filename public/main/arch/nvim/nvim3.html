@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim3</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>nvim3</h1>
+
+
+<h2>Lazy</h2>
+
+<p>Официальный сайт <strong>lazy.nvim</strong>: <a href="https://lazy.folke.io/">lazy.folke.io</a></p>
+
+<p style="margin-bottom: 6px">Далее кусок кода с оф. сайта – для установки <strong>lazy.nvim</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+-- Setup lazy.nvim
+require("lazy").setup({
+
+})
+
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Установим плагин hop (т.е. добавим его в <strong><i>setup</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   { 'phaazon/hop.nvim' }
+})
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Так тоже можно:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = {
+      {
+         'phaazon/hop.nvim',
+	 branch = 'v2',
+	 config = function() 
+            -- you can configure Hop the way you like here; see :h hop-config
+            require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+         end
+      }
+   }
+})
+</code></pre>
+<p style="margin-bottom: 6px">Явно указывать <strong><i>spec</i></strong> не обязательно. Можно воспользоваться короткой формой записи:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">require("lazy").setup({
+   {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      config = function() 
+         -- you can configure Hop the way you like here; see :h hop-config
+         require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+      end
+   }
+})
+</code></pre>
+<p style="margin-top: 6px"><strong>lazy.nvim</strong> устроен так, что если первый аргумент не содержит ключа <strong><i>spec</i></strong>, то первый аргумент считается таблицей плагинов (т.е. <strong><i>spec</i></strong>). Если же есть ключ <strong><i>spec</i></strong>, то lazy.nvim использует его.</p>
+
+<h2>Ключи</h2>
+
+<p style="margin-bottom: 6px">Помимо spec, есть ещё другие ключи:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = {
+      { ... }
+   },
+   default = { ... },
+   install = { ... },
+   event = { ... },
+   cmd = { ... },
+   checker = { ... },
+   opts = { ... }
+})
+</code></pre>
+<p style="margin-bottom: 6px"><strong><i>checker</i></strong> – это настройка <strong>lazy.nvim</strong> для автоматической проверки обновлений плагинов.</p>
+<p style="margin-top: 6px"><strong><i>opts</i></strong> – это параметры, которые передаются в функцию <strong><i>setup</i></strong>.</p>
+
+
+<p>То есть:</p>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      config = function() 
+         -- you can configure Hop the way you like here; see :h hop-config
+         require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' },
+         create_hl_autocmd = false,
+         jump_on_sole_occurrence = true,
+      end
+   }
+})
+
+-- То же самое:
+require("lazy").setup({
+   {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      opts = {
+         keys = 'etovxqpdygfblzhckisuran',
+         create_hl_autocmd = false,
+         jump_on_sole_occurrence = true,
+      }
+   }
+})
+
+-- То же самое, но избыточно и бессмысленно:
+require("lazy").setup({
+   {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      opts = {
+         keys = 'etovxqpdygfblzhckisuran',
+         create_hl_autocmd = false,
+         jump_on_sole_occurrence = true,
+      }
+      config = function(_, opts)
+         require'hop'.setup(opts)
+      end
+   }
+})
+
+</code></pre>
+
+<p style="margin-bottom: 6px">Попробуем применить цветовую схему после установки:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">require("lazy").setup({
+   spec = {
+      { ... }
+   },
+   default = { ... },
+   install = { colorscheme = { "lunaperche" } }
+})
+</code></pre>
+<p style="margin-top: 6px">Здесь после установки любого плагина включится цветова схема "lunaperche". Она применится именно в процессе установки в том же сеансе, безе перезагрузки <strong>nvim</strong>. Но после перезагрузки <strong>nvim</strong> вернётся схема по умолчанию.</p>
+
+<p style="margin-bottom: 6px">А чтобы схема не слетала после перезагрузки nvim, то сделаем так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">require("lazy").setup({
+   spec = {
+      { ... }
+   },
+   install = { colorscheme = { "lunaperche" } }
+})
+vim.cmd('colorscheme habamax')
+</code></pre>
+<p style="margin-top: 6px">При таком раскладе в процессе установки плагина мы будем видеть схему <strong><i>lunaperche</i></strong>, но после установки сразу применится <strong><i>habamax</i></strong>.</p>
+
+
+<p style="margin-bottom: 6px">Можно переопределить настройки плагина:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = {
+      {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      config = function() 
+         -- you can configure Hop the way you like here; see :h hop-config
+         require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+      end
+      }
+   },
+   install = { colorscheme = { "murphy" } }
+})
+
+-- Переопределяем ключ keys:
+require'hop'.setup { keys = '12345' }
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<p style="margin-bottom: 6px">Ключ <strong>event</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Плагин загрузится при первом чтении файла:
+   event = "BufRead" 
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<p style="margin-bottom: 6px">При любом открытии файла:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Плагин загрузится при любом открытии файла:
+   event = { "BufReadPost", "BufNewFile" } 
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<p style="margin-bottom: 6px">для определённых типов файлов:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Плагин загрузится только при открытии .js-файлов:
+   event = { "BufRead *.js", "BufNewFile *.js" }
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<p style="margin-bottom: 6px">для определённых типов файлов (ориентируется на filetype, а не на расширение):</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Загрузится только когда filetype станет "javascript":
+   ft = "javascript"
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Вот пример конфигурации, где при старте <strong>nvim</strong> не загружается плагин <strong>hop.nvim</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">require("lazy").setup({
+   spec = {
+      {
+         'phaazon/hop.nvim',
+         branch = 'v2',
+         event = { "InsertEnter", "BufRead" },
+         config = function() 
+            -- you can configure Hop the way you like here; see :h hop-config
+            require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+         end
+      }
+   },
+   install = { colorscheme = { "murphy" } }
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">Здесь нужно обратить внимание на <strong><i>event</i></strong>.</p>
+<p style="margin-top: 6px"><strong><i>InsertEnter</i></strong> срабатывает, когда мы переходим в режим вставки. А <strong><i>BufRead</i></strong> – когда открываем файл. Таким образом, если мы просто запустили <strong>nvim</strong>, не открывая файл, то плагин не загрузится. Но стоит только открыть файл, или начать печатать текст, как сразу подгружается плагин <strong>hop.nvim</strong>.</p>
+
+<p style="margin-bottom: 6px">А что, если мы хотим вручную подгрузить плагин? Тогда делаем так:</p>
+<pre style="margin-top: 6px"><code class="language-lua">:Lazy load hop.nvim
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Ещё можно загружать плагин по команде. Я хочу, чтобы при первом открытии <strong>nvim</strong> были доступны только две команды: <strong><i>HopWord</i></strong> и <strong><i>HopChar1</i></strong>. И только когда я выполню одну из них, плагин подгужается и мне становятся доступны все остальные команды. Реализовать это можно так:</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Загрузится только когда filetype станет "javascript":
+   cmd = { "HopWord", "HopChar1" }  -- загрузить только при вызове команды
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<h2>Горячие клавиши</h2>
+
+<p style="margin-bottom: 6px">Первый вариант:</p>
+<pre style="margin-top: 6px"><code class="language-lua">vim.g.mapleader = " "
+require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Загрузится после нажатия "пробел, h, w"
+   keys = { "&lt;leader&gt;hw" }
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<p style="margin-bottom: 6px">Второй вариант:</p>
+<pre style="margin-top: 6px"><code class="language-lua">vim.g.mapleader = " "
+require("lazy").setup({
+   spec = { ... },
+   install = { colorscheme = { "murphy" } },
+   -- Загрузится после нажатия "пробел, h, w"
+   keys = { 
+      { "&lt;leader&gt;kb", "&lt;cmd&gt;HopWord&lt;cr&gt;", desc = "Kakashka" },
+   },
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<p>Первый вариант – Говорит lazy.nvim: "Загрузи плагин когда пользователь нажмёт &lt;leader&gt;hw", НО не назначает саму команду!</p>
+<p>Второй вариант – Загружает плагин при нажатии &lt;leader&gt;kb. Назначает клавишу, которая выполняет &lt;cmd&gt;HopWord&lt;cr&gt;. После первого нажатия — плагин загружен и клавиша работает.</p>
+
+<p style="margin-bottom: 6px">Событие <strong><i>VeryLazy</i></strong> – это специальное событие <strong>lazy.nvim</strong>, которое означает: загрузиться как можно позже, но до первого использования.</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   spec = { ... },
+   install = { ... },
+   -- Загрузится как можно позже:
+   event = "VeryLazy"
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+
+<h2>Плагины – в отдельный файл</h2>
+
+
+<p style="margin-bottom: 6px">В отдельном файле мы должны вернуть список плагинов (у нас только один плагин):</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/init.lua
+
+return {
+   {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      -- event = { "InsertEnter", "BufRead" },
+      cmd = { "HopWord", "HopChar1" },  -- загрузить только при вызове команды
+      keys = { "<leader>hw" },
+      config = function() 
+         -- you can configure Hop the way you like here; see :h hop-config
+         require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+      end
+   }
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px">А здесь мы импортируем все плагины из папки <strong><i>plugins</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+   spec = {
+      { import = "plugins" },   -- Импорт всех плагинов из модуля
+   },
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+<h2>Разделить плагины по файлам</h2>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/hop.lua
+
+return {
+   {
+      'phaazon/hop.nvim',
+      branch = 'v2',
+      -- event = { "InsertEnter", "BufRead" },
+      cmd = { "HopWord", "HopChar1" },  -- загрузить только при вызове команды
+      keys = { "<leader>hw" },
+      config = function() 
+         -- you can configure Hop the way you like here; see :h hop-config
+         require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+      end
+   }
+}
+
+</code></pre>
+
+<p style="margin-bottom: 6px">Импортируем <strong><i>hop</i></strong> из папки <strong><i>plugins</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+   spec = {
+      { import = "plugins.hop" },   -- Импортируем hop из папки plugins
+   },
+})
+
+vim.cmd('colorscheme habamax')
+</code></pre>
+
+
+<h2>Ставим Treesitter</h2>
+
+<p style="margin-bottom: 6px">Вот так выглядит сам плагин:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/treesitter.lua
+
+return {
+   'nvim-treesitter/nvim-treesitter',
+   lazy = false,
+   build = ':TSUpdate',
+   config = function()
+      require'nvim-treesitter'.install { "javascript", "typescript", "html", "css", "lua" }
+   end
+}   
+</code></pre>
+
+<p style="margin-bottom: 6px">И импортируем <strong>Tree-sitter</strong> в главный <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+require("lazy").setup({
+   spec = {
+      { import = "some_plugin" },
+      { import = "plugins.treesitter" },
+   },
+})
+
+-- Запускаем Tree-sitter:
+vim.treesitter.start()
+</code></pre>
+<p style="margin-top: 6px">При первом запуске <strong>nvim</strong> <strong>treesitter</strong> запустится. Но если мы в этом же сеансе откроем ещё один файл, то <strong>treesitter</strong> в нём не запустится.</p>
+
+
+<p style="margin-bottom: 6px">Если мы хотим в самом <strong>nvim</strong> включить или отключить подсветку <strong>tree-sitter</strong>, то это можно сделать так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- Включить treesitter:
+:lua vim.treesitter.start()
+
+-- Выключить treesitter:
+:lua vim.treesitter.stop()
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Проверить для текущего буфера, включён ли <strong>treesitter</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">:lua print(vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] ~= nil)
+
+  # true → Tree-sitter сейчас включён для этого буфера
+  # false → не включён
+</code></pre>
+
+
+<p>ВАЖНЫЙ МОМЕНТ!!! Для <strong><i>Lua</i></strong> <strong>treesitter</strong> по умолчанию включён ВСЕГДА!! Можно не прописывать <code style="background-color: #161616">vim.treesitter.start()</code>.</p>
+
+<p style="margin-bottom: 6px">Запускать <strong>treesitter</strong> для определённых типов файлов:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'javascript', 'typescript', 'html', 'css', 'lua' },
+  callback = function() vim.treesitter.start() end,
+})
+</code></pre>
+<p style="margin-top: 6px">Разница с предыдущим примером в том, что подсветка будет работать всегда для указанных типов файлов.</p>
+
+<p style="margin-bottom: 6px">Второй способ запустить <strong>treesitter</strong> для определённых типов файлов. Создаём в <strong><i>~/.config/nvim/ftplugin/</i></strong> файл с именем типа файла и пишем в него:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/ftplugin/html
+
+vim.treesitter.start()
+</code></pre>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/ftplugin/javascript
+
+vim.treesitter.start()
+</code></pre>
+<p style="margin-top: 6px">При таком раскладе подсветка <strong>treesitter</strong> будет активирована для файлов <strong><i>html</i></strong> и <strong><i>javascript</i></strong>.</p>
+
+
+<h2>Neo-tree</h2>
+
+<p style="margin-bottom: 6px">Вот так добавляем плагин:</p>
+<pre style="margin-top: 6px"><code class="language-bash">~/.config/nvim/lua/plugins/neotree.lua
+
+return {
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "nvim-tree/nvim-web-devicons", -- optional, but recommended
+    },
+    lazy = false, -- neo-tree will lazily load itself
+  }
+}
+</code></pre>
+
+
+<h2>Lualine</h2>
+
+<p>Прикольные темы</p>
+<ul>
+   <li>dracula</li>
+   <li>material – для прозрачного фона</li>
+   <li>moonfly</li>
+   <li>nightfly</li>
+   <li>nord</li>
+   <li>OceanicNext</li>
+   <li>tomorrow_night</li>
+</ul>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

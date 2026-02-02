@@ -11,6 +11,7 @@ const app = express();
 const shusha = express.static(join(__dirname, "styles"));
 app.use("/kukuruza", shusha);
 */
+
 app.get("/", (req, res) => {
     res.status(200).sendFile(mainPage);
 });

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>nvim</h1>
+
+<p style="margin-bottom: 6px">Ссылки:</p>
+<ul style="margin-top: 6px">
+   <li>Офиц. страничка <strong>lazyvim</strong>: <a href="https://www.lazyvim.org/plugins/treesitter">https://www.lazyvim.org/plugins/treesitter</a></li>
+   <li><a href="https://marioyepes.com/blog/neovim-ide-with-lua-for-web-development/">https://marioyepes.com/blog/neovim-ide-with-lua-for-web-development/</a></li>
+   <li><a href="https://www.josean.com/posts/nvim-treesitter-and-textobjects">https://www.josean.com/posts/nvim-treesitter-and-textobjects</a></li>
+</ul>
+
+<ul>
+   <li>~/.local/state/nvim/swap/ – здесь хранятся swap-файлы</li>
+</ul>
+<ul>
+   <li>~/.config/nvim/init.lua – основной конфиг</li>
+   <li>~/.local/share/nvim/ – configuration cache</li>
+</ul>
+
+<p style="margin-bottom: 6px">То есть, если нужно очистить все настройки, то:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rm -rf ~/.local/share/nvim
+rm -rf ~/.local/state/nvim
+rm -rf ~/.config/nvim
+</code></pre>
+
+
+<pre><code>
+
+## Конфигурационные файл: ~/.config/nvim/init.lua, ~/.config/nvim/init.vim
+    !!! init.vim - устаревий способ.
+    !!! Лучше все настройки указывыать в init.lua.
+    
+## Если я хочу, чтобы при запуске от root, nvim подцеплял настройки из ~/.config/nvim/init.lua, то запускаем так:
+    sudo -E nvim myfile.txt
+    
+## Шаблоны для базовой настройки можно найти здесь: /usr/share/nvim/runtime/
+    /usr/share/nvim/runtime/example_init.lua - это дефолтный шаблон init.lua
+    cp /usr/share/nvim/runtime/example_init.lua ~/.config/nvim/init.lua
+    # НО это всё не дефолтные настройки. Дефолтный конфиг встроен в lua-код внутри neovim
+    # Посммотреть эти дефолтные настройки можно здесь:
+        less /usr/share/nvim/runtime/lua/vim/_defaults.lua
+    ## Вытаскивать дефолтные настройки оттуда смысла нет. Проще переопределять нужное в ~/.config/nvim/init.lua
+
+        -- Применяем цветовую схему:
+        vim.cmd.colorscheme('habamax')
+        -- Убираем фон у основных групп, чтобы сделать всё прозрачным
+        vim.api.nvim_set_hl(0, "Normal",      { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "LineNr",      { bg = "NONE" })
+        vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "StatusLine",  { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "StatusLineNC",{ bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE" })
+        # vim.api.nvim_set_hl(0, "VertSplit",   { bg = "NONE" })
+        
+    ## Перезагрузить настройки из init.lua:
+        :source $MYVIMRC
+            # или:
+        :source ~/.config/nvim/init.lua
+        
+    # Пример выше затирает цветовую схему "habamax" и делает настройки такими же, как в терминале.
+    ## Вот так можно сохранить оригинальный цвет текста из схемы:
+             
+        vim.cmd.colorscheme('elflord')
+        -- vim.api.nvim_set_hl(0, "Normal", { fg = "red", bg = "NONE" })
+        
+        -- Получаем текущий цвет текста для Normal
+        local normal_fg = vim.api.nvim_get_hl(0, {name = "Normal"}).fg
+        
+        -- Убираем фон у основных групп, и цвет текста применяем тот, который стоит по умолчанию у "elflord"
+        vim.api.nvim_set_hl(0, "Normal",      { fg = normal_fg, bg = "NONE" })
+        vim.api.nvim_set_hl(0, "EndOfBuffer", { fg = normal_fg, bg = "NONE" })
+
+                            
+</code></pre>
+
+
+
+<p style="margin-bottom: 6px">Перемещение</p>
+<ul style="margin-top: 6px">
+   <li>$ – переместиться в конец текущей строки</li>
+   <li>5$ – переместиться на 5-ую строку, начиная с текущей, в конец строки</li>
+   <li>0 – переместить курсор в начало текущей строки</li>
+   <li>^ или _ – переместить курсор в начало строки на первый непустой символ</li>
+   <li>G – переместить курсор на последнюю строку</li>
+   <li>gg – переместить курсор на первую строку</li>
+   <li>:7 – перейти на 7-ю строку</li>
+   <li>w – начало следующего слова</li>
+   <li>e – конец текущего или следующего слова</li>
+   <li>b – начало текущего или предыдущего слова</li>
+   <li>H – верх экрана</li>
+   <li>M – центр экрана</li>
+   <li>L – низ экрана</li>
+   <li>-</li>
+   <li>Shift+[ – прыгаем вверх между абзацами</li>
+   <li>Shift+] – прыгаем вниз между абзацами</li>
+</ul>
+
+<p style="margin-bottom: 6px">Режим вставки</p>
+<ul style="margin-top: 6px">
+   <li>i – вставить ДО текущей буквы</li>
+   <li>a – вставить ПОСЛЕ текущей буквы</li>
+   <li>I – в начало строки</li>
+   <li>A – в конец строки</li>
+   <li>o – создаёт новую строку и переходит на неё</li>
+   <li>O – создаёт новую строку – вставляет её на текущую строку</li>
+   <li>s – удаляет текущий символ</li>
+   <li>cl – то же самое, удаляет текущий символ</li>
+   <li>S – удаляет текущую строку</li>
+   <li>cc – то же самое</li>
+   <li>cw – удалить слово от текущей позиции</li>
+   <li>ciw – удалить слово целиком</li>
+   <li>c$ – удалить до конца строки</li>
+   <li>с – в визуальном режиме удаляет всё выделенное</li>
+   <li>gi – вернуться к месту последней вставки</li>
+   <li>R – режим замены</li>
+</ul>
+<p style="margin-bottom: 6px">Удаление с сохранением в буфер:</p>
+<ul style="margin-top: 6px">
+   <li>x – удалить символ</li>
+   <li>dis – удалить предложение (delete inner sentence)</li>
+   <li>diw – удалить слово под курсором (delete inner word)</li>
+   <li>das – удалить предложение (delete a sentence)</li>
+   <li>dip – удалить абзац (delete inner paragraph)</li>
+   <li>dt, – удалить всё до запятой (delete till comma)</li>
+   <li>df, – удалить всё до запятой, включая запятую (delete find comma)</li>
+   <li>dfж ‒ удалить всё до буквы "ж", включая её</li>
+</ul>
+<p style="margin-bottom: 6px">Удаление без сохранения в буфер:</p>
+<ul style="margin-top: 6px">
+   <li>"_x – удалить символ</li>
+   <li>"_dw – удалить оставшуюся часть слова</li>
+   <li>"_diw – удалить всё слово целиком</li>
+   <li>"_das – удалить предложение</li>
+   <li>"_dt, – удалить всё до запятой</li>
+
+</ul>
+
+<p style="margin-bottom: 6px">Поиск:</p>
+<ul style="margin-top: 6px">
+   <li>/текст – найти текст вниз по файлу</li>
+   <li>?текст – найти текст вверх по файлу</li>
+   <li>n – повторить поиск в том же направлении</li>
+   <li>N – повторить поиск в противоположном направлении</li>
+   <li>---</li>
+   <li>:nohlsearch = :noh – убрать подсветку найденных строк</li>
+</ul>
+
+<p style="margin-bottom: 6px">Копирование</p>
+<ul style="margin-top: 6px">
+   <li>"+yy – скопировать в буфер обмена текущую строку</li>
+   <li>"+2yy – скопировать в буфер обмена две строки</li>
+   <li>"+y – скопировать в буфер обмена выделенный текст</li>
+   <li>"+p – вставить из буфера обмена</li>
+   
+</ul>
+
+<p style="margin-bottom: 6px">Буферы</p>
+<ul style="margin-top: 6px">
+   <li>:e newfile.txt – открыть файл newfile.txt</li>
+   <li>:enew – создать пустой буфер без имени</li>
+   <li>:ls – список буферов</li>
+   <li>:b 2 – перейти к буферу 2</li>
+   <li>:b! 2 – перейти к буферу 2 принудительно</li>
+   <li>:bprev – предыдущий буфер</li>
+   <li>:bnext – следующий</li>
+   <li>:bd – закрыть буфер</li>
+   <li>:bw – wipeout – для неудаляемых буферов, например netrw</li>
+   <li>–</li>
+   <li>]b – следующий буфер</li>
+   <li>[b – предыдущий буфер </li>
+   <li>Ctrl+6 – предыдущий активный буфер</li>
+</ul>
+
+<p style="margin-bottom: 6px">окна</p>
+<ul style="margin-top: 6px">
+   <li>:split / vsplit – разделить окно</li>
+   <li>Ctlr-w + hjkl – перемещение между окнами</li>
+    <li>Ctlr-w + w – перемещение между окнами</li>
+    <li>Ctlr-w + q – закрыть окно</li>
+</ul>
+
+<p style="margin-bottom: 6px">Вкладки:</p>
+<ul style="margin-top: 6px">
+   <li>:tabnew anotherfile.txt – новая вкладка</li>
+   <li>:tabn – следующая вкладка</li>
+   <li>:tabp – предыдущая вкладка</li>
+   <li>:tabclose – закрыть вкладку</li>
+</ul>
+
+<p style="margin-bottom: 6px">Полезности:</p>
+<ul style="margin-top: 6px">
+   <li>:number или :nu– включить нумерацию строк</li>
+   <li>:nonumber или :nu! – отключить нумерацию строк</li>
+</ul>
+
+<pre><code class="language-lua">-- Посмотреть цветовую схему:
+:echo &background
+   -- dark
+
+-- сменить цветовую схему
+:colorscheme elflord
+:colorscheme habamax
+
+-- вернуть обратно на дефолтную:
+:colorscheme default
+</code></pre>
+
+<p>clipboard:</p>
+<pre><code class="lagnuage-lua"># Проверить, есть ли поддержка clipboard
+echo has("clipboard")
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотреть, откуда читается конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-lua">:echo stdpath("config")
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотреть подробности про Tree-sitter:</p>
+<pre style="margin-top: 6px"><code class="language-lua">:checkhealth treesitter
+</code></pre>
+
+<p style="margin-bottom: 6px">Покажет, какие capture-группы <strong>Tree-sitter</strong> срабатывают под курсором (через :inspect для Tree-sitter):</p>
+<pre style="margin-top: 6px"><code class="language-lua">:lua =vim.treesitter.get_captures_at_cursor()
+</code></pre>
+
+<p style="margin-bottom: 6px">Мой конфиг с прозрачностью:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- UI / цвета
+vim.cmd.colorscheme('habamax')
+vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
+vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE" })
+vim.api.nvim_set_hl(0, "StatusLine", { bg = "NONE" })
+</code></pre>
+
+<h2>hello world</h2>
+
+<pre><code class="language-lua">print("Выводим сообщение")
+print("")
+
+# Или:
+vim.notify("Выводим сообщение")
+vim.notify("")
+
+# Или
+vim.cmd('echo "Выводим сообщение!"')
+vim.cmd('echo ""')
+
+function pipka()
+   print("Это функция пипка")
+   print("")
+end
+pipka()
+</code></pre>
+
+<p style="margin-bottom: 6px">Зарегистрируем функцию:</p>
+<pre style="margin-top: 6px"><code class="language-lua">function pupsik()
+   print("PUPPSIIIiiiik")
+end
+-- Создаем команду :Pupsik
+vim.api.nvim_create_user_command('Pupsik', pupsik, {})
+</code></pre>
+
+<p style="margin-bottom: 6px">И теперь функцию можно вызывать в <strong>nvim</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">:Pupsik
+</code></pre>
+
+<h2>Lazy</h2>
+
+<p>Куда ставятся все плагины: <strong><i>~/.local/share/nvim/lazy/</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Установить <strong>Lazy</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({})
+</code></pre>
+
+<p style="margin-bottom: 6px">А затем в <strong>nvim</strong> запустим команду:</p>
+<pre style="margin-top: 6px"><code class="language-lua">:Lazy
+</code></pre>
+
+
+<h2>Treesitter</h2>
+<p style="margin-bottom: 6px">Добавим в <strong><i>init.lua</i></strong> в require("lazy").setup({}):</p>
+<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
+   {
+      "nvim-treesitter/nvim-treesitter",
+      build = ":TSUpdate",
+   },
+})
+</code></pre>
+<p>Далее запустим <code style="background-color: #161616">:Lazy</code> внутри <strong>nvim</strong> и установим <strong>Treesitter</strong>.</p>
+
+<pre><code class="language-lua">
+require("nvim-treesitter.configs").setup({
+   ensure_installed = { "javascript" },
+   highlight = { enable = true },
+})
+</code></pre>
+
+<pre><code class="language-lua">
+-- плагины
+require("lazy").setup({
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = { "javascript" },
+        highlight = { enable = true },
+      })
+    end,
+  },
+})
+</code></pre>
+
+
+<h2>Пробуем заново</h2>
+
+
+<p>Базовая подсветка:</p>
+<pre><code class="language-lua">
+-- ~/.config/nvim/init.lua
+vim.opt.number = true
+vim.cmd("syntax on")
+
+-- Проверим, что файлы JavaScript правильно определяются
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+  pattern = "*.js",
+  command = "set filetype=javascript"
+})
+
+print("Конфиг загружен")
+</code></pre>
+
+<p>Проверить, какая подсветка включена сейчас:</p>
+<pre><code class="language-lua">:set syntax?
+   -- syntax=javascript
+</code></pre>
+
+<p>Проверить Treesitter:</p>
+<pre><code class="language-lua">
+:checkhealth nvim-treesitter
+</code></pre>
+<p>У меня ругалось на то, что не установлен tree-sitter-cli! Я его установил:</p>
+<pre><code class="language-lua">sudo pacman -S tree-sitter-cli
+
+# Или
+npm install -g tree-sitter-cli
+</code></pre>
+
+<pre><code class="language-lua">
+:lua vim.treesitter.&lt;Tab&gt;
+</code></pre>
+
+
+<p></p>
+<pre><code class="language-lua">
+
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

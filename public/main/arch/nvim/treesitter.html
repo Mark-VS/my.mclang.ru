@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treesitter</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1 style="margin-bottom: 6px">Treesitter</h1>
+<p style="margin-top: 6px">Страничка на GitHub: <a href="https://github.com/nvim-treesitter/nvim-treesitter">github.com/nvim-treesitter/nvim-treesitter</a></p>
+
+<p style="margin-bottom: 6px">Устанавливаем <strong>nvim-treesitter</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/treesitter.lua
+
+return {
+   'nvim-treesitter/nvim-treesitter',
+   lazy = false,
+   build = ':TSUpdate',
+   config = function()
+      require'nvim-treesitter'.install { "javascript", "typescript", "html", "css", "lua" }
+   end
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px">и подключаем <strong><i>treesitter</i></strong> в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- Setup lazy.nvim
+require("lazy").setup({
+   spec = {
+      { import = "plugins.treesitter" },
+      -- { ... }
+   },
+   install = { colorscheme = { "habamax" } }
+})
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверка:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">:checkhealth nvim-treesitter
+
+-- Можно также проверить и treesitter:
+:checkhealth treesitter
+</code></pre>
+<ul style="margin-top: 6px">
+	<li><strong>nvim-treesitter</strong> – это плагин</li>
+	<li><strong>treesitter</strong> – встроенная часть <strong>Neovim</strong></li>
+</ul>
+
+<h2 style="margin-bottom: 6px">tree-sitter-cli</h2>
+
+<p style="margin-top: 6px">Если в системе не установлен <strong>tree-sitter-cli</strong>, то <strong>nvim-treesitter</strong> будет ругаться на это – покажет как ошибку. Хотя он работает и без <strong>tree-sitter-cli</strong>.</p>
+
+<p style="margin-bottom: 6px">Установить <strong>tree-sitter-cli</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># через npm:
+npm install -g tree-sitter-cli
+
+# Или с помощью pacman:
+sudo pacman -S tree-sitter
+</code></pre>
+<p style="margin-top: 6px">В моём случае <strong>cli</strong> из репозитория <strong>Arch</strong> был старой версии, <strong>nvim-treesitter</strong> требовал версию поновее. Поэтому лучше ставить через <strong>npm</strong>.</p>
+
+<p style="margin-bottom: 6px">Чтобы <strong>tree-sitter-cli</strong>, установленный с помощью <strong>npm</strong>, не конфликтовал с системным, лучше его ставить в <strong><i>$HOME</i></strong>. Можно сделать так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">mkdir -p ~/.npm-global
+npm config set prefix '~/.npm-global'
+
+# В ~/.bashrc добавим:
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# И после этого установим cli:
+npm install -g tree-sitter-cli
+</code></pre>
+<p style="margin-top: 6px">После этого нужно перезайти в shell или выполнить: <code style="background-color: #161616; padding-left: 8px; padding-right: 8px">source ~/.bashrc</code> </p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

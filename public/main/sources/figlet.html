@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>figlet</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/sources">Вернуться назад</a>
+
+<h1>figlet</h1>
+<p>Программа написана на чистом <strong><i>C</i></strong>. Нет никаких зависимостей.</p>
+
+
+<h2>Сборка и установка</h2>
+
+<ul>
+   <li>
+      <p style="margin-bottom: 6px">Заходим на официальный сайт: <a href="https://www.figlet.org/">figlet.org</a>. Там есть ссылка на архив с исходниками: <i>ftp://ftp.figlet.org/pub/figlet/program/unix/figlet-2.2.5.tar.gz</i>. Скачать его можно с помощью <strong><i>wget</i></strong>:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">wget ftp://ftp.figlet.org/pub/figlet/program/unix/figlet-2.2.5.tar.gz</code></pre>
+      <p style="margin-bottom: 6px">Распаковываем архив:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">tar -xzvf figlet-2.2.5.tar.gz
+cd figlet-2.2.5    # и переходим в появившуюся папку</code></pre>
+   </li>
+   <li>
+      <p style="margin-bottom: 6px">Теперь нам нужно собрать проект с помощью команды <strong><i>make</i></strong>:</p>
+      <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">make</code></pre>
+      <p style="margin-top: 6px">После выполнения этой команды у нас появились четыре бинарника: <strong><i>figlet</i></strong>, <strong><i>chkfont</i></strong>, <strong><i>figlist</i></strong>, <strong><i>showfigfonts</i></strong>. То есть по сути собрались четыре утилиты. <strong><i>figlet</i></strong> – это основная утилита, а остальные – вспомогательные. Что происходит под капотом во время собрки. Файл <strong><i>Makefile</i></strong> содержит правила, как из файлов <strong><i>.c</i></strong> (или <strong><i>.cpp</i></strong>) собрать объектные файлы <strong><i>.o</i></strong>. То есть, например, файл <strong><i>figlet.c</i></strong> превращается в <strong><i>figlet.o</i></strong>. Так же собираются и другие модули: например, <strong><i>inflate.c</i></strong> → <strong><i>inflate.o</i></strong>. Затем происходит линковка: объектные файлы <strong><i>.o</i></strong> соединяется в исполняемый файл <strong><i>figlet</i></strong>. Это уже готовая программа, но она лежит в текущей папке.</p>
+   </li>
+   <li>
+      <p style="margin-bottom: 6px">Программа собралась. Запустим бинарник и попробуем вывести слово "Hello":</p>
+      <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">./figlet Hello
+   # figlet: standard: Unable to open font file</code></pre>
+      <p style="margin-top: 6px; margin-bottom: 6px">В ответ я получаю ошибку о том, что не удалось найти файл со шрифтом. Это произошло, потому что наша программа ещё не установлена в систему и если в системе нет нужных ей шрифтов, то программа не может запуститься. Шрифты находятся в текущем каталоге в папке <strong><i>fonts</i></strong>. Нам нужно либо указать путь к папке со шрифтами, либо путь к конкретному шрифту.</p>
+      <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Либо указываем путь к папке:
+./figlet -d fonts Hello
+
+# Либо путь к конкретному шрифту:
+./figlet -f fonts/standard.flf Hello</code></pre>
+      <p style="margin-top: 6px">Вот таким образом программу можно запускать сразу же, без установки в систему.</p>
+   </li>
+   <li>
+      <p style="margin-bottom: 6px">Далее нам нужно установить программу в систему. Для этого выполняем команду:</p>
+      <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo make install</code></pre>
+      <p style="margin-top: 6px; margin-bottom: 6px">Эта команда копирует все необходимые для работы программы файлы по сценарию, указанному в <strong><i>Makefile</i></strong>. После её выполнения наши четыре бинарника скопировались в папку <strong><i>/usr/local/bin/</i></strong>. Шрифты скопировались в <strong><i>/usr/local/share/figlet/</i></strong>. А man-страницы – в <strong><i>/usr/local/man/man6/</i></strong>. Там 4 файла – по одному на каждую из четырёх утилит. Посмотреть файл документации можно вот так:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">man 6 figlet
+man 6 chkfont
+man 6 figlist
+man 6 showfigfonts
+
+# Или запустить файлы напрямую:
+man /usr/local/man/man6/figlet.6
+man /usr/local/man/man6/chkfont.6
+man /usr/local/man/man6/figlist.6
+man /usr/local/man/man6/showfigfonts.6</code></pre>
+      <p style="margin-bottom: 6px">Если бы мы не хотели засорять систему, можно было бы поставить программу в домашний каталог таким вот образом:</p>
+      <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">make PREFIX=$HOME/.local install</code></pre>
+      <p style="margin-top: 6px">Это установило бы программу в домашний каталог в <strong><i>~/.local/bin/figlet/</i></strong>.</p>
+   </li>
+   <li>
+      <p style="margin-bottom: 6px">Теперь программа установлена и мы можем запускать её:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">figlet Hello</code></pre>
+      <p style="margin-bottom: 6px">Проверить шрифт:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">chkfont fonts/standard.flf</code></pre>
+      <p style="margin-bottom: 6px">Список шрифтов:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">figlist</code></pre>
+      <p style="margin-bottom: 6px">Проверить как отображают одну надпись разные шрифты:</p>
+      <pre style="margin-top: 6px"><code class="language-bash">showfigfonts Hello
+
+# Можно также явно указать папку со шрифтами:
+showfigfonts -d fonts Hello</code></pre>
+   </li>
+</ul>
+
+<h2>Удаление программы</h2>
+
+<p>Удаление программы происходит вручную, т.к. никакого <strong><i>uninstall</i></strong>-скрипта тут нет.</p>
+<p style="margin-bottom: 6px">Всю информацию о том, куда происходила установка, можно узнать из <strong><i>Makefile</i></strong> и затем всё удалить:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Удаляем бинарники:
+sudo rm /usr/local/bin/figlet \
+        /usr/local/bin/chkfont \
+        /usr/local/bin/figlist \
+        /usr/local/bin/showfigfonts
+
+# Удаляем шрифты:
+sudo rm -r /usr/local/share/figlet
+
+# Удаляем man-странички:
+sudo rm /usr/local/man/man6/figlet.6
+sudo rm /usr/local/man/man6/chkfont.6
+sudo rm /usr/local/man/man6/showfigfonts.6
+sudo rm /usr/local/man/man6/figlist.6
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
