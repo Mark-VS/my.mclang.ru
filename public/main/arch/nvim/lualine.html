@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim-visual-multi</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1 style="margin-bottom: 6px">Lualine</h1>
+<p style="margin-top: 6px">Страничка на GitHub: <a href="https://github.com/nvim-lualine/lualine.nvim">github.com/nvim-lualine/lualine.nvim</a></p>
+
+
+<p style="margin-bottom: 6px">Устанавливаем <strong>Lualine</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/lualine.lua
+
+return {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+        require'lualine'.setup {
+            options = {
+		 theme = 'nord',
+	    }
+	}
+    end
+}
+</code></pre>
+
+
+
+<p style="margin-bottom: 6px">Подключаем <strong>Lualine</strong> в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+-- Setup lazy.nvim
+require("lazy").setup({
+   spec = {
+      -- { ... },
+      { import = "plugins.lualine" },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+-- ...
+</code></pre>
+
+<p>Темы лежат здесь: <i>~/.local/share/nvim/lazy/lualine.nvim/lua/lualine/themes/</i></p>
+<p style="margin-bottom: 6px">Прикольные темы:</p>
+<ul style="margin-top: 6px">
+   <li>dracula</li>
+   <li>material – для прозрачного фона</li>
+   <li>moonfly</li>
+   <li>nightfly</li>
+   <li>nord</li>
+   <li>OceanicNext</li>
+   <li>tomorrow_night</li>
+</ul>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">
+
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

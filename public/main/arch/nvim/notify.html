@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nvim-notify</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>nvim-notify</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/notify.lua
+
+return {
+    "rcarriga/nvim-notify",
+    opts = {
+        timeout = 3000,
+	background_colour = "#000000"
+    }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">И подключаем <strong>nvim-notify</strong> в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+-- Setup lazy.nvim
+require("lazy").setup({
+   spec = {
+      -- { ... },
+      { import = "plugins.notify" },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+-- ...
+</code></pre>
+
+
+
+<p style="margin-bottom: 6px">Как запустить:</p>
+<pre style="margin-top: 6px"><code class="language-vim">" Сначала выполняем:
+:lua vim.notify = require("notify")
+
+" а затем:
+:lua vim.notify("Hello World")
+</code></pre>
+
+<p style="margin-bottom: 6px">Как сделать так, чтобы любой вызов <strong><i>vim.notify()</i></strong> использовал красивые уведомления? Подправим чуть-чуть наш предыдущий <strong><i>notify.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-vim">-- ~/.config/nvim/lua/plugins/notify.lua
+
+return {
+    "rcarriga/nvim-notify",
+    opts = {
+        timeout = 3000,
+	background_colour = "#000000"
+    },
+    config = function()
+        vim.notify = require("notify")
+    end,
+}
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><code style="background-color: #161616; padding: 0 6px">opts</code> – передаются плагину</li>
+   <li><code style="background-color: #161616; padding: 0 6px">config</code> – вызывается после загрузки, тут мы подменяем <strong><i>vim.notify</i></strong>.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь можно сразу использовать <strong><i>vim.notify()</i></strong> и он будет показываться в красивом <i>popup</i>, а не в <i>cmdline</i>:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:lua vim.notify("Hello World!")
+</code></pre>
+
+<p style="margin-bottom: 6px">Пример с уровнем логов:</p>
+<pre style="margin-top: 6px"><code class="language-vim">" ERROR → красный
+:lua vim.notify("Something went wrong!", vim.log.levels.ERROR)
+
+" WARN → желтый
+:lua vim.notify("Just info", vim.log.levels.INFO)
+
+" INFO → стандартный цвет
+:lua vim.notify("Warning!", vim.log.levels.WARN)
+</code></pre>
+
+<p><strong>nvim-notify</strong> не имеет своего <code style="background-color: #161616; padding: 0 6px">:ckechhealth</code>. <strong>nvim-notify</strong> просто заменяет <strong><i>vim.notify</i></strong>.</p>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script src="/assets/highlight/languages/vim.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
