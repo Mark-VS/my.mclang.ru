@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lazy</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>Lazy</h1>
+
+<p>Куда ставятся все плагины: <strong><i>~/.local/share/nvim/lazy/</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Установить <strong>Lazy</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({})
+</code></pre>
+
+<p style="margin-bottom: 6px">А затем в <strong>nvim</strong> запустим команду:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:Lazy
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script src="/assets/highlight/languages/vim.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

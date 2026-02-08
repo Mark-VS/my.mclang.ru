@@ -35,51 +35,51 @@ rm -rf ~/.config/nvim
 </code></pre>
 
 
-<pre><code>
+<pre><code class="language-vim">
 
-## Конфигурационные файл: ~/.config/nvim/init.lua, ~/.config/nvim/init.vim
+" Конфигурационные файл: ~/.config/nvim/init.lua, ~/.config/nvim/init.vim
     !!! init.vim - устаревий способ.
     !!! Лучше все настройки указывыать в init.lua.
     
-## Если я хочу, чтобы при запуске от root, nvim подцеплял настройки из ~/.config/nvim/init.lua, то запускаем так:
+" Если я хочу, чтобы при запуске от root, nvim подцеплял настройки из ~/.config/nvim/init.lua, то запускаем так:
     sudo -E nvim myfile.txt
     
-## Шаблоны для базовой настройки можно найти здесь: /usr/share/nvim/runtime/
+" Шаблоны для базовой настройки можно найти здесь: /usr/share/nvim/runtime/
     /usr/share/nvim/runtime/example_init.lua - это дефолтный шаблон init.lua
     cp /usr/share/nvim/runtime/example_init.lua ~/.config/nvim/init.lua
-    # НО это всё не дефолтные настройки. Дефолтный конфиг встроен в lua-код внутри neovim
-    # Посммотреть эти дефолтные настройки можно здесь:
+    " НО это всё не дефолтные настройки. Дефолтный конфиг встроен в lua-код внутри neovim
+    " Посммотреть эти дефолтные настройки можно здесь:
         less /usr/share/nvim/runtime/lua/vim/_defaults.lua
-    ## Вытаскивать дефолтные настройки оттуда смысла нет. Проще переопределять нужное в ~/.config/nvim/init.lua
+    "" Вытаскивать дефолтные настройки оттуда смысла нет. Проще переопределять нужное в ~/.config/nvim/init.lua
 
-        -- Применяем цветовую схему:
+        " Применяем цветовую схему:
         vim.cmd.colorscheme('habamax')
-        -- Убираем фон у основных групп, чтобы сделать всё прозрачным
+        " Убираем фон у основных групп, чтобы сделать всё прозрачным
         vim.api.nvim_set_hl(0, "Normal",      { bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "LineNr",      { bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "LineNr",      { bg = "NONE" })
         vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "StatusLine",  { bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "StatusLineNC",{ bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE" })
-        # vim.api.nvim_set_hl(0, "VertSplit",   { bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "StatusLine",  { bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "StatusLineNC",{ bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "VertSplit",   { bg = "NONE" })
         
-    ## Перезагрузить настройки из init.lua:
+    " Перезагрузить настройки из init.lua:
         :source $MYVIMRC
-            # или:
+            " или:
         :source ~/.config/nvim/init.lua
         
-    # Пример выше затирает цветовую схему "habamax" и делает настройки такими же, как в терминале.
-    ## Вот так можно сохранить оригинальный цвет текста из схемы:
+    " Пример выше затирает цветовую схему 'habamax' и делает настройки такими же, как в терминале.
+    " Вот так можно сохранить оригинальный цвет текста из схемы:
              
         vim.cmd.colorscheme('elflord')
-        -- vim.api.nvim_set_hl(0, "Normal", { fg = "red", bg = "NONE" })
+        " vim.api.nvim_set_hl(0, "Normal", { fg = "red", bg = "NONE" })
         
-        -- Получаем текущий цвет текста для Normal
+        " Получаем текущий цвет текста для Normal
         local normal_fg = vim.api.nvim_get_hl(0, {name = "Normal"}).fg
         
-        -- Убираем фон у основных групп, и цвет текста применяем тот, который стоит по умолчанию у "elflord"
+        " Убираем фон у основных групп, и цвет текста применяем тот, который стоит по умолчанию у 'elflord'
         vim.api.nvim_set_hl(0, "Normal",      { fg = normal_fg, bg = "NONE" })
         vim.api.nvim_set_hl(0, "EndOfBuffer", { fg = normal_fg, bg = "NONE" })
 
@@ -228,8 +228,8 @@ rm -rf ~/.config/nvim
 </ul>
 
 
-
-<pre><code class="language-lua">-- Посмотреть цветовую схему:
+<p style="margin-bottom: 6px">Цветовые схемы (Vim)</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- Посмотреть цветовую схему:
 :echo &background
    -- dark
 
@@ -241,21 +241,59 @@ rm -rf ~/.config/nvim
 :colorscheme default
 </code></pre>
 
+<p style="margin-bottom: 6px">Цветовые схемы (Lua)</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- lua-обёртка над :-командами Vim
+vim.cmd('colorscheme habamax')
+
+-- Lua-синтаксический сахар над vim.cmd(...)
+vim.cmd.colorscheme('habamax')
+
+-- Прямой вызов Neovim API – самый низкоуровневый из трёх
+-- Устаревающий способ. Менее понятный
+vim.api.nvim_command('colorscheme habamax')
+</code></pre>
+
+<p style="margin-bottom: 6px">Нумерация строк (Vim)</p>
+<pre style="margin-top: 6px"><code class="language-vim">:set number   " включить нумерацию строк
+:set nu       " включить нумерацию строк – короткая запись
+:set number!  " отключить нумерацию строк
+:set nu!      " отключить нумерацию строк – короткая запись
+
+:set relativenumber    " включить относительную нумерацию строк
+:set rnu               " включить отн. нумерацию строк – короткая запись
+:set relativenumber!   " отключить относительную нумерацию строк
+:set rnu!              " отключить отн. нумерацию строк – короткая запись
+</code></pre>
+
+<p style="margin-bottom: 6px">Нумерация строк (Lua):</p>
+<pre style="margin-top: 6px"><code class="language-lua">vim.opt.number = true    -- включить нумерацию строк
+vim.opt.nu = true        -- включить нумерацию строк – короткая запись
+
+vim.opt.number = false   -- отключить нумерацию строк
+vim.opt.nu = false       -- отключить нумерацию строк - короткая запись
+
+vim.opt.relativenumber = true  -- включить относительную нумерацию строк
+vim.opt rnu = true             -- вкл. отн. нумерацию строк – короткая запись
+vim.opt.relativenumber = false -- отключить относительную нумерацию строк
+vim.opt rnu = false            -- откл. отн. нумерацию строк – короткая запись
+</code></pre>
+
+
 <p>clipboard:</p>
-<pre><code class="lagnuage-lua"># Проверить, есть ли поддержка clipboard
-echo has("clipboard")
+<pre><code class="language-vim"># Проверить, есть ли поддержка clipboard
+:echo has("clipboard")
 </code></pre>
 
 <p style="margin-bottom: 6px">Посмотреть, откуда читается конфиг:</p>
-<pre style="margin-top: 6px"><code class="language-lua">:echo stdpath("config")
+<pre style="margin-top: 6px"><code class="language-vim">:echo stdpath("config")
 </code></pre>
 
 <p style="margin-bottom: 6px">Посмотреть подробности про Tree-sitter:</p>
-<pre style="margin-top: 6px"><code class="language-lua">:checkhealth treesitter
+<pre style="margin-top: 6px"><code class="language-vim">:checkhealth treesitter
 </code></pre>
 
 <p style="margin-bottom: 6px">Покажет, какие capture-группы <strong>Tree-sitter</strong> срабатывают под курсором (через :inspect для Tree-sitter):</p>
-<pre style="margin-top: 6px"><code class="language-lua">:lua =vim.treesitter.get_captures_at_cursor()
+<pre style="margin-top: 6px"><code class="language-vim">:lua =vim.treesitter.get_captures_at_cursor()
 </code></pre>
 
 <p style="margin-bottom: 6px">Мой конфиг с прозрачностью:</p>
@@ -298,71 +336,6 @@ vim.api.nvim_create_user_command('Pupsik', pupsik, {})
 
 <p style="margin-bottom: 6px">И теперь функцию можно вызывать в <strong>nvim</strong>:</p>
 <pre style="margin-top: 6px"><code class="language-lua">:Pupsik
-</code></pre>
-
-<h2>Lazy</h2>
-
-<p>Куда ставятся все плагины: <strong><i>~/.local/share/nvim/lazy/</i></strong>.</p>
-
-<p style="margin-bottom: 6px">Установить <strong>Lazy</strong>:</p>
-<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
-
--- bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
-    lazypath,
-  })
-end
-
-vim.opt.rtp:prepend(lazypath)
-
-require("lazy").setup({})
-</code></pre>
-
-<p style="margin-bottom: 6px">А затем в <strong>nvim</strong> запустим команду:</p>
-<pre style="margin-top: 6px"><code class="language-lua">:Lazy
-</code></pre>
-
-
-<h2>Treesitter</h2>
-<p style="margin-bottom: 6px">Добавим в <strong><i>init.lua</i></strong> в require("lazy").setup({}):</p>
-<pre style="margin-top: 6px"><code class="language-lua">require("lazy").setup({
-   {
-      "nvim-treesitter/nvim-treesitter",
-      build = ":TSUpdate",
-   },
-})
-</code></pre>
-<p>Далее запустим <code style="background-color: #161616">:Lazy</code> внутри <strong>nvim</strong> и установим <strong>Treesitter</strong>.</p>
-
-<pre><code class="language-lua">
-require("nvim-treesitter.configs").setup({
-   ensure_installed = { "javascript" },
-   highlight = { enable = true },
-})
-</code></pre>
-
-<pre><code class="language-lua">
--- плагины
-require("lazy").setup({
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = { "javascript" },
-        highlight = { enable = true },
-      })
-    end,
-  },
-})
 </code></pre>
 
 
@@ -412,6 +385,7 @@ npm install -g tree-sitter-cli
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/lua.min.js"></script>
+<script src="/assets/highlight/languages/vim.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>

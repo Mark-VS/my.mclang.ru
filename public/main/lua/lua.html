@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lua</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/lua">Вернуться назад</a>
+
+<h1>Lua</h1>
+
+
+<p style="margin-bottom: 6px">Для начала установим сам <strong>Lua</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S lua
+
+# Проверяем:
+lua -v
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Далее ставим менеджер пакетов <strong>LuaRocks</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S luarocks
+
+# Проверяем:
+luarocks --version
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь можно в самом REPL выполнить код:</p>
+<pre style="margin-top: 6px"><code class="language-lua">print("Привет, говняшка!")
+</code></pre>
+
+<p style="margin-bottom: 6px">Если мы хотим написать код в файле, то сохраняем <code style="background-color: #161616; padding: 0 6px">print("Привет, говняшка!")</code> в файл <strong><i>myfile.lua</i></strong> и затем указываем этот файл интерпретатору <strong>Lua</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">lua myfile.lua
+</code></pre>
+
+<h3 style="text-decoration: underline">Как делают обычно</h3>
+
+<h2 style="margin-bottom: 6px">Структура проекта</h2>
+<pre style="margin-top: 6px; padding-left: 20px">
+my-lua-project/
+├─ main.lua
+├─ utils.lua
+└─ init.lua
+</pre>
+
+<h2 style="margin-bottom: 6px">Подключение файлов</h2>
+
+<p style="margin-top: 6px; margin-bottom: 6px">Для начала создадим два файла: <strong><i>main.lua</i></strong> и <strong><i>myfile.lua</i></strong>. Основным у нас будет <strong><i>main.lua</i></strong>. И в нём мы будем подключать файл <strong><i>myfile.lua</i></strong>.</p>
+
+<p style="margin-top: 6px; margin-bottom: 6px">В файле <strong><i>myfile.lua</i></strong> пишем:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- myfile.lua
+
+local M = {}
+
+function M.say_hi()
+    print("Это строка из функции say_hi!")
+end
+
+return M
+</code></pre>
+
+<p style="margin-bottom: 6px">И теперь в <strong><i>main.lua</i></strong> подключаем файл <strong><i>myfile.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- main.lua
+
+local myfile = require("myfile")
+myfile.say_hi()
+</code></pre>
+
+<p style="margin-bottom: 6px">И теперь осталось запустить <strong><i>main.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">lua main.lua
+</code></pre>
+
+<p>Важная особенность <strong>Lua</strong>, к которой надо привыкнуть: таблицы – это всё! В <strong>Lua</strong> и массивы, и словари, и объекты, и структуры, и классы – всё <strong>table</strong>.</p>
+
+
+<p style="margin-bottom: 6px">Ещё один небольшой пример:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- main.lua
+
+local buser = {
+  name = "Mark",
+  age = 20,
+  greet = function(self)
+    print("Привет, я " .. self.name)
+    -- self.name – то же самое, что и self["name"]
+  end
+}
+
+buser:greet()
+</code></pre>
+
+<p style="margin-bottom: 6px">То же самое:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- main.lua
+
+local buser = {}
+buser.name = "Mark"
+buser.age = 20
+buser.greet = function(self)
+  print("Привет, я " .. self.name)
+end
+
+buser:greet()
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script> <script src="/assets/highlight/languages/lua.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

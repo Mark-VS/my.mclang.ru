@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mason</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nvim">Вернуться назад</a>
+
+<h1>Mason</h1>
+<p>Страничка на GitHub: <a href="https://github.com/mason-org/mason.nvim">github.com/mason-org/mason.nvim</a></p>
+
+<p>Где <strong>Mason</strong> хранит бинарники: <strong><i>~/.local/share/nvim/mason/bin/</i></strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/mason.lua
+
+return {
+  "mason-org/mason.nvim",
+  opts = {}
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">И импортируем <strong><i>mason.lua</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+-- ...
+-- Setup lazy.nvim
+require("lazy").setup({
+   spec = {
+     -- { ... },
+     { import = "plugins.mason" },
+   },
+   install = { colorscheme = { "habamax" } }
+})
+-- ...
+</code></pre>
+<p style="margin-top: 6px">Запускаем <strong>Lazy</strong> и <strong>mason</strong> установится.</p>
+
+<p style="margin-bottom: 6px">Проверяем:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:checkhealth mason
+
+" Requirements:
+:h mason-requirements
+</code></pre>
+
+<p style="margin-bottom: 6px">Запустить <strong>Mason</strong> можно командой:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-vim">:Mason
+</code></pre>
+<p style="margin-top: 6px">Здесь же можно посмотреть доступные для установки пакеты.</p>
+
+<p style="margin-bottom: 6px">Установим <strong>stylua</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:MasonInstall stylua
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь нужно добавить в <strong><i>conform.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/conform.lua
+
+opts = {
+  formatters_by_ft = {
+    -- ... ,  
+    lua = { "stylua" },
+  }
+}
+</code></pre>
+<p style="margin-bottom: 6px">И всё! Теперь форматирование будет запускаться командой:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:lua require("conform").format()
+</code></pre>
+
+<p style="margin-bottom: 6px">А горчие клавиши можно добавить в файле с плагином <strong>conform</strong>, если они ещё не добавлены. Что-то вроде этого:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/lua/plugins/conform.lua
+
+-- ...
+  config = function(_, opts)
+    require("conform").setup(opts)
+    
+    -- Создаём команду ":Format":
+    vim.api.nvim_create_user_command("Format", function()
+      require("conform").format()
+    end, {})
+
+    -- Создаём горячие клавиши:
+    vim.keymap.set({ "n", "v" }, "&lt;leader&gt;f", function()
+      require("conform").format()
+    end, { desc = "Format file or selection" })
+  end
+-- ...
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/lua.min.js"></script>
+<script src="/assets/highlight/languages/vim.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
