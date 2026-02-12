@@ -78,6 +78,10 @@ npm install -g tree-sitter-cli
 </code></pre>
 <p style="margin-top: 6px">После этого нужно перезайти в shell или выполнить: <code style="background-color: #161616; padding-left: 8px; padding-right: 8px">source ~/.bashrc</code> </p>
 
+<p style="margin-bottom: 6px">Покажет, какие capture-группы <strong>Tree-sitter</strong> срабатывают под курсором (через :inspect для Tree-sitter):</p>
+<pre style="margin-top: 6px"><code class="language-vim">:lua =vim.treesitter.get_captures_at_cursor()
+</code></pre>
+
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/lua.min.js"></script>
 <script src="/assets/highlight/languages/vim.min.js"></script>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>IP</h1>
+
+<p style="margin-bottom: 6px">Посмотреть IP:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Полная запись:
+ip addr show
+
+# Сокращённая запись:
+ip addr
+
+# 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+#     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+#     inet 127.0.0.1/8 scope host lo
+#        valid_lft forever preferred_lft forever
+#     inet6 ::1/128 scope host noprefixroute 
+#        valid_lft forever preferred_lft forever
+# 2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+#     link/ether d8:bb:c1:dc:58:56 brd ff:ff:ff:ff:ff:ff
+#     altname enxd8bbc1dc5856
+#     inet 192.168.1.3/24 scope global enp2s0
+#        valid_lft forever preferred_lft forever
+#     inet6 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856/64 scope global dynamic mngtmpaddr proto kernel_ra 
+#        valid_lft 407sec preferred_lft 407sec
+#     inet6 fe80::dabb:c1ff:fedc:5856/64 scope link proto kernel_ll 
+#        valid_lft forever preferred_lft forever
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">В выводе можно заметить два IP6-адреса:</p> 
+<ul style="margin-top: 6px">
+    <li>2a00:1370:8196:1e89:dabb:c1ff:fedc:5856/64</li>
+    <li>fe80::dabb:c1ff:fedc:5856/64</li>
+</ul>
+<p style="margin-bottom: 6px"><strong>Первый из них</strong> – глобальный IP6-адрес. Используется для выхода в интернет. По нему ко мне можно подключиться извне. Его выдал провайдер (через Router Advertisement). Это аналог моего публичного IPv4-адреса. "dynamic" означает, что адрес выдан автоматически роутером (RA). <strong><i>scope global</i></strong> = это настоящий глобальный адрес, не локальный. <strong><i>mngtmpaddr</i></strong> – это privacy extensions. Адрес меняется. Поэтому лучше использовать постоянный адрес. Например, назначить его вручную.</p>
+<p style="margin-top: 6px">А <strong>второй адрес</strong> – это локальный адрес. Он создаётся автоматически для каждого интерфейса. Он всегда начинается с <strong><i>fe80::</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Рассмотрим адрес <strong><i>2a00:1370:8196:1e89:dabb:c1ff:fedc:5856/64</i></strong>.</p>
+<ul style="margin-top: 6px">
+    <li>первые 64 бита — сеть</li>
+    <li>вторые 64 бита — идентификатор устройства</li>
+</ul>
+
+<p style="margin-bottom: 6px">Проверить с какого адреса пришёл запрос можно с помощью сайта <strong><i>ifconfig.me</i></strong> или с помощью <strong><i>icanhazip.com</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -6 https://ifconfig.me
+
+# Можно так:
+curl -6 ifconfig.me
+ # 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+
+# Или с помощью icanhazip.com:
+curl -6 https://icanhazip.com
+ # 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотреть, есть ли у сайта IPv6:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+dig AAAA ifconfig.me
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверить firewall:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo nft list ruleset
+
+# Или:
+sudo ip6tables -L
+
+ # Chain INPUT (policy ACCEPT)
+ # target     prot opt source               destination         
+ # 
+ # Chain FORWARD (policy ACCEPT)
+ # target     prot opt source               destination         
+ # 
+ # Chain OUTPUT (policy ACCEPT)
+ # target     prot opt source               destination  
+</code></pre>
+<p style="margin-top: 6px"><strong><i>nft</i></strong> пустой, <strong><i>ip6tables</i></strong> полностью открытый (policy ACCEPT во всех цепочках, правил нет).</p>
+<p style="margin-bottom: 6px">Что это значит</p>
+<ul style="margin-top: 6px">
+	<li>Весь входящий IPv6-трафик ко мне открыт. Любой может попробовать подключиться к моему глобальному IPv6-адресу. Например, сканеры интернета могут видеть мой ПК.</li>
+	<li>Исходящий трафик свободен — проблем нет.</li>
+	<li>Исходящий трафик свободен — проблем нет.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Проверить, доступно ли устройство извне:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo nmap -6 -Pn -p 22,80 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+
+ # Starting Nmap 7.98 ( https://nmap.org ) at 2026-02-11 23:58 +0300
+ # Nmap scan report for 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+ # Host is up (0.00012s latency).
+ # 
+ # PORT   STATE  SERVICE
+ # 22/tcp closed ssh
+ # 80/tcp closed http
+ # 
+ # Nmap done: 1 IP address (1 host up) scanned in 0.55 seconds
+</code></pre>
+
+<p style="margin-bottom: 6px">Как реально проверить открыт ли ты из интернета. Есть 3 способа:</p>
+<ul style="margin-top: 6px">
+	<li>Проверка с другого устройства (лучший способ):  <code style="background-color: #161616; padding: 0 6px">nmap -6 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856</code></li>
+   <li>Онлайн-сканеры портов (проще): yougetsignal.com, hackertarget.com</li>
+   <li style="margin-bottom: 6px">Быстрая локальная проверка (хоть что-то):
+      <pre style="margin-top: 6px"><code class="language-bash"># Запускаем сервер:
+python -m http.server 8080
+
+# И пробуем подключиться:
+curl -6 http://2a00:1370:8196:1e89:dabb:c1ff:fedc:5856:8080</code></pre>
+   </li>
+</ul>
+
+<p style="margin-bottom: 6px">Проверю с телефона (телефон в локальной сети):</p>
+<pre style="margin-top: 6px"><code class="language-bash">nmap -6 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+
+ # Starting Nmap 7.98 ( https://nmap.org ) at 2026-02-12 00:52 +0300
+ # Nmap scan report for 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+ # Host is up (0.0030s latency).
+ # All 1000 scanned ports on 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856 are in ignored states.
+ # Not shown: 1000 closed tcp ports (conn-refused)
+ # 
+ # Nmap done: 1 IP address (1 host up) scanned in 2.01 seconds
+</code></pre>
+
+<p style="margin-bottom: 6px">А теперь подключусь к мобильному интернету и выполню то же:</p>
+<pre style="margin-top: 6px"><code class="language-bash">nmap -6 2a00:1370:8196:1e89:dabb:c1ff:fedc:5856
+
+ # Starting Nmap 7.98 ( https://nmap.org ) at 2026-02-12 08:41 +0300
+ # Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
+ # Nmap done: 1 IP address (0 hosts up) scanned in 3.08 seconds
+</code></pre>
+
+<p>Какие сетевые соединения и порты открыты в системе:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ss -tulnp
+
+ # ss = socket statistics
+
+ # -t  → TCP
+ # -u  → UDP
+ # -l  → только слушающие (LISTEN)
+ # -n  → не переводить порты в имена (числа показывать)
+ # -p  → показать процесс (PID)
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

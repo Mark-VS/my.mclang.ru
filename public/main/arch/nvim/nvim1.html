@@ -105,6 +105,8 @@ rm -rf ~/.config/nvim
    <li>-</li>
    <li>Shift+[ – прыгаем вверх между абзацами</li>
    <li>Shift+] – прыгаем вниз между абзацами</li>
+   <li>Ctrl+f или PageDown – переместиться на страницу ниже</li>
+   <li>Ctrl+b или PageUp – переместиться на страницу выше</li>
    <li>-</li>
    <li>f – прыгнуть к ближайшему символу на строке справа</li>
    <li>F – прыгнуть к ближайшему символу на строке слева</li>
@@ -348,13 +350,98 @@ vim.opt rnu = false            -- откл. отн. нумерацию стро�
 <pre style="margin-top: 6px"><code class="language-vim">:echo stdpath("config")
 </code></pre>
 
-<p style="margin-bottom: 6px">Посмотреть подробности про Tree-sitter:</p>
-<pre style="margin-top: 6px"><code class="language-vim">:checkhealth treesitter
+<h2>Автоотступы</h2>
+
+<p style="margin-bottom: 6px">Когда я печатаю HTML, включаются отступы, которые мне мешают. Проверим, какие отступы включены:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-vim">:set autoindent?
+ " autoindent
+
+:set smartindent?
+ " nosmartindent
+
+:set cindent?
+ " nocindent
+
+:set indentexpr?
+ " indentexpr=HtmlIndent()
+
+:set filetype?
+ " filetype=html
+</code></pre>
+<p style="margin-top: 6px">В нашем случае виновник: <code style="background-color: #161616; padding: 0 6px">indentexpr=HtmlIndent()</code>. <strong><i>autoindent</i></strong> тут не причём.</p>
+
+<p style="margin-bottom: 6px">Отключим <strong><i>indentexpr</i></strong> сразу же в <strong>Neovim</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:set indentexpr=
 </code></pre>
 
-<p style="margin-bottom: 6px">Покажет, какие capture-группы <strong>Tree-sitter</strong> срабатывают под курсором (через :inspect для Tree-sitter):</p>
-<pre style="margin-top: 6px"><code class="language-vim">:lua =vim.treesitter.get_captures_at_cursor()
+<p style="margin-bottom: 6px">Чтобы отключить автоотступы навсегда, добавим в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "html",
+    callback = function()
+        vim.opt_local.indentexpr = ""
+    end,
+})
 </code></pre>
+
+<p style="margin-bottom: 6px">Когда мы запускаем <strong><i>.lua</i></strong>-файл, то у нас тоже включаются автоотступы:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:set indentexpr?
+" indentexpr=GetLuaIndent()
+</code></pre>
+
+<p style="margin-bottom: 6px">Отключим автоотступы для <strong><i>.lua</i></strong>-файлов в <strong><i>init.lua</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "lua",
+  callback = function()
+    vim.opt_local.indentexpr = ""
+  end,
+})
+</code></pre>
+
+<h2>Длина отступов</h2>
+<p>За длину отступов и табов отвечают переменные: <strong><i>shiftwidth</i></strong> и <strong><i>tabstop</i></strong>. По умолчанию они равны 8. Можно проверить это:</p>
+<pre><code class="language-vim">:set shiftwidth?
+" shiftwidth=8
+
+:set tabstop?
+" tabstop=8
+</code></pre>
+
+<p style="margin-bottom: 6px">Если не хочется убирать отступы, то для комфортной работы можно их просто уменьшить:</p>
+<pre style="margin-top: 6px"><code class="language-vim">:set shiftwidth=2
+:set tabstop=2
+
+" Если нужно, чтобы Tab заменялся пробелами, то:
+:set expandtab
+</code></pre>
+
+<p style="margin-bottom: 6px">В <strong><i>init.lua</i></strong> это можно записать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+
+vim.opt.expandtab = true
+</code></pre>
+
+<p style="margin-bottom: 6px">Если я хочу всё то же самое, но чтобы ТОЛЬКО для <strong><i>.lua</i></strong>-файлов, то:</p>
+<pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "lua",
+  callback = function()
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.expandtab = true
+  end,
+})
+</code></pre>
+
+
+<h2>Прозрачность</h2>
 
 <p style="margin-bottom: 6px">Мой конфиг с прозрачностью:</p>
 <pre style="margin-top: 6px"><code class="language-lua">-- ~/.config/nvim/init.lua
@@ -444,8 +531,8 @@ npm install -g tree-sitter-cli
 </code></pre>
 
 
-<p></p>
-<pre><code class="language-lua">
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-lua">
 
 </code></pre>
 
