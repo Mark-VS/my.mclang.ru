@@ -14,7 +14,7 @@
 <h1>sway</h1>
 
 <p>!!! Никогда не надо запускать SWAY (и любые другие WAYLAND-сессии) через sudo</p>
-<h3>Установка Sway</h4>
+<h3>Установка Sway</h3>
 
 <ul>
 <li>Для запуска <strong><i>sway</i></strong> нам понадобится <strong><i>mesa</i></strong>. Без Mesa <strong><i>sway</i></strong> не запустится на обычной Linux-системе с <strong><i>Intel/AMD</i></strong> GPU. Mesa – это реализация OpenGL для Linux/Unix.</li>
@@ -70,13 +70,12 @@ cp /etc/xdg/foot/foot.ini ~/.config/foot/foot.ini
 
 <h2>Конфигурационный файл SWAY</h2>
 
-<p>Конфигурационный файл находится здесь: <strong><i>/etc/sway/config</i></strong>. Скопируем его в домашнюю директорию:</p>
-
-<pre><code class="language-bash">mkdir -p ~/.config/sway
+<p style="margin-bottom: 6px">Конфигурационный файл находится здесь: <strong><i>/etc/sway/config</i></strong>. Скопируем его в домашнюю директорию:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir -p ~/.config/sway
 cp /etc/sway/config ~/.config/sway/</code></pre>
 
-<p>Первое, что следует сделать для удобства – это добавить русскую раскладку и Compose-key:</p>
-<pre><code># Раскладка клавиатуры: английская и русская,
+<p style="margin-bottom: 6px">Первое, что следует сделать для удобства – это добавить русскую раскладку и Compose-key:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Раскладка клавиатуры: английская и русская,
 # смена языка – на Alt+Shift:
 input * {
    xkb_layout us,ru
@@ -91,6 +90,15 @@ input * {
 
 # grp:alt_shift_toggle — это переключение раскладки Alt+Shift
 # compose:ralt — это назначение правого Alt как Compose-клавиши
+
+# На моей новой клавиатуре нет правого Win. Но есть клавиша Menu.
+# Мне нужно сделать так, чтобы при нажатии на клавишу Menu система воспринимала её как Win 
+# altwin:menu_win – это мы назначаем клавише Menu клавишу Win
+# Добавим эту опцию в xkb_options:
+input * {
+    xkb_layout us,ru
+    xkb_options grp:alt_shift_toggle,compose:ralt,altwin:menu_win
+}
 </code></pre>
 
 <p>Вместе со <strong><i>sway</i></strong> у нас ещё загрузились в систему несколько обоев для рабочего стола – в папку <strong><i>/usr/share/backgrounds/sway/</i></strong>. А в config'е можно найти вот такую строку:</p>

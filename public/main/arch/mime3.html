@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mime3</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>mime3</h1>
+
+<p>Более детальная информация здесь: <a href="mime2.html">mime2</a>. Там впринципе есть всё то же, что и здесь.</p>
+
+<p>Когда я кликаю по изображению, оно у меня открывается через браузер <strong>Chromium</strong>. Но я хочу, чтобы оно открывалось с помощью вьюера <strong>Viewnior</strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Узнаём MIME-тип:
+xdg-mime query filetype myfile.png
+ # image/png
+
+</code></pre>
+
+<p style="margin-bottom: 6px">У программы Viewnior, с помощью которой мы хотим открывать png-файлы, должен быть desktop-файл, который хранится либо в системной директории /usr/share/applications/, либо в пользовательской ~/.local/share/applications/:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ls /usr/share/applications/ | grep viewnior
+ # viewnior.desktop
+</code></pre>
+<p style="margin-top: 6px">Отлично. Вот он, desktop-файл: <strong><i>/usr/share/applications/viewnior.desktop</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Теперь сделаем так, чтобы по умолчанию именно в приложении <strong>Viewnior</strong> открывались все <strong><i>.png</i></strong>-файлы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">xdg-mime default viewnior.desktop image/png
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

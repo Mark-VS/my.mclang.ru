@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>empty</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>lala</h1>
+
+<p style="margin-bottom: 6px">Я запускаю jami. Но не хватает какой-то библиотеки:</p>
+<pre style="margin-top: 6px"><code class="language-bash">jami
+jami: error while loading shared libraries: libZXing.so.3: cannot open shared object file: No such file or directory
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим зависимости:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ldd /usr/bin/jami | grep "not found"
+	libZXing.so.3 => not found
+</code></pre>
+
+<p style="margin-bottom: 6px">Узнаем откуда установлен jami:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+pacman -Qo /usr/bin/jami
+/usr/bin/jami принадлежит jami-qt 20251003.0-1
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

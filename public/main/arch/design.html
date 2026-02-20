@@ -21,15 +21,35 @@
    # /usr/share/fonts – шрифты
 </code></pre>
 
-<p>AUR</p>
-<ul>
+<p style="margin-bottom: 6px">AUR</p>
+<ul style="margin-top: 6px">
    <li>nordic-bluish-theme-git – Nordic-bluish-accent</li>
 </ul>
 
-<p>AUR</p>
-<ul>
-   <li>utterly-nord-plasma – Тема для KDE Plasma. Ставится в /usr/share/plasma/look-and-feel/. Обои – в <strong><i>/usr/share/wallpapers/</i></strong>.</li>
+<p style="margin-bottom: 6px">AUR</p>
+<ul style="margin-top: 6px">
+	<li>utterly-nord-plasma – Тема для KDE Plasma. Ставится в <strong><i>/usr/share/plasma/look-and-feel/</i></strong> и в <strong><i>~/.config/Kvantum/</i></strong>. Обои – в <strong><i>/usr/share/wallpapers/contents/</i></strong>.
+	<ul>
+		<li><strong><i>/usr/share/plasma/look-and-feel/</i></strong> – это каталог глобальных тем <strong>Plasma</strong>. То, что здесь, работает только внутри <strong>KDE Plasma</strong>;</li>
+		<li><strong><i>~/.config/Kvantum/</i></strong> – каталог с темами для <strong>Kvantum</strong>. <strong>Kvantum</strong> ищет темы именно здесь.</li>
+	</ul>
+	</li>
 </ul>
+
+<p>ВАЖНО! В зависимостях <strong><i>utterly-nord-plasma</i></strong> указан <strong><i>plasma-desktop</i></strong>. То есть, вместе с <strong><i>utterly-nord-plasma</i></strong> поставится и <strong><i>plasma-desktop</i></strong>. А <strong><i>plasma-desktop</i></strong> тянет за собой кууучу KDE-зависимостей. Поэтому лучше просто скопировать темы и обои с GitHub'а.</p>
+
+<p style="margin-bottom: 6px">Страничка темы на GitHub: <a href="https://github.com/HimDek/Utterly-Nord-Plasma">github.com/HimDek/Utterly-Nord-Plasma</a></p>
+<p style="margin-top: 6px; margin-bottom: 6px">Обои находятся здесь: <a href="https://github.com/HimDek/Utterly-Nord-Plasma/tree/master/wallpaper/contents">github.com/HimDek/Utterly-Nord-Plasma/tree/master/wallpaper/contents</a>. Тут два файлика: <strong><i>screenshot.png</i></strong> и <strong><i>images/3840x2160.png</i></strong>.</p>
+<p style="margin-top: 6px">Стили оформления <strong><i>utterly-nord</i></strong> и <strong><i>utterly-nord-solid</i></strong> в репозитории находятся в папках: <strong><i>kvantum</i></strong> и <strong><i>kvantum-solid</i></strong> соответственно.</p>
+
+<p style="margin-bottom: 6px">Как их установить. Скопируем папки <strong><i>kvantum</i></strong> и <strong>kvantum-solid</i></strong> в <strong><i>~/.config/Kvantum/</i></strong>. В итоге должно получиться:</p>
+<ul style="margin-top: 6px; margin-bottom: 6px">
+	<li>~/.config/kvantum/Utterly-Nord/</li>
+	<li>~/.config/kvantum/Utterly-Nord-Solid/</li>
+</ul>
+<p style="margin-top: 6px">Затем запускаем менеджер тем <strong>kvantummanager</strong> и выбираем либо тему <strong><i>Utterly-Nord</i></strong>, либо <strong><i>Utterly-Nord-Solid</i></strong>.</p>
+
+
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

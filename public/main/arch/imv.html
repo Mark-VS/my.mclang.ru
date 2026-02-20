@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>imv</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>imv</h1>
+
+<p style="margin-bottom: 6px">Вместе с <strong>imv</strong> ставится два бинарника: <strong><i>imv</i></strong> и <strong><i>imv-dir</i></strong>.</p>
+<p style="margin-top: 6px">Если мы откроем изображение с помощью <strong>imv-dir</strong>, то сможем с помощью стрелочек листать все изображения в папке. Если же мы откроем изображение с помощью <strong>imv</strong>, то нам доступно только конкретно это изображение.</p>
+
+<pre><code class="language-bash"># Открыть конкретный файл:
+imv filename.png
+
+# Открыть все png-файлы в текущей папке:
+imv *.png
+
+# Открыть png- и jpg-файлы в текущей папке:
+imv *.png *.jpg
+</code></pre>
+
+<p style="margin-bottom: 6px">Или можно открыть любой файл с помощью <strong>imv-dir</strong> и тогда можно будет листать все доступные изображения в папке:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Открыть конкретный файл:
+imv-dir filename.png
+</code></pre>
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
