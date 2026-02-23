@@ -30,7 +30,216 @@
 include /etc/nginx/sites-enabled/*;
 </code></pre>
 
+
+
+<p style="margin-bottom: 6px">Дефолтный конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">worker_processes  1;
+include modules.d/*.conf;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+        listen       80;
+        server_name  localhost;
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Структура моего проекта примерно такая:</p>
+<pre style="margin-top: 6px"><code class="language-bash">public/
+  ├── main/
+  │     ├── subpage
+  │     │     ├── index.html
+  │     │     └── page1.html
+  │     ├── index.html
+  │     ├── page1.html
+  │     └── page2.html
+  └── assets/
+        ├── css/
+        ├── js/
+        └── images/
+</code></pre>
+
+<p style="margin-bottom: 6px">Поэтому я подправлю конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">worker_processes  1;
+include modules.d/*.conf;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    # Добавляем размеры хеш-таблицы MIME-типов:
+    types_hash_max_size     2048;
+    types_hash_bucket_size  128;
+
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+       listen   80;
+       server_name	localhost;
+
+       # Выносим root на уровень папки public:
+       root   /home/mark/projects/node/my.mclang.ru/public;
+       location / {
+           try_files /main$uri /main$uri/index.html =404;
+       }
+       location /assets/ {
+          try_files $uri =404;
+       }
+    }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Зачем мы добавили вот эти строки:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">types_hash_max_size     2048;
+types_hash_bucket_size  128;
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">Если их не добавить, то при запуске <strong>nginx</strong>, он ругается: <i>warn: could not build optimal types_hash. You should increase either types_hash_max_size: 1024 or types_hash_bucket_size: 64; ignoring types_hash_bucket_size</i>. <strong>Nginx</strong> недоволен размером хеш-таблицы MIME-типов. В конфиге есть строка <code style="background-color: #161616; padding: 0 6px">include mime.types</code>. Файл <strong><i>mime.types</i></strong> содержит список расширений. <strong>Nginx</strong> строит из этого хеш-таблицу для быстрого определения <strong><i>Content-Type</i></strong>. Если список большой, то стандартные размеры (types_hash_max_size 1024; types_hash_bucket_size 64) могут оказаться малы.</p>
+<p style="margin-top: 6px">Предупреждение может появляться, когда есть расширенный <strong><i>mime.types</i></strong> или добавлены кастомные типы.</p>
+
+
+<p style="margin-bottom: 6px">Подробно разберём вот эту строку:</p>
+<pre style="margin-top: 6px"><code class="language-bash">try_files   /main$uri /main$uri/index.html =404;
+</code></pre>
+
+<p style="margin-bottom: 6px">Если я хочу ещё и проверять наличие файла <strong><i>index.htm</i></strong>, то тогда подправим её таким образом:</p>
+<pre style="margin-top: 6px"><code class="language-bash">try_files   /main$uri /main$uri/index.html /main$uri/index.htm =404;
+</code></pre>
+
+<p>/main$uri – здесь мы проверяем точное соответствие URI файлу. Если мы введём в строку браузера <strong><i>http://localhost/arch/page1.html</i></strong>, то в нашем случае <strong>nginx</strong> станет искать <strong><i>/home/mark/projects/node/my.mclang.ru/public/main/arch/page.html</i></strong>. Если такой файл существует, то <strong>nginx</strong> вернёт его браузеру. Если такого файла нет, то переходим к следующему fallback-варианту.</p>
+
+<p>/main$uri/index.html – срабатывает в том случае, если файл из предыдущего примера не найден. Если он не найден, то возвращаем <strong><i>/home/mark/projects/node/my.mclang.ru/public/main/arch/index.html</i></strong>. Если мы вводим в строку браузера <strong><i>http://localhost/arch</i></strong>, то сначала мы ищем конкретный файл, чтобы его вернуть, т.е. <strong><i>/home/.../main/arch</i></strong>, но <strong><i>arch</i></strong> – это директория, а не файл → Не подходит, как конечный файл – не можем его вернуть. А значи переходим к следующему аргументу <strong>try_files</strong>, а именно: <strong><i>/main$uri/index.html</i></strong>. То есть, возвращаем из этой найденной директории файл <strong><i>index.html</i></strong>. Если же и он не найден, то переходим к следующему аргументу: пробуем вернуть из этой же директории файл <strong><i>index.htm</i></strong>. А если и он не найден, то возвращаем страничку с ошибкой "404".</p>
+<p>Если я введу в строку браузера <strong><i>http://localhost/arch/</i></strong> (то есть добавлю "/"), то логика в принципе будет та же. Единственная разница в том, что без слэша <strong>nginx</strong> сначала ищет файл <strong><i>arch</i></strong>, а со слэшем – он сразу пытается вернуть папку <strong><i>/arch/</i></strong>. А так как папку вернуть нельзя, он переходит к следующему аргументу, т.е. пытается вернуть <strong><i>/main/arch/</i></strong> + <strong><i>/index.html</i></strong>. То есть: <strong><i>/main/arch//index.html</i></strong> – с двумя слэшами. <strong>Nginx</strong> конечно убирает лишний слэш и возвращает <strong><i>/home/.../main/public/arch/index.html</i></strong>. И так далее.</p>
+
+<h2>Вопрос века</h2>
+
+<p style="margin-bottom: 6px">В дефолтном файле записано вот так (<strong>ЗАПИСЬ #1</strong>):</p>
+<pre style="margin-top: 6px"><code class="language-nginx">...
+server {
+    listen       80;
+    server_name  localhost;
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+    ...
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Можно записать вот так (<strong>ЗАПИСЬ #2</strong>):</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-nginx">server {
+    listen       80;
+    server_name  localhost;
+    # Указываем root-папку:
+    root /home/mark/projects/node/my.mclang.ru/public;
+    location / {
+       try_files $uri $uri/ =404;
+       index  index.html index.htm;
+    }
+    ...
+}
+</code></pre>
+<p style="margin-top: 6px">В этом случае файлы <strong><i>index.html</i></strong> и <strong><i>index.htm</i></strong> будут искаться в текущей директории и во всех вложенных.</p>
+
+<p style="margin-bottom: 6px">Но если мы хотим указать, чтобы файлы искались не в текущем <strong><i>.../public</i></strong>, а во вложенном <strong><i>.../public/main</i></strong>, то тогда придётся записать вот таким образом (<strong>ЗАПИСЬ #3</strong>):</p>
+<pre style="margin-top: 6px"><code class="language-nginx"># Это та же запись, что и в предыдущем примере,
+# но здесь главный index.html находится в папке .../public/main/
+server {
+    listen       80;
+    server_name  localhost;
+    # Указываем root-папку:
+    root /home/mark/projects/node/my.mclang.ru/public;
+    location / {
+       try_files   /main$uri /main$uri/index.html /main$uri/index.htm;
+    }
+    ...
+}
+</code></pre>
+
+<h3>Вопрос</h3>
+<p>Вопрос возникает, когда мы смотрим на <strong>ЗАПИСЬ2</strong> и <strong>ЗАПИСЬ3</strong> в секцию <strong><i>location</i></strong>. Строка <code style="background-color: #161616; padding: 0 6px">try_files $uri $uri/ =404;</code> ведёт себя иначе.</p>
+<p>Важно!!! <strong><i>try_files</i></strong> ведёт себя по-разному в <strong>ЗАПИСИ2</strong> и в <strong>ЗАПИСИ3</strong>. Если <strong><i>$uri</i></strong> у нас совпадает с оригинальным URI, то мы получаем одно поведение, а если мы изменяем <strong><i>$uri</i></strong> в <strong><i>try_files</i></strong>, то получаем другое поведение.</p>
+
+<p>В <strong>ЗАПИСИ2</strong> если мы не нашли точное совпадение <strong><i>$uri</i></strong>, то мы сначала ищем <strong><i>index.html</i></strong> и <strong><i>index.htm</i></strong> в текущей папке. Если их нет, то возвращаем папку <strong><i>$uri/</i></strong>. И в этой папке ищутся файлы <strong><i>index.html</i></strong> и <strong><i>index.htm</i></strong>, которые указаны в <strong>index</strong>. Происходит <i>inner redirect</i> – мы как бы оказываемся внутри папки <strong><i>$uri/</i></strong>. Если там есть вложенная папка и мы её запросим, то происходит как бы переход в следующую поддиректорию (<i>inner redirect</i>) и файлы, указанные в <strong>index</strong>, ищутся там.</p>
+<p>В <strong>ЗАПИСИ3</strong> <i>inner redirect</i> не работает, потому что там не <strong><i>$uri</i></strong>, а <strong><i>/main$uri</i></strong>, то есть <strong><i>$uri</i></strong> не соответствует оригинальному URI. <strong><i>$uri</i></strong> изменённый и логика поведения другая: здесь <code style="background-color: #161616; padding: 0 6px">index index.html index.htm</code> работать не будет. Придётся явно указывать файл, который мы хотим вернуть, если не найдено точного совпадения.</p>
+
+<p style="margin-bottom: 6px">Структура конфигурационных файлов:</p>
+<pre style="margin-top: 6px"><code class="language-bash">/etc/nginx/
+  ├── nginx.conf
+  ├── modules.d/
+  ├── conf.d/
+  │ └── custom.conf
+  ├── sites-available/
+  │ ├── site1.conf
+  │ └── site2.conf
+  ├── sites-enabled/
+  ├── site1.conf -> ../sites-available/site1.conf
+  └── site2.conf -> ../sites-available/site2.conf
+</code></pre>
+
+<p style="margin-bottom: 6px">Мой текущий конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen   80;
+   server_name	localhost;
+
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   location / {
+       try_files /main$uri /main$uri/index.html =404;
+   }
+   location /assets/ {
+      try_files $uri =404;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Можно добавить alias и тогда будет так:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen   80;
+   server_name	localhost;
+
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   location / {
+      alias /home/mark/projects/node/my.mclang.ru/public/main/;
+      try_files $uri $uri/ =404;
+   }
+   location /assets/ {
+      try_files $uri =404;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+
+</code></pre>
+
+
 <script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>
