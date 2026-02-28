@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nginx2</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/nginx/">Вернуться назад</a>
+
+<h1>nginx2</h1>
+
+<p>Дефолтный конфиг: <a href="default_config.html">ссылка на дефолтный конфиг</a></p>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+   location = /index.html { ... }
+   location /images/ { ... }
+   location ^~ /assets/ { ... }
+   location ~ ^/assets/.*\.php$ { ... }
+</code></pre>
+<p style="margin-bottom: 6px">return / rewrite / try_files:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">location / {
+   # "Уходи. Вот ответ"
+   return 200 "Hello!";
+}
+location / {
+   # "Подожди, ты идёшь нетуда"
+   rewrite ...;
+}
+location / {
+   # "Сначала проверю, есть ли такой файл..."
+   try_files ...;
+}
+</code></pre>
+
+<ul>
+   <li>return возвращает либо HTTP-код, либо редирект, либо просто текст:
+      <pre style="margin-top: 6px"><code class="language-nginx"># HTTP-код:
+return 404;
+
+# Редирект:
+return 301 https://...;
+
+# Текст:
+return 200 "Hello";</code></pre>
+   </li>
+   <li>try_files – Отдать конкретный файл
+      <pre style="margin-top: 6px"><code class="language-nginx">location /kaka/bobo/ {
+   root /home/projects/projects/node/public/main/arch;
+   try_files /test.html =404;
+}
+	  </code></pre>
+   </li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+server {
+   listen   80;
+   server_name localhost;
+
+   location / {
+      root /home/mark/projects/node/my.mclang.ru/public/main;
+      try_files $uri $uri/ =404;
+   }
+   location /assets/ {
+      root   /home/mark/projects/node/my.mclang.ru/public;
+      try_files $uri =404;
+   }
+   ...
+}
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+server {
+   listen   80;
+   server_name localhost;
+
+   # Здесь мы вынесли общую для обоих секций папку:
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   location / {
+      # Явно указываем index.html, потому что оригинальный URI изменён:
+      try_files /main$uri /main$uri/index.html /main$uri/index.htm =404;
+   }
+   location /assets/ {
+      try_files $uri =404;
+   }
+   ...
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">А можно сделать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+server {
+   listen   80;
+   server_name localhost;
+
+   # Здесь мы вынесли общую для обоих секций папку:
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   location / {
+      # Переопределяем root целиком, чтобы не менять оригинальный URI
+      root   /home/mark/projects/node/my.mclang.ru/public/main;
+      index index.html index.htm;  # явное указание не обязательно; index.html
+      try_files $uri $uri/ =404;
+   }
+   location /assets/ {
+      try_files $uri =404;
+   }
+   ...
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
