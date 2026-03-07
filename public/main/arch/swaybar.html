@@ -65,9 +65,9 @@ bar {
 
 <h2>RU / EN</h2>
 
-<p>Очень удобно, когда мы видим в статус-баре отображение текущей раскладки. Для этого создадим скрипт <strong><i>~/.config/sway/status.sh</i></strong>:</p>
-
-<pre><code class="language-bash">#!/bin/bash
+<p style="margin-bottom: 2px">Очень удобно, когда мы видим в статус-баре отображение текущей раскладки. Для этого создадим скрипт <strong><i>~/.config/sway/status.sh</i></strong>:</p>
+<p style="margin-top: 2px; margin-bottom: 6px">!!! <strong>Важно</strong> !!! Обратим внимание на утилиту <strong>jq</strong>! Она нужна для корректной работы скрипта. В моём случае после переустановки <strong><i>Arch</i></strong> этот скрипт перестал работать, потому что я забыл установить <strong>jq</strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash">#!/bin/bash
 
 while true; do
     # Получаем раскладку
