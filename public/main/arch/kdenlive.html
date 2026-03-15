@@ -13,6 +13,12 @@
 
 <h1>kdenlive</h1>
 
+<ul>
+   <li><strong><i>/usr/share/kdenlive/export/profiles.xml</i></strong> – здесь содержатся дефолтные пресеты</li>
+   <li><strong><i>~/.local/share/kdenlive/export/customprofiles.xml</i></strong> – сюда записываются пользовательские пресеты, которые я сам создал</li>
+</ul>
+<p>Дефолтные пресеты в программе не редактируются. Если я хочу подправить дефолтный пресет, то его нужно сначала скопировать. Для этого можно его найти по имени в файле <strong><i>/usr/share/kdenlive/export/profiles.xml</i></strong> и вставить внутрь тега <strong><i>&lt;profiles&gt;</i></strong> в файл <strong><i>~/.local/share/kdenlive/export/customprofiles.xml</i></strong>.</p>
+
 <h2>Горячие клавиши</h2>
 <ul>
    <li>Разрезать видео: Shift+R (S)</li>
@@ -30,6 +36,91 @@
    <li>Теперь выделяем видео (аудио тоже выделится) и нажимаем ПКМ. Выбираем из контекстного меню: Align to Reference -> Создать звуковую привязку.</li>
    <li>Обратно разгруппировываем их: Ctrl+Shift+G</li>
    <li>Теперь кликаем ПКМ по звуку и выбираем в контекстном меню: Align to Reference -> Выровнить звук по привязке. И звук должен принять изначальное синхронизированное положение относительно видео.</li>
+</ul>
+
+<h2>Параметры кодека FFmpeg</h2>
+<p style="margin-bottom: 6px">Если выбрать формат MP4-H264/AAC, то в окне рендера в самом низу есть текстовое поле со строкой:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ab=160k acodec=aac channels=2 crf=23 f=mp4 g=15 movflags=+faststart preset=veryfast real_time=-1 threads=0 vcodec=libx264
+</code></pre>
+<p style="margin-top: 6px">Это параметры кодека <strong>FFmpeg</strong>, которые <strong>Kdenlive</strong> передаёт кодировщику <strong>FFmpeg</strong>. Она полностью описывает как будет сжиматься видео и звук.</p>
+
+<p style="margin-bottom: 6px">Она же в развёрнутом виде:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ab=160k
+acodec=aac
+channels=2
+crf=23
+f=mp4
+g=15
+movflags=+faststart
+preset=veryfast
+real_time=-1
+threads=0
+vcodec=libx264
+</code></pre>
+
+<ul>
+   <li>vcodec=libx264 – используется кодек H.264</li>
+   <li>crf=23 – самый важный параметр для размера файла. Это уровень качества. Чтобы его изменить нужно активировать ползунок <strong><i>Custom Quality</i></strong>.
+      <ul>
+         <li>18 – почти без потерь – очень большой размер</li>
+		 <li>23 – стандарт (по умолчанию) – средний размер</li>
+		 <li>26 – хуже – размер меньше (26 или 27 – обычно уменьшает размер почти в два раза)</li>
+		 <li>28 – заметно хуже – маленький размер</li>
+	  </ul>
+   </li>
+   <li>preset=veryfast – это и есть ползунок Speed, который можно менять в окне <strong>render</strong>. Он влияет на скорость рендера и эффективность сжатия. Если поменять <strong><i>veryfast</i></strong> на <strong><i>medium</i></strong>, то рендер будет дольше, а размер файла меньше. Но на качество сжатия это не повлияет. То есть, при том же качестве размер конечного файла будет меньше.</li>
+   <li>ab=160k – настройка audio – 160kbps (можно уменьшить до 128k)</li>
+   <li>acodec=aac – аудиокодек – AAC</li>
+   <li>channels=2 – стерео</li>
+   <li>threads=0 – использовать все ядра CPU</li>
+   <li>movflags=+faststart – видео быстрее начинает воспроизводиться в интернете</li>
+   <li>g=15 – интервал ключевых кадров (управляется полем <strong><i>GOP</i></strong>)</li>
+</ul>
+
+<p>Для уменьшения размера конечного файла можно посоветовать: поменять CRF на 26 или на 27, поменять preset на medium. И ещё можно использовать кодек H.265. Он может уменьшить размер в 2 раза, но не все старые устройства его поддерживают.</p>
+
+<p>Если мы хотим создать свой собственный пресет, то:</p>
+<ul>
+   <li>Container: mp4</li>
+   <li>Video:</li>
+   <ul>
+      <li>Codec: libx264</li>
+	  <li>Rate Control: VBR – Variable Bitrate</li>
+	  <li>Quality: 23 (по сути, это и есть CRF – для кодека libx264)</li>
+	  <li>GOP: 15 frame(s)</li>
+	  <li>B Frames: Auto (чтобы KDEnlive сам определил лучший вариант)</li>
+	  <ul>
+         <li>для 24-30 fps – 2-3 B-кадра</li>
+		 <li>для 50-60 fps – 3-4 B-кадра</li>
+	  </ul>
+   </ul>
+   <li>Audio:</li>
+   <ul>
+      <li>Codec: aac</li>
+	  <li>Rate Control: CBR – Constant Bitrate</li>
+	  <li>Bitrate: 160k</li>
+   </ul>
+   <li>Other:</li>
+   <ul>
+	  <li>Speed options: <pre style="margin-top: 6px; margin-bottom: 6px"><code>preset=veryslow
+preset=slower
+preset=slow
+preset=medium
+preset=fast
+preset=faster
+preset=veryfast
+preset=superfast
+preset=ultrafast</code></pre></li>
+	  <li>Additional Parameters: <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">movflags=+faststart</code></pre> Сюда не получится вписать, например, <strong><i>g=60</i></strong>, потому что этот параметр регулируется в GUI полем <strong><i>GOP</i></strong>. Окно с предупреждением так нам и сообщит – что GUI-интерфейс перезапишет этот параметр. <strong><i>CRF</i></strong> тоже не получится сюда вписать. С <strong><i>CRF</i></strong> – отдельная история. Его в GUI в кастомном пресете никак не выбрать. И в <strong><i>Additinal Parameters</i></strong> он тоже не вписывается, потому что в GUI <strong><i>Rate Control</i></strong> не в выставлен в <strong><i>CRF</i></strong> (а выставить его не даёт сам GUI).</li>
+   </ul>
+   <li>И ещё одна важная настройка находится в файле с пресетами, то есть, в <strong><i>~/.local/share/kdenlive/export/customprofiles.xml</i></strong>:</li>
+   <ul>
+      <li>qualities="1,31" – значения по умолчанию при создании нового кастомного пресета. Это диапазон: от 1 до 31. Самое хорошее качество – это crf=1, а самое плохое – crf=31</li>
+	  <li>qualities="15,45" – значение у дефолтного пресета <strong><i>MP4-H264/AAC</i></strong>. Это диапазон: от 15 до 45. Здесь самое хорошее качество – это crf=15, а самое плохое – crf=45</li>
+	  <ul>
+         <li>Диапазон от 15 до 45 сокращает почти в три раза размер файла. Пока не разобрался как это работает. Насколько я понял, при диапазоне от 15 до 45 самая идеальная дефолтная настройка – это crf=23, но если у нас диапазон от 1 до 31, то нужно подбирать другое значение вместо 23 для той же идеальной дефолтной настройки crf.</li>
+	  </ul>
+   </ul>
 </ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

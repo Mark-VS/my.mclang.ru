@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>groups</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>groups</h1>
+
+<p style="margin-bottom: 6px; text-decoration: underline">Где хранятся группы</p>
+<ul style="margin-top: 6px; margin-bottom: 6px">
+   <li><strong><i>/etc/passwd</i></strong> – здесь хранится основная группа, вместе с пользователем</li>
+   <li><strong><i>/etc/group</i></strong> – а здесь хранятся дополнительные группы</li>
+</ul>
+
+<pre style="margin-top: 6px"><code class="language-bash"># Вывести список всех групп в системе:
+cat /etc/group
+# или:
+getent group
+
+# Узнать основную группу пользователя:
+cat /etc/passwd | grep mark
+# или:
+getent passwd mark
+</code></pre>
+
+
+<p style="margin-bottom: 6px">С помощью <strong><i>groups</i></strong> можно посмотреть группы, в которых состоит пользователь:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Список групп, в которых состоит текущий пользователь:
+groups
+
+# Группы, в которых состоит конкретный пользователь:
+groups mark
+</code></pre>
+
+<p style="margin-bottom: 6px">Команда <strong><i>id</i></strong> выводит более подробную информацию: текущего пользователя, его основную группу и группы в которых он состоит, а также показывает id пользователя и групп:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Группы, в которых состоит текущий пользователь:
+id
+  # uid=1000(mark) gid=1000(mark) groups=1000(mark),998(wheel)
+
+# Группы, в которых состоит конкретный пользователь:
+id mark
+  # uid=1000(mark) gid=1000(mark) groups=1000(mark),998(wheel)
+</code></pre>
+
+
+<p style="margin-bottom: 2px; text-decoration: underline">Важный момент!!!</p>
+<p style="margin-top: 2px; margin-bottom: 6px">Первые две комманды покажут группы <strong>текущей сессии</strong>, а вторые две покажут группы из <strong><i>/etc/group</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># группы текущей сессии:
+groups
+id
+
+# группы из файла /etc/group:
+groups mark
+id mark
+</code></pre>
+<p style="margin-top: 6px">Ниже – пример, иллюстрирующий различие между <code style="background-color: #161616; padding: 0 6px">groups</code> и <code style="background-color: #161616; padding: 0 6px">groups mark</code>, между <code style="background-color: #161616; padding: 0 6px">id</code> и <code style="background-color: #161616; padding: 0 6px">id mark</code>.</p>
+
+<p style="margin-bottom: 6px">Добавить пользователя <strong><i>mark</i></strong> в группу <strong><i>gotosocial</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo usermod -aG gotosocial mark
+# sudo usermod --append --groups gotosocial mark
+
+# Проверим:
+groups
+  # mark wheel
+
+groups mark
+  # mark : mark wheel gotosocial
+
+getent group gotosocial
+  # gotosocial:x:963:mark
+
+cat /etc/group | grep gotosocial
+  # gotosocial:x:963:mark
+</code></pre>
+
+<p>То есть в файле <strong><i>/etc/group</i></strong> пользователь <strong><i>mark</i></strong> добавился в группу <strong><i>gotosocial</i></strong>, но в текущей сессии это изменение ещё не применилось.</p>
+<p style="margin-bottom: 1px; text-decoration: underline">Что делать!</p>
+<p style="margin-top: 1px; margin-bottom: 6px"><strong>Нужно перелогиниться</strong>.</p>
+<p style="margin-top: 1px; margin-bottom: 6px">Либо, если срочно нужно, чтобы прям в текущем shell'е она применилась, можно воспользоваться командой <strong><i>newgrp</i></strong>. Эта команда меняет основную группу пользователя для текущего shell'а. Она не трогает файлы <strong><i>/etc/passwd</i></strong> и <strong><i>/etc/group</i></strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash">newgrp gotosocial
+# здесь мы меняем основную группу для текущей оболочки (текущей сессии shell)
+
+# в текущем терминале группа станет доступна:
+groups
+</code></pre>
+
+<p style="margin-bottom: 6px">Добавление и удаление групп:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Добавить группу kakashka:
+sudo useradd kakashka
+
+# Добавить группу с явным указанием GID:
+sudo groupadd -g 1050 bukashka  # сокращённый флаг
+sudo groupadd --guid 1051 perdashka # то же самое
+
+# Удалить группу:
+sudo groupdel perdashka
+
+# Нельзя удалить основную группу пользователя
+</code></pre>
+
+<p style="margin-bottom: 6px">Добавление в группы и удаление из групп пользователей:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Добавить пользователя в группу, без удаления остальных групп:
+sudo usermod -aG bukashka mark   # сокращённая запись
+sudo usermod --append --groups bukashka mark   # то же самое
+
+# Удалить юзера mark из группы bukashka:
+sudo gpasswd -d mark bukashka
+sudo gpasswd --delete mark bukashka  # то же самое
+
+# Через usermod (передаём весь список без bukashka):
+sudo useradd -G wheel,mark,gotosocial mark
+sudo useradd --groups wheel,mark,gotosocial mark  # то же самое
+  # то есть, по сути это не удаление группы, ...
+  # ... а полная замена списка групп, в которых юзер состоит
+</code></pre>
+
+<p style="margin-bottom: 6px">Поменять основную группу пользователя:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo usermod -g gotosocial mark     # сокращённая запись
+sudo usermod -g 1001 mark           # то же самое
+sudo usermod --gid gotosocial mark  # то же самое
+sudo usermod --gid 1001 mark        # то же самое
+</code></pre>
+
+<h3 style="margin-bottom: 6px">Подводя итог</h3>
+<p style="margin-top: 6px; margin-bottom: 6px">Команды, которые пригодятся для работы с группами и которые мы использовали чуть выше:</p>
+<pre style="margin-top: 6px"><code class="language-bash">groupadd
+groupdel
+groups
+id
+getent
+usermod
+gpasswd
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

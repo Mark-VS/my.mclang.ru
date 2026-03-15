@@ -91,6 +91,30 @@
     # Затем просто подключаем телефон и выбираем режим передачи файлов.
 </code></pre>
 
+<h2>Andtroid через USB (MTP)</h2>
+<ul>
+   <li>gvfs-mtp – позволяет файловым менеджерам видеть телефон</li>
+   <li>mtpfs – монтирования MTP, позволяет примонтировать Android как папку</li> 
+   <li>android-udev – правила доступа к Android-устройствам, даёт системе права доступа к Android-устройствам</li>
+   <li>Если файлового менеджера нет, можно использовать <strong>jmtpfs</strong> (позволяет примонтировать память телефона):
+      <pre><code class="language-bash">mkdri ~/phone
+jmtpfs ~/phone
+
+# Отмонтировать:
+fusermount -u ~/phone</code></pre>
+   </li>
+</ul>
+
+<pre><code>
+sudo pacman -S mtpfs android-udev
+# не работает нифига
+
+sudo pacman -S gvfs gvfs-mtp
+# После запуска PCManFM сразу определился телефон
+</code></pre>
+
+
+
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>

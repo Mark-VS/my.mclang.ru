@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoToSocial</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1 style="margin-bottom: 6px">GoToSocial</h1>
+
+<p style="margin-top: 6px; margin-bottom: 0">Официальный сайт: <a href="https://gotosocial.org/">gotosocial.org</a></p>
+<p style="margin-top: 0; margin-bottom: 0">CodeBerg: <a href="https://codeberg.org/superseriousbusiness/gotosocial">codeberg.org/superseriousbusiness/gotosocial</a></p>
+<p style="margin-top: 0; margin-bottom: 0">Документация: <a href="https://docs.gotosocial.org/en/latest/">docs.gotosocial.org/en/latest/</a></p>
+<p style="margin-top: 0">Repology: <a href="https://repology.org/project/gotosocial/information">repology.org/project/gotosocial/information</a></p>
+
+
+<p style="margin-bottom: 6px">Сначала устанавливаем <strong>GoToSocial</strong> из репозитория:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S gotosocial
+
+# Проверим:
+gotosocial --version
+</code></pre>
+
+<ul>
+   <li>/usr/bin/gotosocial – бинарник</li>
+   <li>/usr/share/gotosocial/</li>
+   <li>/etc/gotosocial/config.yaml – дефолтный конфигурационный файл</li>
+   <li>/etc/gotosocial/template/ – шаблоны</li>
+   <li>/var/lib/gotosocial/storage/certs/ – сертификаты</li>
+</ul>
+
+<p style="margin-bottom: 4px">Как обычно делают на серверах (гпт):</p>
+<ul style="margin-top: 4px">
+   <li>/etc/gotosocial/ – конфиг</li>
+   <li>/var/lib/gotosocial/ – база и данные</li>
+   <li>/usr/share/gotosocial/ – assets</li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+pacman -Ql gotosocial | grep template
+</code></pre>
+
+
+<p>Теперь нужно создать конфигурационный файл <strong><i>config.yaml</i></strong>. Разместим его в <strong><i>~/gotosocial/</i></strong>. Пример конфигурационного файла можно взять <a href="https://codeberg.org/superseriousbusiness/gotosocial/src/branch/main/example/config.yaml#">здесь</a>. Если мы устанавливали пакет из репозитория <strong>Arch</strong>, то дефолтный конфигурационный файл копируется сюда: <strong><i>/etc/gotosocial/config.yaml</i></strong>.</p>
+<p>Файлы сертификата <strong><i>gts.test.pem</i></strong> и <strong><i>gts.test-key.pem</i></strong> я положил в <strong><i>~/certs/</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Что нужно прописать в конфигурационном файле:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># ~/gotosocial/config.yaml
+
+# 347-я строка (без шаблонов не запустится):
+web-template-base-dir: /etc/gotosocial/template    # 347-я строка
+
+# 352-я строка:
+web-asset-base-dir: "./web/assets/"
+# Заменим на, иначе GoToSocial не найдёт themes:
+web-asset-base-dir: "/usr/share/gotosocial/"
+
+# Запустить gotosocial через http:
+protocol: "http"
+tls-certificate-chain: ""
+tls-certificate-key: ""
+
+# Запустить gotosocial через https:
+protocol: "https"
+tls-certificate-chain: "/home/mark/certs/gts.test.pem"
+tls-certificate-key: "/home/mark/certs/gts.test-key.pem"
+
+# порт и trusted-proxies – по умолчанию:
+port: 8080
+trusted-proxies:
+  - "127.0.0.1/32"
+  - "::1"
+
+host: "localhost"
+# меняем на:
+host: "gts.test"
+
+db-address: "sqlite.db"
+# лучше поменять на:
+db-address: "/home/mark/gotosocial/sqlite.db"
+# иначе база данных будет создавать в деректории, ...
+# ... из которой мы запускаем gotosocial
+</code></pre>
+
+<p style="margin-bottom: 6px">Запускаем сервер с указанием конфига:</p>
+<pre style="margin-top: 6px"><code class="language-bash">gotosocial --config-path ~/gotosocial/config.yaml server start
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь создадим пользователя:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+gotosocial --config-path ~/gotosocial/config.yaml \
+admin account create \
+--username mark \
+--email mark@gts.test \
+--password 'password'
+  # Пароль нужно придумать посложней, иначе GoToSocial будет ругаться
+</code></pre>
+
+<p style="margin-bottom: 6px">И сделаем его админом:</p>
+<pre style="margin-top: 6px"><code class="language-bash">gotosocial --config-path ~/gotosocial/config.yaml \
+admin account promote \
+--username mark
+</code></pre>
+
+<p style="margin-bottom: 6px">Опять запускаем сервер:</p>
+<pre style="margin-top: 6px"><code class="language-bash">gotosocial --config-path ~/gotosocial/config.yaml server start
+</code></pre>
+
+<p>Заходим на страничку: <strong><i>https://gts.test:8080/</i></strong>.</p>
+
+<p>Если <strong><i>login</i></strong> не работает, самая частая причина – <strong>аккаунт ещё не подтверждён или не одобрен</strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+# Проверить список аккаунтов:
+gotosocial --config-path ~/gotosocial/config.yaml admin account list
+
+# Разрешаем аккаунт:
+gotosocial --config-path ~/gotosocial/config.yaml \
+admin account approve \
+--username mark
+
+# Подтвержаем eMail:
+gotosocial --config-path ~/gotosocial/config.yaml \
+admin account confirm \
+--username mark
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть путь к базе данных:
+
+grep db-address ~/gotosocial/config.yaml
+   #db-address: "sqlite.db"
+
+# Чтобы не было проблем, путь к базе данных в config.yaml нужно изменить на абсолютный: /home/mark/sqlite.db
+</code></pre>
+
+<p style="margin-bottom: 6px">У меня база данных лежит в <strong>/home/mark/</strong> и права на неё только у суперпользователя, потому что я создавал её через <strong>sudo</strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash">ls -l ~ | grep sql
+  # -rw-r--r--  1 root root    1122304 Mar  8 10:39 sqlite.db
+  # -rw-r--r--  1 root root      32768 Mar  8 11:09 sqlite.db-shm
+  # -rw-r--r--  1 root root          0 Mar  8 11:09 sqlite.db-wal
+
+# Чтобы это исправить, поменям владельца:
+sudo chown mark:mark ~/sqlite.db*
+
+# Теперь:
+ls -l ~ | grep sql
+  # -rw-r--r--  1 mark mark    1122304 Mar  8 10:39 sqlite.db
+  # -rw-r--r--  1 mark mark      32768 Mar  8 11:14 sqlite.db-shm
+  # -rw-r--r--  1 mark mark          0 Mar  8 11:14 sqlite.db-wal
+</code></pre>
+
+<p style="margin-bottom: 6px">У папки /etc/gotosocial/ могут быть проблемы с правами доступа.</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+ls -ld /etc/gotosocial
+  # drwxr-x--- 3 gotosocial gotosocial 4096 Mar  8 00:34 /etc/gotosocial
+
+sudo ls -ld /etc/gotosocial/template
+  # [sudo] password for mark: 
+  # drwxr-x--- 2 gotosocial gotosocial 4096 Mar  8 00:34 /etc/gotosocial/template
+
+# Даём права на чтение шаблонов ВСЕМ:
+sudo chmod -R a+r /etc/gotosocial/template
+
+# Нужно, чтобы пользователь мог заходить в каталог:
+sudo chmod a+x /etc/gotosocial/template
+
+# Теперь опять проверяем права:
+sudo ls -ld /etc/gotosocial/template/
+  # drwxr-xr-x 2 gotosocial gotosocial 4096 Mar  8 00:34 /etc/gotosocial/template/
+
+# Теперь дадим права на запись папке gotosocial:
+sudo chmod o+x /etc/gotosocial
+
+# Либо можно заменить владельца на своего пользователя,
+# если сервер всегда запускается от него:
+sudo chown -R mark:mark /etc/gotosocial/template
+</code></pre>
+
+<p style="margin-bottom: 0">Сервер запустился, но не подгружаются картинки. Например, у меня не загружается дефолтная аватарка. Она находится вот здесь: <strong><i>/usr/share/gotosocial/default_avatars/GoToSocial_icon6.webp</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 0">В браузере можно попасть на неё вот так: <strong><i>https://gts.test:8080/assets/default_avatars/GoToSocial_icon6.webp</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 0">Но когда я кликаю по аватарке в профиле, то ссылка ведёт сюда: <strong><i>https://gts.test/assets/default_avatars/GoToSocial_icon6.webp</i></strong>.</p>
+<p style="margin-top: 0">То есть, отсутствует порт <strong><i>8080</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Нужно поставить <strong>Nginx</strong> перед <strong>GoToSocial</strong>, чтобы он перенаправлял все запросы, которые идут на стандартный <strong><i>443</i></strong>, на порт <strong><i>8080</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">браузер
+   ↓
+https://gts.test (443)
+   ↓
+Nginx
+   ↓
+http://127.0.0.1:8080
+   ↓
+GoToSocial
+</code></pre>
+
+<p style="margin-bottom: 6px">Минимальная настройка <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+  listen 80;
+  server_name   gts.test;
+
+  location / {
+    proxy_pass http://127.0.0.1:8080;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+  }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">При запуске сервера в локальной сети доканывает синее окно с предупреждением:</p>
+<div style="border: solid 1px grey; padding: 16px; margin-bottom: 6px">
+<p><strong>Warning!</strong> It looks like either trusted-proxies is not set correctly in this instance's configuration, or the upstream reverse proxy is not passing an appropriate X-Forwarded-For or X-Real-IP header.</p>
+
+<p>This may cause rate-limiting issues and, by extension, federation issues.</p>
+
+<p>If you are the instance admin, you may be able to fix this by adding 127.0.0.1/32 to your trusted-proxies.</p>
+
+<p>For more information and other possible fixes for this issue, see <a href="https://docs.gotosocial.org/en/stable/configuration/trusted_proxies/">the documentation</a>.</p>
+</div>
+
+<p style="margin-top: 6px">Добавление ip-адреса <strong><i>127.0.0.1/32</i></strong> в мои <strong><i>trusted-proxies</i></strong> ничего не дало.</p>
+
+<p style="margin-bottom: 6px">Можно добавить конкретные адреса в список исключений. Для домашней сети это будет выглядеть примерно так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">advanced-rate-limit-exceptions:
+  - "127.0.0.1/24"
+  - "192.168.1.0/24"
+</code></pre>
+<p style="margin-top: 6px">Но когда я захожу с этого же компьютера (с 127.0.0.1) сообщение всё равно появляется.</p>
+
+<p style="margin-bottom: 6px">Поэтому в локальной сети единственный действенный способ – полностью отключить rate limit:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Заменим:
+advanced-rate-limit-requests: 300
+# на:
+advanced-rate-limit-requests: 0
+</code></pre>
+<p style="margin-top: 6px">При этом в официальной документации написано, что отключать rate-limiting только в крайнем случае, если остальные способы не дали результата.</p>
+
+<p>То есть, логика следующая:</p>
+<ul>
+<li><p style="margin-bottom: 6px">Вот настройки по умолчанию:</p>
+<pre style="margin-top: 6px"><code class="language-bash">trusted-proxies:
+  - "127.0.0.1/32"
+  - "::1"
+advanced-rate-limit-requests: 300
+advanced-rate-limit-exceptions: []
+</code></pre>
+</li>
+
+<li><p style="margin-bottom: 6px">Добавляем исключения для локальной сети:</p>
+<pre style="margin-top: 6px"><code class="language-bash">advanced-rate-limit-exceptions:
+  - "127.0.0.1/24"
+  - "192.168.1.0/24"
+</code></pre>
+</li>
+
+<li><p style="margin-bottom: 6px">Отключаем rate limit:</p>
+<pre style="margin-top: 6px"><code class="language-bash">trusted-proxies:
+  - "127.0.0.1/32"
+  - "::1"
+advanced-rate-limit-requests: 0
+advanced-rate-limit-exceptions:
+  - "127.0.0.1/24"
+  - "192.168.1.0/24"
+</code></pre>
+</li>
+
+<li><p style="margin-bottom: 6px">А раз мы отключили rate limit, то пропал смысл в исключениях, а значит убираем их:</p>
+<pre style="margin-top: 6px"><code class="language-bash">trusted-proxies:
+  - "127.0.0.1/32"
+  - "::1"
+advanced-rate-limit-requests: 0
+</code></pre></li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
