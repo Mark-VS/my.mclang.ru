@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пользователи</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1 style="margin-bottom: 6px">Пользователи</h1>
+<p style="margin-top: 6px"><a href="groups.html">Перейти на страничку с группами</a></p>
+
+<p style="margin-bottom: 2px; text-decoration: underline">Где хранятся пользователи</p>
+<ul style="margin-top: 2px">
+   <li><strong><i>/etc/passwd</i></strong> – здесь хранится список пользователей и их основных групп</li>
+   <li><strong><i>/etc/shadow</i></strong> – здесь хранятся хэши паролей</li>
+   <li><strong><i>/etc/group</i></strong> – здесь хранятся доп. группы</li>
+</ul>
+
+<p style="margin-bottom: 6px">Основные команды:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Показать список всех пользователей:
+cat /etc/passwd
+
+# Или:
+getent passwd
+
+# Если нужен только список имён:
+cut -d: -f1 /etc/passwd
+
+# Показать обычных пользователей, не системных:
+awk -F: '$3 >= 1000 {print $1}' /etc/passwd
+
+# Узнать текущего пользователя:
+whoami
+
+# Кто сейчас вошёл в систему:
+who
+  # кто вошёл в систему, с какого терминала и когда
+
+# Более полный вывод:
+w
+
+# Текущий пользователь с точки зрения прав системы (паспорт)
+# Покажет группы текущей сессии
+id
+
+# Конкретный пользователь
+# Покажет группы из /etc/group
+id mark
+</code></pre>
+
+<p style="margin-bottom: 2px">Разница между <strong><i>who</i></strong> и <strong><i>id</i></strong>:</p>
+<ul style="margin-top: 2px">
+   <li><code style="background-color: #161616; padding: 0 6px">who</code> – посмотреть всех пользователей онлайн</li>
+   <li><code style="background-color: #161616; padding: 0 6px">id</code> – проверить свои права</li>
+</ul>
+
+<p style="margin-bottom: 6px">Выведем информацию о конкретном пользователе:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">getent passwd mark
+  # mark:x:1000:1000::/home/mark:/bin/bash
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 2px">В выводе семь полей:</p>
+<ol style="margin-top: 2px">
+   <li>Имя пользователя</li>
+   <li>Пароль. Это не сам пароль. <strong><i>x</i></strong> означает, что хэш пароля хранится в файле <strong><i>/etc/shadow</i></strong> (для безопасности)</li>
+   <li>UID (User ID) – Уникальный ID пользователя
+      <ul>
+         <li>0 → root</li>
+		 <li>1–999 → системные пользователи</li>
+		 <li>1000+ → обычные пользователи</li>
+	  </ul>
+   </li>
+   <li>GID (Group ID) – ID основной группы пользователя</li>
+   <li>Комментарий (GECOS), General Electric Comprehensive Operating Supervisor</li>
+   <li>Домашняя директория</li>
+   <li>Оболочка (shell)</li>
+</ol>
+
+<p style="margin-bottom: 6px">Добавить нового пользователя:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd -m -G wheel -s /bin/bash kakashnik
+
+# Или:
+sudo useradd --create-home --groups wheel --shell /bin/bash kakashnik
+</code></pre>
+
+<p style="margin-bottom: 6px">Задать пароль:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Без этого пользователь не сможет войти:
+sudo passwd kakashnik
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

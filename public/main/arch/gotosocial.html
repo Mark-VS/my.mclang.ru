@@ -31,7 +31,7 @@ gotosocial --version
    <li>/usr/share/gotosocial/</li>
    <li>/etc/gotosocial/config.yaml – дефолтный конфигурационный файл</li>
    <li>/etc/gotosocial/template/ – шаблоны</li>
-   <li>/var/lib/gotosocial/storage/certs/ – сертификаты</li>
+   <li>/var/lib/gotosocial/storage/certs/ – сертификаты<br />сюда gts также пытается загружать картинка, когда я добавляю их в настройках (лого инстанса, например)</li>
 </ul>
 
 <p style="margin-bottom: 4px">Как обычно делают на серверах (гпт):</p>
@@ -65,6 +65,7 @@ web-asset-base-dir: "/usr/share/gotosocial/"
 protocol: "http"
 tls-certificate-chain: ""
 tls-certificate-key: ""
+  # Если nginx работает через https, то указываем в "protocol" https
 
 # Запустить gotosocial через https:
 protocol: "https"
@@ -157,6 +158,8 @@ ls -l ~ | grep sql
   # -rw-r--r--  1 mark mark      32768 Mar  8 11:14 sqlite.db-shm
   # -rw-r--r--  1 mark mark          0 Mar  8 11:14 sqlite.db-wal
 </code></pre>
+
+<p>Картинки должны быть доступны через "assets". Например, у меня иконка GoToSocial_icon6.webp лежит в <strong><i>/usr/share/gotosocial/default_avatars/GoToSocial_icon6.webp</i></strong>. Чтобы открыть её в браузере, нужно ввести в url-строку: <strong><i>https://gts.test/assets/default_avatars/GoToSocial_icon6.webp</i></strong>.</p>
 
 <p style="margin-bottom: 6px">У папки /etc/gotosocial/ могут быть проблемы с правами доступа.</p>
 <pre style="margin-top: 6px"><code class="language-bash">
@@ -280,6 +283,22 @@ advanced-rate-limit-exceptions:
   - "::1"
 advanced-rate-limit-requests: 0
 </code></pre></li>
+</ul>
+
+<h3>RSS-лента сообщений</h3>
+<p style="margin-bottom: 0">https://gts.test/@mark</p>
+<p style="margin-top: 0">Если нужно посмотреть конкретное сообщение, то: https://gts.test/@mark/statuses/01KKZSKDH3J4BVP30RV16P5H7Z</p>
+
+<h2>веб-интрфейсы</h2>
+
+<ul>
+   <li><a href="https://pinafore.social">Pinafore</i></li>
+   <li><a href="https://phanpy.social/">Phanpy</a></li>
+</ul>
+
+<ul>
+   <li><a href="https://whalebird.social">Whalebird</a> – приложение для десктопа</li>
+   <li>tokodon – Mastodon-клиент для KDE Plasma</li>
 </ul>
 
 <p style="margin-bottom: 6px"></p>

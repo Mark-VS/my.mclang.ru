@@ -123,6 +123,59 @@ preset=ultrafast</code></pre></li>
    </ul>
 </ul>
 
+<h2>FFmpeg без GUI</h2>
+
+<p style="margin-bottom: 6px">Самый простой пример:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ffmpeg -i input.mp4 -c:v libx264 -c:a aac output.mp4
+  # -с:v – видео-кодек
+  # -c:a – аудио-кодек
+</code></pre>
+<p style="margin-top: 6px">Перекодировал очень хорошо. Я взял минутное видео. Kdenlive сжимал у меня его максимум в 19-22 MB, а эта команда сжала файл в 6,9 MB.</p>
+
+<p style="margin-bottom: 6px">Контроль качества (CRF)</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ffmpeg -i input.mkv -c:v libx264 -crf 23 -preset medium -c:a aac output.mp4
+  # -crf 23 - качество (меньше = лучше)
+  # -preset=medium – скорость кодирования
+</code></pre>
+<p style="margin-top: 6px">Здесь файл тоже перекодировался в 6,9 MB</p>
+
+<p style="margin-bottom: 6px">Можно комбинировать CRF + Max Bitrate:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ffmpeg -i input.mp4 -c:v libx264 -crf 23 -maxrate 3000k -bufsize 6000k output.mp4
+  # maxrate – не даст превышать битрейт
+  # bufsize – помогает кодеку распределять поток
+
+  # тут видео получилось 6,8 MB
+</code></pre>
+<p><strong>bufsize</strong> — это размер буфера кодека, который используется при переменном битрейте (VBR) или при ограничении максимального битрейта (-maxrate).</p>
+
+<p style="margin-bottom: 6px">Сильное сжатие:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ffmpeg -i input.mp4 -c:v libx265 -crf 28 -preset slow -c:a aac output.mp4
+</code></pre>
+<p style="margin-top: 6px">Файл сжался до 4.3 MB.</p>
+
+<p style="margin-bottom: 6px">Популярная команда FFmpeg, которая обычно делает файл на 30-50% меньше, чем стандартное перекодирование:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ffmpeg -i input.mp4 -c:v libx264 -preset slow -crf 23 -c:a aac -b:a 128k output.mp4
+  # файл получился 6.9 MB – такой же, как и при дефолтном перекодировании
+
+# То есть эта команда делает то же самое:
+ffmpeg -i input.mp4 -c:v libx264 -c:a aac output.mp4
+   # по дефолтну только -preset medium вроде бы как, но "slow" ничего особо не поменяло
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Посмотреть информацию о файле:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ffmpeg -i filename.mp4
+
+# Или:
+ffprobe filename.mp4
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>

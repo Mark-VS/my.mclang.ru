@@ -62,6 +62,22 @@ pacman -Sl multilib
 pacman -Sl
 	</code></pre>
 
+<h3 style="margin-bottom: 6px">Зеркала</h3>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Обновляем список зеркал:
+sudo pacman -S reflector
+  # reflector – программа для работы с зеркалами
+
+# Затем:
+sudo reflector --country Estonia,Germany,Finland --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><i>--country Estonia,Germany,Finland</i> – Берёт зеркала только из этих стран, можно написать: Russia,China</li>
+   <li><i>--age 12</i> – только зеркала, которые синхронизировались не старше 12 часов</li>
+   <li><i>--protocol https</i> – использовать только https-зеркала</li>
+   <li><i>--sort rate</i> – сортирует зеркала по скорости загрузки, т.е. самые быстрые будут сверху</li>
+   <li><i>--save /etc/pacman.d/mirrorlist</i> – самое важное, записывает результат к файлу. Файл перезаписывается полностью.</li>
+</ul>
+
   <h3>Логи</h3>
 
   <p>Логи пишутся в <strong><i>/var/log/pacman.log</i></strong>. Если во время установки пакета произошла какая-то ошибка и мы хотим посмотреть подробности, просто смотрим в этот лог и ищем "ERROR":</p>

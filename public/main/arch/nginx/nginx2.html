@@ -114,7 +114,7 @@ return 200 "Hello";</code></pre>
 </code></pre>
 
 <h3 style="margin-bottom: 6px">Две секции <i>server</i></h3>
-<p style="margin-top: 6px; margin-bottom: 6px">Можно указанать две секции <strong><i>server</i></strong> с одним и тем же портом. <strong>Nginx</strong> сначала смотрит порт, а потом - <strong><i>Host header</i></strong>. Если пользователь ввёл IP-адрес вместо домена и ни один домен не совпал, <strong>Nginx</strong> отдаст первый <strong><i>server</i></strong>-блок.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Можно указать две секции <strong><i>server</i></strong> с одним и тем же портом. <strong>Nginx</strong> сначала смотрит порт, а потом - <strong><i>Host header</i></strong>. Если пользователь ввёл IP-адрес вместо домена и ни один домен не совпал, <strong>Nginx</strong> отдаст первый <strong><i>server</i></strong>-блок.</p>
 <pre style="margin-top: 6px"><code class="language-nginx">server {
    listen   80;
    server_name mysite1.ru;
