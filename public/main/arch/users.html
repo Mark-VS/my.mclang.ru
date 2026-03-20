@@ -59,6 +59,14 @@ id mark
    <li><code style="background-color: #161616; padding: 0 6px">id</code> – проверить свои права</li>
 </ul>
 
+<h3>Редактирование файлов пользователей и паролей</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">EDITOR=nano sudoedit /etc/passwd
+EDITOR=nano sudoedit /etc/shadow
+</code></pre>
+
+
 <p style="margin-bottom: 6px">Выведем информацию о конкретном пользователе:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">getent passwd mark
   # mark:x:1000:1000::/home/mark:/bin/bash
@@ -66,7 +74,14 @@ id mark
 <p style="margin-top: 6px; margin-bottom: 2px">В выводе семь полей:</p>
 <ol style="margin-top: 2px">
    <li>Имя пользователя</li>
-   <li>Пароль. Это не сам пароль. <strong><i>x</i></strong> означает, что хэш пароля хранится в файле <strong><i>/etc/shadow</i></strong> (для безопасности)</li>
+   <li>Пароль. Это не сам пароль. <strong><i>x</i></strong> означает, что хэш пароля хранится в файле <strong><i>/etc/shadow</i></strong> (для безопасности). Т.е., <strong><i>x</i></strong> буквально означает: <i>смотри пароль в <strong>/etc/shadow</strong></i>;
+      <ul>
+         <li><strong><i>!</i></strong> → пароля нет, вход заблокирован</li>
+		 <li><strong><i>*</i></strong> → невозможно войти вообще</li>
+		 <li><strong><i>!*</i></strong> → у пользователя нет действительного пароля и вход полностью запрещён</li>
+		 <li>По сути !, !* и !! – означают одно и то же.</li>
+	  </ul>
+   </li>
    <li>UID (User ID) – Уникальный ID пользователя
       <ul>
          <li>0 → root</li>
@@ -92,6 +107,35 @@ sudo useradd --create-home --groups wheel --shell /bin/bash kakashnik
 sudo passwd kakashnik
 </code></pre>
 
+<p style="margin-bottom: 6px">Добавить системного пользователя:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Минимальный безопасный вариант:
+sudo useradd -r -s /usr/bin/nologin myservice
+
+# Или:
+sudo useradd --system --shell /usr/bin/nologin myservice
+</code></pre>
+
+<p style="margin-bottom: 6px">Если нужно создать домашнюю папку для системного пользователя, то:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo useradd -r -m -d /var/lib/myservice -s /usr/bin/nologin myservice
+
+# Или:
+sudo useradd --system --create-home --home-dir /var/lib/myservice --shell /usr/bin/nologin myservice
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>--system</i></strong> – создать системного пользователя;</li>
+   <li><strong><i>--home-dir</i></strong> – указывает путь, где создавать домашнюю папку. Если этого параметра нет, то папка будет создана в <strong><i>/usr/home</i>;</strong></li>
+   <li><strong><i>--create-home</i></strong> – создать домашнюю папку.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Добавить <strong><i>!</i></strong>, если его нет:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Явно заблокировать пароль / запретить вход:
+sudo passwd -l makaka    # заблокировать
+sudo passwd -u makaka    # разблокировать
+
+# Или:
+sudo passwd --lock makaka    # заблокировать
+sudo passwd --unlock makaka  # разблокировать
+</code></pre>
 
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
