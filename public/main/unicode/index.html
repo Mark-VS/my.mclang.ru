@@ -11,6 +11,14 @@
             border: solid 1px rgb(67, 66, 66);
             border-collapse: collapse;
         }
+
+		.juju1::marker {
+           color: green;
+		}
+		.juju2::marker {
+           color: green;
+		   content: "✓ ";
+		}
     </style>
 </head>
 <body>
@@ -113,6 +121,92 @@
     <td>«Привет»</td>
 </tr>
 
+<tr><th colspan="5">крестики</th></tr>
+<tr>
+   <td>Cross mark emoji</td>
+   <td>u274c</td>
+   <td>❌</td>
+   <td>&amp;#10060; / &amp;#x274C;</td>
+   <td>❌, Просто строка, цвет не меняется. Это эмодзи</td>
+</tr>
+<tr>
+   <td>NEGATIVE SQUARED CROSS MARK</td>
+   <td>u274e</td>
+   <td>❎</td>
+   <td>&amp;#10062; / &amp;#x274E;</td>
+   <td>❎, Просто строка, цвет не меняется. Это эмодзи</td>
+</tr>
+
+<tr>
+   <td>HEAVY MULTIPLICATION X</td>
+   <td>u2716</td>
+   <td>✖</td>
+   <td>&amp;#x2716; / &amp;#10006;</td>
+   <td>✖, <span style="color: red">✖</span> Просто строка</td>
+</tr>
+
+<tr>
+   <td>Multiplication X</td>
+   <td>u2715</td>
+   <td>✕</td>
+   <td>&amp;#10005; / &amp;#x2715;</td>
+   <td>✕, <span style="color: red">✕</span> Просто строка</td>
+</tr>
+
+
+<tr>
+   <td>Multiplication sign</td>
+   <td>u00d7</td>
+   <td>×</td>
+   <td>&amp;#215; / &amp;#x00D7;</td>
+   <td>×, <span style="color: red">×</span> Просто строка</td>
+</tr>
+<tr>
+   <td>Latin cross</td>
+   <td>u271d</td>
+   <td>✝</td>
+   <td>&amp;#10013; / &amp;#x271D;</td>
+   <td>✝, <span style="color: red">✝</span> Просто строка</td>
+</tr>
+
+<tr><th colspan="5">галочки</th></tr>
+<tr>
+   <td>WHITE HEAVY CHECK MARK</td>
+   <td>u2705</td>
+   <td>✅</td>
+   <td>&amp;#9989; / &amp;#x2705;</td>
+   <td>✅ Просто строка</td>
+</tr>
+<tr>
+   <td>BALLOT BOX WITH CHECK</td>
+   <td>u2611</td>
+   <td>☑</td>
+   <td>&amp;#9745; / &amp;#x2611;</td>
+   <td>☑, <span style="color: green">☑</span> Просто строка</td>
+</tr>
+<tr>
+   <td>HEAVY CHECK MARK</td>
+   <td>u2714</td>
+   <td>✔</td>
+   <td>&amp;#10004; / &amp;#x2714;</td>
+   <td>✔, <span style="color: green">✔</span> Просто строка</td>
+</tr>
+<tr>
+   <td>CHECK MARK</td>
+   <td>u2713</td>
+   <td>✓</td>
+   <td>&amp;#10003 / &amp;#x2713;</td>
+   <td>✓, <span style="color: green">✓</span> Просто строка</td>
+</tr>
+<tr>
+   <td>LIGHT CHECK MARK</td>
+   <td>U+1F5F8</td>
+   <td>🗸</td>
+   <td>&amp;#128504; / &amp;#x1F5F8;</td>
+   <td>🗸, <span style="color: green">🗸</span> Просто строка</td>
+</tr>
+
+
 <!-- --- kakaka --- -->
 
 <tr><th colspan="5">хз</th></tr>
@@ -186,9 +280,32 @@
 <p style="margin-top: 6px; margin-bottom: 6px">Нажимаем <strong><i>Compose Key</i></strong>, далее пишем: <strong><i>a</i></strong>, и следом: <strong><i>`</i></strong>. Получается: à. А если <strong><i>a</i></strong> + <strong><i>'</i></strong>, то получим: á.</p>
 <p style="margin-top: 6px">Compose Key + - + - + - -> —</p>
 
-<p style="margin-bottom: 6px">Если мы в терминале, то:</p>
-<p style="margin-top: 6px">Ctrl+v u 2013</p>
+<p style="margin-bottom: 0">Если мы в терминале, то:</p>
+<p style="margin-top: 0">Ctrl+v u 2013</p>
+<p style="margin-bottom: 0">Если мы хотим в терминале ввести unicode длиной больше, чем 4 символа, то нужно использовать <strong><i>заглавную U</i></strong>. Наример, значок 🗸 имеет код <i>1f5f8</i>. Чтобы его напечтать пишем:</p>
+<p style="margin-top: 0">Ctrl+v U 1f5f8, а затем либо пробел, либо Enter</p>
 
+<h3>Заменим дефолтные значки в списках</h3>
+
+<p style="margin-bottom: 6px; text-decoration: underline">Самый простой способ. Он не даёт возможности покрасить значок в зелёный цвет. Только вместе с остальным текстом.</p>
+<p style="margin-top: 6px; margin-bottom: 0">Список:</p>
+<ul style="margin-top: 0; list-style-type: '- '">
+   <li>Первый элемент списка</li>
+   <li style="list-style-type: '✓ '">Второй элемент списка</li>
+   <li>Третий элемент списка</li>
+   <li>Четвёртый элемент списка</li>
+   <li>Пятый элемент списка</li>
+</ul>
+
+<p style="margin-bottom: 6px; text-decoration: underline">Чтобы выделить маркер зелёным, нужно сделать это в псевдоэлементе <strong><i>::marker</i></strong>:</p>
+<p style="margin-top: 6px; margin-bottom: 0">Список:</p>
+<ul style="margin-top: 0; list-style-type: '- '">
+   <li>Первый элемент списка</li>
+   <li class="juju1" style="list-style-type: '✓ '">Второй элемент списка. Галочку также можно задать через <strong><i>content</i></strong></li>
+   <li class="juju2">Третий элемент списка. Здесь галочка указана в <strong><i>content</i></strong> в псеводэлементе <strong><i>::marker</i></strong></li>
+   <li>Четвёртый элемент списка</li>
+   <li>Пятый элемент списка</li>
+</ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
