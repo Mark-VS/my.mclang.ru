@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ssh</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>ssh</h1>
+
+<p style="margin-bottom: 6px">Зайти на удалённый сервер:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># По имени домена:
+ssh mark@domain-name.ru
+
+# по IP-адресу:
+ssh mark@185.221.152.12
+</code></pre>
+
+<p style="margin-bottom: 6px">Запустить процесс, который будет отвязан от терминала:</p>
+<pre style="margin-top: 6px"><code class="language-bash">nohup node index.js > output.log 2>&1 &
+</code></pre>
+
+<p style="margin-bottom: 6px">Перезагрузить <strong>ssh</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl restart sshd
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Шаблон:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

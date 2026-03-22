@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nginx-default</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/debian/nginx/">Вернуться назад</a></p>
+
+<h1>nginx-default</h1>
+
+<p style="margin-bottom: 6px">Минимальный рабочий конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name gts.mclang.ru www.gts.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+server {
+    server_name gts.mclang.ru www.gts.mclang.ru;
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    location / {
+	default_type "text/plain; charset=utf-8";
+        return 200 "Hello, Вонючка-Дрыстунка!";
+    }
+
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Рабочий <strong>nginx</strong>-конфиг для <strong><i>my.mclang.ru</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+	
+   server_name my.mclang.ru www.my.mclang.ru;
+
+   # Все запросы на HTTP перенаправляем на HTTPS
+   return 301 https://$host$request_uri;
+}
+
+server {
+   if ($host = www.my.mclang.ru) {
+      return 301 https://$host$request_uri;
+   } # managed by Certbot
+     
+   server_name my.mclang.ru www.my.mclang.ru;	
+
+   listen [::]:443 ssl ipv6only=on; # managed by Certbot
+   listen 443 ssl; # managed by Certbot
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+   location ^~ /assets/ {
+      root /var/www/my.mclang.ru;
+      try_files $uri $uri/ =404;
+   }
+   location = /otlojenie {
+      return 301 /otlojenie/;
+   }
+   location ^~ /otlojenie/ {
+      root /var/www/my.mclang.ru;
+      index index.html index.htm;
+      try_files $uri $uri/ =404;
+   }
+   location /sraka/ {
+      proxy_pass http://my.mclang.ru:3001;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+   }
+   location / {
+      root /var/www/my.mclang.ru/main;
+      index index.html index.htm;
+      try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

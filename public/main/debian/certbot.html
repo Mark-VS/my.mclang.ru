@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>certbot</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+<h1>certbot</h1>
+
+<h2>Обновление сертификата</h2>
+
+<p style="margin-bottom: 6px">Обновить сертификать вручную:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo certbot renew
+
+# Проверка без реального обновления
+# Это своего рода имитация обновления
+sudo certbot renew --dry-run
+</code></pre>
+
+<p style="margin-bottom: 6px">Принудительное обновление:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Если нужно обновить непросроченный сертификат:
+sudo certbot renew --force-renewal
+  # Но тут следует быть осторожным:
+  # у Let's Encrypt есть лимиты.
+  # Слишком частые обновления могут привести к блокировке.
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Можно обновить вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo systemctl start certbot.service
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0"><strong><i>certbot.service</i></strong> – это <strong>systemd</strong>-сервис, который запускает <strong>Certbot</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 0">В <strong>systemd</strong> есть два связанных объекта:</p>
+<ul style="margin-top: 0">
+   <li>certbot.timer → когда запускать</li>
+   <li>certbot.service → что запускать</li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть таймер:
+systemctl list-timers | grep certbot
+
+# Посмотреть, что внутри certbot.service:
+systemctl cat certbot.service
+
+# Посмотреть логи сервиса:
+journalctl -u certbot.service
+</code></pre>
+
+<p>Но есть одна проблемка. При запущенном <strong>Nginx</strong> не получается обновить сертификат.</p>
+
+<p>...</p>
+
+
+<h2>Удаление сертификата</h2>
+
+<p>Раньше у меня к сайту было привязана два домена, а теперь остался только один. Теперь просто обновить сертификат не получится. Нужно удалить старый и создать новый.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть список сертификатов:
+sudo certbot certificates
+
+  # Saving debug log to /var/log/letsencrypt/letsencrypt.log
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Found the following certs:
+  #   Certificate Name: tupniki.ru
+  #     Serial Number: 6667428995627c4128fe9eb64eb492a53ad
+  #    Key Type: ECDSA
+  #    Domains: tupniki.ru charge.mclang.ru kakashka.tupniki.ru mclang.ru my.mclang.ru www.charge.mclang.ru www.kakashka.tupniki.ru www.mclang.ru www.my.mclang.ru www.tupniki.ru
+  #    Expiry Date: 2025-12-27 20:00:48+00:00 (INVALID: EXPIRED)
+  #    Certificate Path: /etc/letsencrypt/live/tupniki.ru/fullchain.pem
+  #    Private Key Path: /etc/letsencrypt/live/tupniki.ru/privkey.pem
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+sudo certbot delete
+  # и выбираем tupniki.ru
+</code></pre>
+<p>И конечно нужно не забыть удалить из конфигов <strong>Nginx</strong> упоминания старых <strong><i>ssl</i></strong>-серификатов.</p>
+
+<h2>Создание нового сертификата</h2>
+
+<p style="margin-bottom: 6px">Раньше я создавал сертификат вот так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo certbot certonly --standalone -d tupniki.ru -d www.tupniki.ru -d lala.tupniki.ru -d www.lala.tupniki.ru
+</code></pre>
+<p style="margin-top: 6px">До тех пор, пока сайт работал без <strong>Nginx</strong>, всё работало нормально. Но после установки <strong>Nginx</strong> стало проблемно обновлять сертификат. Приходилось вручную остановливать <strong>Nginx</strong>, запускать обновление, а затем опять запускать <strong>Nginx</strong>. При запущенном <strong>Nginx</strong> обновление не проходило. <strong>Certbot</strong> сам поднимает временный веб-сервер и общается через него с <strong>Let's Encrypt</strong> через <i>80-й</i> порт. НО <i>80-й</i> порт уже занят <strong>Nginx</strong>'ом и <strong>Certbot</strong>'у из-за этого не удаётся обновить сертификат.</p>
+
+
+<p style="margin-bottom: 6px">Если используем <strong>Nginx</strong>, то (нужен <strong><i>python3-certbot-nginx</i></strong>):</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Сначала ставим плагин:
+sudo apt update
+sudo apt install python3-certbot-nginx
+
+# А затем:
+sudo certbot --nginx -d tupniki.ru -d www.tupniki.ru -d lala.tupniki.ru -d www.lala.tupniki.ru
+</code></pre>
+<p style="margin-top: 6px">В этом случае <strong>Certbot</strong> использует уже работающий <strong>Nginx</strong>: временно добавляет в конфиг нужные правила и проходит проверку через него. В этом случае не нужно останавливать <strong>Nginx</strong>-сервер для обновления сертификата.</p>
+
+<p style="margin-bottom: 4px"><strong>ВАЖНО!!!</strong> При создании нового сертификата с nginx-плагином:</p>
+<ul style="margin-top: 4px">
+   <li>не должно быть ни одной ссылки на старые сертификаты. Их нужно удалить или закомментировать;</li>
+   <li>Прослушивание через ssl тоже удаляем: <strong><i>listen 443 ssl</i></strong>;</li>
+   <li>Для каждого домена, для которого мы создаём сертификат, должна быть A/AAAA запись на DNS-сервере.</li>
+</ul>
+
+<p>Далее создаём сертификат. Должен появиться каталог <strong><i>/etc/letsencrypt/live/tupniki.ru/</i></strong>. А в нём:</p>
+<ul>
+   <li>cert.pem – Сертификат для домена (без цепочки)</li>
+   <li>chain.pem – Сертификат цепочки (Let's Encrypt)</li>
+   <li>fullchain.pem – Полная цепочка (cert + chain), используется в nginx</li>
+   <li>privkey.pem – Приватный ключ</li>
+</ul>
+<p>Все эти файлы – ссылки на файлы в папке <strong><i>../../archive/tupniki.ru/</i></strong></p>
+
+<h2>Порты</h2>
+
+<p style="margin-bottom: 0">В моём случае порты 80 и 443 по-прежнему прослушивал процесс <strong>nginx</strong>, хотя я его останавливаю: <code style="background-color: #161616; padding: 0 8px">sudo systemctl stop nginx</code>. Скорее всего, процессы зависли.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Проверить, что слушает порты:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ss -tulpn | grep -E ':80|:443'
+  # tcp   LISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:(("nginx",pid=651987,fd=5),("nginx",pid=651969,fd=5))  
+  # tcp   LISTEN 0      511          0.0.0.0:443       0.0.0.0:*    users:(("nginx",pid=651987,fd=11),("nginx",pid=651969,fd=11))
+  # tcp   LISTEN 0      511             [::]:80           [::]:*    users:(("nginx",pid=651987,fd=6),("nginx",pid=651969,fd=6))  
+  # tcp   LISTEN 0      511             [::]:443          [::]:*    users:(("nginx",pid=651987,fd=12),("nginx",pid=651969,fd=12))
+
+# Принудительно убиваем процессы:
+sudo pkill -f nginx
+</code></pre>
+
+<h2>Права</h2>
+
+<p style="margin-bottom: 0">После переустановки сертификата опять проблемы с правами.</p>
+<p style="margin-top: 0">Если я запускаю <strong>nginx</strong> от <strong><i>sudo</i></strong>, то <strong>nginx</strong> запускает дочерний worker-процесс от имени пользователя <strong><i>www-data</i></strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">ls -l /etc/letsencrypt/
+  # total 76
+  # drwx------ 3 mark mark  4096 Mar 22 20:16 archive
+  # drwx------ 3 mark mark  4096 Mar 22 20:16 live
+  # ...
+
+# Правильные права на сертификаты:
+sudo chgrp -R www-data /etc/letsencrypt/live /etc/letsencrypt/archive
+sudo chmod -R 750 /etc/letsencrypt/live /etc/letsencrypt/archive
+sudo chmod 640 /etc/letsencrypt/archive/mclang.ru/privkey1.pem
+</code></pre>
+
+<p style="margin-bottom: 6px">Рукопожатие:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -vk https://mclang.ru
+</code></pre>
+
+<h2 style="margin-bottom: 6px">Обновление сертификата</h2>
+
+<p style="margin-top: 6px">Я добавил новое доменное имя <strong><i>gts.tupniki.ru</i></strong> на DNS-сервер. Теперь я хочу обновить сертификат таким образом, чтобы он покрывал ещё и <strong><i>gts.tupniki.ru</i></strong>, и <strong><i>www.gts.tupniki.ru</i></strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo certbot --nginx \
+  -d tupniki.ru -d www.tupniki.ru \
+  -d lala.tupniki.ru -d www.lala.tupniki.ru \
+  -d gts.tupniki.ru -d www.gts.tupniki.ru
+
+  # Saving debug log to /var/log/letsencrypt/letsencrypt.log
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # You have an existing certificate that contains a portion of the domains you
+  # requested (ref: /etc/letsencrypt/renewal/tupniki.ru.conf)
+
+  # It contains these names: tupniki.ru, lala.tupniki.ru, www.tupniki.ru,
+  # www.lala.tupniki.ru
+
+  # You requested these names for the new certificate: tupniki.ru, www.tupniki.ru,
+  # lala.tupniki.ru, www.lala.tupniki.ru, gts.tupniki.ru, www.gts.tupniki.ru
+
+  # Do you want to expand and replace this existing certificate with the new
+  # certificate?
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # (E)xpand/(C)ancel: 
+
+# Выбираем E – expand
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

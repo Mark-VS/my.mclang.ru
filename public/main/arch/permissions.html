@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permissions</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/">Вернуться назад</a>
+
+<h1 style="margin-bottom: 6px">Permissions</h1>
+<p style="margin-top: 6px; margin-bottom: 0"><a href="users.html">Перейти на страничку <strong><i>Users</i></strong></a></p>
+<p style="margin-top: 0"><a href="groups.html">Перейти на стринчку <strong><i>Groups</i></strong></a></p>
+
+
+<h2>Посмотреть права</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть права доступа файла:
+ls -l file_name
+  # -rw-r--r-- 1 mark mark 1404 Jan 25 11:10 file_name
+
+
+# Посмотреть права доступа у папки:
+ls -ld folder_name
+  # drwxr-xr-x 2 mark mark 4096 Mar 22 12:32 folder_name
+</code></pre>
+
+<p style="margin-bottom: 0">В выводе можно увидеть четыре блока:</p>
+<p style="margin-top: 0">d rwx rwx rwx</p>
+<ol>
+   <li>Флаг: папка или нет</li>
+   <li>Владелец – u (user)</li>
+   <li>Группа – g (group)</li>
+   <li>Остальные – o (others)</li>
+</ol>
+
+<p style="margin-bottom: 4px">Каждое право – это число:</p>
+<ul style="margin-top: 4px">
+   <li>r (read) = 4 – для папок это означает смотреть список файлов (ls)</li>
+   <li>w (write) = 2 – для папок это значит читать их содержимое</li>
+   <li>x (execute) = 1 – для папок это значит возможность в них заходить (cd)</li>
+</ul>
+
+<p style="margin-bottom: 4px">Нужно их складывать:</p>
+<ul style="margin-top: 4px">
+   <li>7 = rwx (4+2+1)</li>
+   <li>6 = rw- (4+2)</li>
+   <li>5 = r-x (4+1)</li>
+   <li>4 = r-- (4)</li>
+   <li>3 = -wx (2+1)</li>
+   <li>2 = -w- (2)</li>
+   <li>1 = --x (1)</li>
+</ul>
+
+<p style="margin-bottom: 0">То есть, <strong><i>-rw-r--r--</i></strong> – это файл с правами <strong><i>644</i></strong></p>
+<p style="margin-top: 0">А <strong><i>drwxr-xr-x</i></strong> – это папка с правами <strong><i>755</i></strong></p>
+
+<p style="margin-bottom: 0">Вывод, который мы получили с помощью команды <code style="background-color: #161616; padding: 0 8px">ls -l file_name</code>:</p>
+<p style="margin-top: 0; margin-bottom: 4px"><strong><i>-rw-r--r-- 1 mark mark 0 Mar 22 13:14 file_name</i></strong></p>
+<ul style="margin-top: 4px">
+   <li>-rw-r--r-- – права доступа</li>
+   <li>1 – кол-во жёстких ссылок (hard links) на файл</li>
+   <li>mark – имя владельца</li>
+   <li>mark – группа</li>
+   <li>0 – размер файла в байтах. В данном случае файл пустой. НО! Для папок – это не размер содержимого папки, а размер служебной структуры директории</li>
+   <li>Mar 22 13:14 – дата и время последнего изменения содержимого файла</li>
+   <li>file_name – имя самого файла</li>
+</ul>
+
+<h3 style="margin-bottom: 6px">Дата и время</h3>
+<p style="margin-top: 6px; margin-bottom: 2px"><strong>Linux</strong> хранит для файлов несколько значений даты и времени:</p>
+<ul style="margin-top: 2px">
+   <li>mtime (modification time) – время последнего изменения содержимого файла (<code style="background-color: #161616; padding: 0 8px">ls -l</code>)</li>
+   <li>ctime (change time) – время последнего изменения метаданных файла</li>
+   <li>atime (access time) – время последнего доступа</li>
+   <li>birth/creation time – время создания файла</li>
+</ul>
+
+<p style="margin-bottom: 6px">Посмотреть все времена:</p>
+<pre style="margin-top: 6px"><code class="language-bash">stat file_name
+  #  File: file_name
+  #  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+  # Device: 8,4	Inode: 12591187    Links: 1
+  # Access: (0644/-rw-r--r--)  Uid: ( 1000/    mark)   Gid: ( 1000/    mark)
+  # Access: 2026-03-22 13:14:09.635945163 +0300
+  # Modify: 2026-03-22 13:14:09.635945163 +0300
+  # Change: 2026-03-22 15:03:21.410920170 +0300
+  # Birth: 2026-03-22 13:14:09.635945163 +0300
+</code></pre>
+
+
+<h2>Изменить права</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Меняем права для файла с 644 на 755:
+chmod 755 file_name
+
+# Возвращаем обратно:
+chmod 644 file_name
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Добавить execute всем:
+chmod +x file_name
+
+# Обратно убрать execute всем:
+chmod -x file_name
+
+# Добавить execute владельцу:
+chmod u+x file_name
+
+# Убрать execute у владельца:
+chmod u-x file_name
+
+# Добавить execute группе:
+chmod g+x file_name
+
+# Убрать execute у группы:
+chmod g-x file_name
+
+# Добавить execute группе и остальным:
+chmod go+x file_name
+chmod go-x file_name
+
+# Добавить execute и write группе и остальным:
+chmod go+wx file_name
+chmod go-wx file_name
+
+# Добавить write всем:
+chmod a+w file_name
+</code></pre>
+
+
+
+<p style="margin-bottom: 6px">Шаблон:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

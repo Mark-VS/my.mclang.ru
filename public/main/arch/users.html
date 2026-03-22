@@ -12,7 +12,8 @@
 <a href="/arch">Вернуться назад</a>
 
 <h1 style="margin-bottom: 6px">Пользователи</h1>
-<p style="margin-top: 6px"><a href="groups.html">Перейти на страничку с группами</a></p>
+<p style="margin-top: 6px; margin-bottom: 0"><a href="groups.html">Перейти на страничку <strong><i>Groups</i></strong></a></p>
+<p style="margin-top: 0"><a href="permissions.html">Перейти на страничку <strong><i>Permissions</i></strong></a></p>
 
 <p style="margin-bottom: 2px; text-decoration: underline">Где хранятся пользователи</p>
 <ul style="margin-top: 2px">
@@ -95,17 +96,19 @@ EDITOR=nano sudoedit /etc/shadow
    <li>Оболочка (shell)</li>
 </ol>
 
+<h3>Добавление пользователей</h3>
+
 <p style="margin-bottom: 6px">Добавить нового пользователя:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo useradd -m -G wheel -s /bin/bash kakashnik
 
 # Или:
 sudo useradd --create-home --groups wheel --shell /bin/bash kakashnik
-</code></pre>
 
-<p style="margin-bottom: 6px">Задать пароль:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># Без этого пользователь не сможет войти:
+# И зададим для него пароль.
+# Без этого пользователь не сможет войти:
 sudo passwd kakashnik
 </code></pre>
+
 
 <p style="margin-bottom: 6px">Добавить системного пользователя:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># Минимальный безопасный вариант:
@@ -135,6 +138,12 @@ sudo passwd -u makaka    # разблокировать
 # Или:
 sudo passwd --lock makaka    # заблокировать
 sudo passwd --unlock makaka  # разблокировать
+</code></pre>
+
+<h3>Удаление пользователя</h3>
+
+<p style="margin-bottom: 6px">Удаляем пользователя <strong><i>kakashnik</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo userdel kakashnik
 </code></pre>
 
 <p style="margin-bottom: 6px"></p>
