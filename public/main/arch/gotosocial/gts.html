@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoToSocial с Codeberg</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/gotosocial/">Вернуться назад</a>
+
+<h1 style="margin-bottom: 10px">GoToSocial с Codeberg</h1>
+
+<p style="margin-top: 10px; margin-bottom: 0">Официальный сайт: <a href="https://gotosocial.org/">https://gotosocial.org/</a></p>
+<p style="margin-top: 0; margin-bottom: 0">Страничка на Codeberg: <a href="https://codeberg.org/superseriousbusiness/gotosocial">https://codeberg.org/superseriousbusiness/gotosocial</a></p>
+<p style="margin-top: 0; margin-bottom: 0">Документация: <a href="https://docs.gotosocial.org/en/stable/">https://docs.gotosocial.org/en/stable/</a></p>
+<p style="margin-top: 0">Repology: <a href="https://repology.org/project/gotosocial/information">https://repology.org/project/gotosocial/information</a></p>
+
+<p style="margin-bottom: 6px">Скачиваем <strong>GoToSocial</strong> с <strong><i>Codeberg.org</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+git clone https://codeberg.org/superseriousbusiness/gotosocial
+cd gotosocial
+
+# нам нужно найти файл main.go:
+# Он находится здесь: cmd/gotosocial/main.go
+
+# Запускаем компиляцию:
+cd cmd/gotosocial/
+go build
+
+# Или из основной директории: 
+go build -o gotosocial ./cmd/gotosocial
+
+# Появился бинарник gotosocial:
+ls -l gotosocial
+  # -rwxr-xr-x 1 mark mark 136726647 Mar 23 08:37 gotosocial
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Перемещаем бинарник в систему:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo mv gotosocial /usr/local/bin/
+
+# Проверка:
+gotosocial --help
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo useradd --system \
+  --home /var/lib/gotosocial \
+  --shell /usr/sbin/nologin
+  gotosocial
+
+# Создаём директории:
+sudo mkdir -p /var/lib/gotosocial
+sudo mkdir -p /etc/gotosocial
+
+# Папки создались от root'а, поэтому владелец и группа у них: root
+# Меняем владельца домашней папки на gotosocial:
+sudo chown -R gotosocial:gotosocial /var/lib/gotosocial/
+
+# Создаём конфиг:
+sudo touch /etc/gotosocial/config.yaml
+</code></pre>
+
+<h2 style="margin-bottom: 2px">Конфигурационный файл</h2>
+<p style="margin-top: 2px; margin-bottom: 0">Дефолтный конфигурационный файл лежит в папке с исходниками в <strong><i>example/config.yaml</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 0">Этот конфиг очень раздут из-за огромного количества подробных комментариев.</p>
+<p style="margin-top: 0">Полный дефолтный конфиг БЕЗ КОММЕНТАРИЕВ можно посмотреть <a href="gts-default-conf.html">здесь!</a></p>
+
+<p style="margin-bottom: 6px">Минимальный рабочий конфиг, который предложил гпт:</p>
+<pre style="margin-top: 6px"><code class="language-bash">host: "your-domain.com"
+account-domain: "your-domain.com"
+
+port: 8080
+
+db-type: "sqlite"
+db-address: "/var/lib/gotosocial/gotosocial.db"
+
+storage-backend: "local"
+storage-local-base-path: "/var/lib/gotosocial/storage"
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Первый запуск / проверка</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -u gotosocial gotosocial \
+  --config-path /etc/gotosocial/config.yaml \
+  server start
+
+# Если всё нормально, то создастся база данных ...
+# ... и не будет ошибок
+
+# Но скорее всего мы получим ошибку из-за того, что
+# GoToSocial не может найти шаблоны веб-интерфейса
+# Он их ищет в /var/lib/gotosocial/web/template/
+
+# Они лежал в исходниках в папке web/
+# Копируем их:
+sudo mkdir -p web
+sudo cp -r /home/mark/Downloads/gotosocial/web/template ./
+sudo chown -R gotosocial:gotosocial ./web
+
+# Теперь можно запускать сервер и должна создастся база данных
+# /var/lib/gotosocial/gotosocial.db, кот. указана в /etc/gotosocial/config.yaml
+</code></pre>
+
+<p style="margin-bottom: 6px">Опять запускаю:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -u gotosocial gotosocial \
+  --config-path /etc/gotosocial/config.yaml \
+  server start
+
+  # Сервер запустился.
+  # И создалась база данных /var/lib/gotosocial/gotosocial.db
+  # http:// gts.test / https://gts.test
+
+  # Но на страничке всё отображается бесструктурно.etc
+  # GoToSocial ругается на то, что не может прочитать темы из
+  # /var/lib/gotosocial/web/assets/themes
+  # Давайте эту папку тоже скопируем:
+
+cd /var/lib/gotosocial/web/
+sudo cp -r ~/Downloads/gotosocial/web/assets/ ./
+
+  # Теперь запускаем GoToSocial
+  # И на этот раз на сайте отображаются картинки
+  # Но структуры по-прежнему нет
+  # GoToSocial ищет стили в /var/lib/gotosocial/web/assets/dist/base.css
+  # но у меня нет папки ./web/dist/ даже в исходниках.
+  # Потому что фронтенд не собран.
+</code></pre>
+
+<h2>Фронтенд</h2>
+<p style="margin-bottom: 6px">В скачанных исходниках в папке <strong><i>web</i></strong>, есть ещё <strong><i>source</i></strong>. Там как раз хранятся исходники, из которых мы должны собрать фронтенд. Если мы их соберём, то создастся нужная нам папка <strong><i>dist</i></strong>.</p>
+<p style="margin-top: 6px; margin-bottom: 0">Готовый фронтенд также можно взять из релиза. Для этого скачиваем релиз со странички: <a href="https://codeberg.org/superseriousbusiness/gotosocial/releases">https://codeberg.org/superseriousbusiness/gotosocial/releases</a></p>
+
+<p style="margin-top: 0; margin-bottom: 6px">Или через терминал:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Скачиваем релиз в архиве:
+wget https://codeberg.org/superseriousbusiness/gotosocial/releases/download/v0.21.0/gotosocial_0.21.0_linux_amd64.tar.gz
+
+# Распаковывыаем в папку "gts":
+mkdir -p gts/
+tar -xzf gotosocial_0.21.0_linux_amd64.tar.gz -C gts/
+
+# Заходим в gts/web/assets/ и видим там папку dist
+# А также два файлика: all_licenses.txt (список лицензий всех зависимостей) и swagger.yaml (описание API (OpenAPI / Swagger))
+
+# Копируем dist:
+sudo cp -r dist/ /var/lib/gotosocial/web/assets/
+cd /var/lib/gotosocial/web/assets/
+sudo chown -R gotosocial:gotosocial dist/
+
+# И снова запускаем gotosocial:
+sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml server start
+  # Теперь всё работает нормально
+</code></pre>
+
+<h2>Как собрать фронтенд</h2>
+
+<p style="margin-bottom: 6px">Переходим в папку со скачанными исходниками и находим там <strong><i>web/sources/</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">cd ~/Downloads/gotosocial/web/sources/
+
+# Устанавливаем зависимости.
+# в папке есть yarn.lock,
+# значит лучше использовать yarn:
+yarn install
+
+# Сборка:
+yarn build
+</code></pre>
+<p style="margin-top: 6px">Если всё прошло успешно, то должна появиться папка <strong><i>../assets/dist</i></strong>. Это и есть наш готовый фронтенд. И его нужно скопировать в <strong><i>/var/lib/gotosocial/web/assets/</i></strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

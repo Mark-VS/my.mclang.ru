@@ -21,19 +21,18 @@
    return 301 https://$host$request_uri;
 }
 server {
-    server_name gts.mclang.ru www.gts.mclang.ru;
+   server_name gts.mclang.ru www.gts.mclang.ru;
 
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+   listen 443 ssl; # managed by Certbot
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
-    location / {
-	default_type "text/plain; charset=utf-8";
-        return 200 "Hello, Вонючка-Дрыстунка!";
-    }
-
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Hello, Вонючка-Дрыстунка!";
+   }
 }
 </code></pre>
 

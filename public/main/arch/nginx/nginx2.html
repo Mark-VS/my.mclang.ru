@@ -26,7 +26,9 @@
 <p style="margin-bottom: 6px">return / rewrite / try_files:</p>
 <pre style="margin-top: 6px"><code class="language-nginx">location / {
    # "Уходи. Вот ответ"
-   return 200 "Hello!";
+   # Без default_type у меня начинается скачивание.
+   default_type "text/plain; charset=utf-8";
+   return 200 "Hello, Говнюк!";
 }
 location / {
    # "Подожди, ты идёшь нетуда"
