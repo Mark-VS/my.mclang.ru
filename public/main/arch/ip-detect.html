@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ip-detect</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>ip-detect</h1>
+
+<p>Проверить реальный IP: <a href="https://ipleak.net">ipleak.net</a></p>
+
+<p style="margin-bottom: 0">У меня в браузере <strong>Falkon</strong> вот такой результат:</p>
+<p style="margin-top: 0; margin-bottom: 0">Browser default: IPv4 (65 ms) - United States</p>
+<p style="margin-top: 0">Fallback: IPv6 (332 ms) - The Netherlands - North Holland</p>
+<p style="margin-bottom: 0">В <strong>Firefox</strong> вот такой результат:</p>
+<p style="margin-top: 0; margin-bottom: 0">Browser default: IPv6 (71 ms) - United Kingdom - Slough</p>
+<p style="margin-top: 0">Fallback: IPv4 (172 ms) - The Netherlands - North Holland</p>
+<p style="margin-bottom: 0">В <strong>Chromium</strong>:</p>
+<p style="margin-top: 0; margin-bottom: 0">Browser default: IPv6 (64 ms) - United States </p>
+<p style="margin-top: 0">Fallback: IPv4 (150 ms) - The Netherlands - North Holland </p>
+
+<p>То есть, в <strong>Falkon</strong> и в <strong>Chromium</strong> по умолчанию используется IPv4, а в <strong>Firefox</strong> – IPv6.</p>
+
+<p>Как включить в Firefox использование по дефолту IPv4:</p>
+<p>about:config</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Заходим в:
+about:config
+
+# Ищем:
+network.dns.disableIPv6
+
+# Ставим:
+true
+</code></pre>
+
+<p style="margin-bottom: 6px">Ctlr+Shift+P – открыть анонимную вкладку</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Удалить инфу в браузере о ГПТ:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Вводим в строку:
+about:preferences#privacy
+
+# Ищем:
+→ Cookies and Site Data
+→ Manage browsing data
+
+# Удаляем:
+chatgpt.com
+</code></pre>
+
+
+<!-- Шаблон -->
+
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nsswitch.conf</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>nsswitch.conf</h1>
+
+<p style="margin-bottom: 6px">Дефолтный <strong><i>/etc/nsswitch.conf</i></strong> в <strong>Arch</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-yaml"># Name Service Switch configuration file.
+# See nsswitch.conf(5) for details.
+
+passwd: files systemd
+group: files [SUCCESS=merge] systemd
+shadow: files systemd
+gshadow: files systemd
+
+publickey: files
+
+hosts: files mdns_minimal [NOTFOUND=return] dns
+networks: files
+
+protocols: files
+services: files
+ethers: files
+rpc: files
+</code></pre>
+
+<p>Для начала хотелось бы рассмотреть строку: <code style="background-color: #161616; padding: 0 8px">hosts: files mdns_minimal [NOTFOUND=return] dns</code></p>
+
+<ul>
+   <li>
+		<p style="margin: 0"><strong><i>files</i></strong> – это модуль NSS, который означает: использовать файлы из <strong><i>/etc/</i></strong></p>
+		<p style="margin: 0">Для <strong><i>hosts</i></strong> это значит: использовать <strong><i>/etc/hosts</i></strong>.</p>
+		<p style="margin: 0">Для <strong><i>passwd</i></strong> это значит: использовать <strong><i>/etc/passwd</i></strong>. Для <strong><i>group</i></strong> – <strong><i>/etc/group</i></strong>. И т.д.</p>
+		<p style="margin: 0">То есть, <strong><i>files</i></strong> – это имя модуля в <strong>glibc</strong>: <strong><i>libnss_files.so</i></strong></p>
+   </li>
+   <li><strong><i>dns</i></strong> – на самом деле имя модуля в <strong>glibc</strong>: <strong><i>libnss_dns.so</i></strong>.</li>
+   <li><strong><i>mdns_minimal</i></strong> – это упрощённый обработчик mDNS (Multicast DNS). mDNS = локальный DNS без сервера. Обрабатывает только домены вида *.local</li>
+   <li>
+      <p style="margin: 0"><strong><i>[NOTFOUND=return]</i></strong> – Это условие управления потоком. Что-то вроде: “Если результат = NOTFOUND → остановиться и дальше не идти”. Что значит <strong><i>NOTFOUND</i></strong>? Сервис точно знает, что записи нет.</p>
+      <p style="margin: 0">Есть разные статусы:</p>
+      <ul style="margin: 0">
+         <li>SUCCESS – нашли</li>
+		 <li>NOTFOUND – точно нет</li>
+		 <li>UNAVAIL – сервис не работает</li>
+		 <li>TRYAGAIN – временная ошибка</li>
+      </ul>
+	</li>
+</ul>
+<p>То есть, запись <code style="background-color: #161616; padding: 0 8px">hosts files dns</code> буквально означает: "Сначала вызови модуль <strong><i>libnss_files</i></strong>, а потом – <strong><i>libnss_dns</i></strong>".</p>
+
+<p style="margin-bottom: 0">Пошаговое поведение:</p>
+<ol style="margin-top: 0">
+   <li>
+      <p style="margin: 0">files</p>
+	  <ul style="margin: 0">
+         <li>сначала /etc/hosts</li>
+		 <li>Если нашли → return SUCCESS, всё ок</li>
+		 <li>Если не нашли → идём дальше</li>
+	  </ul>
+   </li>
+   <li>
+      <p style="margin: 0">mdns_minimal</p>
+	  <ul style="margin: 0">
+         <li>Пытается найти только .local через локальную сеть.</li>
+		 <li>Если найдено → ok.</li>
+		 <li>Если NOTFOUND → [NOTFOUND=return] срабатывает.</li>
+	  </ul>
+   </li>
+   <li>
+      <p style="margin: 0">dns после [NOTFOUND=return] – влияет только на статус NOTFOUND от mdns_minimal.</p>
+	  <ul style="margin: 0">
+         <li>Если mdns_minimal вернёт UNAVAIL или TRYAGAIN, поиск не остановится, и dns будет использоваться.</li>
+		 <li>Если имя вообще не .local, mdns_minimal может просто пропустить, а не возвращать NOTFOUND. Тогда dns сработает.</li>
+      </ul>
+      <p style="margin: 0">То есть dns после [NOTFOUND=return] — это резервный вариант на случай, если mDNS не сможет обработать имя или вернёт ошибку, отличную от NOTFOUND.</p>
+   </li>
+</ol>
+
+<p>files = NSS-модуль для локальных <strong><i>/etc/*</i></strong></p>
+
+
+<p style="margin-bottom: 6px">Добавим в /etc/dnsmasq.conf ещё три строчки:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># слушаем только нужный интерфейс
+interface=enp2s0
+
+# слушаем локалхост и IP в сети
+listen-address=127.0.0.1,192.168.1.3
+
+# привязываемся к интерфейсу (важно!)
+bind-interfaces
+
+# твоя зона
+address=/gts.test/192.168.1.3
+
+# полезные опции
+domain-needed
+bogus-priv
+</code></pre>
+
+
+<!-- Шаблон -->
+
+<!--
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/yaml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

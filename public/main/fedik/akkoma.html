@@ -6,6 +6,16 @@
     <title>Akkoma</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+    <style>
+        .bad::marker {
+            color: red;
+			content: "✕  ";
+		}
+		.good::marker {
+            color: green;
+			content: "✓  ";
+		}
+    </style>
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
@@ -15,18 +25,18 @@
 
 <p style="margin-bottom: 6px">Русскоязычные:</p>
 <ul style="margin-top: 6px">
-   <li>idealists.su: <a href="https://idealists.su/">idealists.su</a> – Санкт-Петербург</li>
+   <li class="good">idealists.su: <a href="https://idealists.su/">idealists.su</a> – Санкт-Петербург</li>
 </ul>
 
 <p style="margin-bottom: 6px">Остальные:</p>
 <ul style="margin-top: 6px">
-   <li>social.kernel.org – <a href="https://social.kernel.org">https://social.kernel.org</a></li>
-   <li>labyrinth.zone: <a href="https://labyrinth.zone">labyrinth.zone</a></li>
-   <li>akko.wtf: <a href="https://akko.wtf">akko.wtf</a></li>
-   <li>blob.cat: <a href="https://blob.cat">blob.cat</a></li>
-   <li>donotsta.re: <a href="https://donotsta.re">donotsta.re</a></li>
-   <li>outerheaven.club: <a href="https://outerheaven.club">outerheaven.club</a></li>
-   <li>miraiverse.xyz: <a href="https://miraiverse.xyz">miraiverse.xyz</a> – тайский</li>
+   <li class="good">social.kernel.org – <a href="https://social.kernel.org">social.kernel.org</a></li>
+   <li class="bad">labyrinth.zone: <a href="https://labyrinth.zone">labyrinth.zone</a></li>
+   <li class="good">akko.wtf: <a href="https://akko.wtf">akko.wtf</a></li>
+   <li class="bad">blob.cat: <a href="https://blob.cat">blob.cat</a></li>
+   <li class="good">donotsta.re: <a href="https://donotsta.re">donotsta.re</a></li>
+   <li class="bad">outerheaven.club: <a href="https://outerheaven.club">outerheaven.club</a></li>
+   <li class="bad">miraiverse.xyz: <a href="https://miraiverse.xyz">miraiverse.xyz</a> – тайский</li>
 </ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
