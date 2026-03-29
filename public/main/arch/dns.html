@@ -120,8 +120,17 @@ nameserver 127.0.0.1
 </code></pre>
 <p style="margin-top: 6px">... то <strong><i>getent hosts gts.test</i></strong> вернёт нам наш <strong><i>192.168.1.3</i></strong></p>
 
+<p style="margin-bottom: 6px">Но, если мы хотим, чтобы у нас работал и интернет, и локальный dns, указанный в dnsmasq, то лучше сделать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-ini">nameserver 127.0.0.1
+nameserver 8.8.8.8
+
+# То есть, сначала мы ищем DNS-имена в локальной сети
+# И если ничего не найдено, идём на DNS-сервера гугла
+</code></pre>
+
+
 <p style="margin-bottom: 6px">Добавим в <strong><i>/etc/dnsmasq.conf</i></strong> ещё три строчки:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># слушаем только нужный интерфейс
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># слушаем только нужный интерфейс
 interface=enp2s0
 
 # слушаем локалхост и IP в сети
@@ -137,6 +146,40 @@ address=/gts.test/192.168.1.3
 domain-needed
 bogus-priv
 </code></pre>
+
+<ul style="margin-top: 6px">
+   <li>
+      <p style="margin: 0"><strong><i>interface=enp2s0</i></strong> – слушать только сетевой интерфейс enp2s0</p>
+	  <p style="margin: 0">Если не указать, то <strong>dnsmasq</strong> будет слушать все интерфейсы, включая Wi-Fi, VPN, Docker, loopback</p>
+   </li>
+   <li>
+      <p style="margin: 0"><strong><i>listen-address=127.0.0.1,192.168.1.3</i></strong> – на каких IP-адресах принимать запросы</p>
+	  <ul style="margin: 0">
+         <li>127.0.0.1 – локально на ПК</li>
+         <li>192.168.1.3 – из сети (телефон, другие устройства)</li>
+      </ul>
+	  <p style="margin: 0">Если не указать, <strong>dnsmasq</strong> может слушать <strong><i>0.0.0.0</i></strong> → все IP, включая нежелательные</p>
+   </li>
+   <li>
+      <p style="margin: 0"><strong><i>bind-interfaces</i></strong> – заставляет <strong>dnsmasq</strong> жёстко привязаться к интерфейсу.</p>
+	  <p style="margin: 0">Без этой опции <strong>dnsmasq</strong> слушает "виртуально". Может перехватывать порты на всех интерфейсах. Может конфликтовать с другими сервисами.</p>
+	  <p style="margin: 0">С этой опцией <strong>dnsmasq</strong> слушает только указанные интерфейсы и IP, не лезет в другие интерфейсы. Работает предсказуемо.</p>
+      <p style="margin: 0">bind-interfaces = “не расползайся по системе, работай строго там, где я сказал”</p>
+   </li>
+   <li style="margin-top: 8px">
+      <p style="margin: 0"><strong><i>domain-needed</i></strong> – не отправлять запросы без домена на внешние DNS-серверы</p>
+	  <p style="margin: 0">То есть, запросы типа <strong><i>localhost</i></strong>, <strong><i>printer</i></strong> или <strong><i>myserver</i></strong> (без точки) не отправляются в интернет (8.8.8.8 и т.п.). А без этой опции получается как бы утечка данных наружу.</p>
+   </li>
+   <li>
+      <p style="margin: 0"><strong><i>bogus-priv</i></strong> – не резолвить приватные IP через внешний DNS</p>
+	  <p style="margin: 0">Приватные IP – это следующие диапазоны:</p>
+	  <ul style="margin: 0">
+         <li>192.168.x.x</li>
+		 <li>10.x.x.x</li>
+		 <li>172.16.x.x – 172.31.x.x</li>
+	  </ul>
+   </li>
+</ul>
 
 <p style="margin-bottom: 6px">Перезапускаем <strong>dnsmasq</strong> и проверяем, что всё слушается:</p>
 <pre style="margin-top: 6px"><code class="language-ini">ss -tuln | grep :53
@@ -167,6 +210,42 @@ sudo ss -tulpn | grep :53
   # tcp   LISTEN 0      32                                         [::1]:53            [::]:*    users:(("dnsmasq",pid=484757,fd=13))  
 </code></pre>
 
+<p style="margin-bottom: 0"><strong><i>ss</i></strong> (socket statistics) – показывает сетевые соединения и открытые порты</p>
+<p style="margin: 0">Расшифровка ключей:</p>
+<ul style="margin-top: 0">
+   <li><strong><i>-t</i></strong> – TCP-соединения</li>
+   <li><strong><i>-u</i></strong> – UDP-соединения</li>
+   <li><strong><i>-l</i></strong> – только слушающие (LISTEN). Если не указать флаг <strong><i>-l</i></strong>, то будут показаны все соединения</li>
+   <li><strong><i>-p</i></strong> – показать процесс (кто владелец)</li>
+   <li><strong><i>-n</i></strong> – не преобразовывать имена (быстрее)</li>
+   <li><strong><i>-a</i></strong> – показать все соединения, кроме LISTEN</li>
+</ul>
+<p><strong>Сокет</strong> – это "точка общения по сети". То есть <strong><i>192.168.1.3:53</i></strong> – это сокет. IP + порт.</p>
+
+<p style="margin-bottom: 0"><strong><i>ss</i></strong> показывает состояния соединений:</p>
+<ul style="margin-top: 0">
+   <li>LISTEN – сервер ждёт подключения</li>
+   <li>ESTAB – соединение активно</li>
+   <li>TIME-WAIT – соединение завершено</li>
+   <li>CLOSE-WAIT – ожидает закрытия</li>
+   <li>UNCONN (unconnected) – такое состояние отображается у UDP, потому что у UDP нет состояния: отправил пакет – забыл. То есть UNCONN для UPD это почти то же, что LISTEN для TCP – сокет готов принимать пакеты, но соединения нет</li>
+</ul>
+
+<p style="margin-bottom: 6px">Посмотреть все слушающие порты:</p>
+<pre style="margin-top: 6px"><code class="language-ini"># Посмотреть все слушающие порты:
+ss -ltn
+
+# Посмотреть активные соединения:
+ss -tuna
+
+# Посмотреть кто слушает 53-й порт:
+ss -tulpn | grep :53
+
+# То же, но отображать только IPv4:
+ss -tulpn -4 | grep :53
+</code></pre>
+
+
 <p style="margin-bottom: 6px">Утсновить <strong>nslookup</strong> на <strong>Android</strong>:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-ini">pkg update
 pkg install dnsutils
@@ -194,6 +273,51 @@ pkg install dnsutils
   # Name:       gts.test
   # Address:    192.168.1.3
 </code></pre>
+
+<p style="margin-bottom: 0">В моём случае всё нормально: <strong>nslookup</strong> с <strong>Android</strong>'а нашёл домен <strong><i>gts.test</i></strong>. Значит, телефон видит <strong>dnsmasq</strong>, запущенный на ПК.</p>
+<p style="margin: 0">Но если мы попробуем пропинговать <strong><i>gts.test</i></strong>, то у нас ничего не выйдет, потому что Android в качестве DNS-сервера использует маршрутизатор (192.168.1.1).</p>
+
+<h3 style="margin-bottom: 6px">Как указать телефону какой DNS-сервер использовать</h3>
+<p style="margin-top: 6px; margin-bottom: 0">Есть два способа:</p>
+<ol style="margin-top: 0">
+   <li>указать DNS-сервер в <strong>Android</strong> на телефоне</li>
+   <li>указать DNS-сервер в маршрутизаторе</li>
+</ol>
+
+<h3>1. Укажем DNS-сервер в самом телефоне</h3>
+
+<p style="margin-bottom: 0">Для этого заходим в настройки сети. Выбираем "Статический IP" вместо DHCP. И у нас появляются поля <strong><i>DNS 1</i></strong> и <strong><i>DNS 2</i></strong>.</p>
+<p style="margin: 0">Далее присваиваем уникальный IP-адрес: <strong><i>192.168.1.4</i></strong></p>
+<p style="margin-top: 0">В <strong><i>DNS 1</i></strong> пишем наш <strong><i>192.168.1.3</i></strong>, а <strong><i>DNS 2</i></strong> пусть остаётся как есть, чтобы сеть продолжала работать.</p>
+
+<p style="margin-bottom: 6px">Теперь можно пинговать <strong><i>gts.test</i></strong> и всё должно работать:</p>
+<pre style="margin-top: 6px"><code class="language-ini">ping gts.test
+</code></pre>
+
+
+
+<h3>2. Укажем DNS-сервер в маршрутизаторе</h3>
+
+<p style="margin: 0">Нам нужно в Маршрутизаторе указать DNS-сервер: <strong><i>192.168.1.3</i></strong></p>
+<p style="margin: 0">А затем – и это <strong>ОЧЕНЬ ВАЖНО!</strong> – переподключиться к WiFi. То есть, удалить WiFi-сеть и потом подключиться к ней заново. Важно забыть старые настройки.</p>
+<p style="margin-top: 0; margin-bottom: 6px">И только после этого:</p>
+<pre style="margin-top: 6px"><code class="language-ini">ping gts.test
+</code></pre>
+<p style="margin-bottom: 6px">Любопытно, что если мы запустим <code style="background-color: #161616; padding: 0 8px">nslookup archlinux.org</code>, то увидим гугловский IP:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-ini">nslookup archlinux.org
+  # Server:       8.8.8.8
+  # Address:      8.8.8.8#53
+  #
+  # Non-Authoritive answer:
+  # Name:         archlinux.org
+  # Address:      209.126.35.79
+  # Name:         archlinux.org
+  # Address:      2604:cac0:a104:d::3
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">При этом <code style="background-color: #161616; padding: 0 8px">ping gts.test</code> тоже пингуется – для его резолвинга используется DNS-сервер <strong><i>192.168.1.3</i></strong>.</p>
+<p style="margin-top: 0">Видимо, в настройках маршрутизатора жёстко прописан Fallback DNS <strong><i>8.8.8.8</i></strong> (или в настройках сети на телефоне). И если я пингую <strong><i>gts.test</i></strong>, то используется DNS, который я указал (<strong><i>192.168.1.3</i></strong>), а если я пингую любой другой сайт, например, <strong><i>archlinux.org</i></strong>, то срабатывает Fallback DNS <strong><i>8.8.8.8</i></strong>.</p>
+
+
 
 <h3>dig</h3>
 <p style="margin-bottom: 0">Команда <strong><i>dig</i></strong> (Domain Information Groper) имеет общий формат:</p>
@@ -239,6 +363,23 @@ pkg install dnsutils
   # [persist.device_config.aconfig_flags.netd_native.dns_event_subsample_map]: [default:6 0:400 2:110 4:110 7:110]
 </code></pre>
 <p style="margin-top: 6px">По идее, должны отображаться <strong><i>net.dns1</i></strong>, <strong><i>net.dns2</i></strong> – основной и вторичный DNS. В моём случае их нет. Отображаются только внутренние флаги Android, которые связаны с DNS. На некоторых телефонах <strong><i>net.dns1</i></strong>/<strong><i>net.dns2</i></strong> вообще пустые → система использует DoT / встроенный резолвер, а не “прямой” DNS с Wi-Fi.</p>
+
+<h2 style="margin-bottom: 6px">Как поставить сертификат на Android</h2>
+
+<p style="margin-top: 6px; margin-bottom: 0">У меня на <strong>Arch</strong> был установлен сертификат с помощью <strong><i>mkcert</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Узнать, где лежит корневой сертификат:</p>
+<pre style="margin-top: 6px"><code class="language-ini">mkcert -CAROOT
+  # /home/mark/.local/share/mkcert
+</code></pre>
+<p style="margin-bottom: 0">Копируем <strong><i>rootCA.pem</i></strong> на <strong><i>Android</i></strong>.</p>
+<p style="margin: 0">Я его положил в папку <strong><i>My Documents</i></strong></p>
+<p style="margin-bottom: 0">Теперь нужно установить этот сертификат:</p>
+<p style="margin-top: 0">Безопасность и конфиденциальность → Дополнительные настройки → Хранилища учётных данных → Установить сертификаты из памяти → Сертификат центра сертификации → Всё равно установить: termux → storage → shared → My Documents</p>
+<p style="margin-bottom: 0">Посмотреть установленные сертификаты можно так:</p>
+<p style="margin-top: 0">Безопасность и конфиденциальность → Дополнительные настройки → Хранилища учётных данных → Доверенные сертификаты → Пользователь</p>
+
+<p style="margin-bottom: 0"><strong>Chrome</strong> и <strong>Vivaldi</strong> доверяют сайту. А вот <strong>Firefox</strong> нет. И в настройках мобильной версии я не смог найти возможность импортировать сертификат.</p>
+<p style="margin-top: 0">На Android <strong>Google Chrome</strong> использует системный <strong>trust store</strong>. А другие браузеры используют свой <strong>store</strong> и не видят системные CA.</p>
 
 <!-- Шаблон -->
 

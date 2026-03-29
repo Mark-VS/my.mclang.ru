@@ -83,10 +83,19 @@ storage-backend: "local"
 storage-local-base-path: "/var/lib/gotosocial/storage"
 </code></pre>
 
+<p style="margin: 0">У <strong>GoToSocial</strong> нет определённого места для конфига в домашней директории пользователя. Пути очень flexible и зависят от того, как был запущен <strong>GoToSocial</strong>. Основной способ задания пути для конфига – это использовать при запуске приложения опцию <strong><i>--config-path</i></strong> или переменную окружения <strong><i>GTS_CONFIG_PATH</i></strong>.</p>
+<p style="margin: 0">Если мы будем следовать привычной логике других приложений, то системный конфиг должен быть в <strong><i>/etc/gotosocial/config.yaml</i></strong>, а пользовательский – в <strong><i>$HOME/.config/gotosocial/config.yaml</i></strong>, то есть, в нашем случае это <strong><i>/var/lib/gotosocial/.config/gotosocial/config.yaml</i></strong></p>
+<p style="margin-top: 0">Я его положил в <strong><i>/etc/gotosocial/config.yaml</i></strong> – как системный.</p>
 
-<p style="margin-bottom: 6px">Первый запуск / проверка</p>
-<pre style="margin-top: 6px"><code class="language-bash">
-sudo -u gotosocial gotosocial \
+<p style="margin-bottom: 6px">Как узнать домашнюю директорию пользователя <strong><i>gotosocial</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial env | grep HOME
+  # HOME=/var/lib/gotosocial
+  # SUDO_HOME=/home/mark
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Первый запуск / проверка (с явным указанием конфига):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial \
   --config-path /etc/gotosocial/config.yaml \
   server start
 
@@ -173,11 +182,13 @@ yarn build
 </code></pre>
 <p style="margin-top: 6px">Если всё прошло успешно, то должна появиться папка <strong><i>../assets/dist</i></strong>. Это и есть наш готовый фронтенд. И его нужно скопировать в <strong><i>/var/lib/gotosocial/web/assets/</i></strong>.</p>
 
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
-
+-->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>

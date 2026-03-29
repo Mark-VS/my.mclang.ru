@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Команды</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Команды</h1>
+
+<p style="margin-bottom: 6px">Вызвать справку</p>
+<pre style="margin-top: 6px"><code class="language-bash">gotosocial --help
+
+# Справка по "admin account":
+gotosocial admin account --help
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Создать пользователя <strong><i>admin</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo -u gotosocial gotosocial \
+  --config-path /etc/config.yaml \
+  admin account create \
+  --username admin \
+  --email admin@gts.test \
+  --password 'СЛОЖНЫЙ_ПАРОЛЬ'
+# Если пароль будет слишком простой, то ...
+# ... GoToSocial его не примет
+</code></pre>
+<p style="margin-top: 6px">Пользователь создался</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Посмотреть список аккаунтов:
+sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml admin account list
+  # ...
+  # user account                    approved admin moderator suspended confirmed
+  # mark 01JGAG6R0YD2VH4564PX9VF2ME yes      no    no        no        yes
+</code></pre>
+<p style="margin-top: 6px">В выводе видно, что аккаунт создан. Он подтверждён, но он не администратор.</p>
+
+<p style="margin-bottom: 6px">Выдаём права администратора:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial \
+  --config-path /etc/config.yaml \
+  admin account promote \
+  --username mark
+</code></pre>
+
+<p style="margin-bottom: 6px">Опять проверяем права:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml admin account list
+  # ...
+  # user account                    approved admin moderator suspended confirmed
+  # mark 01JGAG6R0YD2VH4564PX9VF2ME yes      yes   yes       no        yes
+</code></pre>
+
+<p style="margin-bottom: 0">Теперь можно попробовать добавить запись с помощью веб-интерфейса типа <strong><i>pinafore.social</i></strong>, или <strong><i>phanpy.social/</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Либо можно поставить десктоп-клиент <strong><i>Whalebird</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">yay -S whalebird-bin
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

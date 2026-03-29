@@ -260,13 +260,14 @@ advanced-rate-limit-exceptions: []
 </li>
 
 <li><p style="margin-bottom: 6px">Добавляем исключения для локальной сети:</p>
-<pre style="margin-top: 6px"><code class="language-bash">advanced-rate-limit-exceptions:
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">advanced-rate-limit-exceptions:
   - "127.0.0.1/24"
   - "192.168.1.0/24"
 </code></pre>
+<p style="margin-top: 6px">Если у меня раздачей DNS занимается <strong>dnsmasq</strong>, то на этом этапе окно с предупреждением пропадает.</p>
 </li>
 
-<li><p style="margin-bottom: 6px">Отключаем rate limit:</p>
+<li><p style="margin-bottom: 6px">Если окно не пропало, то отключаем <strong><i>rate limit</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">trusted-proxies:
   - "127.0.0.1/32"
   - "::1"
@@ -277,7 +278,7 @@ advanced-rate-limit-exceptions:
 </code></pre>
 </li>
 
-<li><p style="margin-bottom: 6px">А раз мы отключили rate limit, то пропал смысл в исключениях, а значит убираем их:</p>
+<li><p style="margin-bottom: 6px">А раз мы отключили <strong><i>rate limit</i></strong>, то пропал смысл в исключениях, а значит убираем их:</p>
 <pre style="margin-top: 6px"><code class="language-bash">trusted-proxies:
   - "127.0.0.1/32"
   - "::1"

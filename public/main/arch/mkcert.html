@@ -28,10 +28,20 @@ mkcert gts.test
 
 <p>В текущей папке появились файлы <strong><i>gts.test.pem</i></strong> и <strong><i>gts.test-key.pem</i></strong>.</p>
 
+<h2>Узнать, где CAROOT</h2>
+
+<p style="margin-bottom: 6px">Узнать, где находится корневой сертификат:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkcert -CAROOT
+  # /home/mark/.local/share/mkcert
+</code></pre>
+
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
