@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ntfs</title>
+    <title>RAM</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
@@ -18,6 +18,66 @@
 grep MemTotal /proc/meminfo
 sudo dmidecode -t memory
 </code></pre>
+
+<p style="margin-bottom: 6px">Посмотреть топ процессов по реальному потреблению памяти:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">smem -rk
+  # PID User     Command                         Swap      USS      PSS      RSS 
+  # 7922 mark     /usr/lib/qt6/QtWebEnginePro        0   979.7M     1.0G     1.1G 
+  # 7833 mark     /usr/lib/firefox/firefox           0   348.2M   394.7M   525.3M 
+  # 2232 mark     /usr/bin/falkon                    0   262.3M   298.4M   390.1M 
+  # 8763 mark     /usr/lib/firefox/firefox -c        0   201.9M   224.3M   317.7M 
+  # 2361 mark     /usr/lib/qt6/QtWebEnginePro        0    57.4M    99.0M   172.4M 
+  # 8210 mark     /usr/lib/firefox/firefox -c        0    38.3M    55.1M   142.1M 
+  # 8479 mark     /usr/lib/firefox/firefox -c        0    26.1M    38.2M   114.6M 
+  # ...
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong>USS (Unique Set Size)</strong> — память, только для этого процесса</li>
+   <li><strong>PSS (Proportional Set Size)</strong> — память процесса с учётом доли shared (лучше всего)</li>
+   <li><strong>RSS (Resident Set Size)</strong> — вся физическая память процесса (включая библиотеки, разделяемые другими)</li>
+</ul>
+
+<p style="margin-bottom: 6px">Вывести топ процессов (две колонки):</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">smem -krc "name pss"
+  # Name                          PSS 
+  # QtWebEngineProc            561.2M 
+  # Isolated Web Co            512.8M 
+  # firefox                    384.3M 
+  # falkon                     316.9M 
+  # QtWebEngineProc            142.2M 
+  # QtWebEngineProc            107.2M 
+  # Privileged Cont             85.2M
+  # ...
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>-k</i></strong> – abbreviate (сокращённая запись), т. е. KB и MB вместо байтов. То есть просто "читабельный вывод"</li>
+   <li><strong><i>-r</i></strong> – обратная сортировка (т.е. от большего к меньшему)</li>
+   <li><strong><i>-c</i></strong> – columns, говорит какие колонки отобразить</li>
+</ul>
+
+<p style="margin-bottom: 6px">Сколько памяти занимает конкретное приложение:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Вывести все firefox-процессы:
+smem -P firefox
+  #   PID User     Command                         Swap      USS      PSS      RSS 
+  #  7002 mark     /usr/lib/firefox/crashhelpe        0     1712     1733     3220 
+  #  7091 mark     /usr/lib/firefox/firefox -c        0      756     3659    28980 
+  #  7108 mark     /usr/lib/firefox/firefox -c        0     1940     4960    38920 
+  # 33820 mark     /usr/lib/firefox/firefox -c        0     7460    14216    80444 
+  #  7355 mark     /usr/lib/firefox/firefox -c        0     9332    14396    55656 
+  # ...
+
+# А здесь команда суммирует все firefox-процессы:
+smem -kc "name pss" | grep firefox
+  # firefox                    410.8M 
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+lala
+</code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

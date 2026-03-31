@@ -182,6 +182,23 @@ yarn build
 </code></pre>
 <p style="margin-top: 6px">Если всё прошло успешно, то должна появиться папка <strong><i>../assets/dist</i></strong>. Это и есть наш готовый фронтенд. И его нужно скопировать в <strong><i>/var/lib/gotosocial/web/assets/</i></strong>.</p>
 
+<h2>Размер загружаемых файлов</h2>
+
+<p>В конфиге за это отвечает настройка:</p>
+
+<p style="margin-bottom: 6px">В конфиге за это отвечает настройка <strong><i>media-local-max-size</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Default: 40MiB (41943040 bytes)
+media-local-max-size: 40MiB
+</code></pre>
+<p>Если она не указана, то по умолчанию ограничение: <strong><i>40MiB</i></strong></p>
+<p>Но так как у нас сервер находится <u>за <strong>NGINX</strong>'ом</u>, то <strong>nginx</strong> тоже фильтрует файлы по размеру. В конфиге <strong>nginx</strong>'а есть настройка <strong><i>client_max_body_size</i></strong>, которая по умолчанию равна <strong>1M</strong>. Так что если мы её не указывали, то <strong>GoToSocial</strong> не сможет загрузить файлы больше <strong>1M</strong>.</p>
+<p style="margin-bottom: 6px">Поэтому добавим в <strong><i>/etc/nginx/nginx.conf</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Ставим чуть больше, чем в GoTosocial, ...
+# ... чтобы nginx никогда не был узким местом
+client_max_body_size 42M;
+</code></pre>
+
+
 <!-- Шаблон -->
 <!--
 <p style="margin-bottom: 6px"></p>
