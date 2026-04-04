@@ -23,7 +23,6 @@
 ls -l file_name
   # -rw-r--r-- 1 mark mark 1404 Jan 25 11:10 file_name
 
-
 # Посмотреть права доступа у папки:
 ls -ld folder_name
   # drwxr-xr-x 2 mark mark 4096 Mar 22 12:32 folder_name
@@ -134,12 +133,19 @@ chmod go-wx file_name
 chmod a+w file_name
 </code></pre>
 
+<h2>Изменить владельца папки</h2>
 
+<p style="margin-bottom: 6px">Изменим владельца папки <strong><i>folder_name</i></strong> на <strong><i>gotosocial</i></strong> (и группа <strong><i>gotosocial</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo chown -R gotosocial:gotosocial folder_name/
+</code></pre>
 
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px">Шаблон:</p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

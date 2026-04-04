@@ -26,8 +26,8 @@
 <li>z - уменьшить задержку показа субтитров</li>
 <li>v - включить/выключить показ субтитров</li>
 <li>m - включить/отключить звук</li>
-<li>> - переместить стоп-кадр на один шаг вперёд</li>
-<li>< - переместить стоп-кадр на один шаг назад</li>
+<li>&gt; - переместить стоп-кадр на один шаг вперёд</li>
+<li>&lt; - переместить стоп-кадр на один шаг назад</li>
 <li>j - переключаем субтитры по порядку</li>
 <li>Shift + j - переключаем субтитры в обратном порядке</li>
 <li>Shift+G - увеличить размер субтитров</li>
@@ -50,9 +50,17 @@ sub-scale=1.20
 <pre><code>screenshot-directory=/home/username/Pictures/mpv
 </code></pre>
 
-<h4>Подгрузить внешнюю звуковую дорожку:</h4>
-<pre><code class="language-bash">
-mpv video-file.mkv --audio-file=external_track.ac3
+<h2 style="margin-bottom: 0">Звуковая дорожка</h2>
+
+<p style="margin-top: 0">Если видеофайл уже содержит несколько звуковых дорожек, то <strong>mpv</strong> не будет автоматически подхватывать дополнительную внешнюю звуковую дорожку.</p>
+
+<h3 style="margin-bottom: 6px">Подгрузить звуковую дорожку через консоль</h3>
+<p style="margin-top: 6px; margin-bottom: 6px">Консоль в <strong>mpv</strong> открывается с помощью клавиши ` (тильда). И выполняем команду:</p>
+<pre style="margin-top: 6px"><code class="language-bash">audio-add path/to/filename.ac3
+</code></pre>
+
+<h3 style="margin-bottom: 6px">Подгрузить внешнюю звуковую дорожку через терминал:</h3>
+<pre style="margin-top: 6px"><code class="language-bash">mpv video-file.mkv --audio-file=external_track.ac3
 
 # Несколько дорожек:
 mpv video-file.mkv --audio-file=rus.ac3 --audio-file=eng.ac3
@@ -70,6 +78,7 @@ mpv video-file.mkf --audio-file-auto=fuzzy
 audio-file-auto=fuzzy
 # Тогда при запуске mpv сам найдёт дорожки.
 </code></pre>
+
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

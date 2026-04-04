@@ -19,9 +19,15 @@
 <p style="margin-top: 0">Repology: <a href="https://repology.org/project/gotosocial/information">https://repology.org/project/gotosocial/information</a></p>
 
 <p style="margin-bottom: 6px">Скачиваем <strong>GoToSocial</strong> с <strong><i>Codeberg.org</i></strong>:</p>
-<pre style="margin-top: 6px"><code class="language-bash">
-git clone https://codeberg.org/superseriousbusiness/gotosocial
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://codeberg.org/superseriousbusiness/gotosocial
 cd gotosocial
+
+# Либо можно скачать исходники в .zip- или в .tar.gz-формате
+# ... через браузер.
+# И распаковываем их:
+unzip gotosocial-main.zip 
+# Или:
+tar -xzvf gotosocial-main.tar.gz
 
 # нам нужно найти файл main.go:
 # Он находится здесь: cmd/gotosocial/main.go
@@ -46,9 +52,8 @@ ls -l gotosocial
 gotosocial --help
 </code></pre>
 
-<p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">
-sudo useradd --system \
+<p style="margin-bottom: 6px">Теперь создадим системного пользователя <strong>gotosocial</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd --system \
   --home /var/lib/gotosocial \
   --shell /usr/sbin/nologin
   gotosocial
@@ -150,6 +155,9 @@ sudo cp -r ~/Downloads/gotosocial/web/assets/ ./
 <pre style="margin-top: 6px"><code class="language-bash"># Скачиваем релиз в архиве:
 wget https://codeberg.org/superseriousbusiness/gotosocial/releases/download/v0.21.0/gotosocial_0.21.0_linux_amd64.tar.gz
 
+# Или можно скачать через браузер на страничке:
+https://codeberg.org/superseriousbusiness/gotosocial/releases
+
 # Распаковывыаем в папку "gts":
 mkdir -p gts/
 tar -xzf gotosocial_0.21.0_linux_amd64.tar.gz -C gts/
@@ -183,8 +191,6 @@ yarn build
 <p style="margin-top: 6px">Если всё прошло успешно, то должна появиться папка <strong><i>../assets/dist</i></strong>. Это и есть наш готовый фронтенд. И его нужно скопировать в <strong><i>/var/lib/gotosocial/web/assets/</i></strong>.</p>
 
 <h2>Размер загружаемых файлов</h2>
-
-<p>В конфиге за это отвечает настройка:</p>
 
 <p style="margin-bottom: 6px">В конфиге за это отвечает настройка <strong><i>media-local-max-size</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># Default: 40MiB (41943040 bytes)

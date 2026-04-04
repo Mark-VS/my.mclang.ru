@@ -35,6 +35,28 @@ mkcert gts.test
   # /home/mark/.local/share/mkcert
 </code></pre>
 
+<h2>Хранилища сертификатов</h2>
+
+<p style="margin-bottom: 0">При установке локального сертификата можно встретится с такой проблемой: <strong>Firefox</strong> и другие <strong>firefox-based</strong> браузеры как будто его не видят и всё равно воспринимают сайт как небезопасный.</p>
+<p style="margin: 0">В чём проблема?</p>
+<p style="margin: 0"><strong>Chromium</strong>-браузеры (Chrome, Brave и т.д.) используют системное хранилище сертификатов. <strong>mkcert</strong> автоматически добавляет туда свой <strong>root CA</strong>. Поэтому всё сразу работает.</p>
+<p style="margin-top: 0"><strong>Firefox</strong>-браузеры (Firefox, LibreWolf, Zen Browser и т.д.) используют <strong>собственное хранилище (NSS)</strong>. Они не доверяют системным хранилищам по умолчанию. Поэтому наш <strong>mkcert CA</strong> они не видят.</p>
+<p style="margin-bottom: 0; text-decoration: underline">Что с этим можно сделать:</p>
+<ul style="margin: 0">
+   <li>
+      <p style="margin: 0">Можно добавить свой <strong>root CA</strong>, чтобы <strong>Firefox</strong> начал доверять моему локальному сертификату. Для этого нужно зайти сюда:</p>
+      <p style="margin: 0">Settings → Privacy &amp; Security → Certificates → Manage Certificates → Authorities</p>
+	  <p style="margin: 0">Нажимаем кнопку <strong><i>Import</i></strong> и добавляем наш <strong>root CA</strong>. В окне с галочками отметим: <strong>Trust this CA to identify websites</strong>.</p>
+	  <p style="margin: 0"><strong>ВАЖНО!</strong> Чтобы в окне импорта отображались скрытые файлы нужно нажать <strong><i>Ctrl+H</i></strong>. У меня <strong><i>rootCA.pem</i></strong> находится в <strong><i>~/.local/share/mkcert/rootCA.pem</i></strong> (то есть, внутри скрытой папки <strong><i>.local</i></strong>). И если я не нажму <strong><i>Ctrl+H</i></strong> то в окне выбора файлов не будут отображаться файлы внутри скрытой папки, потому что всё то, что находится внутри скрытой папки по умолчанию счатается тоже скрытым. Окно выбора просто не увидит файл <strong><i>rootCA.pem</i></strong>.</p>
+	  <p style="margin: 0">Теперь во вкладке <strong><i>Authorities</i></strong> появился мой центр сертификации, который называется <strong>mkcert development CA</strong>.</p>
+   </li>
+   <li>
+      <p style="margin: 0">Можно включить использование системного хранилища. Для этого открываем:</p>
+	  <p style="margin: 0">about:config</p>
+	  <p style="margin: 0">Находим параметр <strong><i>security.enterprise_roots.enabled</i></strong> и выставляем его значение в <strong><i>true</i></strong></p>
+   </li>
+</ul>
+
 <!-- Шаблон -->
 <!--
 <p style="margin-bottom: 6px"></p>
