@@ -31,7 +31,7 @@ ls -ld folder_name
 <p style="margin-bottom: 0">В выводе можно увидеть четыре блока:</p>
 <p style="margin-top: 0">d rwx rwx rwx</p>
 <ol>
-   <li>Флаг: папка или нет</li>
+   <li>Флаг: папка, ссылка или файл (d, l, или -)</li>
    <li>Владелец – u (user)</li>
    <li>Группа – g (group)</li>
    <li>Остальные – o (others)</li>
@@ -69,6 +69,7 @@ ls -ld folder_name
    <li>Mar 22 13:14 – дата и время последнего изменения содержимого файла</li>
    <li>file_name – имя самого файла</li>
 </ul>
+
 
 <h3 style="margin-bottom: 6px">Дата и время</h3>
 <p style="margin-top: 6px; margin-bottom: 2px"><strong>Linux</strong> хранит для файлов несколько значений даты и времени:</p>
@@ -132,6 +133,30 @@ chmod go-wx file_name
 # Добавить write всем:
 chmod a+w file_name
 </code></pre>
+
+<h3 style="margin-bottom: 6px">Файлы с телефона</h3>
+
+<p style="margin-top: 6px; margin-bottom: 6px">Когда я переписываю файлы с телефона, то они обычно имеют вот такие права:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ls -l '2026-04-05 - ДР Шлюбзика'/
+  # total 1149224
+  # -rwxr----- 1 mark mark   2642180 Apr  5 19:47 IMG20260405194740.jpg
+  # ...
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">Если я расшарю папку, то естественно не смогу переписать файлы с такими правами, зайдя с другого компьютера.</p>
+<p style="margin-top: 6px; margin-bottom: 6px">Нужно дать права на чтение для остальных. То есть по умолчанию у меня права для всех файлов выставлены в <strong><i>-rwxr-----</i></strong> (740), а мне нужно: <strong><i>-rwxr--r--</i></strong> (744).</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Добавим флаг чтения для остальных:
+chmod 744 '2026-04-05 - ДР Шлюбзика'/*
+
+# Или можно так:
+chmod o+r '2026-04-05 - ДР Шлюбзика'/*
+
+# Проверяем:
+ls -l '2026-04-05 - ДР Шлюбзика'/
+  # total 1149224
+  # -rwxr--r-- 1 mark mark   2642180 Apr  5 19:47 IMG20260405194740.jpg
+  # ...
+</code></pre>
+<p style="margin-top: 6px">Если у нас в папке есть другие вложенные папки, то права <strong><i>744</i></strong> для них – не очень хорошая идея, потому что тогда в эти папки нельзя будет зайти никому, кроме владельца. Если есть вложенные папки, то лучше давать им права <strong><i>755</i></strong>.</p>
 
 <h2>Изменить владельца папки</h2>
 
