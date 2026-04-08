@@ -35,6 +35,12 @@ mkcert gts.test
   # /home/mark/.local/share/mkcert
 </code></pre>
 
+<h2>Информация о сертификате:</h2>
+
+<p style="margin-bottom: 6px">Посмотреть всю подробную информацию о сертификате можно с помощью <strong>openssh</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">openssl x509 -in certs/gts.test.pem -text -noout
+</code></pre>
+
 <h2>Хранилища сертификатов</h2>
 
 <p style="margin-bottom: 0">При установке локального сертификата можно встретится с такой проблемой: <strong>Firefox</strong> и другие <strong>firefox-based</strong> браузеры как будто его не видят и всё равно воспринимают сайт как небезопасный.</p>

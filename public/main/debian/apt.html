@@ -18,6 +18,12 @@
 <pre style="margin-top: 6px"><code class="language-bash"># Поиск пакета в репозитории по имени:
 apt search package_name
 
+# Только те пакеты, которые начинаются с "package_name":
+apt search ^package_name
+
+# Найти точное совпадение:
+apt search ^package_name$
+
 # Или:
 apt-cache search package_name
 
@@ -25,11 +31,33 @@ apt-cache search package_name
 aptitude search package_name
 </code></pre>
 
+<p style="margin-bottom: 6px">Проверить, установлен ли какой-то пакет в системе:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Примерно то же, что и "pacman -Q":
+dpkg -l | grep nano
+
+# Аналог "pacman -Qi":
+dpkg -s nano
+
+# Найти пакет, установленный через apt:
+# Можно так:
+apt list --installed nano
+
+# или:
+apt list --installed | grep nano
+</code></pre>
+
+<p style="margin-bottom: 6px">Установить vim:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt update
+sudo apt install vim
+</code></pre>
+
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px">Шаблон:</p>
 <pre style="margin-top: 6px"><code class="language-bash">
 
 </code></pre>
-
+-->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
 <script>hljs.highlightAll();</script>

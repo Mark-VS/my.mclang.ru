@@ -13,12 +13,37 @@
 
 <h1>ssh</h1>
 
+<p style="margin-bottom: 0">Расположение конфигурационный файлов:</p>
+<ul style="margin-top: 0">
+   <li><strong><i>/etc/ssh/ssh_config</i></strong> – системный конфиг</li>
+   <li><strong><i>~/.ssh/config</i></strong> – пользовательский конфиг</li>
+</ul>
+
 <p style="margin-bottom: 6px">Зайти на удалённый сервер:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># По имени домена:
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># По имени домена:
 ssh mark@domain-name.ru
 
 # по IP-адресу:
 ssh mark@185.221.152.12
+
+# Каждые 10 сек. отправлять пинг:
+ssh -o ServerAliveInterval=60 mark@185.221.152.12
+  # нужно, чтобы соединение не разрывалось при простое
+  
+# Можно даже так:
+ssh -o ServerAliveInterval=10 -o ServerAliveCountMax=3 root@193.187.94.218
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>ServerAliveInterval=10</i></strong> – клиент будет отправлять пинг каждые 10 секунд</li>
+   <li><strong><i>ServerAliveCountMax=3</i></strong> – это сколько раз подряд можно не получить ответ</li>
+</ul>
+
+<p style="margin-bottom: 6px">А чтобы каждый раз не указывать эти настройки при запуске <strong><i>ssh</i></strong>, можно указать их в конфиге:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># ~/.ssh/config
+
+Host *
+    ServerAliveInterval 10
+    ServerAliveCountMax 3
 </code></pre>
 
 <p style="margin-bottom: 6px">Запустить процесс, который будет отвязан от терминала:</p>
@@ -30,11 +55,13 @@ ssh mark@185.221.152.12
 </code></pre>
 
 
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px">Шаблон:</p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
-
+-->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>

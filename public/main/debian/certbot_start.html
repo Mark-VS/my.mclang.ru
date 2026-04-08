@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/debian/">Вернуться назад</a></p>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo apt update
+sudo apt install certbot
+  # ...
+  # Created symlink '/etc/systemd/system/timers.target.wants/certbot.timer' → '/usr/lib/systemd/system/certbot.timer'.
+
+sudo apt install python3-certbot-nginx
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>certbot</i></strong> – клиент <strong>Let's Encrypt</strong></li>
+   <li><strong><i>python3-certbot-nginx</i></strong> – плагин, который умеет автоматически править конфиг <strong>nginx</strong></li>
+</ul>
+
+
+<p style="margin-bottom: 0">Создаю сертификат для четырёх доменов: <strong><i>test01.mclang.ru</i></strong>, <strong><i>www.test01.mclang.ru</i></strong>, <strong><i>test02.mclang.ru</i></strong> и <strong><i>www.test02.mclang.ru</i></strong>:</p>
+<p style="margin-top: 0; margin-bottom: 6px">Выполнять нужно с запущенным <strong>Nginx</strong>, т.к. <span style="text-decoration: underline">получение и обновление</span> сертификатов происходит <span style="text-decoration: underline">через <strong>Nginx</strong></span>.</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo certbot --nginx -d test01.mclang.ru -d www.test01.mclang.ru -d test02.mclang.ru -d www.test02.mclang.ru
+</code></pre>
+<p style="margin-top: 6px">Сертификаты создались. Но <strong>certbot</strong> ругнулся на то, что указаны не все блоки. Он нашёл только <strong><i>test01.mclang.ru</i></strong>, а остальные домены я не указал в конфиге.</p>
+<p style="margin-bottom: 0">Сертификат установился сюда:</p>
+<ul style="margin-top: 0">
+   <li>/etc/letsencrypt/live/test01.mclang.ru/fullchain.pem</li>
+   <li>/etc/letsencrypt/live/test01.mclang.ru/privkey.pem</li>
+</ul>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ls -l /etc/letsencrypt/live/test01.mclang.ru
+  # total 4
+  # lrwxrwxrwx 1 root root  40 Apr  8 19:56 cert.pem -> ../../archive/test01.mclang.ru/cert1.pem
+  # lrwxrwxrwx 1 root root  41 Apr  8 19:56 chain.pem -> ../../archive/test01.mclang.ru/chain1.pem
+  # lrwxrwxrwx 1 root root  45 Apr  8 19:56 fullchain.pem -> ../../archive/test01.mclang.ru/fullchain1.pem
+  # lrwxrwxrwx 1 root root  43 Apr  8 19:56 privkey.pem -> ../../archive/test01.mclang.ru/privkey1.pem
+  # -rw-r--r-- 1 root root 692 Apr  8 19:56 README
+</code></pre>
+<p style="margin-bottom: 6px">Обратим внимание, что права на папку <strong><i>/etc/letsencrypt/live</i></strong> ограничены:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo ls -ld /etc/letsencrypt/live
+  # drwx------ 3 root root 4096 Apr  8 19:56 /etc/letsencrypt/live
+</code></pre>
+<p style="margin-top: 6px">Но я права не менял. <strong>Nginx</strong> запускается от <strong><i>sudo</i></strong>, а значит, может читать файлы из этой папки.</p>
+
+<p style="margin-bottom: 6px">Добавим в наш минимальный конфиг и секцию для <strong><i>TLS</i></strong> со ссылками на сертификат и ключ:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+
+   server_name   test01.mclang.ru;
+   root   /var/www/html;
+   index index.html index.htm index.nginx-debian.html;
+   location / {
+      try_files $uri $uri/ =404;
+   }
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   server_name   test01.mclang.ru;
+   root   /var/www/html;
+   index index.html index.htm index.nginx-debian.html;
+   location / {
+      try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Можно улучшить конфиг так, чтобы пользователя с <strong><i>http</i></strong> перекидывало на <strong><i>https</i></strong>. Таким образом, пользователь сможет зайти только через безопасное соединение:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name   test01.mclang.ru;
+
+   return 301 https://$host$request_uri;
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   server_name   test01.mclang.ru;
+   root   /var/www/html;
+   index index.html index.htm index.nginx-debian.html;
+   location / {
+      try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Чтобы ещё дополнительно обработать адреса с <strong><i>www</i></strong>, добавим их в <strong><i>server_name</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name   test01.mclang.ru www.test01.mclang.ru;
+
+   return 301 https://$host$request_uri;
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   server_name   test01.mclang.ru www.test01.mclang.ru;
+   root   /var/www/html;
+   index index.html index.htm index.nginx-debian.html;
+   location / {
+      try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

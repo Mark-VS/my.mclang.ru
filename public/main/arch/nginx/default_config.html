@@ -13,38 +13,115 @@
 
 <h1>Дефолтный конфиг</h1>
 
-<p style="margin-bottom: 6px">Дефолтный конфиг, который появляется при установке <strong>Nginx</strong> в Arch:</p>
+<p style="margin-bottom: 6px">Дефолтный конфиг, который появляется при установке <strong>Nginx</strong> в <strong>Arch</strong>:</p>
 <pre style="margin-top: 6px"><code class="language-nginx">worker_processes  1;
 include modules.d/*.conf;
 
 events {
-    worker_connections  1024;
+   worker_connections  1024;
 }
 
 http {
-    include       mime.types;
-    default_type  application/octet-stream;
-    sendfile        on;
-    keepalive_timeout  65;
+   include       mime.types;
+   default_type  application/octet-stream;
+   sendfile        on;
+   keepalive_timeout  65;
 
-    server {
-        listen       80;
-        server_name  localhost;
-        location / {
-            root   /usr/share/nginx/html;
-            index  index.html index.htm;
-            # index index.html – дефолтное значение
-        }
+   server {
+      listen       80;
+      server_name  localhost;
+      location / {
+         root   /usr/share/nginx/html;
+         index index.html;
+      }
 
-        # redirect server error pages to the static page /50x.html
-        #
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   /usr/share/nginx/html;
-        }
-    }
+      error_page   500 502 503 504  /50x.html;
+      location = /50x.html {
+         root   /usr/share/nginx/html;
+      }
+   }
 }
 </code></pre>
+
+<p style="margin-bottom: 6px">Дефолтный конфиг, который появляется при установке <strong>Nginx</strong> в <strong>Debian</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">user www-data;
+worker_processes auto;
+worker_cpu_affinity auto;
+pid /run/nginx.pid;
+error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+   worker_connections 768;
+}
+
+http {
+   sendfile on;
+   tcp_nopush on;
+   types_hash_max_size 2048;
+   server_tokens off; # Recommended practice is to turn this off
+ 
+   include /etc/nginx/mime.types;
+   default_type application/octet-stream;
+ 
+   ssl_protocols TLSv1.2 TLSv1.3; # Dropping SSLv3 (POODLE), TLS 1.0, 1.1
+   ssl_prefer_server_ciphers off; # Don't force server cipher order.
+
+   access_log /var/log/nginx/access.log;
+   
+   gzip on;
+
+   include /etc/nginx/conf.d/*.conf;
+   include /etc/nginx/sites-enabled/*;
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Вышеприведённый конфиг подгружает дефолтный сервер из файла <strong><i>sites-available/default</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-nginx">## /etc/nginx/sites-available/default
+
+server {
+   listen 80 default_server;
+   listen [::]:80 default_server;
+   
+   root /var/www/html;
+   index index.html index.htm index.nginx-debian.html;
+   
+   server_name _;
+   location / {
+       try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+
+<ul style="margin-top: 6px">
+   <li><strong><i>default_server</i></strong> → говорит nginx: Если ни один другой блок с server_name не подошёл для этого порта, используй этот.</li>
+   <li><strong><i>server_name _</i></strong> → просто фиктивное имя (никогда реально не совпадёт с доменом)</li>
+</ul>
+
+<p style="margin-bottom: 6px">Если подправить дефолтный сервер для моего домена, то получится примерно следующее:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">## /etc/nginx/sites-available/test.mclang.ru
+
+server {
+   listen 80;
+   listen [::]:80;
+
+   root   /var/www/html;
+   index index.html index.htm index.nginx-debian.html;
+
+   server_name   test.mclang.ru;
+   location {
+      try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+lala
+</code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/nginx.min.js"></script>

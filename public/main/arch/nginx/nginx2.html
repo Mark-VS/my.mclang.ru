@@ -15,10 +15,17 @@
 
 <p>Дефолтный конфиг: <a href="default_config.html">ссылка на дефолтный конфиг</a></p>
 
+<p style="margin-bottom: 6px">Для начала неплохо бы установить <strong>nginx</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Arch:
+sudo pacman -Syu nginx
+
+# Debian:
+sudo apt update
+sudo apt install nginx
+</code></pre>
 
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-nginx">
-   location = /index.html { ... }
+<pre style="margin-top: 6px"><code class="language-nginx">   location = /index.html { ... }
    location /images/ { ... }
    location ^~ /assets/ { ... }
    location ~ ^/assets/.*\.php$ { ... }
@@ -133,11 +140,88 @@ server {
 }
 </code></pre>
 
+<h2>TLS</h2>
 
+<p style="margin-bottom: 6px">Если мы хотим дать пользователю возможность заходить через небезопасный <strong><i>http</i></strong>, то:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+
+   server_name   test01.mclang.ru;
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   index  index.html index.htm;
+   location / {
+      try_files /main$uri /main$uri/index.html /main$uri/index.htm =404;
+   }
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   server_name   test01.mclang.ru;
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   index  index.html index.htm;
+   location / {
+      try_files /main$uri /main$uri/index.html /main$uri/index.htm =404;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">А если не хотим, то делаем редирект с <strong><i>http</i></strong> на <strong><i>https</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name   test01.mclang.ru;
+
+   return 301 https://$host$request_uri;
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   server_name   test01.mclang.ru;
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   index  index.html index.htm;
+   location / {
+      try_files /main$uri /main$uri/index.html /main$uri/index.htm =404;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Если нужно дополнительно обработать адреса с <strong><i>www</i></strong>, то укажем их в <strong><i>server_name</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name   test01.mclang.ru www.test01.mclang.ru;
+
+   return 301 https://$host$request_uri;
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   server_name   test01.mclang.ru www.test01.mclang.ru;
+   root   /home/mark/projects/node/my.mclang.ru/public;
+   index  index.html index.htm;
+   location / {
+      try_files /main$uri /main$uri/index.html /main$uri/index.htm =404;
+   }
+}
+</code></pre>
+
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/nginx.min.js"></script>

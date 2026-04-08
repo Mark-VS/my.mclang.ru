@@ -98,7 +98,7 @@ EDITOR=nano sudoedit /etc/shadow
 
 <h3>Добавление пользователей</h3>
 
-<p style="margin-bottom: 6px">Добавить нового пользователя:</p>
+<p style="margin-bottom: 6px">Добавить нового пользователя в <strong><i>Arch</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo useradd -m -G wheel -s /bin/bash kakashnik
 
 # Или:
@@ -106,6 +106,15 @@ sudo useradd --create-home --groups wheel --shell /bin/bash kakashnik
 
 # И зададим для него пароль.
 # Без этого пользователь не сможет войти:
+sudo passwd kakashnik
+</code></pre>
+
+<p style="margin-bottom: 6px">Добавить нового пользователя в <strong>Debian</strong>. В принципе, всё то же самое, только вместо группы <strong><i>wheels</i></strong>, в <strong>Debian</strong> используется группа <strong><i>sudo</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd -m -G sudo -s /bin/bash kakashnik
+# Или:
+sudo useradd --create-home --groups sudo --shell /bin/bash kakashnik
+
+# А затем задаём пароль:
 sudo passwd kakashnik
 </code></pre>
 
@@ -128,7 +137,10 @@ sudo useradd --system --create-home --home-dir /var/lib/myservice --shell /usr/b
    <li><strong><i>--system</i></strong> – создать системного пользователя;</li>
    <li><strong><i>--home-dir</i></strong> – указывает путь, где создавать домашнюю папку. Если этого параметра нет, то папка будет создана в <strong><i>/usr/home</i>;</strong></li>
    <li><strong><i>--create-home</i></strong> – создать домашнюю папку.</li>
+   <li><strong><i>--shell /usr/bin/nologin</i></strong> – запретить обычный интерактивный вход (обычно для сервисов)</li>
 </ul>
+
+<p style="text-decoration: underline">В <strong>Debian</strong> <strong><i>nologin</i></strong> находится не в <strong><i>/usr/bin</i></strong>, а в <strong><i>/usr/sbin</i></strong> !!!</p>
 
 <p style="margin-bottom: 6px">Добавить <strong><i>!</i></strong>, если его нет:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># Явно заблокировать пароль / запретить вход:
@@ -146,11 +158,13 @@ sudo passwd --unlock makaka  # разблокировать
 <pre style="margin-top: 6px"><code class="language-bash">sudo userdel kakashnik
 </code></pre>
 
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
-
+-->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>

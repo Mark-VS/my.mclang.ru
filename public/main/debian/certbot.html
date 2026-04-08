@@ -13,6 +13,21 @@
 
 <h1>certbot</h1>
 
+<h2>Установка certbot</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo apt update
+sudo apt install certbot
+  # ...
+  # Created symlink '/etc/systemd/system/timers.target.wants/certbot.timer' → '/usr/lib/systemd/system/certbot.timer'.
+
+sudo apt install python3-certbot-nginx
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>certbot</i></strong> – клиент <strong>Let's Encrypt</strong></li>
+   <li><strong><i>python3-certbot-nginx</i></strong> – плагин, который умеет автоматически править конфиг <strong>nginx</strong></li>
+</ul>
+
 <h2>Обновление сертификата</h2>
 
 <p style="margin-bottom: 6px">Обновить сертификать вручную:</p>
@@ -186,10 +201,13 @@ sudo certbot --nginx \
 # Выбираем E – expand
 </code></pre>
 
+<!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
 
 </code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
