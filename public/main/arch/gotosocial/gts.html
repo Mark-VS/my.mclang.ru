@@ -36,6 +36,9 @@ tar -xzvf gotosocial-main.tar.gz
 cd cmd/gotosocial/
 go build
 
+# Если нужно показать, что именно делает Go:
+go build -x
+
 # Или из основной директории: 
 go build -o gotosocial ./cmd/gotosocial
 

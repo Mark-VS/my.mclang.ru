@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/debian/">Вернуться назад</a></p>
+
+<h1>Node.js</h1>
+
+<p>Официальная страница DEB-репозитория Node.js: <a href="https://deb.nodesource.com/">https://deb.nodesource.com/</a></p>
+
+<p style="margin-bottom: 6px">Устанавливаем Node.js 22.x LTS</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">~$ curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash - 
+~$ sudo apt-get install -y nodejs
+
+# Проверяем:
+node -v
+  # v22.22.2
+npm -v
+  # 10.9.7
+</code></pre>
+<ul style="margin-top: 6px; margin-bottom: 0">
+   <li><strong><i>curl -fsSL https://deb.nodesource.com/setup_22.x</i></strong> → скачивает скрипт установки Node.js 22 LTS.</li>
+   <li>
+      <p style="margin: 0"><strong><i>| sudo bash -</i></strong> → сразу выполняет этот скрипт от <strong>root</strong>. Скрипт:</p>
+	  <ul style="margin: 0">
+         <li>добавляет репозиторий NodeSource для Node 22,</li>
+		 <li>добавляет GPG-ключ,</li>
+		 <li>обновляет индексы пакетов (apt update).</li>
+	  </ul>
+   </li>
+   <li><strong><i>sudo apt-get install -y nodejs</i></strong> → устанавливает <strong>Node.js</strong> и <strong>npm</strong>.</li>
+</ul>
+
+<h2>Установка Yarn</h2>
+
+<p>Есть три способа установки Yarn на Debian:</p>
+<ul>
+   <li>Через официальный <strong>Yarn-репозиторий</strong> для Debian</li>
+   <li>Через <strong>npm</strong></li>
+   <li>Через <strong>Corepack</strong> (новый способ от Node.js). Corepack — это менеджер пакетов, встроенный в новые Node.js версии (начиная с Node 16+), который умеет запускать yarn и pnpm.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Ставим <strong>Yarn</strong> через официальный <strong>Yarn-репозиторий</strong> для <strong>Debian</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Скачиваем публичный ключ Yarn и сохраняем его в правильное место
+curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo tee /usr/share/keyrings/yarn-archive-keyring.gpg &gt;/dev/null
+
+# Добавляем репозиторий Yarn с использованием keyring
+echo "deb [signed-by=/usr/share/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+# Обновляем списки пакетов:
+sudo apt update
+
+# Ставим Yarn:
+sudo apt install yarn -y
+
+# Проверяем:
+yarn --version
+  # 1.22.22
+</code></pre>
+<p style="margin-top: 6px">Если устанавливать <strong><i>yarnpkg</i></strong> из официального репозитория <strong>Debian</strong>, то он у меня конфликтовал со свежим <strong>Node.js</strong>.</p>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

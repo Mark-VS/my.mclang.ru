@@ -32,7 +32,7 @@ go version
   # go version go1.24.4 linux/amd64
 </code></pre>
 
-<p style="margin-bottom: 6px">ГПТ также советует поставить (но вроде бы как не обязательно):</p>
+<p style="margin-bottom: 6px">ГПТ также советует поставить (но вроде бы как не обязательно). Я их не устанавливал.</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo apt install build-essential -y
 sudo apt install pkg-config -y
 </code></pre>
@@ -47,6 +47,109 @@ sudo apt install pkg-config -y
    </ul>
    <li><strong><i>pkg-config</i></strong> – это помощник компилятора. Он говорит, где лежат библиотеки и как их подключить. Часто нужен при сборке сложных проектов. Просто “ставим на всякий случай”, чтобы не ловить ошибки.</li>
 </ul>
+
+<p style="margin-bottom: 6px">Запустил сборку:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">go build
+</code></pre>
+<p style="margin-top: 6px">Но получил сообщение о том, что не хватает места на диске.</p>
+
+<p style="margin-bottom: 0">Когда я собираю <strong>GoToSocial</strong>, временные файлы пишутся в <strong><i>/tmp</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">А у меня на <strong>Debian</strong> <strong><i>/tmp</i></strong> – это файловая система <strong><i>tmpfs</i></strong>, т.е. временная фс в оперативной памяти (RAM). То есть <strong><i>/tmp</i></strong> – это не диск, это память компьютера.</p>
+<pre style="margin-top: 6px"><code class="language-bash">lsblk
+  # ...
+  # tmpfs                450M  274M  176M  61% /tmp
+  # ...
+</code></pre>
+
+<p style="margin-bottom: 6px">Есть переменная TMPDIR, откуда программы узнают о том, куда писать временные файлы. Если эта переменная не задана, то по умолчанию временные файлы пишутся в /tmp. У меня <strong><i>TMPDIR</i></strong> не задана. Поэтому, если я хочу, чтобы <strong>Go</strong> при сборке писал файлы на диск, то можно просто задать нужный путь в переменной <strong><i>TMPDIR</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">export TMPDIR=~/tmp
+
+# А теперь можно и собрать:
+go build -x
+</code></pre>
+<p style="margin-bottom: 0">У меня сборка заняла чуть больше 30-ти минут. Примерно 33. И появился бинарник <strong><i>gotosocial</i></strong>.</p>
+<p style="margin-top: 0">Также появилась папка <strong><i>~/go/pkg/</i></strong>. Это кэш <strong>Go</strong>. Сюда <strong>Go</strong> кладёт промежуточные пакеты во время сборки. По умолчанию кэш кладётся в <strong><i>GOPATH/pkg</i></strong>, а переменная <strong><i>GOPATH</i></strong> по умолчанию равна <strong><i>~/go</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Переносим бинарник в <strong><i>/usr/local/bin/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo mv ./gotosocial /usr/local/bin/
+
+# Проверяем:
+which gotosocial
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь нам нужно собрать фронтенд. Переходим в папку <strong><i>web/source/</i></strong> и выполняем:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Устанавливаем все зависимости проекта:
+yarn install
+  # ...
+  # Done in 119.86s. 
+
+# Собираем проект:
+yarn build
+  # ...
+  # Done in 140.16s. 
+</code></pre>
+<ul style="margin-top: 6px">
+   <li>Появилась папка <strong><i>node_modules</i></strong>, которая содержит зависимости для сборки проекта.</li>
+   <li>А сам проект собрался в <strong><i>../assets/dist/</i></strong>.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь создаём системного пользователя <strong><i>gotosocial</i></strong>, чтобы от его имени запускать <strong>GoToSocialf</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd -r -m -d /var/lib/gotosocial -s /usr/sbin/nologin gotosocial
+
+# Проверяем:
+getent passwd gotosocial
+  # gotosocial:x:998:996::/var/lib/gotosocial:/usr/sbin/nologin
+</code></pre>
+
+<p style="margin-bottom: 6px">Копируем собранный фронтенд и шаблоны в доманюю директорию:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Создаём папку web:
+sudo mkdir -p /var/lib/gotosocial/web
+
+# Копируем в неё шаблоны и ассеты:
+sudo cp -r ~/Downloads/gotosocial/web/template /var/lib/gotosocial/web/
+sudo cp -r ~/Downloads/gotosocial/web/assets /var/lib/gotosocial/web/
+
+# Проверяем права и владельца:
+sudo ls -ld /var/lib/gotosocial/web
+  # drwxr-xr-x 7 root root 4096 Apr  9 22:41 /var/lib/gotosocial/web
+
+# Меняем владельца на gotosocial:
+sudo chown -R gotosocial:gotosocial /var/lib/gotosocial/web
+# Запрещаем доступ остальным:
+sudo chmod -R 750 /var/lib/gotosocial/web
+
+# Проверяем права ещё раз:
+sudo ls -ld /var/lib/gotosocial/web
+  # drwxr-x--- 7 gotosocial gotosocial 4096 Apr  9 22:41 /var/lib/gotosocial/web
+</code></pre>
+<p>У меня у папки /var/lib/gotosocial права - 700, а у assets и у template внутри - права 750. Впринципе, можно всем папкам внутри поменять права на 700.</p>
+
+<p style="margin-bottom: 6px">Создаём конфиг:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">
+sudo mkdir -p /etc/gotosocial
+sudo touch /etc/gotosocial/config.yaml
+
+sudo chown root:gotosocial /etc/gotosocial/config.yaml
+sudo chmod 640 /etc/gotosocial/config.yaml
+</code></pre>
+<ul style="margin-top: 6px">
+   <li>владелец: root → только root может менять файл</li>
+   <li>группа: gotosocial → сервис может читать</li>
+   <li>
+      <p style="margin: 0">права 640 →</p>
+	  <ul style="margin: 0">
+         <li>root → rw</li>
+		 <li>gotosocial → r</li>
+		 <li>остальные → ничего</li>
+	  </ul>
+   </li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+web-template-dir: "/var/lib/gotosocial/template/"
+web-asset-base-dir: "/var/lib/gotosocial/web/assets/"
+</code></pre>
 
 
 <!-- Шаблон -->
