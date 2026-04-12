@@ -16,8 +16,35 @@
 <p style="margin-bottom: 6px">Вызвать справку</p>
 <pre style="margin-top: 6px"><code class="language-bash">gotosocial --help
 
+# Справка по "admin":
+  # ...
+  # gotosocial admin-related tasks
+  # 
+  # Usage:
+  #   gotosocial admin [command]
+  # 
+  # Available Commands:
+  #   account     admin commands related to local (this instance) accounts
+  #   export      export data from the database to file at the given path
+  #   import      import data from a file into the database
+  #   media       admin commands related to stored media / emojis
+
 # Справка по "admin account":
 gotosocial admin account --help
+  # ...
+  # Usage:
+  #   gotosocial admin account [command]
+  # 
+  # Available Commands:
+  #   confirm     confirm an existing local account manually, thereby skipping email confirmation
+  #   create      create a new local account
+  #   demote      demote a local account from admin to normal user
+  #   disable     set 'disabled' to true on a local account to prevent it from signing in or posting etc, but don't delete anything
+  #   disable-2fa disable 2fa for the given local account
+  #   enable      undo a previous disable command by setting 'disabled' to false on a local account
+  #   list        list all existing local accounts
+  #   password    set a new password for the given local account
+  #   promote     promote a local account to admin
 </code></pre>
 
 

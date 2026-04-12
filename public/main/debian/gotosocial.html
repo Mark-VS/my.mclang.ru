@@ -93,6 +93,8 @@ yarn build
    <li>А сам проект собрался в <strong><i>../assets/dist/</i></strong>.</li>
 </ul>
 
+<p><strong>Собрался ПЛОХО!</strong> Я не смог зайти на <strong><i>test02.mclang.ru/settings</i></strong>. Получаю просто белую стрнаицу. Должна предлагаться авторизация, а у меня просто белая страница.</p>
+
 <p style="margin-bottom: 6px">Теперь создаём системного пользователя <strong><i>gotosocial</i></strong>, чтобы от его имени запускать <strong>GoToSocialf</strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo useradd -r -m -d /var/lib/gotosocial -s /usr/sbin/nologin gotosocial
 
@@ -125,8 +127,7 @@ sudo ls -ld /var/lib/gotosocial/web
 <p>У меня у папки /var/lib/gotosocial права - 700, а у assets и у template внутри - права 750. Впринципе, можно всем папкам внутри поменять права на 700.</p>
 
 <p style="margin-bottom: 6px">Создаём конфиг:</p>
-<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">
-sudo mkdir -p /etc/gotosocial
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo mkdir -p /etc/gotosocial
 sudo touch /etc/gotosocial/config.yaml
 
 sudo chown root:gotosocial /etc/gotosocial/config.yaml
@@ -145,12 +146,395 @@ sudo chmod 640 /etc/gotosocial/config.yaml
    </li>
 </ul>
 
-<p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">
-web-template-dir: "/var/lib/gotosocial/template/"
+<p style="margin-bottom: 6px">Минимальный конфиг. Эти поля должны отличаться от тех, что указаны в дефолтном конфиге:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># /etc/gotosocial/config.yaml
+
+host: "your-domain.com"
+# account-domain: ""
+
+db-type: "sqlite"
+db-address: "/var/lib/gotosocial/gotosocial.db"
+
+web-template-base-dir: "/var/lib/gotosocial/web/template/"
 web-asset-base-dir: "/var/lib/gotosocial/web/assets/"
+
+instance-languages: ["ru", "en-us"]
+
+storage-local-base-path: "/var/lib/gotosocial/storage"
 </code></pre>
 
+<p style="margin-bottom: 0">Некоторые дефолтные настройки:</p>
+<ul style="margin-top: 0">
+   <li><strong><i>landing-page-user</i></strong>: ""</li>
+   <li><strong><i>account-domain</i></strong>: ""</li>
+   <li><strong><i>protocol</i></strong>: "https"</li>
+   <li><strong><i>port</i></strong>: 8080</li>
+   <li><strong><i>tls-certificate-chain</i></strong>: ""</li>
+   <li><strong><i>tls-certificate-key</i></strong>: ""</li>
+   <li><strong><i>media-local-max-size</i></strong>: 40MiB</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь можно запускать сервер от имени <strong><i>gotosocial</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml server start
+</code></pre>
+<p>Если сервер запустился, то всё хорошо. Формально он должен быть доступен по адресу: <strong><i>http://test02.mclang.ru:8080</i></strong>.</p>
+
+<h3 style="margin-bottom: 4px">TLS</h3>
+
+<p style="margin-top: 4px">Следует обратить внимание на настройку <code style="background-color: #161616; padding: 0 8px">protocol: "https"</code>. Она <strong>НЕ ВКЛЮЧАЕТ <i>https</i></strong> на сервере, как может показаться на первый взгляд. Она говорит приложению, КАК оно должно считать себя доступным снаружи. То есть, КАК СЕРВЕР ДУМАЕТ О СЕБЕ. Это значит: <i>"мой внешний адрес: https://..."</i>. Это нужно, если мы используем <strong>Nginx</strong> – чтобы генерировать URL-адреса с правильным протоколом. То есть, если <strong>Nginx</strong> доступен для внешнего мира через <strong><i>https://...</i></strong>, а <strong>GoToSocial</strong> работает за <strong>Nginx</strong>'ом через http-протокол, то нужно исправлять URL-адреса, которые сервер отдаёт клиентам, с <strong><i>http://...</i></strong> на <strong><i>https://...</i></strong>. Чтобы <strong>GoToSocial</strong> с этим справлялся и нужна эта настройка.</p>
+
+<p style="margin-bottom: 0">А как тогда сказать серверу, чтобы он работал через <strong><i>https</i></strong>?</p>
+<p style="margin: 0">Для того, чтобы сервер запустился через <strong><i>https</i></strong>, нужно просто указать ему путь к сертификату  в <strong><i>tls-certificate-chain</i></strong> и путь к ключу в <strong><i>tls-certificate-key</i></strong>.</p>
+<p style="margin-top: 0">То есть, если сертификат указан, то сервер запускается через <strong><i>https</i></strong>, а если сертификат не указан (поля пустые), то сервер запускается через <strong><i>http</i></strong>.</p>
+
+<p style="margin-bottom: 0">Если оставить настройки как есть и запустить <strong>GoToSocial</strong> без <strong>Nginx</strong>, то снаружи он будет работать некорректно. Сертификаты отсутствуют, а значит сервер работает через <strong><i>http</i></strong>, но при этом он генерирует все URL-адреса во внешний мир с <strong><i>https://...</i></strong>. Получается, что все внешние приложения, когда будут подключаться к нам, будут пытаться зайти через <strong><i>https</i></strong>, а у нас сервер запущен на <strong><i>http</i></strong> и получается несоответствие.</p>
+<p style="margin: 0">Зачем тогда такие настройки выставлены по умолчанию?</p>
+<p style="margin: 0">Расчитано на то, что <strong>GoToSocial</strong> запущен за <strong>Nginx</strong>'ом. <strong>Nginx</strong> принимает подключения из внешнего мира по <strong><i>https</i></strong> и перенаправляет их <strong>GoToSocial</strong>, который работает через <strong><i>http</i></strong>. Именно поэтому и порт по умолчанию: <strong><i>8080</i></strong>, а не дефолтный <strong><i>80</i></strong>, или <strong><i>443</i></strong>.</p>
+<p style="margin: 0">То есть, <strong>GoToSocial</strong> запущен на порту <strong><i>8080</i></strong> и работает через <strong><i>http</i></strong>. А <strong>Nginx</strong> работает через <strong><i>https</i></strong> и слушает дефолтные порты <strong><i>443</i></strong> и <strong><i>80</i></strong> и перенаправляет трафик <strong>GoToSocial</strong>'у на порт <strong><i>8080</i></strong>.</p>
+<p style="margin-top: 0">На такую схему расчитана дефолтная конфигурация <strong>GoToSocial</strong>.</p>
+
+<h2>Nginx</h2>
+
+<p style="margin-bottom: 6px">Вот так будет выглядеть конфиг сервера <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name   test02.mclang.ru www.test02.mclang.ru;
+
+   return 301 https://$host$request_uri;
+}
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   server_name   test02.mclang.ru www.test02.mclang.ru;
+   ssl_certificate /etc/letsencrypt/live/test01.mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/test01.mclang.ru/privkey.pem;
+
+   location / {
+     proxy_pass http://127.0.0.1:8080;
+     proxy_set_header Host $host;
+     proxy_set_header X-Real-IP $remote_addr;
+     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     proxy_set_header X-Forwarded-Proto https;
+   }
+}
+</code></pre>
+<p style="margin-bottom: 2px"><strong><i>proxy_set_header ...</i></strong> – это значит: “<i>Когда Nginx пересылает запрос на backend (GoToSocial), добавь/перезапиши HTTP-заголовки</i>”</p>
+<ul style="margin-top: 2px">
+   <li><strong><i>Host</i></strong> – какой домен запросил пользователь</li>
+   <li>
+      <p style="margin: 0"><strong><i>X-Real-IP</i></strong> – IP реального пользователя</p>
+	  <p style="margin: 0">Если не указать, все запросы будут выглядеть как <strong><i>127.0.0.1</i></strong></p>
+   </li>
+   <li>
+      <p style="margin: 0"><strong><i>X-Forwarded-For</i></strong> – цепочка IP</p>
+      <p style="margin: 0">Это заголовок, который хранит IP-адреса всех, через кого прошёл запрос</p>
+	  <p style="margin: 0">У меня вот такая цепочка: User → Nginx → GoToSocial</p>
+	  <p style="margin: 0">Без <strong><i>X-Forwarded-For</i></strong> <strong>GoToSocial</strong> увидит: <strong><i>127.0.0.1</i></strong>, потому что запрос пришёл от <strong>Nginx</strong></p>
+	  <p style="margin: 0"><strong><i>X-Forwarded-For</i></strong> "вклеивает" настоящий IP пользователя.</p>
+	  <p style="margin: 0">А <strong><i>$proxy_add_x_forwarded_for</i></strong> означает: “<i>добавь IP пользователя к уже существующей цепочке</i>”</p>
+	  <p style="margin: 0">Если есть только <strong>Nginx</strong>: User → Nginx → GoToSocial, то <strong><i>X-Forwarded-For</i></strong>: 1.2.3.4</p>
+	  <p style="margin: 0">Если есть ещё прокси/CDN: ser → Cloudflare → Nginx → GoToSocial, то <strong><i>X-Forwarded-For</i></strong>: 1.2.3.4, 5.6.7.8</p>
+   </li>
+   <li>
+      <p style="margin: 0"><strong><i>X-Forwarded-Proto</i></strong> https; – говорит бэкенду: пользователь пришёл по <strong><i>https</i></strong></p>
+	  <p style="margin: 0">Зачем это указывать вручную? <strong>Nginx</strong> принимает <strong><i>https</i></strong>, а до бэкенда идёт <strong><i>http</i></strong>. Бэкенд сам не видит <strong><i>https</i></strong>.</p>
+   </li>
+</ul>
+
+<p>Запускаем <strong>Nginx</strong> и перезагружаем <strong>GoToSocial</strong>. Теперь сервер будет доступен по адресу: <strong><i>https://test02.mclang.ru</i></strong></p>
+
+<h2>Создаём пользователя</h2>
+
+<p style="margin-bottom: 6px">Создадим пользователя <strong><i>morkovka</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial \
+   gotosocial admin account create \
+   --config-path /etc/gotosocial/config.yaml \
+   --username morkovka \
+   --email morkovka@test02.mclang.ru \
+   --password 'mypassword'
+</code></pre>
+
+<p style="margin-bottom: 6px">Чтобы проверить, создался ли пользователь, выведем список пользователей:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial \
+   gotosocial admin account list \
+   --config-path /etc/gotosocial/config.yaml
+
+# user     account                    approved admin moderator suspended confirmed
+# morkovka 01PG1DA62T4QS415N908AJCAF6 yes      no    no        no        yes
+</code></pre>
+
+<p style="margin-bottom: 6px">Выдаём права администратора:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial \
+   gotosocial admin account promote \
+   --config-path /etc/gotosocial/config.yaml \
+   --username morkovka
+
+# Проверяем:
+sudo -u gotosocial \
+   gotosocial admin account list \
+   --config-path /etc/gotosocial/config.yaml
+ # user     account                    approved admin moderator suspended confirmed
+ # morkovka 01PG1DA62T4QS415N908AJCAF6 yes      yes   yes       no        yes
+</code></pre>
+
+<p>На главной страничке инстанса по-прежнем отображаться "0 users".</p>
+<p>Страница для авторизации: https://test02.mclang.ru/auth/sign_in</p>
+
+<p style="margin-bottom: 6px">Если, например, забыли пароль, то можно задать его заново:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -u gotosocial \
+   gotosocial admin account password \
+   --config-path /etc/gotosocial/config.yaml \
+   --username morkovka \
+   --password 'my_new_password'
+</code></pre>
+
+<h2 style="margin-bottom: 4px">Клиенты</h2>
+
+<p style="margin-top: 4px; margin-bottom: 4px">На десктоп я поставил <strong>Whalebird</strong>, а на <strong>Android</strong> – <strong>Tusky</strong>.</p>
+<ul style="margin-top: 4px; margin-bottom: 4px">
+   <li>
+      <p style="margin: 0">Tooth → Tuba (и Linux, и Windows)(<a href="https://www.omglinux.com/tuba-gtk-mastodon-client-for-linux/">www.omglinux.com/tuba-gtk-mastodon-client-for-linux/</a>)</p>
+	  <p style="margin: 0">Нужно поставить <strong>gnome-keyring</strong> для локального хранения паролей, иначе не запустится</p>
+	  <p style="margin: 0">В плане внешнего вида и цветов полностью полагается на GTK-тему</p>
+   </li>
+   <li>Fedistart (Linux, Windows, Mac)</li>
+   <li>Mastui – mastodon client for the terminal</li>
+   <li>TheDesk: <a href="https://thedesk.top/en">thedesk.top/en</a></li>
+   <li>Elk – <a href="https://elk.zone/m.webtoo.ls/public/local">elk.zone/m.webtoo.ls/public/local</a></li>
+   <li>Dowstodon ℣ ℒ Ȓ, Mastodon-клиент для  Windows</li>
+</ul>
+<p style="margin-top: 4px"><strong>gnome-keyring</strong> ‒ нужен для <strong>Tuba</strong>. Возможно, и для других клиентов. А может, и нет.</p>
+
+<h2>systemd service</h2>
+
+<p style="margin-bottom: 6px">Создаём файл сервиса:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo touch /etc/systemd/system/gotosocial.service
+</code></pre>
+
+<p>Дефолтный <strong><i>gotosocial.service</i></strong> можно найти в папке с исходниками в <strong><i>./example/gotosocial.service</i></strong>.</p>
+<p style="margin-bottom: 6px">Пример гпт:</p>
+<pre style="margin-top: 6px"><code class="language-ini"># /etc/systemd/system/gotosocial.service
+
+[Unit]
+Description=GoToSocial Server
+After=network.target
+Wants=network-online.target
+
+[Service]
+User=gotosocial
+Group=gotosocial
+ExecStart=/usr/local/bin/gotosocial --config-path /etc/gotosocial/config.yaml server start
+Restart=always
+RestartSec=5
+
+# безопасность (не обязательно, но хорошо)
+# Относится к разделу [Service]
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<ul>
+   <li>[Unit] – метаданные и зависимости</li>
+   <li>[Service] – поведение процесса</li>
+   <li>[Install]</li>
+</ul>
+
+<ul>
+   <li><strong><i>Description=GoToSocial Server</i></strong> – просто описание сервиса</li>
+   <li>
+      <p><strong><i>After=network.target</i></strong> ‒ Запускай этот сервис <strong>после сети</strong></p>
+	  <p><strong><i>After=</i></strong> – не означает, что сеть уже готова. Это только порядок запуска, а не гарантия</p>
+   </li>
+   <li>
+      <p>Wants=network-online.target – а вот это зависисмоть</p>
+      <p>гарантирует, что сеть реально поднята</p>
+   </li>
+</ul>
+
+<p style="margin-bottom: 6px">Можно добавить:</p>
+<pre style="margin-top: 6px"><code class="language-ini">WorkingDirectory=/var/lib/gotosocial
+Environment="GOTOSOCIAL_CONFIG_PATH=/etc/gotosocial/config.yaml"
+</code></pre>
+
+<p style="margin-bottom: 6px">Запускаем сервис:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl daemon-reload
+sudo systemctl start gotosocial
+</code></pre>
+
+<p style="margin-bottom: 6px">Логи:</p>
+<pre style="margin-top: 6px"><code class="language-bash">journalctl -u gotosocial -f
+</code></pre>
+
+
+<p>Хрен знает: <a href="https://test02.mclang.ru/api/v1/instance">https://test02.mclang.ru/api/v1/instance</a></p>
+<p>Хрен знает: <a href="https://test02.mclang.ru/.well-known/nodeinfo">https://test02.mclang.ru/.well-known/nodeinfo</a></p>
+
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# Установить строго по lockfile:
+yarn install --frozen-lockfile
+
+
+npx ts-patch install
+</code></pre>
+
+<h2>Скачаем релиз</h2>
+
+<p>Текующую версию можно посмотреть на страничке: <a href="https://codeberg.org/superseriousbusiness/gotosocial/releases">codeberg.org/superseriousbusiness/gotosocial/releases</a></p>
+<p style="margin-bottom: 6px">Скачаем релиз:</p>
+<pre style="margin-top: 6px"><code class="language-bash">wget https://codeberg.org/superseriousbusiness/gotosocial/releases/download/v0.21.2/gotosocial_0.21.2_linux_amd64.tar.gz
+
+# И распаковываем в папку gts/:
+mkdir -p gts/
+tar -xzvf gotosocial_0.21.2_linux_amd64.tar.gz -C gts/
+</code></pre>
+
+<h2>Редактируем HTML</h2>
+
+<p></p>
+<p style="margin-bottom: 6px">Меня смущает футер с флагами. Хочу их удалить. Чтобы его подправить, нужно подкрутить файл <strong><i>./web/template/page_footer.tmpl</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-xml">&lt;!-- Уберём всё лишнее. Оставим только версию GoToSocial: --&gt;
+
+&lt;span aria-hidden="true"&gt;&lt;!-- отсюда всё удалим --&gt;&lt;/span&gt;
+   Source - GoToSocial {{ .instance.Version }}
+&lt;span aria-hidden="true"&gt;&lt;!-- отсюда тоже всё удалим --&gt;&lt;/span&gt;
+</code></pre>
+
+<p style="margin-bottom: 6px">Хотелось бы немного подправить внешний вид закреплённых комментариев. Немного их выделить, или подсветить. Нам нужен файл <strong><i>./web/template/profile.tmpl</i></strong>.</p>
+<pre style="margin-top: 6px"><code class="language-xml">&lt;section class="pinned statuses h-feed" aria-labelledby="pinned"&gt;
+   &lt;div class="col-header"&gt;
+      &lt;h3 class="p-name" id="pinned"*&gt;Pinned posts&lt;/h3&gt;
+      &lt;a href="#recent"&gt;jump to recent&lt;/a&gt;
+   &lt;/div&gt;
+   &lt;div class="thread"&gt;
+      {{- range .pinned_statuses }}
+      &lt;article
+          class="status expanded h-entry"
+          {{- includeAttr "status_attributes.tmpl" . | indentAttr 6  }}
+      &gt;
+          {{- include "status.tmpl" . | indent 6 }}
+      &lt;/article&gt;
+      {{- end }}
+   &lt;/div&gt;
+&lt;/section&gt;
+</code></pre>
+<p style="margin-bottom: 0">У нас тут есть два div'а:</p>
+<ul style="margin-top: 0">
+   <li>col-header</li>
+   <li>thread</li>
+</ul>
+<p>Стили к ним нужно искать в css-файле конкретной темы. У меня установлена тема <strong>solarized-dark</strong>, поэтому мне нужен файл <strong><i>./web/assets/themes/solarized-dark.css</i></strong>.</p>
+
+<p style="margin-bottom: 0">Где упоминается col-header:</p>
+<ul style="margin-top: 0">
+   <li>./web/assets/dist/profile.css</li>
+   <li>./web/assets/dist/thread.css</li>
+   <li>./web/assets/dist/_profile-header.css</li>
+   <li>./web/assets/dist/base.css</li>
+   <li>./web/assets/dist/profile-gallery.css</li>
+   <li>./web/assets/themes/solarized-dark.css</li>
+</ul>
+
+<p>Если я хочу изменить цвет текста в постах, то мне нужно добавить класс <strong><i>.thread</i></strong> в <strong><i>./web/assets/themes/solarized-dark.css</i></strong></p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-css">
+/* Это самый верхний прямоугольник, */
+/* в котором содержится лого инстанса */
+.page-header { color: yellow; }
+
+/* Цвет текста на всей страничке */
+/* кроме никнейма, кнопки "admin" и футеров в постах */
+/* и кроме заголовков секций и ссылок типа jump to recent */
+/* Это прямоугольник, в котором содержится весь профиль: */
+/* .profile-header + about-user + pinned posts + recent posts */
+/* Всё, кроме лого инстанса и футера инстанса */
+.profile { color: yellow; }
+
+/* по сути, то же самое */
+/* Это прямоугольник .basic-info + картинка хедера */
+.profile-header { color: yellow; }
+
+/* Это прямоугольник, в котором находятся */
+/* Аватарка + Display Name + nickname + плашка admin */
+.basic-info { color: yellow; }
+
+/* Это прямоугольник, в котором находятся */
+/* Display Name + nickname + плашка admin */
+.namerole { color: yellow; }
+
+/* Цвет в секции About слева */
+.about-user { color: yellow; }
+
+/* Биография в секции About */
+.bio { color: yellow; }
+
+/* Только поля с инфой в секции About (Profile Fields) */
+.fields { color: yellow; }
+
+/* Если нужно только первое поле, то: */
+.fields:first-child { color: yellow; }
+
+/* Только статистика аккаунта в секции About */
+.accountstats { color: yellow; }
+
+/* Текст во всех постах + Display name в заголовке поста */
+/* при этом никнейм @lolo другого цвета. Наверное, потому что это ссылка */
+.status { color: yellow; }
+
+/* Текст во всех постах (содержимое) */
+.text { color: yellow; }
+
+/* Цвет текста в опросе */
+.poll { color: yellow; }
+
+
+/* wrapper для pinned statuses + recent statuses */
+.statuses-wrapper { ... }
+
+/* только закреплённые комментарии */
+.pinned .status { ... }
+
+/* последний коммент целиком */
+.recent .thread article:first-child { color: yellow }
+/* только текст последнего коммента */
+.recent .thread article:last-child .text { color: yellow }
+
+.status-header { ... }
+.status-body { ... }
+.status-info { ... }
+
+/* ссылка со временем в .status-info */
+a.u-url.text-cutoff { ... }
+
+.col-header { ... }
+
+/* Фиг знает*/
+.button { color: yellow; }
+</code></pre>
+
+
+
+<br /><br />
+<p>Через Tusky</p>
+<p>Hi lolo!</p>
+<p>Application Tusky would like to perform actions on your behalf, with scope <i>read write follow push</i>.</p>
+<p>To continue, the application will redirect to: <code>oauth2redirect://com.keylesspalace.tusky/</code></p>
+<p>И ниже вижу кнопку "Allow". Я её нажимаю.</p>
+
+<h3>An error occured:</h3>
+<p>Internal Server Error: key response_type not found in session: If you arrived at this error during a sign in/oauth flow, please try clearing your session cookies and signing in again; if problems persist, make sure you're using the correct credentials</p>
+<p>Request ID: 000037bv6fa19999918g</p>
+
+<p>Пытаюсь зайти через Whalebird</p>
 
 <!-- Шаблон -->
 <!--
@@ -161,6 +545,9 @@ web-asset-base-dir: "/var/lib/gotosocial/web/assets/"
 -->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script src="/assets/highlight/languages/css.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>

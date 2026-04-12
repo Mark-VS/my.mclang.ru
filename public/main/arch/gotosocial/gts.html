@@ -82,12 +82,15 @@ sudo touch /etc/gotosocial/config.yaml
 <pre style="margin-top: 6px"><code class="language-bash">host: "your-domain.com"
 account-domain: "your-domain.com"
 
-port: 8080
+# port: 8080
 
 db-type: "sqlite"
 db-address: "/var/lib/gotosocial/gotosocial.db"
 
-storage-backend: "local"
+web-template-base-dir: "/var/lib/gotosocial/web/template/"
+web-asset-base-dir: "/var/lib/gotosocial/web/assets/"
+
+# storage-backend: "local"
 storage-local-base-path: "/var/lib/gotosocial/storage"
 </code></pre>
 
@@ -100,6 +103,10 @@ storage-local-base-path: "/var/lib/gotosocial/storage"
   # HOME=/var/lib/gotosocial
   # SUDO_HOME=/home/mark
 </code></pre>
+
+<p style="margin-bottom: 0">Устанавливать <strong>sqlite3</strong> не обязательно. GoToSocial использует SQLite library (<strong>libsqlite3</strong>).</p>
+<p style="margin-top: 0; margin-bottom: 0">Т.е. Go binary уже включает поддержку <strong>SQLite</strong> через Go library.</p>
+<p style="margin-top: 0"><strong>sqlite3</strong> понадобится только если я захожу вручную смотреть базу данных. А так впринципе можно добавлять юзеров и управлять базой данных через CLI <strong>GoToSocial</strong>.</p>
 
 
 <p style="margin-bottom: 6px">Первый запуск / проверка (с явным указанием конфига):</p>
