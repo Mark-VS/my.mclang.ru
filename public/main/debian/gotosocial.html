@@ -515,12 +515,63 @@ tar -xzvf gotosocial_0.21.2_linux_amd64.tar.gz -C gts/
 /* ссылка со временем в .status-info */
 a.u-url.text-cutoff { ... }
 
+/* Значок администратора */
+.profile .profile-header .basic-info .namerole .role.admin {
+  color: green;
+  border-color: yellow;
+  border-radius: 0;  /* убираем скругление */
+  background-color: pink;
+}
+
+.status-wrapper .pinned.statuses.h-feed .thread .status.expanded.h-entry .status-header .p-author.h-card .u-url.u-uid .avatar
+
+/* Pinned post - в элементе h3 */
+
+.pinned.statuses .col-header .p-name {
+   color: red;
+}
+
 .col-header { ... }
+
+/* изменить значок публичной записи в виде глобуса */
+.fa-globe:before {
+   content: "\f1ab";
+}
 
 /* Фиг знает*/
 .button { color: yellow; }
 </code></pre>
 
+<p style="margin-bottom: 6px"><strong><i>./web/assets/dist/profile.css</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-css">
+/* обводка аватарки в хедере */
+ .profile .profile-header .basic-info .avatar-image-wrapper { border-color: green; height: ...; width: ...; }
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong><i>./web/assets/dist/status.css</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-css">/* обводка аватарки в постах (в статусах) */
+.status .status-header &gt; address &gt; a .avatar {
+   /* ... */
+   border: 0.15rem solid blue;
+   border-radius: var(--br);
+   overflow: hidden;
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px"><strong><i>./web/assets/Fork-Awesome/css/fork-awesome.min.css</i></strong> – здесь находятся соответствия иконок <strong>Fork-Awesome</strong> и названий на инстансе. Например:</p>
+<pre style="margin-top: 6px"><code class="language-css">fa-language:before{content:"\f1ab"}  /* иконка коробочки с языками */
+fa-globe:before{content:"\f0ac"}   /* иконка глобуса для публичной записи */
+</code></pre>
+<p style="margin-bottom: 0">Это НЕ “обычный” Unicode-символ вроде букв или эмодз. Это используется в библиотеках типа <strong><i>Font Awesome</i></strong>.</p>
+<ul style="margin-top: 0; margin-bottom: 6px">
+   <li>"хз" = иконка language (глобус) 🌐</li>
+   <li>"\f1ab" = иконка language (язык) - изображение коробочки с языками</li>
+   <li>"\f0ac" = то же самое ?</li>
+</ul>
+<p style="margin-top: 6px; margin-bottom: 6px">символ “рисуется” только через font-family:</p>
+<pre style="margin-top: 6px"><code class="language-css">font-family: "Font Awesome 5 Free";
+</code></pre>
 
 
 <br /><br />
