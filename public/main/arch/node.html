@@ -17,6 +17,10 @@
 <p style="margin-top: 10px; margin-bottom: 0">Страничка на Github: <a href="https://github.com/nvm-sh/nvm">github.com/nvm-sh/nvm</a></p>
 <p style="margin-top: 0">Сайт (вроде бы ка неоффициальный): <a href="https://www.nvmnode.com/">www.nvmnode.com</a></p>
 
+<ul>
+   <li>Если ставить <strong>Node</strong> через <strong>nvm</strong>, то <strong>npm</strong> и <strong>npx</strong> ставятся автоматически вместе с версией <strong>Node</strong> в папку <strong><i>~/.nvim/versions/node/v20.20.2/bin/</i></strong>.</li>
+   <li>Если же устанавливать <strong>Node</strong> через <strong>pacman</strong>, то <strong>npm</strong> и <strong>npx</strong> не установятся. Они находятся в отдельном пакете. Чтобы были доступны <strong><i>npm</i></strong> и <strong><i>npx</i></strong>, нужно установить пакет <strong>npm</strong>. Они поставятся в <strong><i>/usr/bin/</i></strong>.</li>
+</ul>
 
 <h2>nvm</h2>
 
@@ -40,6 +44,9 @@ nvm installl --lts
 # Установить конкретную версию:
 nvm install 14.7.0
 
+# Посмотреть список установленных версий:
+nvm ls
+
 # Посмотреть список досутпных версий:
 nvm ls-remote
 
@@ -51,17 +58,54 @@ npm --version
   # 11.11.1
 </code></pre>
 
+<p style="margin-bottom: 6px">Пример использования:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">nvm ls
+  #        v20.20.2
+  #         v25.8.2
+  # ->       system (-> v25.9.0)
+  # iojs -> N/A (default)
+  # node -> stable (-> v25.8.2 *) (default)
+  # stable -> 25.8 (-> v25.8.2 *) (default)
+  # unstable -> N/A (default)
+  # lts/argon -> v4.9.1 (-> N/A)
+  # lts/boron -> v6.17.1 (-> N/A)
+  # lts/carbon -> v8.17.0 (-> N/A)
+  # lts/dubnium -> v10.24.1 (-> N/A)
+  # lts/erbium -> v12.22.12 (-> N/A)
+  # lts/fermium -> v14.21.3 (-> N/A)
+  # lts/gallium -> v16.20.2 (-> N/A)
+  # lts/hydrogen -> v18.20.8 (-> N/A)
+  # lts/iron -> v20.20.2 *
+  # lts/jod -> v22.22.2 (-> N/A)
+  # lts/krypton -> v24.15.0 (-> N/A)
+  # lts/* -> lts/krypton (-> N/A)
+</code></pre>
+<p style="margin-top: 6px">В этом примере видно, что я по умолчанию не использую <strong>nvm</strong>. У меня используется системный <strong>Node</strong> (25.9.0). Это понятно из этой строчки: <code style="background-color: #161616; padding: 0 8px">->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;system (-> v25.9.0)</code></p>
+
+<p style="margin-bottom: 6px">Как переключаться между версиями:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Переключиться на версию 20.20.2:
+nvm use 20
+
+# Вернуться обратно на системную версию:
+nvm use system
+</code></pre>
+
+
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash"># Посмотреть куда установлена конкретная версия node:
 nvm which 25.8
+
+# Посмотреть, куда установлен системный Node:
+which node
 </code></pre>
 
 <!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px">Шаблон:</p>
 <pre style="margin-top: 6px"><code class="language-bash">
     lala
 </code></pre>
-
+-->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>

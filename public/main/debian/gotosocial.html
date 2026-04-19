@@ -531,6 +531,19 @@ a.u-url.text-cutoff { ... }
    color: red;
 }
 
+/* меняет фон у постов только в футере (.status-info) */
+.status .status-info,
+.status.expanded .status-info {
+  color: var(--ghastly-blue);
+  border-top: 0.1rem dotted var(--ghastly-blue);
+  background: blue;
+}
+
+/* в теле: */
+.status-body {
+   background-color: yellow;
+}
+
 .col-header { ... }
 
 /* изменить значок публичной записи в виде глобуса */

@@ -12,22 +12,27 @@
 <a href="/arch">Вернуться назад</a>
 
 <h1>PCManFM</h1>
+<p>Информация про PCManFM на arch-wiki: <a href="https://wiki.archlinux.org/title/PCManFM">wiki.archlinux.org/title/PCManFM</a></p>
 
 <ul>
-<li>pcmanfm (GTK2)</li>
-<li>pcmanfm-gtk3 (GTK3)</li>
-<li>pcmanfm-qt (Qt)</li>
+   <li>pcmanfm (GTK2)</li>
+   <li>pcmanfm-gtk3 (GTK3)</li>
+   <li>pcmanfm-qt (Qt)</li>
 </ul>
 
-<p>Для того, чтобы мы могли работать с PCManFm от имени root'а, нам понадобятся:</p>
-<ul>
+<p style="margin-bottom: 2px">Полезные команды:</p>
+<ul style="margin-top: 2px">
+   <li>Открыть терминал в текущем окне: <strong><i>Tools</i></strong> → <strong><i>Open Current Folder in Terminal</i></strong> (F4)</li>
+</ul>
+
+<p style="margin-bottom: 2px">Для того, чтобы мы могли работать с <strong>PCManFm</strong> от имени <strong><i>root</i></strong>'а, нам понадобятся:</p>
+<ul style="margin-top: 2px">
     <li>polkit</li>
     <li>polkit-gnome (или lxqt-policykit)</li>
     <li>gvfs</li>
 </ul>
 
-<pre><code  class="language-bash">
-# По умолчанию в Ach уже должен быть установлен polkit.
+<pre><code  class="language-bash"># По умолчанию в Ach уже должен быть установлен polkit.
 # Если мы проверим:
     ps aux | grep polkit
 # то получим что-то вроде:
@@ -43,13 +48,12 @@ sudo pacman -S polkit-gnome gvfs
 </code></pre>
 
 <ul>
-    <li>gvfs — это бэкенд, который понимает admin://, trash://, smb:// и т.п.</li>
-    <li>polkit (и агент, например polkit-gnome или lxqt-policykit) — чтобы всплывало окно с паролем.</li>
-    <li>gvfs-mtp, gvfs-smb, gvfs-nfs и прочие нужны только для соответствующих протоколов (MTP для телефонов, SMB для сетевых папок, NFS для сетевых дисков). Для доступа к root-папкам — не нужны.</li>
+	<li><strong><i>gvfs</i></strong> — это бэкенд, который понимает admin://, trash://, smb:// и т.п.</li>
+	<li><strong><i>polkit</i></strong> (и агент, например <strong><i>polkit-gnome</i></strong> или <strong><i>lxqt-policykit</i></strong>) — чтобы всплывало окно с паролем.</li>
+	<li><strong><i>gvfs-mtp</i></strong>, <strong><i>gvfs-smb</i></strong>, <strong><i>gvfs-nfs</i></strong> и прочие нужны только для соответствующих протоколов (MTP для телефонов, SMB для сетевых папок, NFS для сетевых дисков). Для доступа к root-папкам — не нужны.</li>
 </ul>
 
-<pre><code>
-# Далее мы запускаем GUI-агент:
+<pre><code># Далее мы запускаем GUI-агент:
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # Или лучше так:
@@ -70,8 +74,7 @@ exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
 
 <h3>Можно запустить по-другому PCManFM:</h3>
-<pre><code class="language-bash">
-pkexec env DISPLAY=$DISPLAY \
+<pre><code class="language-bash">pkexec env DISPLAY=$DISPLAY \
 XAUTHORITY=$XAUTHORITY \
 WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
 XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR pcmanfm
@@ -97,7 +100,7 @@ XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR pcmanfm
     <li>Он говорит polkit: «Разреши пользователю mark выполнить /usr/bin/pcmanfm от root?»</li>
     <li>Polkit-agent (например, polkit-gnome) показывает окно с вводом пароля.</li>
     <li>Если пароль верный, pcmanfm запускается под root.</li>
-    <li>Благодаря тому, что ты передал DISPLAY, XAUTHORITY и WAYLAND_DISPLAY, он может нарисовать окно в твоём сеансе Sway.<li>
+    <li>Благодаря тому, что ты передал DISPLAY, XAUTHORITY и WAYLAND_DISPLAY, он может нарисовать окно в твоём сеансе Sway.</li>
 </ul>
 
 <h4>Итог:</h4>

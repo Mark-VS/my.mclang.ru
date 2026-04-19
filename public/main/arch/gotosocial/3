@@ -289,10 +289,9 @@ client_max_body_size 42M;
 </ul>
 
 <p style="margin-bottom: 6px">Бэкап базы данных <strong><i>sqlite</i></strong>:</p>
-<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># таким способом можно делать бэкап базы данных, не останавливая сервер:
-(sudo) sqlite3 gotosocial.db ".backup backup.db"
+<pre style="margin-top: 6px"><code class="language-bash">(sudo) sqlite3 gotosocial.db ".backup backup.db"
 </code></pre>
-<p style="margin-top: 6px">Копировать базу данных с помощью <strong><i>cp</i></strong>, если сервер запущен, не безопасно.</p>
+<p>Копировать базу данных с помощью <strong><i>cp</i></strong>, если сервер запущен, не безопасно.</p>
 
 <p style="margin-bottom: 6px">Лучший практический вариант:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># 1. остановить
@@ -327,8 +326,9 @@ systemctl start gotosocial
 <pre style="margin-top: 6px"><code class="language-bash">rsync -a user@your-server:/path/to/backups/ ./backups/
 </code></pre>
 
-<p style="margin-bottom: 6px">Чтобы бэкапы можно было легко копировать на домашний компьютер, то будем их делать в домашнюю директорию пользователя <strong><i>mark</i></strong>. Чтобы это было возможно, нужно дать доступ пользователю <strong><i>gotosocial</i></strong> в <strong><i>/home/mark</i></strong> и в <strong><i>/home/mark/backups</i></strong>. Для этого создадим группу <strong><i>backups</i></strong>, которая объединит двух пользователей, и добавим в неё их: <strong><i>mark</i></strong> и <strong><i>gotosocial</i></strong>. И добавим эту группу папкам <strong><i>/home/mark</i></strong> и <strong><i>/home/mark/backups</i></strong>. Группе <strong><i>backups</i></strong> мы дадим права <i>read</i> и <i>execute</i> в <strong><i>/home/mark</i></strong>, а также <i>read</i>, <i>write</i> и <i>execute</i> в папке <strong><i>/home/mark/backups</i></strong>:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># Создаём общую группу:
+<p style="margin-bottom: 6px">Чтобы бэкапы можно было легко копировать на домашний компьютер, то будем их делать в домашнюю директорию пользователя mark. Чтобы это было возможно, нужно дать доступ пользователю gotosocial в /home/mark и в /home/mark/backups. Для этого создадим группу backups и добавим в неё двух пользователей: mark и gotosocial. И добавим эту группу папкам /home/mark и /home/mark/backups. Группе backups мы дадим возможность читать и execute в <strong><i>/home/mark</i></strong>, а также read, write и execute в папке <strong><i>/home/mark/backups</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# Создаём общую группу:
 sudo groupadd backups
 
 # Добавляем в эту группу пользователей:
@@ -346,47 +346,21 @@ sudo chgrp -R backups /home/mark/backups
 sudo chmod -R 770 /home/mark/backups
 </code></pre>
 
-<p style="margin-bottom: 6px">Делаем бэкап на сервере и также копируем его на домашний ПК:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># Делаем бэкап в папку ~/backups:
-sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db ".backup /home/mark/backups/backup.db"
-sudo -u gotosocial rsync -a /var/lib/gotosocial/storage/ /home/mark/backups/storage/
-
-# На домашнем ПК
-# копируем серверную папку backups в домашнюю директорию:
-rsync -a mark@193.187.94.218:/home/mark/backups  ~/
-</code></pre>
-
-<p style="margin-bottom: 6px">Другой сценарий. Теперь я хочу делать бэкапы внутри <strong><i>/var/lib/gotosocial</i></strong>, а оттуда копировать их на домашний ПК. Для этого нужно дать пользователю <strong><i>mark</i></strong> доступ к <strong><i>/var/lib/gotosocial/</i></strong> и к <strong><i>/var/lib/gotosocial/backups/</i></strong>. Делаем это так же, с помощью группы <strong><i>backups</i></strong>:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># Создаём общую группу:
-sudo groupadd backups
-
-# Добавляем в эту группу пользователей:
-sudo usermod -aG backups mark
-sudo usermod -aG backups gotosocial
-
-# Добавляем группу backups и даём ей права на чтение и исполнение:
-sudo chgrp backups /var/lib/gotosocial
-sudo chmod 750 /var/lib/gotosocial
-
-# Папке backups также добавляем группу backups:
-sudo chgrp backups /var/lib/gotosocial/backups
-sudo chmod 750 /var/lib/gotosocial/backups
-</code></pre>
-
-
-
-<p style="margin-bottom: 6px">Делаем бэкап на сервере и также копируем его на домашний ПК:</p>
-<pre style="margin-top: 6px"><code class="language-bash"># Делаем бэкап в /var/lib/gotosocial/backups/
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Делаем бэкап на сервере:
 sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db ".backup /var/lib/gotosocial/backups/backup.db"
 sudo -u gotosocial rsync -a /var/lib/gotosocial/storage/ /var/lib/gotosocial/backups/storage/
 
-# И теперь копируем на домашнем ПК этот бэкап в ~/:
-rsync -a mark@193.187.94.218:/var/lib/gotosocial/backups ~/
-</code></pre>
-
-<p style="margin-bottom: 6px">Как можно сохранить в файле бэкапа дату:</p>
-<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db \
+# А можно вот так, чтобы сохранять дату:
+sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db \
 ".backup /var/lib/gotosocial/backups/backup-$(date +%F-%H%M).db"
+
+# Делаем бэкап в папку ~/backups:
+sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db ".backup /home/mark/backups/backup.db"
+sudo -u gotosocial rsync -a /var/lib/gotosocial/storage/ /home/mark/backups/storage/
+
+# На клиенте копируем папку backups в домашнюю директорию:
+rsync -a mark@193.187.94.218:/home/mark/backups  ~/backups/
 </code></pre>
 
 <!-- Шаблон -->

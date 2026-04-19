@@ -62,26 +62,26 @@ rpc: files
    <li>
       <p style="margin: 0">files</p>
 	  <ul style="margin: 0">
-         <li>сначала /etc/hosts</li>
-		 <li>Если нашли → return SUCCESS, всё ок</li>
+         <li>сначала <strong><i>/etc/hosts</i></strong></li>
+		 <li>Если нашли → <strong><i>return SUCCESS</i></strong>, всё ок</li>
 		 <li>Если не нашли → идём дальше</li>
 	  </ul>
    </li>
    <li>
       <p style="margin: 0">mdns_minimal</p>
 	  <ul style="margin: 0">
-         <li>Пытается найти только .local через локальную сеть.</li>
+		  <li>Пытается найти только <strong><i>.local</i></strong> через локальную сеть.</li>
 		 <li>Если найдено → ok.</li>
-		 <li>Если NOTFOUND → [NOTFOUND=return] срабатывает.</li>
+		 <li>Если NOTFOUND → <strong><i>[NOTFOUND=return]</i></strong> срабатывает.</li>
 	  </ul>
    </li>
    <li>
       <p style="margin: 0">dns после [NOTFOUND=return] – влияет только на статус NOTFOUND от mdns_minimal.</p>
 	  <ul style="margin: 0">
-         <li>Если mdns_minimal вернёт UNAVAIL или TRYAGAIN, поиск не остановится, и dns будет использоваться.</li>
+         <li>Если <strong><i>mdns_minimal</i></strong> вернёт <strong><i>UNAVAIL</i></strong> или <strong><i>TRYAGAIN</i></strong>, поиск не остановится, и dns будет использоваться.</li>
 		 <li>Если имя вообще не .local, mdns_minimal может просто пропустить, а не возвращать NOTFOUND. Тогда dns сработает.</li>
       </ul>
-      <p style="margin: 0">То есть dns после [NOTFOUND=return] — это резервный вариант на случай, если mDNS не сможет обработать имя или вернёт ошибку, отличную от NOTFOUND.</p>
+	  <p style="margin: 0">То есть <strong><i>dns</i></strong> после <strong><i>[NOTFOUND=return]</i></strong> — это резервный вариант на случай, если <strong>mDNS</strong> не сможет обработать имя или вернёт ошибку, отличную от NOTFOUND.</p>
    </li>
 </ol>
 

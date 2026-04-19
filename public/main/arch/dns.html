@@ -120,7 +120,7 @@ nameserver 127.0.0.1
 </code></pre>
 <p style="margin-top: 6px">... то <strong><i>getent hosts gts.test</i></strong> вернёт нам наш <strong><i>192.168.1.3</i></strong></p>
 
-<p style="margin-bottom: 6px">Но, если мы хотим, чтобы у нас работал и интернет, и локальный dns, указанный в dnsmasq, то лучше сделать вот так:</p>
+<p style="margin-bottom: 6px">Но, если мы хотим, чтобы у нас работал и интернет, и локальный dns, указанный в <strong><i>dnsmasq</i></strong</i></strong>>, то лучше сделать вот так:</p>
 <pre style="margin-top: 6px"><code class="language-ini">nameserver 127.0.0.1
 nameserver 8.8.8.8
 
@@ -245,8 +245,8 @@ ss -tulpn | grep :53
 ss -tulpn -4 | grep :53
 </code></pre>
 
-
-<p style="margin-bottom: 6px">Утсновить <strong>nslookup</strong> на <strong>Android</strong>:</p>
+<h2>nslookup</h2>
+<p style="margin-bottom: 6px">Установить <strong>nslookup</strong> на <strong>Android</strong>:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-ini">pkg update
 pkg install dnsutils
 </code></pre>
@@ -275,7 +275,8 @@ pkg install dnsutils
 </code></pre>
 
 <p style="margin-bottom: 0">В моём случае всё нормально: <strong>nslookup</strong> с <strong>Android</strong>'а нашёл домен <strong><i>gts.test</i></strong>. Значит, телефон видит <strong>dnsmasq</strong>, запущенный на ПК.</p>
-<p style="margin: 0">Но если мы попробуем пропинговать <strong><i>gts.test</i></strong>, то у нас ничего не выйдет, потому что Android в качестве DNS-сервера использует маршрутизатор (192.168.1.1).</p>
+<p style="margin: 0">Но если мы попробуем пропинговать <strong><i>gts.test</i></strong>, то у нас ничего не выйдет, потому что <strong>Android</strong> в качестве DNS-сервера использует маршрутизатор (192.168.1.1).</p>
+<p>Команда <strong><i>nslookup</i></strong> не использует файл <strong><i>/etc/hosts</i></strong>, поэтому если мы запустим <code style="background-color: #161616; padding: 0 8px">nslookup localhost 127.0.0.1</code> на локальной машине, то получим ошибку. А вот <code style="background-color: #161616; padding: 0 8px">ping localhost</code> вполне себе выдаст пинг. Всё дело в том, что <strong><i>ping</i></strong> проверяет файл <strong><i>/etc/hosts</i></strong>, а <strong><i>nslookup</i></strong> ищет DNS-сервер, который у нас на локальной машине отсутствует. А вот если мы поставим на локальную машину, например, <strong><i>dnsmasq</i></strong>, то тогда <strong><i>nslookup</i></strong> сможет найти DNS-запись.</p>
 
 <h3 style="margin-bottom: 6px">Как указать телефону какой DNS-сервер использовать</h3>
 <p style="margin-top: 6px; margin-bottom: 0">Есть два способа:</p>
@@ -330,6 +331,9 @@ pkg install dnsutils
 
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">dig @192.168.1.3 gts.test
+
+# Или (что то же самое):
+dig @192.168.1.3 gts.test A
   # ...
   # ; <<>> DiG 9.20.21 <<>> @192.168.1.3 gts.test
   # ; (1 server found)

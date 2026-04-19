@@ -158,11 +158,27 @@ ls -l '2026-04-05 - ДР Шлюбзика'/
 </code></pre>
 <p style="margin-top: 6px">Если у нас в папке есть другие вложенные папки, то права <strong><i>744</i></strong> для них – не очень хорошая идея, потому что тогда в эти папки нельзя будет зайти никому, кроме владельца. Если есть вложенные папки, то лучше давать им права <strong><i>755</i></strong>.</p>
 
-<h2>Изменить владельца папки</h2>
+<h2>Изменить владельца и группу папки</h2>
 
-<p style="margin-bottom: 6px">Изменим владельца папки <strong><i>folder_name</i></strong> на <strong><i>gotosocial</i></strong> (и группа <strong><i>gotosocial</i></strong>):</p>
+<p style="margin-bottom: 6px">Изменим владельца и группу папки <strong><i>folder_name</i></strong> на <strong><i>gotosocial</i></strong> (и группа <strong><i>gotosocial</i></strong>):</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo chown -R gotosocial:gotosocial folder_name/
 </code></pre>
+
+<h3 style="margin-bottom: 8px">Изменить только группу</h3>
+
+<p style="margin-top: 8px; margin-bottom: 6px">Изменим группу папки (при этом владелец останется прежним):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo chgrp -R gotosocial folder_name/
+</code></pre>
+
+<h2 style="margin-bottom: 8px">Подводя итог</h2>
+<p style="margin-top: 8px; margin-bottom: 6px">Команды, которые мы рассмотрели:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ls
+stat
+chmod
+chown
+chgrp
+</code></pre>
+
 
 <!-- Шаблон -->
 <!--

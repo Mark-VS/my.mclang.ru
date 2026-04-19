@@ -130,6 +130,12 @@ sudo usermod --gid gotosocial mark  # то же самое
 sudo usermod --gid 1001 mark        # то же самое
 </code></pre>
 
+<p style="margin-bottom: 6px">Изменить группу папки:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Рекурсивно присвоим группу kakashkin папке backups:
+sudo chgrp -R kakashkin /home/mark/backups 
+</code></pre>
+
+
 <h3 style="margin-bottom: 6px">Подводя итог</h3>
 <p style="margin-top: 6px; margin-bottom: 6px">Команды, которые пригодятся для работы с группами и которые мы использовали чуть выше:</p>
 <pre style="margin-top: 6px"><code class="language-bash">groupadd
@@ -139,8 +145,16 @@ id
 getent
 usermod
 gpasswd
+chgrp
 </code></pre>
 
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px">Шаблон</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+lalal
+</code></pre>
+-->
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
