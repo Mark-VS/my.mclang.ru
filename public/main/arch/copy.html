@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Копирование</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Копирование</h1>
+
+<p style="margin-bottom: 0">У каждого процесса есть <strong><i>umask</i></strong> – маска, которая обрезает права по умолчанию.</p>
+<p style="margin: 0">Когда создаётся файл, система берёт базовые права:</p>
+<ul style="margin: 0">
+   <li>для файлов: 666 (rw-rw-rw-)</li>
+   <li>для директорий: 777 (rwxrwxrwx)</li>
+</ul>
+<p style="margin-top: 0">И затем применяет <strong><i>umask</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Проверить umask:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># На домашнем ПК (Arch):
+umask
+0022
+
+# На сервере (Debian):
+umask
+0002
+</code></pre>
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

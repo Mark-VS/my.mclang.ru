@@ -379,6 +379,8 @@ sudo chmod 750 /var/lib/gotosocial/backups
 <pre style="margin-top: 6px"><code class="language-bash"># Делаем бэкап в /var/lib/gotosocial/backups/
 sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db ".backup /var/lib/gotosocial/backups/backup.db"
 sudo -u gotosocial rsync -a /var/lib/gotosocial/storage/ /var/lib/gotosocial/backups/storage/
+# атрибут --preserve=all (-a) доступен только для root:
+sudo cp --preserve=all /etc/gotosocial/config.yaml /var/lib/gotosocial/backups/
 
 # И теперь копируем на домашнем ПК этот бэкап в ~/:
 rsync -a mark@193.187.94.218:/var/lib/gotosocial/backups ~/
