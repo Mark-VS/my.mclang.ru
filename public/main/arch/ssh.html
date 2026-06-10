@@ -54,6 +54,12 @@ Host *
 <pre style="margin-top: 6px"><code class="language-bash">sudo systemctl restart sshd
 </code></pre>
 
+<h2>Ключи</h2>
+
+<p>Ключи к хостам находятся здесь: <strong><i>~/.ssh/known_hosts</i></strong>.</p>
+<p style="margin-bottom: 6px">Если мы, например, поменяли IP-адрес в DNS-записи и теперь старая DNS-запись указывает на новый IP, то скорее всего <strong>SSH</strong> не даст нам подключиться к серверу через доменное имя, потому что ключ будет соответствовать старой записи. Поэтому можно обновить файл <strong><i>~/.ssh/known_hosts</i></strong> вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ssh-keygen -R myname.ru
+</code></pre>
 
 <!-- Шаблон -->
 <!--

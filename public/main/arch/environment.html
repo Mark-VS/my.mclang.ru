@@ -47,6 +47,15 @@ env QT_QPA_PLATFORMTHEME=qt6ct featherpad
 </code></pre>
 <p style="margin-top: 6px">Вот сейчас <strong>featherpad</strong> увидит переменную <strong><i>QT_QPA_PLATFORM</i></strong> и применит <strong>Qt</strong>-стиль, который указан в <strong>qt6ct</strong>.</p>
 
+<h4 style="margin-bottom: 0">Переменные shell'а:</h4>
+<ul style="margin-top: 0">
+   <li>PROMPT_COMMAND – специальная переменная Bash. Она выполняется перед каждым показом prompt.</li>
+</ul>
+
+<p style="margin-bottom: 0"><code style="background-color: #161616; padding: 0 8px">set</code> выводит только <strong><i>shell</i></strong>-переменные.</p>
+<p style="margin-top: 0"><code style="background-color: #161616; padding: 0 8px">env</code> выводит только <strong><i>environment</i></strong>-переменные.</p>
+
+
 <h2>Environment</h2>
 <p><strong>Environment</strong> (окружение процесса) – это набор пар ИМЯ=ЗНАЧЕНИЕ, который передаётся каждому запущенному процессу при старте.</p>
 <p>Посмотреть значения <strong>environment</strong>-переменных можно так:</p>

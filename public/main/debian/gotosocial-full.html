@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoToSocial – Full</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/debian/">Вернуться назад</a></p>
+
+<h2>Подготовка Nginx и установка сертификата</h2>
+
+<p style="margin-bottom: 0">У меня в данный момент четыре адреса в dns-записях:</p>
+<ul style="margin-top: 0">
+   <li>mclang.ru</li>
+   <li>my.mclang.ru</li>
+   <li>gts.mclang.ru</li>
+   <li>test03.mclang.ru</li>
+</ul>
+
+<p style="margin-bottom: 6px">Нам нужно установить сертификат для этих адресов, чтобы можно было подключаться к ним через протокол HTTPS. Но для начала давайте создадим минимальный конфиг для <strong>Nginx</strong>, который будет работать с HTTP. Напишем "Hello, world!" для адреса <strong><i>test03.mclang.ru</i></strong>.</p>
+<pre style="margin-top: 6px"><code class="language-nginx"># /etc/nginx/sites-available/test03.mclang.ru
+
+server {
+   listen 80;
+   listen [::]:80;
+   server_name    test03.mclang.ru www.test03.mclang.ru;
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Привет, тупица!";
+   }
+}
+</code></pre>
+<p style="margin-bottom: 6px">Создаём в папке <strong><i>sites-enabled</i></strong> ссылку на наш конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ln -s /etc/nginx/sites-available/test03.mclang.ru /etc/nginx/sites-enabled/
+
+# Проверим конфиг на ошибки:
+sudo nginx -t
+
+# Запускаем Nginx:
+sudo systemctl start nginx
+</code></pre>
+
+<p>Теперь попробуем зайти на страничку по адресу: <strong><i>http://test03.mclang.ru</i></strong>. Если всё работает, то браузер должен показать нам надпись: "Привет, тупица!". Если всё в порядке, идём дальше.</p>
+
+
+<p style="margin-bottom: 6px">Прежде, чем создавать сертификат, возможно, нам понадобится проверить список уже имеющихся сертификатов и удалить какой-нибудь из них.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть список сертификатов:
+sudo certbot certificates
+
+# Удалить сертификат можно вот так:
+sudo certbot delete --cert-name test01.mclang.ru
+
+# Или вот так:
+sudo certbot delete
+   # а далее выбираем из предложенных сертификат,
+   # который хотим удалить
+</code></pre>
+
+<p style="margin-bottom: 0">Теперь мы создаём сертификат для наших четырёх адресов.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Важно! Мы создаём протокол через <strong>python3-certbot-nginx</strong>, поэтому следующую команду выполняем с запущенным <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo certbot --nginx -d mclang.ru -d www.mclang.ru \
+    -d my.mclang.ru -d www.my.mclang.ru \
+    -d gts.mclang.ru -d www.gts.mclang.ru \
+    -d test03.mclang.ru -d www.test03.mclang.ru
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Сертификат создался. Правда <strong>certbot</strong> ругнулся на то, что он не нашёл блоков для остальных имён, кроме <strong><i>test03.mclang.ru</i></strong> и на то, что он не смог автоматически модифициорвать конфиг, но нам это и не нужно.</p>
+<p style="margin: 0">Сертификат появился в папке <strong><i>/etc/letsencrypt/mclang.ru/</i></strong>. Название папки <strong><i>mclang.ru</i></strong> взялось из-за того, что именно этот домен я указал первым в списке.</p>
+
+<p style="margin-bottom: 6px">Теперь добавим в конфиг <strong>Nginx</strong>'а второй блок – для протокола HTTPS:</p>
+<pre style="margin-top: 6px"><code class="language-nginx"># /etc/nginx/sites-available/test03.mclang.ru
+
+# Первый блок оставляем как есть
+server {
+   listen 80;
+   listen [::]:80;
+   server_name    test03.mclang.ru www.test03.mclang.ru;
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Привет, тупица!";
+   }
+}
+
+# А этот добавляем:
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   server_name   test03.mclang.ru www.test03.mclang.ru;
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Это безопасная строка, полученная через протокол HTTPS.";
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">После изменения конфига нужно обязательно перезапустить <strong>Nginx</strong>. Пока <strong>Nginx</strong> не перезапущен, он будет продолжать работать со старыми настройками.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверяем конфиг на работоспособность:
+sudo nginx -t
+
+# И если всё в порядке, перезагружаем Nginx:
+sudo systemctl restart nginx
+</code></pre>
+
+<p style="margin-bottom: 0">Теперь можно открывать страничку по адресу <strong><i>https://test03.mclang.ru</i></strong>.</p>
+<p style="margin: 0">http://test03.mclang.ru – здесь мы увидим надпись "Привет, тупица!".</p>
+<p style="margin: 0">https://test03.mclang.ru – а здесь появится надпись: "Это безопасная строка, полученная через протокол HTTPS".</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">Таким образом у нас два блока: один отвечает за HTTP-запросы, а другой за HTTPS-запросы. Мы можем писать для них разные версии сайта и в зависимости от того, какой протокол ввёл пользователь в строку бразуера, отдавать разный результат. Но обычно в блоке с HTTP-протоколом просто делают редирект на 443-й порт. Таким образом сайт всегда будет работать только через безопасный HTTPS-протокол:</p>
+<pre style="margin-top: 6px"><code class="language-nginx"># /etc/nginx/sites-available/test03.mclang.ru
+
+server {
+   listen 80;
+   listen [::]:80;
+   server_name    test03.mclang.ru www.test03.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+
+# ...
+# а секцию с портом 443 оставляем как есть
+</code></pre>
+
+<p style="margin-bottom: 6px">Если мы просто хотим отдавать статические файлы, то блок с HTTPS-протоколом можно изменить на:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-nginx">server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   server_name   test03.mclang.ru www.test03.mclang.ru;
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+   root /var/www/my_site;
+   location / {
+      try_files $uri $uri/ =404;
+   }
+}
+</code></pre>
+<p style="margin-top: 6px">Здесь мы добавили директиву <strong><i>root</i></strong> и подправили <strong><i>location /</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Теперь нам нужно настроить <strong>Nginx</strong> таким образом, чтобы он выполнял роль прокси-сервера. <strong>GoToSocial</strong> прослушивает порт 8080 и нам нужно, чтобы <strong>Nginx</strong> перенаправлял все запросы с порта 443 на 8080:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name    test03.mclang.ru www.test03.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   server_name   test03.mclang.ru www.test03.mclang.ru;
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+   location / {
+      proxy_pass http://127.0.0.1:8080;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+
+      proxy_redirect off;
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Есть ещё один нюанс, касающийся размера загружаемых файлов. В <strong>GoToSocial</strong> он по умолчанию равен 40MB. А вот в <strong>Nginx</strong> этот размер по умолчанию: 1MB. Поэтому было бы неплохо увеличить максимальный размер загружаемых файлов до 40MB:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Ставим чуть больше, чем в GoTosocial, ...
+# ... чтобы nginx никогда не был узким местом
+client_max_body_size 42M;
+</code></pre>
+
+<p style="margin-bottom: 6px">Осталось проверить конфиг на ошибки и перезагрузить <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo nginx -t
+sudo systemctl restart nginx
+</code></pre>
+
+<h2>GoToSocial</h2>
+
+<p style="margin-bottom: 6px">Теперь можно запустить <strong>GoToSocial</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml server start
+</code></pre>
+
+
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

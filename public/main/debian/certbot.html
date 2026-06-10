@@ -97,6 +97,9 @@ sudo certbot certificates
 
 sudo certbot delete
   # и выбираем tupniki.ru
+
+# Или можно удалить сразу вот так:
+sudo certbot delete --cert-name test01.mclang.ru
 </code></pre>
 <p>И конечно нужно не забыть удалить из конфигов <strong>Nginx</strong> упоминания старых <strong><i>ssl</i></strong>-серификатов.</p>
 
@@ -173,10 +176,10 @@ sudo chmod 640 /etc/letsencrypt/archive/mclang.ru/privkey1.pem
 <h2 style="margin-bottom: 6px">Обновление сертификата</h2>
 
 <p style="margin-top: 6px">Я добавил новое доменное имя <strong><i>gts.tupniki.ru</i></strong> на DNS-сервер. Теперь я хочу обновить сертификат таким образом, чтобы он покрывал ещё и <strong><i>gts.tupniki.ru</i></strong>, и <strong><i>www.gts.tupniki.ru</i></strong>.</p>
+<p>То есть, <strong>Certbot</strong> умеет расширять существующий сертификат, добавляя новые домены. Удалять старый сертификат и пересоздавать его не нужно. Но <strong>ОБРАТИ ВНИМАНИЕ</strong>: <strong>нужно перечислить все домены, которые должны остаться в сертификате</strong>, а не только новые.</p>
 
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">
-sudo certbot --nginx \
+<pre style="margin-top: 6px"><code class="language-bash">sudo certbot --nginx \
   -d tupniki.ru -d www.tupniki.ru \
   -d lala.tupniki.ru -d www.lala.tupniki.ru \
   -d gts.tupniki.ru -d www.gts.tupniki.ru
@@ -200,6 +203,15 @@ sudo certbot --nginx \
 
 # Выбираем E – expand
 </code></pre>
+
+<p style="margin-bottom: 6px">Или так (имя сертификата можно указать через флаг <strong><i>--cert-name</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo certbot --nginx \
+  --cert-name mclang.ru \
+  -d tupniki.ru -d www.tupniki.ru \
+  -d lala.tupniki.ru -d www.lala.tupniki.ru \
+  -d gts.tupniki.ru -d www.gts.tupniki.ru
+</code></pre>
+
 
 <!-- Шаблон -->
 <!--

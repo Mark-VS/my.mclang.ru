@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ss</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>ss</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+ss -t src :443
+
+# показывает TCP-соединения, которые ...
+# ... находятся в состоянии SYN-RECV:
+ss -ant state syn-recv
+
+# считает кол-во строк вывода предыдущей команды:
+watch -n1 'ss -ant state syn-recv | wc -l'
+
+# кто слушает порт 443:
+sudo ss -lntp | grep 443:
+
+# посмотреть очередь ожидания:
+ss -lnt
+
+# кто владелец сети:
+whois 91.221.176.1
+
+</code></pre>
+
+<p style="margin-bottom: 0">Покажи все TCP-соединения и TCP-сокеты, где на моей стороне используется порт 443!</p>
+<p style="margin: 0"><code style="background-color: #161616; padding: 0 8px">ss -t src :443</code></p>
+<ul style="margin-top: 0">
+   <li>ss – показать сокеты/соединения</li>
+   <li>-t – только TCP</li>
+   <li>src :443 – показать записи, у которых локальный (source) порт равен 443</li>
+</ul>
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

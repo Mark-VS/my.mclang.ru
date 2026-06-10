@@ -212,10 +212,13 @@ server {
 
    location / {
      proxy_pass http://127.0.0.1:8080;
+
      proxy_set_header Host $host;
      proxy_set_header X-Real-IP $remote_addr;
      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
      proxy_set_header X-Forwarded-Proto https;
+
+     proxy_redirect off;
    }
 }
 </code></pre>
@@ -239,6 +242,18 @@ server {
    <li>
       <p style="margin: 0"><strong><i>X-Forwarded-Proto</i></strong> https; – говорит бэкенду: пользователь пришёл по <strong><i>https</i></strong></p>
 	  <p style="margin: 0">Зачем это указывать вручную? <strong>Nginx</strong> принимает <strong><i>https</i></strong>, а до бэкенда идёт <strong><i>http</i></strong>. Бэкенд сам не видит <strong><i>https</i></strong>.</p>
+   </li>
+   <li>
+      <p style="margin: 0"><strong><i>proxy_redirect</i></strong> управляет тем, как <strong>nginx</strong> переписывает заголовки <strong><i>Location</i></strong> и <strong><i>Refresh</i></strong> в ответах от backend-сервера.</p>
+	  <p style="margin: 0">Когда <strong>nginx</strong> работает как reverse proxy, backend (GoToSocial) может ответить, например:</p>
+	  <pre style="margin: 0"><code class="lagnuage-bash">HTTP/1.1 302 Found
+Location: http://127.0.0.1:8080/login</code></pre>
+	  <p style="margin: 0">Но браузер не должен видеть мой IP 127.0.0.1 и внутренний порт 8080. Поэтому <strong>Nginx</strong> умеет автоматически переписывать redirect'ы.</p>
+	  <p style="margin: 0">Например, если бэкенд отвечает: <code style="background-color: #161616; padding: 0 8px">Location: http://127.0.0.1:8080/login</code>, <strong>Nginx</strong> может преобрзовать это в <code style="background-color: #161616; padding: 0 8px">Location: https://gts.mclang.ru/login</code>.</p>
+	  <p style="margin: 0">Вот этим и занимается <strong><i>proxy_redirect</i></strong>.</p>
+	  <p style="margin: 0">Зачем тогда его часто явно отключают?</p>
+	  <p style="margin: 0">Потому что современные backend-приложения обычно сами умеют правильно генерировать URL, знают свой домен и знают, что работают через https и автоматическое переписывание <strong>nginx</strong> обычно не нужно и иногда даже ломает ссылки, иногда создаёт странные редиректы. <strong>GoToSocial</strong> обычно знает свой домен, знает, что работает через https и формирует редиректы правильно. Поэтому безопаснее написать: <code style="background-color: #161616; padding: 0 8px">proxy_redirect off;</code>. То есть, мы как бы говорим <strong>Nginx</strong>'у, чтобы он не трогал редиректы бэкенда.</p>
+	  <p style="margin: 0">Если убрать эту строку, всё скорее всего тоже будет работать нормально. Она просто отключает автоматическую магию <strong>Nginx</strong> и делает его поведение более предсказуемым.</p>
    </li>
 </ul>
 
@@ -345,15 +360,53 @@ WantedBy=multi-user.target
    <li>[Install]</li>
 </ul>
 
-<ul>
-   <li><strong><i>Description=GoToSocial Server</i></strong> – просто описание сервиса</li>
+<ul style="padding: 0">
    <li>
-      <p><strong><i>After=network.target</i></strong> ‒ Запускай этот сервис <strong>после сети</strong></p>
-	  <p><strong><i>After=</i></strong> – не означает, что сеть уже готова. Это только порядок запуска, а не гарантия</p>
+      <ul>
+         <h4 style="margin: 0">[Unit]</h4>
+         <li><strong><i>Description=GoToSocial Server</i></strong> – просто описание сервиса</li>
+         <li>
+            <p style="margin: 0"><strong><i>After=network.target</i></strong> ‒ Запускай этот сервис <strong>после сети</strong></p>
+	        <p style="margin: 0"><strong><i>After=</i></strong> – не означает, что сеть уже готова. Это только порядок запуска, а не гарантия</p>
+         </li>
+         <li>
+            <p style="margin: 0"><strong><i>Wants=network-online.target</i></strong> – а вот эта зависисмоть</p>
+            <p style="margin: 0">гарантирует, что сеть реально поднята</p>
+         </li>
+      </ul>
    </li>
    <li>
-      <p>Wants=network-online.target – а вот это зависисмоть</p>
-      <p>гарантирует, что сеть реально поднята</p>
+      <ul>
+         <h4 style="margin: 8px 0 0 0">[Service]</h4>
+		 <li>
+            <p style="margin: 0"><strong><i>Restart=alway</i></strong> – сервис будет перезапускаться через 5 сек. после завершения - всегда, кроме ручной остановки.</p>
+			<p style="margin: 0"><strong><i>Restart=unless-stopped</i></strong> – почти то же самое. Разница в том, что после перезагрузки системы, демона или смене target сервис также не будет запущен, потому что предыдущая ручная установка запомнилась. И после перезагрузки система помнит, что сервис был остановлен и не будет его запускать. Придётся делать это вручную.</p>
+			<p style="margin: 0">Ещё допустимые значения: <i>no</i>, <i>on-failure</i>, <i>on-abnormal</i>.</p>
+         </li>
+         <li>
+            <p style="margin: 0"><strong><i>NoNewPrivileges=true</i></strong> – очень полезная опция. Означает: процесс и его дочерние процессы не смогут получить дополнительные привилегии.</p>
+            <p style="margin: 0">Например, setuid-программы перестанут повышать права, нельзя будет неожиданно стать root. Это защита от некоторых exploit’ов.</p>
+            <p style="margin: 0">Для сетевых сервисов это почти всегда хорошая идея.</p>
+         </li>
+		 <li>
+			 <p style="margin: 0"><strong><i>PrivateTmp=true</i></strong> – это интересная настройка sandbox, которая означает: сервис получит свой отдельный <code style="background-color: #161616; padding: 0 8px">/tmp</code>.</p>
+            <p style="margin: 0">То есть, <strong>GoToSocial</strong> увидит свой собственный <code style="background-color: #161616; padding: 0 8px">/tmp</code>, другие процессы не увидят его временные файлы и наоборот.</p>
+            <p style="margin: 0">Без этой настройки <code style="background-color: #161616; padding: 0 8px">/tmp</code> – общий для всей системы.</p>
+			<p style="margin: 0">А с этой настройкой: <strong>GoToSocial</strong> → отдельный <i>tmp</i>, <strong>Nginx</strong> → отдельный <i>tmp</i>, <strong>PostgreSQL</strong> → отдельный <i>tmp</i>. Это повышает безопаснось, уменьшает риск конфликтов и мешает некоторым атакам через <i>/tmp</i>.</p>
+			<p style="margin: 0"><strong>systemd</strong> вообще умеет создавать очень мощную sandboxing-изоляцию.</p>
+		 </li>
+	  </ul>
+   </li>
+   <li>
+      <ul>
+          <h4 style="margin: 8px 0 0 0">[Install]</h4>
+          <li>
+             <p style="margin: 0"><strong><i>WantedBy=multi-user.target</i></strong> –</p>
+             <p style="margin: 0"><strong><i>multi-user.target</i></strong> – это один из «режимов работы» systemd.</p>
+			 <p style="margin: 0">Когда я делаю: <code style="background-color: #161616; padding: 0 8px">sudo systemctl enable gotosocial</code>, <strong><i>systemd</i></strong> создаёт <i>symlink</i> примерно сюда: <code style="background-color: #161616; padding: 0 8px">/etc/systemd/system/multi-user.target.wants/</code>. Это означает: запускать <strong><i>GoToSocial</i></strong> автоматически при загрузке системы.</p>
+             <p style="margin: 0">То есть <strong><i>WantedBy=multi-user.target</i></strong> не запускает сервис сам по себе. Он говорит: "если сервис enabled — подключи его к обычному режиму загрузки Linux".</p>
+          </li>
+	  </ul>
    </li>
 </ul>
 
