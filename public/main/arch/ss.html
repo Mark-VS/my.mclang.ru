@@ -11,7 +11,8 @@
 <script src="/assets/highlight/highlight.min.js"></script>
 <a href="/arch">Вернуться назад</a>
 
-<h1>ss</h1>
+<h1 style="margin-bottom: 0">ss</h1>
+<p style="margin-top: 0"><strong>ss</strong> – замена старому <strong>netstat</strong></p>
 
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">
@@ -41,6 +42,10 @@ whois 91.221.176.1
    <li>ss – показать сокеты/соединения</li>
    <li>-t – только TCP</li>
    <li>src :443 – показать записи, у которых локальный (source) порт равен 443</li>
+   <li>-s – summary (сводка) – не показывает сами сокеты, а выводит статистику по ним</li>
+   <li>-l – только слушающие порты</li>
+   <li>-p – процессы, владеющие сокетами</li>
+   <li>-n – не преобразовывать номера портов в имена (443 вместо https)</li>
 </ul>
 <!-- Шаблон -->
 <!--

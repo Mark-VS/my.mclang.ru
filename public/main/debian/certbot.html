@@ -212,6 +212,70 @@ sudo chmod 640 /etc/letsencrypt/archive/mclang.ru/privkey1.pem
   -d gts.tupniki.ru -d www.gts.tupniki.ru
 </code></pre>
 
+<h2>webroot ?</h2>
+<p style="margin-bottom: 6px">ГПТ предложил ещё какой-то пример установки сертификата, "если я использую webroot". Фиг знает, что это значит.</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+certbot certonly --webroot \
+  -w /var/www/mydomain.ru \
+  -d mydomain.ru \
+  -d www.mydomain.ru
+</code></pre>
+<p><strong><i>--webroot</i></strong> — это один из способов подтверждения владения доменом для Let's Encrypt.</p>
+
+
+
+<h3>Как certbot меняет nginx-конфиг</h3>
+
+<p style="margin-bottom: 6px">Вот таким был мой nginx-конфиг до того, как я установил сертификат:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name syu.su www.syu.su;
+   location / {
+      default_type "text/plain; charset=utf-8";
+	  return 200 "Трулалала. Олалал.";
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Затем я выполнил команду:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo certbot --nginx -d syu.su -d www.syu.su
+</code></pre>
+
+<p style="margin-bottom: 6px">И конфиг стал таким:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server { 
+   server_name syu.su www.syu.su;
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Трулалала. Олалал.";
+   }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/syu.su/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/syu.su/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server {
+    if ($host = www.syu.su) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = syu.su) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+   listen 80;
+   listen [::]:80;
+   server_name syu.su www.syu.su;
+   return 404; # managed by Certbot
+}
+</code></pre>
+<p>Здесь совершенно не нужны конструкции с <strong><i>if</i></strong>'ами! Просто <strong>certbot</strong> тупой.</p>
 
 <!-- Шаблон -->
 <!--
@@ -223,6 +287,7 @@ sudo chmod 640 /etc/letsencrypt/archive/mclang.ru/privkey1.pem
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>
