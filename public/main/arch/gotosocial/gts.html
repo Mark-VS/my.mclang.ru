@@ -18,8 +18,37 @@
 <p style="margin-top: 0; margin-bottom: 0">Документация: <a href="https://docs.gotosocial.org/en/stable/">https://docs.gotosocial.org/en/stable/</a></p>
 <p style="margin-top: 0">Repology: <a href="https://repology.org/project/gotosocial/information">https://repology.org/project/gotosocial/information</a></p>
 
+<p style="margin-bottom: 6px; text-decoration: underline">Вот так выглядит файловая структура рабочего <strong>GoToSocial</strong>:</p>
+<pre style="margin-top: 6px">
+├─ etc
+│  └─ gotosocial (root:gotosocial 750)
+│     └─ config.yaml (root:gotosocial 640 – чтобы не дать gotosocial менять конфиг)
+├─ systemd
+│  └─ system
+│     └─ gotosocial.service (root:rooot 644 – стандарт для unit-файлов)
+├─ usr
+│  └─ local
+│     └─ bin
+│        └─ <span style="color: green">gotosocial</span> (root:root 755 ― стандарт)
+└─ var
+   └─ lib
+      └─ gotosocial (775 – чтобы делать бэкапы от имени mark)
+         ├─ backup (775 – чтобы делать бэкапы от mark и копировать себе)
+         │  └─ ...
+         ├─ storage (gotosocial:gotosocial 755)
+         ├─ web
+         │  ├─ assets
+         │  │  ├─ dist
+         │  │  └─ ...
+         │  └─ template
+         │     └─ ...
+         └─ sqlite.db (644)
+</pre>
+<p>Весь собранный фронтенд находится в папке <strong><i>/var/lib/gotosocial/web/assets/dist/</i></strong>. А вот бинарник: <strong><i>/usr/local/bin/gotosocial</i></strong>.</p>
+
 <p style="margin-bottom: 0">Скачиваем <strong>GoToSocial</strong> с <strong><i>Codeberg.org</i></strong>:</p>
-<p style="margin-top: 0; margin-bottom: 6px">Исходники весят <strong><i>865M</i></strong>, а конечный бинарник: <strong><i>146M</i></strong></p>
+<p style="margin-top: 0; margin-bottom: 0">Исходники весят <strong><i>439M</i></strong>, а конечный бинарник: <strong><i>146M</i></strong></p>
+<p style="margin-top: 0; margin-bottom: 6px">Если скачивать с помощью <strong>Git</strong>'а, то исходники будут весить больше, чем если скачать архив, потому что скачивается ещё и вся история <strong>Git</strong>'а, которая удваивает размер исходников.</p>
 <pre style="margin-top: 6px"><code class="language-bash">git clone https://codeberg.org/superseriousbusiness/gotosocial
 cd gotosocial
 
@@ -88,7 +117,10 @@ sudo touch /etc/gotosocial/config.yaml
 <p style="margin-top: 0">Полный дефолтный конфиг БЕЗ КОММЕНТАРИЕВ можно посмотреть <a href="gts-default-conf.html">здесь!</a></p>
 
 <p style="margin-bottom: 6px">Минимальный рабочий конфиг, который предложил гпт:</p>
-<pre style="margin-top: 6px"><code class="language-bash">host: "your-domain.com"
+<pre style="margin-top: 6px"><code class="language-bash"># посадочная страничка инстанса:
+landing-page-user: ""
+
+host: "your-domain.com"
 account-domain: "your-domain.com"
 
 # port: 8080
@@ -99,9 +131,21 @@ db-address: "/var/lib/gotosocial/gotosocial.db"
 web-template-base-dir: "/var/lib/gotosocial/web/template/"
 web-asset-base-dir: "/var/lib/gotosocial/web/assets/"
 
+# Основной язык инстанса:
+instance-languages: ["ru"]
+
+# ограничение размера загружаемых файлов:
+media-local-max-size: 20MiB
+# подсказки для изображений и видео:
+media-image-size-hint: 5MiB
+media-video-size-hint: 20MiB
+
 # storage-backend: "local"
 storage-local-base-path: "/var/lib/gotosocial/storage"
+
 </code></pre>
+
+<p>Чуть выше мы выставили ограничение загружаемых файлов в 20MiB. Но в <strong>Nginx</strong> по умолчанию этот порог равен 1MiB. Поэтому надо в Nginx тоже исправить эту настройку на 20MiB</p>
 
 <p style="margin: 0">У <strong>GoToSocial</strong> нет определённого места для конфига в домашней директории пользователя. Пути очень flexible и зависят от того, как был запущен <strong>GoToSocial</strong>. Основной способ задания пути для конфига – это использовать при запуске приложения опцию <strong><i>--config-path</i></strong> или переменную окружения <strong><i>GTS_CONFIG_PATH</i></strong>.</p>
 <p style="margin: 0">Если мы будем следовать привычной логике других приложений, то системный конфиг должен быть в <strong><i>/etc/gotosocial/config.yaml</i></strong>, а пользовательский – в <strong><i>$HOME/.config/gotosocial/config.yaml</i></strong>, то есть, в нашем случае это <strong><i>/var/lib/gotosocial/.config/gotosocial/config.yaml</i></strong></p>

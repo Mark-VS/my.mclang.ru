@@ -6,6 +6,16 @@
     <title>Sharkey List</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+	<style>
+		.bad::marker {
+			color: red;
+			content: "✕  ";
+		}
+		.good::marker {
+			color: green;
+			content: "✓  ";
+		}
+	</style>
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
@@ -16,20 +26,22 @@
 
 <p style="margin-bottom: 6px">Русскоязычные:</p>
 <ul style="margin-top: 6px">
-   <li>lamp.leemoon.network: <a href="https://lamp.leemoon.network/">lamp.leemoon.network</a></li>
-   <li>shitporidge.club: <a href="https://shitpost.poridge.club/">shitpost.poridge.club</a></li>
-   <li>mk.phreedom.club: <a href="https://mk.phreedom.club/">mk.phreedom.club</a></li>
-   <li><span style="color: red">X</span> mk.ilyamikcoder.com: <a href="https://mk.ilyamikcoder.com/">mk.ilyamikcoder.com</a></li>
+   <li class="good">lamp.leemoon.network: <a href="https://lamp.leemoon.network/">lamp.leemoon.network</a></li>
+   <li class="good">shitpost.poridge.club: <a href="https://shitpost.poridge.club/">shitpost.poridge.club</a></li>
+   <li class="good">mk.phreedom.club: <a href="https://mk.phreedom.club/">mk.phreedom.club</a></li>
+   <li class="bad">mk.ilyamikcoder.com: <a href="https://mk.ilyamikcoder.com/">mk.ilyamikcoder.com</a></li>
+   <li class="good">kittens.khlebushek.org: <a href="https://kittens.khlebushek.org">kittens.khlebushek.org</a></li>
+   <li class="good">nw.hnpse.com: <a href="https://nw.hnpse.com">nw.hnpse.com</a></li>
 </ul>
 
 <p style="margin-bottom: 6px">Остальные:</p>
 <ul style="margin-top: 6px">
-   <li>lethallava.land: <a href="https://lethallava.land/">lethallava.land</a></li>
-   <li>electricrequiem.com: <a href="https://electricrequiem.com">electricrequiem.com</a> – греческий</li>
-   <li>zoner.work: <a href="https://zoner.work">zoner.work</a></li>
-   <li>enby.life: <a href="https://enby.life">enby.life</a></li>
-   <li>booping.synth.download: <a href="https://booping.synth.download">booping.synth.download</a></li>
-   <li>social.cutie.team: <a href="https://social.cutie.team/">social.cutie.team</a></li>
+   <li class="bad">plasmatrap.com: <a href="https://plasmatrap.com/explore">plasmatrap.com</a> – чистый, без замусоренного фона</li>
+   <li class="bad">lethallava.land: <a href="https://lethallava.land/">lethallava.land</a></li>
+   <li class="bad">electricrequiem.com: <a href="https://electricrequiem.com">electricrequiem.com</a> – греческий</li>
+   <li class="bad">zoner.work: <a href="https://zoner.work">zoner.work</a></li>
+   <li class="good">enby.life: <a href="https://enby.life">enby.life</a></li>
+   <li class="bad">booping.synth.download: <a href="https://booping.synth.download">booping.synth.download</a></li>
 </ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

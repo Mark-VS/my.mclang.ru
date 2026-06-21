@@ -6,6 +6,16 @@
     <title>Mitra List</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+    <style>
+        .bad::marker {
+            color: red;
+			content: "✕  "; 
+        }
+		.good::marker {
+			color: green;
+			content: "✓  ";
+		}
+    </style>
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
@@ -14,8 +24,14 @@
 <h1>Mitra List</h1>
 
 <ul>
-	<li>mitra.social: <a href="https://mitra.social/@silverpill">mitra.social/@silverpill</a> – разработчик Mitra</li>
-   <li>of.rijndael.cc: <a href="https://of.rijndael.cc">of.rijndael.cc</a></li>
+   <li class="good">mitra.social: <a href="https://mitra.social/@silverpill">mitra.social/@silverpill</a> – разработчик Mitra</li>
+   <li class="bad">of.rijndael.cc: <a href="https://of.rijndael.cc">of.rijndael.cc</a></li>
+</ul>
+
+<p style="margin-bottom: 6px">Русскоязычные инстансы:</p>
+<ul style="margin-top: 6px">
+   <li class="good">mitra.uuve.org: <a href="https://mitra.uuve.org/@luc_ren">mitra.uuve.org</a></li>
+   <li class="good">unseen.name: <a href="https://unseen.name/@ex">unseen.name</a></li>
 </ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

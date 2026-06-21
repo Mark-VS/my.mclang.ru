@@ -6,6 +6,16 @@
     <title>PixelFed List</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+	<style>
+		.good::marker {
+			color: green;
+			content: "✓  ";
+		}
+		.bad::marker {
+			color: red;
+			content: "✕  ";
+		}
+	</style>
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
@@ -15,9 +25,11 @@
 
 <p>Русскоязычные:</p>
 <ul>
-   <li>pixelfed.ru: <a href="https://pixelfed.ru/">pixelfed.ru</a> – Санкт-Петербург</li>
-   <li>pixelfed.mixeme.ru: <a href="https://pixelfed.mixeme.ru/">pixelfed.mixeme.ru</a> – Санкт-Петербург</li>
-   <li>pixelfed.fftlt.net: <a href="https://pixelfed.fftlt.net/">pixelfed.fftlt.net</a> – Самарская область</li>
+   <li class="good">pixelfed.ru: <a href="https://pixelfed.ru/">pixelfed.ru</a> – Санкт-Петербург</li>
+   <li class="bad">pixelfed.social: <a href="https://pixelfed.social/">pixelfed.social</a></li>
+   <li class="good">tristagram.pictures: <a href="https://tristagram.pictures">tristagram.pictures</a></li></li>
+   <li class="good">pixelfed.mixeme.ru: <a href="https://pixelfed.mixeme.ru/">pixelfed.mixeme.ru</a> – Санкт-Петербург</li>
+   <li class="good">pixelfed.fftlt.net: <a href="https://pixelfed.fftlt.net/">pixelfed.fftlt.net</a> – Самарская область</li>
 </ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
