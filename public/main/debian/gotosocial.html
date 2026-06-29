@@ -174,7 +174,12 @@ storage-local-base-path: "/var/lib/gotosocial/storage"
    <li><strong><i>tls-certificate-chain</i></strong>: ""</li>
    <li><strong><i>tls-certificate-key</i></strong>: ""</li>
    <li><strong><i>media-local-max-size</i></strong>: 40MiB</li>
+   <li><strong><i>media-remote-cache-duration</i></strong>: "7 days" – очищать удалённые (remomte) медиа старше семи дней</li>
+   <li><strong><i>media-cleanup-cron</i></strong>: "0 0 * * *" – запускать очистку удалённых (remote) медиа каждый день в полночь</li>
+   <li><strong><i>statuses-cleanup-cron</i></strong>: "0 1 * * 0" – запускать очистку удалённых (remote) постов в час ночи каждое воскресенье</li>
+   <li><strong><l>statuses-cleanup-remote-older-than</i></strong>: "0s" – очищать удалённые (remote) посты старше, чем "0s", т.е. не удалять</li>
 </ul>
+<p>А ещё по умолчанию выключена поддержка <strong><i>Markdown</i></strong>. Чтобы её включить, нужно в настройках на вкладке "Posts" изменить поле <i>"Default post (and bio) format"</i> c <strong><i>Plain (default)</i></strong> на <strong><i>Markdown</i></strong>.</p>
 
 <p style="margin-bottom: 6px">Теперь можно запускать сервер от имени <strong><i>gotosocial</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml server start
@@ -551,6 +556,9 @@ tar -xzvf gotosocial_0.21.2_linux_amd64.tar.gz -C gts/
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="lagnuage-css">.page-header {
     display: none;
 }
+
+/* и дообавим отступ НАД контентом, чтобы ...
+ ... он не прилипал вплотную к верхней части экрана */
 .page-content {
     margin-top: 1.2rem;
 }

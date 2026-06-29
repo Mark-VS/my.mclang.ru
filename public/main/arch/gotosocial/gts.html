@@ -32,23 +32,24 @@
 │        └─ <span style="color: green">gotosocial</span> (root:root 755 ― стандарт)
 └─ var
    └─ lib
-      └─ gotosocial (775 – чтобы делать бэкапы от имени mark)
-         ├─ backup (775 – чтобы делать бэкапы от mark и копировать себе)
+      └─ gotosocial (gotosocial:gotosocial 775 – чтобы делать бэкапы от имени mark)
+         ├─ backups (gotosocial:gotosocial 775 – чтобы делать бэкапы от mark и копировать себе)
          │  └─ ...
          ├─ storage (gotosocial:gotosocial 755)
-         ├─ web
-         │  ├─ assets
+         ├─ web (gotosocial:gotosocial 755)
+         │  ├─ assets (gotosocial:gotosocial 755)
          │  │  ├─ dist
          │  │  └─ ...
-         │  └─ template
+         │  └─ template (gotosocial:gotosocial 755)
          │     └─ ...
-         └─ sqlite.db (644)
+         └─ sqlite.db (gotosocial:gotosocial 644)
 </pre>
 <p>Весь собранный фронтенд находится в папке <strong><i>/var/lib/gotosocial/web/assets/dist/</i></strong>. А вот бинарник: <strong><i>/usr/local/bin/gotosocial</i></strong>.</p>
 
 <p style="margin-bottom: 0">Скачиваем <strong>GoToSocial</strong> с <strong><i>Codeberg.org</i></strong>:</p>
 <p style="margin-top: 0; margin-bottom: 0">Исходники весят <strong><i>439M</i></strong>, а конечный бинарник: <strong><i>146M</i></strong></p>
-<p style="margin-top: 0; margin-bottom: 6px">Если скачивать с помощью <strong>Git</strong>'а, то исходники будут весить больше, чем если скачать архив, потому что скачивается ещё и вся история <strong>Git</strong>'а, которая удваивает размер исходников.</p>
+<p style="margin-top: 0; margin-bottom: 0">Если скачивать с помощью <strong>Git</strong>'а, то исходники будут весить больше, чем если скачать архив, потому что скачивается ещё и вся история <strong>Git</strong>'а, которая удваивает размер исходников.</p>
+<p style="margin-top: 0; margin-bottom: 6px">На Codeberg нужно скачивать исходники не с вкладки "Code", а с вкладки "Releases". В имени файла должен быть номер релиза. Иначе, если мы будем скачивать текущий снапшот из ветки main, то потом будет сложно понять какая у нас версия.</p>
 <pre style="margin-top: 6px"><code class="language-bash">git clone https://codeberg.org/superseriousbusiness/gotosocial
 cd gotosocial
 
@@ -143,6 +144,17 @@ media-video-size-hint: 20MiB
 # storage-backend: "local"
 storage-local-base-path: "/var/lib/gotosocial/storage"
 
+# удалятся только удалённые (remote) медиа, которые старше 7-ми дней
+media-remote-cache-duration: "7 days"
+# Производить очистку каждый день в полночь:
+media-cleanup-cron: "0 0 * * *"
+
+# Очистка удалённых (remote) постов включается каждую субботу в 1 ночи:
+statuses-cleanup-cron: "0 1 * * 0"
+
+# удаляются посты старше 0s, то есть настройка отключена:
+# statuses-cleanup-remote-older-than: "0s"
+statuses-cleanup-remote-older-than: "1 year"
 </code></pre>
 
 <p>Чуть выше мы выставили ограничение загружаемых файлов в 20MiB. Но в <strong>Nginx</strong> по умолчанию этот порог равен 1MiB. Поэтому надо в Nginx тоже исправить эту настройку на 20MiB</p>
@@ -332,6 +344,12 @@ media-local-max-size: 40MiB
 client_max_body_size 42M;
 </code></pre>
 
+<h2>Настройки инстанса</h2>
+
+<ul>
+   <li><strong>Default post privacy</strong>. Меняем с <strong><i>Unlisted</i></strong> на <strong><i>Public</i></strong>.</li>
+   <li><strong>Markdown</strong>. По умолчанию выключен. Нужно в настройках перейти на вкладку <i>Posts</i> и поменять значение поля <i>"Default post (and bio) format"</i> с <strong><i>Play (default)</i></strong> на <strong><i>Markdown</i></strong>.</li>
+</ul>
 
 <h2>Бэкапы</h2>
 
@@ -463,12 +481,53 @@ rsync -a mark@193.187.94.218:/var/lib/gotosocial/backups ~/
 
 <p style="margin-bottom: 6px">Как можно сохранить в файле бэкапа дату:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial sqlite3 /var/lib/gotosocial/gotosocial.db \
-".backup /var/lib/gotosocial/backups/backup-$(date +%F-%H%M).db"
+> ".backup /var/lib/gotosocial/backups/backup-$(date +%F-%H%M).db"
+
+# Копируем хранилище:
+sudo -u gotosocial rsync -a /var/lib/gotosocial/storage /var/lib/gotosocial/backup/storage-$(date +%F-%H%M%S)
+</code></pre>
+
+<p style="margin-bottom: 6px">А лучше создать папку с текущей датой и ТУДА сделать бэкап:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Создаём папку для текущего бэкапа:
+sudo -u gotosocial mkdir /var/lib/gotosocial/backups/backup-$(date +%F-%H%M)
+
+# Копируем в эту папку базу данных sqlite.db:
+sudo -u gotosocial sqlite3 /var/lib/gotosocial/sqlite.db \
+> ".backup /var/lib/gotosocial/backups/backup-2026-06-27-2042/sqlite.db"
+
+# Копируем в эту папку хранилище с медиафайлами:
+sudo -u gotosocial rsync -av --delete /var/lib/gotosocial/storage \
+> /var/lib/gotosocial/backups/backup-2026-06-27-2042/
+
+# А если я хочу посмотреть ЧТО будет скопированно, прежде чем начать копирование,
+# то в этом поможет параметр --dry-run:
+sudo -u gotosocial rsync -av --delete --dry-run /var/lib/gotosocial/storage \
+> /var/lib/gotosocial/backups/backup-2026-06-27-2042/
+   # и если всё норм, то можно копировать
+
+# И желательно скопировать конфигурационный файл:
+sudo rsync -av /etc/gotosocial/config.yaml \
+> /var/lib/gotosocial/backups/backup-2026-06-27-2042/
+
+# Копирую бэкап с сервера на домашний компьютер:
+sudo rsync -av --delete \
+> mark@mclang.ru:/var/lib/gotosocial/backups/backups-2026-06-27-2042 ~/backups/
 </code></pre>
 
 <h3 style="margin-bottom: 2px">ActivityPub-ключи</h3>
 <p style="margin-top: 2px; margin-bottom: 0">У каждого аккаунта в <strong>GoToSocial</strong> есть криптографические ключи <strong><i>ActivityPub</i></strong>. Без этих ключей пользователи <strong>GoToSocial</strong>-инстанса после восстановления могут выглядеть для других серверов как "другие" аккаунты.</p>
 <p style="margin-top: 0">В современных версиях <strong>GoToSocial</strong> эти ключи обычно хранятся в базе данных и/или в <i>storage</i>, а не в отдельном файле. Поэтому если есть БД и есть <i>storage</i>, то ключи обычно уже сохранены.</p>
+
+<h3>restic</h3>
+<p><strong><i>restic</i></strong> – это уже полноценный инструмент для бэкапа.</p>
+
+
+<h3>Миграция</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u gotosocial gotosocial --config-path /etc/gotosocial/config.yaml migrations run
+</code></pre>
+
 
 <!-- Шаблон -->
 <!--
