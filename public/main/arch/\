@@ -80,42 +80,23 @@ cp /etc/sway/config ~/.config/sway/</code></pre>
 input * {
    xkb_layout us,ru
    xkb_options grp:alt_shift_toggle
-}
-# Опция "grp:alt_shift_toggle означает "Left Alt + Left Shift" и "Right Alt + Right Shift"
+} # Опция "grp:alt_shift_toggle означает "LEFT Alt + LEFT Shift"
 
 # То же, но добавим ещё Compose-key на правый Alt:
 input * {
    xkb_layout us,ru
    xkb_options grp:alt_shift_toggle,compose:ralt
 }
+
 # grp:alt_shift_toggle — это переключение раскладки Alt+Shift
 # compose:ralt — это назначение правого Alt как Compose-клавиши
 
-# Но мы таким образом изменили правый Alt на Compose (Alt_L → Multi_key)
-# И теперь Right Alt + Right Shift не будет менять раскладку
-# Теперь раскладка будет меняться только на Left Alt + Left Shift
-
-# Логичней будет либо убрать Compose, либо явно указать переключение раскладки только на "Left Alt + Left Shift",
-# чтобы избежать путаницы. Явно укажем "Left Alt + Left Shift":
-input * {
-   xkb_layout us,ru
-   xkb_options grp:lalt_lshift_toggle,compose:ralt
-}
-
 # На моей новой клавиатуре нет правого Win. Но есть клавиша Menu.
-# А я пользуюсь Win'ом с обеих сторон - горячие клавиши Sway.
 # Мне нужно сделать так, чтобы при нажатии на клавишу Menu система воспринимала её как Win 
 # altwin:menu_win – это мы назначаем клавише Menu клавишу Win
 # Добавим эту опцию в xkb_options:
 input * {
     xkb_layout us,ru
-    xkb_options grp:alt_shift_toggle,compose:ralt,altwin:menu_win
-}
-
-# Внезапно я захотел изучать испанский язык. Латиноамериканскую версию.
-# Добавим ещё одну соответствующую раскладку:
-input * {
-    xkb_layout us,ru,latam
     xkb_options grp:alt_shift_toggle,compose:ralt,altwin:menu_win
 }
 </code></pre>
@@ -124,9 +105,10 @@ input * {
 <pre style="margin-top: 6px; margin-bottom: 6px"><code>xkbcli interactive-wayland
 </code></pre>
 <p style="margin-top: 6px; margin-bottom: 6px">Или:</p>
-<pre style="margin-top: 6px"><code>wev </code></pre>
-<h3 style="margin-top: 6px; margin-bottom: 2px">Переключение раскладок</h3>
-<p style="margin-top: 2px; margin-bottom: 6px">Посмотреть доступные варианты переключений раскладок:</p>
+<pre style="margin-top: 6px"><code>wev
+</code></pre>
+<h3>Переключение раскладки</h3>
+<p style="margin-top: 6px; margin-bottom: 6px">Посмотреть доступные варианты переключений клавиатуры:</p>
 <pre style="margin-top: 6px"><code>grep -R "grp:.*toggle" /usr/share/X11/xkb/rules/base.lst
 </code></pre>
 
