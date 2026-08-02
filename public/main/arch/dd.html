@@ -15,7 +15,7 @@
 <h1>dd</h1>
 
 <p>Я взял флэшку, на которую хочу записать образ. Для начала неплохо бы её очистить.</p>
-<p>Я её вставил. И она у меня автоматически примонтировалась по адресу /run/media/mark/ARCH_202507. Перед тем, как её очищать, её нужно отмонтировать.</p>
+<p>Я её вставил. И она у меня автоматически примонтировалась по адресу <code style="background-color: #161616; padding: 0 8px"><i>/run/media/mark/ARCH_202507</i></code>. Перед тем, как её очищать, её нужно отмонтировать.</p>
 
 <pre><code class="language-bash">sudo umount /dev/sdc1
 </code></pre>
@@ -35,18 +35,18 @@ sync
 sudo eject /dev/sdc
 </code></pre>
 
-<p>DD (Data Duplicator) - утилита "копирует бит-в-бит".</p>
+<p><u><strong>DD</strong> (Data Duplicator)</u> - утилита "копирует бит-в-бит".</p>
 <ul>
-    <li>if – input file. Это может быть файл (ISO) или устройство (например, /dev/loop0)</li>
-    <li>of – output file. Диск целиком, а не раздел.</li>
-    <li>bs – block size. Размер блока для чтения/записи.</li>
-    <li>status=progress – Показывает прогресс во время выполнения. Удобно, чтобы видеть, что <strong><i>dd</i></strong> не завис.</li>
-    <li>oflag=sync – флаг, применяемый к выходу. Заставляет <strong><i>dd</i></strong> применять синхронную запись (каждый блок записывается с синхронизацией). Замедляет процесс записи, но повышает надёжность.</li>
+	<li><strong>if</strong> – input file. Это может быть файл (ISO) или устройство (например, /dev/loop0)</li>
+	<li><strong>of</strong> – output file. Диск целиком, а не раздел.</li>
+	<li><strong>bs</strong> – block size. Размер блока для чтения/записи.</li>
+	<li><strong>status=progress</strong> – Показывает прогресс во время выполнения. Удобно, чтобы видеть, что <strong><i>dd</i></strong> не завис.</li>
+	<li><strong>oflag=sync</strong> – флаг, применяемый к выходу. Заставляет <strong><i>dd</i></strong> применять синхронную запись (каждый блок записывается с синхронизацией). Замедляет процесс записи, но повышает надёжность.</li>
 </ul>
 <p>Вместо <strong><i>oflag=sync</i></strong> можно использовать <strong><i>conv=fsync</i></strong>.</p>
 <ul>
-    <li>oflag=sync – сбрасывает КЭШ постоянно;</li>
-    <li>conv=fsync – сбрасывает КЭШ один раз в конце записи.</li>
+	<li><strong>oflag=sync</strong> – сбрасывает КЭШ постоянно;</li>
+	<li><strong>conv=fsync</strong> – сбрасывает КЭШ один раз в конце записи.</li>
 </ul>
 
 <script src="/assets/highlight/languages/bash.min.js"></script>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgresQL</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+<h1>PostgresQL</h1>
+
+<ul>
+   <li><strong>postgresql</strong> – пакет в репозитории Arch</li>
+   <li><strong>postgresql-libs</strong> (ставится автоматически как зависимость) – этот пакет нужен программам, которые умеют подключаться к <strong>PostgresQL</strong> (типа GotoSocial, PeerTube, Synapse, psql и т.д.)</li>
+</ul>
+
+<p><strong>psql</strong> – это официальный консольный клиент <strong>PostgreSQL</strong>.</p>
+<p style="margin-bottom: 0">Основные понятия:</p>
+<ul style="margin-top: 0">
+   <li><strong>сервер</strong>: postgresql.service</li>
+   <li><strong>кластер</strong>: /var/lib/postgres/data</li>
+   <li><strong>база данных</strong>: postgres, template0, template1, testdb</li>
+   <li><strong>роль (пользователь / группа)</strong>: postgres</li>
+   <li><strong>клиент</strong>: psql</li>
+</ul>
+
+<h2>Роли</h2>
+
+<p style="margin-bottom: 0">Роли бывают двух видов:</p>
+<ul style="margin-top: 0">
+   <li>
+      <p style="margin: 0">Роль без LOGIN:</p>
+      <pre style="margin: 0"><code class="language-pgsql">-- Пример создания роли без LOGIN:
+CREATE ROLE developers;</code></pre>
+   </li>
+   <li><p style="margin: 0">Роль с LOGIN:
+      <pre style="margin: 0"><code class="language-pgsql">-- Пример создания роли с LOGIN:
+CREATE ROLE mark LOGIN PASSWORD 'мой_сеКрЕТный_парОлЬ';</code></pre>
+    </p></li>
+</ul>
+<p style="margin-bottom: 0">Некоторые роли имеют атрибут <strong><i>LOGIN</i></strong>, а некоторые – нет. Те, что не имеют – это по сути <strong><i>группы</i></strong>, а те, что имеют – это <strong><i>пользователи</i></strong>.</p>
+<p style="margin-top: 0">Т.е., <strong>пользователь</strong> – это роль, которой разрешён вход, а <strong>группа</strong> – это роль, которой запрещён вход.</p>
+
+<h2>Установка PostgreSQL</h2>
+
+<p style="margin-bottom: 8px">Устанавливаем <strong>PostgreSQL</strong>:</p>
+<pre style="margin-top: 8px"><code class="language-bash">sudo pacman -S postgresql
+</code></pre>
+
+<p style="margin-bottom: 8px"></p>
+<pre style="margin-top: 8px"><code class="language-bash"># Проверяем, запущен ли daemon.
+# В нашем случае он не запущен.
+
+sudo systemctl status postgresql
+  # ○ postgresql.service - PostgreSQL database server
+  #     Loaded: loaded (/usr/lib/systemd/system/postgresql.service; disabled; preset: disabled)
+  #     Active: inactive (dead)
+  #       Docs: man:postgres(1)
+</code></pre>
+
+<p style="margin-bottom: 8px">Сначала проверим, был ли уже инициирован каталог с данными:</p>
+<pre style="margin-top: 8px"><code class="language-bash">sudo ls -la /var/lib/postgres
+  # total 12
+  # drwx------  3 postgres postgres 4096 Aug  2 14:17 .
+  # drwxr-xr-x 22 root     root     4096 Aug  2 14:17 ..
+  # drwx------  2 postgres postgres 4096 Aug  2 14:17 data
+
+sudo ls -la /var/lib/postgres/data
+  # total 8
+  # drwx------ 2 postgres postgres 4096 Aug  2 14:17 .
+  # drwx------ 3 postgres postgres 4096 Aug  2 14:17 ..
+
+# Каталог data уже есть, но он пустой. Значит, он не иницилизирован. Инициализацию нужно выполнить вручную.
+</code></pre>
+
+<p style="margin-bottom: 8px">Инициализируем вручную каталог <strong><i>/var/lib/postgres/data</i></strong> (создаём кластер):</p>
+<pre style="margin-top: 8px"><code class="language-bash">sudo -iu postgres
+
+initdb -D /var/lib/postgres/data
+
+# Если хочется явно задать локаль и кодировку, можно использовать:
+initdb --locale=C.UTF-8 --encoding=UTF8 -D /var/lib/postgres/data
+
+# После сообщения об успешном завершении можно выйти:
+exit
+</code></pre>
+<ul>
+	<li>-i – это сокращение от <strong>initial login</strong>, оно говорит sudo: "Войди так, как будто пользователь <strong><i>postgres</i></strong> только что вошёл в систему."</li>
+	<li>-u – user, т.е. команда выполняется от имени пользователя <strong><i>postgres</i></strong>.</li>
+</ul>
+
+<p style="margin-bottom: 8px">Теперь запускаем daemon:</p>
+<pre style="margin-top: 8px"><code class="language-bash">sudo systemctl start postgresql
+</code></pre>
+
+<p>Теперь у нас запущен сервер PostgreSQL.</p>
+
+<h2>Подключение к серверу</h2>
+
+<p style="margin-bottom: 8px">Теперь подключаемся к серверу:</p>
+<pre style="margin-top: 8px"><code class="language-bash">sudo -iu postgres
+
+# а затем:
+psql
+  # psql (18.4)
+  # Type "help" for help.
+  #
+  # postgres=# 
+</code></pre>
+
+<p><code style="background-color: #161616; padding: 0 8px">на postgres=#</code> — это приглашение <strong><i>psql</i></strong>.</p>
+
+<h2>Базовые команды</h2>
+
+<p style="margin-bottom: 8px">Команды:</p>
+<pre style="margin-top: 8px"><code class="language-pgsql">-- Посмотреть версию:
+SELECT version();
+
+-- Посмотреть имя текущего пользователя:
+SELECT current_user;
+
+-- Посмотреть имя текущей базы данных:
+SELECT current_database();
+</code></pre>
+
+<p style="margin-bottom: 8px">Несколько специальных команд:</p>
+<pre style="margin-top: 8px"><code class="language-pgsql">-- Все базы данных:
+\l
+
+-- Или (более современный вариант):
+\l+
+
+-- Все пользователи (роли):
+\du
+
+-- Все команды psql:
+\?
+
+-- Справка по SQL:
+\h
+-- Справка по команде "CREATE TABLE":
+\h CREATE TABLE
+
+-- Выйти из psql:
+\q
+</code></pre>
+
+<h2>В полевых условиях</h2>
+
+<p style="margin-bottom: 8px">Создадим собственную базу данных:</p>
+<pre style="margin-top: 8px"><code class="language-pgsql">CREATE DATABASE testdb;
+
+-- Проверим:
+\l
+
+-- Подключаемся к ней:
+\c testdb
+</code></pre>
+
+<p style="margin-bottom: 8px">Создадим новую роль <strong><i>mark</i></strong> с атрибутом <strong><i>LOGIN</i></strong> (пользователя):</p>
+<pre style="margin-top: 8px"><code class="language-pgsql">CREATE ROLE mark LOGIN PASSWORD 'п1а2р3о4л5ь';
+
+-- И проверим роли:
+\du
+</code></pre>
+
+<p style="margin-bottom: 8px">Создадим базу данных, которой будет владеть <strong><i>mark</i></strong>:</p>
+<pre style="margin-top: 8px"><code class="language-pgsql">CREATE DATABASE markdb OWNER mark;
+
+-- Проверим:
+\l
+</code></pre>
+
+<p style="margin-bottom: 8px">А теперь подключимся к нашей новой базе данных как новый пользователь:</p>
+<pre style="margin-top: 8px"><code class="language-pgsql">-- Для начала выходим из psql:
+\q
+</code></pre>
+<pre style="margin-top: 8px"><code class="language-bash"># ... и подключаемся как mark:
+psql -U mark -d markdb
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 8px"></p>
+<pre style="margin-top: 8px"><code class="language-bash">
+
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script src="/assets/highlight/languages/pgsql.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
