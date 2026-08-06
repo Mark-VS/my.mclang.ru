@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установка PixelFed</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed/">Вернуться назад</a>
+
+<h1>Установка PixelFed</h1>
+
+<h2 style="margin-bottom: 0">План</h2>
+<ul style="margin-top: 0">
+   <li>Подготовить PostgreSQL</li>
+   <li>Установить Redis</li>
+   <li>PHP</li>
+   <li>Composer</li>
+   <li>PHP-FPM (FastCGI Process Manager)</li>
+   <li>Скачиваем PixelFed</li>
+</ul>
+
+
+<p style="margin-bottom: 6px">Ставим PHP:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S php
+# проверяем:
+php -v
+</code></pre>
+
+<p style="margin-bottom: 6px">Пробуем запустить скрипт. Сначал напишем его в файле <strong><i>test.php</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">&lt;?php
+echo "Привет, это Какашка.\n";
+</code></pre>
+<p style="margin-bottom: 6px">А затем запустим:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php test.php
+</code></pre>
+
+<p style="margin-bottom: 6px">Ставим <strong>Composer</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S composer
+</code></pre>
+
+<p style="margin-bottom: 0">У <strong>PixelFed</strong> примерно такая схема:</p>
+<pre style="margin-top: 0; margin-bottom: 4px; background-color: #222222; padding: 8px">
+Браузер
+     │
+     ▼
+Nginx
+     │
+     ▼
+PHP-FPM
+     │
+     ▼
+PixelFed (PHP-код)
+</pre>
+<p style="margin-top: 4px; margin-bottom: 0">То есть сам PixelFed <strong>не слушает HTTP-порт</strong>.</p>
+<p style="margin-top: 0">Он просто лежит в виде файлов, а <strong>PHP-FPM</strong> выполняет эти файлы по просьбе <strong>Nning</strong>.</p>
+
+<h2 style="margin-bottom: 1px">PHP-FPM</h2>
+<p style="margin-top: 1px"><strong>php-fpm</strong> необходим для связки <strong>Nginx</strong> c <strong>php</strong>. Теоретически, <strong>Nginx</strong> может просить выполнить код и <strong>php</strong>, но это очень медленно работает. <strong>php-fpm</strong> очень хорошо оптимизирует эту работу и грамотно разделяет на потоки процесс выполнения.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo pacman -S php-fpm
+
+# Проверяем:
+php-fpm -v
+
+# Запускаем сервис:
+sudo systemctl enable --now php-fpm
+
+# Посмотреть какой сокет создал php-fpm:
+ls -l /run/php-fpm/
+   # total 0
+   # srw-rw---- 1 http http 0 Aug  4 21:57 php-fpm.sock
+
+# Или можно так:
+find /run -name "*.sock" | grep php
+</code></pre>
+<p style="margin-top: 6px"><strong><i>php-fpm.sock</i></strong> – это не файл. Первая буква <strong><i>s</i></strong> означает <strong>Unix socket</strong>.</p>
+
+<p style="margin-bottom: 6px">Теперь создадим файл <strong><i>index.php</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-php">// ~/projects/php/index.php
+
+&lt;?php
+
+phpinfo();
+</code></pre>
+
+<p style="margin-bottom: 6px">Настраиваем Nginx:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-nginx"># ...
+server {
+    listen 8081;
+    server_name localhost;
+
+    root /home/mark/projects/php;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include fastcgi.conf;
+        fastcgi_pass unix:/run/php-fpm/php-fpm.sock;
+    }
+}
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>fastcgi_pass unix:/run/php-fpm/php-fpm.sock;</i></strong> – это сокет.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Перезагружаем <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px;"><code class="language-bash"># Проверяем конфигурацию:
+sudo nginx -t
+
+# Если всё хорошо, перезагружаем Nginx:
+sudo systemctl restart nginx
+</code></pre>
+
+<p style="margin-top: 6px; margin-bottom: 0">Теперь вводим в строку браузера: <code style="background-color: #212121; padding: 0 8px">http://localhost:8081</code> и должна открыться страница <strong><i>phpinfo()</i></strong>.</p>
+<p style="margin-top: 0">Всё хорошо. PHP-FPM работает.</p>
+
+<p style="margin-bottom: 6px">Можно поэкспериментировать с <strong>php</strong>-кодом. Изменим <strong><i>index.php</i></strong> на:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-php">&lt;?php
+
+echo "<h1>Привет</h1>";
+echo "<p>Сегодня: " . date('Y-m-d H:i:s') . "</p>";
+</code></pre>
+<p style="margin-top: 6px">Время будет меняться при каждом обновлении странички. Т.е. <strong>PHP</strong> действительно выполняется на сервере.</p>
+
+<h2>Как подключиться из PHP к PostgreSQL</h2>
+
+<p style="margin-bottom: 6px">Для начала нам необходим драйвер <strong>PostgreSQL</strong> для <strong>PHP</strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверяем, установлен ли драйвер:
+php -m | grep pg
+
+# Если его нет, то устанавливаем:
+sudo pacman -S php-pgsql
+</code></pre>
+
+<p>На <strong>Arch</strong> пакет <strong>php-pgsql</strong> не создаёт автоматически файл <code style="background-color: #161616; padding: 0 8px">/etc/php/conf.d/pgsql.ini</code>. Расширение нужно включить самостоятельно. Создадим этот файл:</p>
+<pre style="margin-top: 6px"><code class="language-ini">extension=pdo_pgsql
+extension=pgsql
+</code></pre>
+
+<p style="margin-bottom: 6px">И теперь опять проверяем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php -m | grep pg
+   # pdo_pgsql
+   # pgsql
+</code></pre>
+
+<p style="margin-bottom: 6px">Перезагружаем <strong>php-fpm</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo systemctl restart php-fpm
+</code></pre>
+<p style="margin-top: 6px">И теперь можно открывать в браузере страничку <strong><i>http://localhost:8081/</i></strong>.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/php.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

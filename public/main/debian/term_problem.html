@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Term Problem</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/">Вернуться назад</a></p>
+
+<h1>Term Problem</h1>
+
+<p>Я арендовал VPS с установленным Debian 13.</p>
+<p>Подключаюсь со своего домашнего ПК, на котором установлен Arch + Sway. Я использую foot.</p>
+
+
+<p style="margin-bottom: 6px">Подключаюсь:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ssh root@xx.xxx.xx.xx
+
+# Команды на сервере не выполняются:
+apt search nginx
+  # WARNING: terminal is not fully functional
+  # Press RETURN to continue
+</code></pre>
+
+<p>На моём домашнем компьютере терминал – <strong>foot</strong>, поэтому <strong>ssh</strong> передаёт на сервер: <code style="background-color: #161616; padding: 0 8px">TERM=foot</code></p>
+<p>А на <strong>Debian 13</strong> в базе <strong>terminfo</strong> нет описания терминала <strong>foot</strong>, поэтому программы вроде <strong>less</strong>, <strong>vim</strong>, <strong>nano</strong>, <strong>htop</strong> и другие, использующие <strong>ncurses</strong>, не знают, как с ним работать.</p>
+
+<p style="margin-bottom: 6px">Перед подключением, или после входа на сервер, можно выполнить:</p>
+<pre style="margin-top: 6px"><code class="language-bash">export TERM=xterm-256color
+
+# проверяем:
+echo $TERM
+</code></pre>
+
+<p>Но лучше установить описание терминала <strong>foot</strong> на сервер, потому что тогда <strong>vim</strong> будет использовать все возможности <strong>foot</strong>, <strong>less</strong> будет работать корректно. То есть, сервер будет действительно знать, какой у меня терминал, а не притворяться, что это <strong>xterm</strong>.</p>
+<p style="margin-bottom: 6px">Выполним на домашнем ПК:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+infocmp foot &gt; foot.terminfo
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Скопируем файл на сервер:
+scp foot.terminfo user@server:
+
+# А затем выполним на сервере:
+tic -x foot.terminfo
+</code></pre>
+<p style="margin-top: 6px">После этого <strong>Debian</strong> научится понимать терминал <strong>foot</strong>.</p>
+<ul>
+   <li><strong>infocmp</strong> – это программа из пакета <strong>ncurses</strong>, которая показывает описание терминала из базы <strong>terminfo</strong>.</li>
+   <li><strong>terminfo</strong> – находится здесь: <strong><i>/etc/share/terminfo/</i></strong>. Когда программа типа vim или less запускается, она не знает, какой у меня терминал. Она смотрит переменную $TERM, достаёт оттуда значение <strong>foot</strong> и ищет <strong>foot</strong> внутри <strong><i>/etc/share/terminal/</i></strong>. Там должно быть описание, какие клавиши есть, какие цвета, как двигать курсор и т.д. Если описания нет, то <code style="background-color: #161616; padding: 0 8px">infocmp foot</code> выдаёт: <i>infocmp: error: no match in terminfo database for terminal type "foot"</i> и программы начинают жаловаться.</li>
+   <li><strong><i>tic -x</i></strong> – это команда для компиляции файла <strong>terminfo</strong> и установки его в базу терминалов. TermInfo Compiler. <strong><i>-x</i></strong> = сохранить расширенные возможности (extended capabilities). Этот флаг говорит: "Не выбрасывай нестандартные расширения, сохрани всё." Т.е., эта команда создаёт файл <strong><i>/etc/share/terminfo/f/foot</i></strong> – это бинарный файл с описанием терминала.</li>
+</ul>
+<p style="margin-bottom: 0">Подводя итог, <strong>infocmp</strong> вытягивает из бинарного файла описание и превращает его в обычный текстовый формат, а <strong>tic</strong> – наоборот, упаковывает текстовое описание обратно в бинарный файл.</p>
+<p style="margin-top: 0">Теоретически можно и напрямую скопировать бинарник <strong><i>/usr/share/terminfo/f/foot</i></strong> с домашнего ПК на сервер, но лучше так не делать. Формат бинарника зависит от реализации <strong>ncurses</strong>, которые могут иметь небольшие отличия и поддерживать разные расширения. А вот текстовое описание – это переносимый формат. Т.е. допустимо просто скопировать бинарник, но всё же обычно используют <strong>infocmp</strong> + <strong>tic</strong>.</p>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

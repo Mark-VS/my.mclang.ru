@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установка PixelFed</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed/">Вернуться назад</a>
+
+<h1>Установка PixelFed</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/pixelfed/pixelfed.git
+cd pixelfed
+
+# По умолчанию мы оказались в ветке dev,
+# где идётся разработка.
+
+# Переключаемся на ветку релиза:
+git checkout v0.12.7
+
+git status
+   # HEAD detached at v0.12.7
+   # nothing to commit, working tree clean
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

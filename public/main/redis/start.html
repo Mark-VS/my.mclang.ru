@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установка и первое знакомство</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/redis/">Вернуться назад</a></p>
+
+<h1>Установка и первое знакомство</h1>
+
+
+<h2>Установка</h2>
+
+<p style="margin-bottom: 8px">Ставим пакет <strong>valkey</strong>:</p>
+<pre style="margin-top: 8px"><code class="language-bash"># Установка и запуск службы:
+sudo pacman -S valkey
+sudo systemctl start valkey
+
+# Проверяем статус:
+systemctl status valkey
+
+# Подключиться к серверу:
+valkey-cli
+
+# Для совместимости также доступна команда:
+redis-cli
+</code></pre>
+
+<h2>Пробуем команды</h2>
+
+<p style="margin-bottom: 8px"></p>
+<pre style="margin-top: 8px"><code class="language-bash">PING
+
+SET name Mark
+GET name
+
+DEL name
+</code></pre>
+
+<p style="margin-bottom: 8px">Списки:</p>
+<pre style="margin-top: 8px"><code class="language-bash"># Добавим в список mylist два продукта:
+LPUSH mylist apple
+LPUSH mylist banana
+
+# И теперь выведем содержимое списка:
+LRANGE mylist 0 -1
+  # элементы добавляются в начало списка
+
+# А теперь добавим элемент в конец списка:
+RPUSH mylist orange
+# И проверим результат:
+LRANGE mylist 0 -1
+
+# Теперь извлечём элемент из списка:
+LPOP mylist
+
+</code></pre>
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 8px"></p>
+<pre style="margin-top: 8px"><code class="language-bash">
+
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
