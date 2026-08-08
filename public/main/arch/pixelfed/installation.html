@@ -26,6 +26,10 @@
 
 <p style="margin-bottom: 6px">Ставим PHP:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S php
+
+# Или:
+sudo apt install php
+
 # проверяем:
 php -v
 </code></pre>
@@ -40,6 +44,9 @@ echo "Привет, это Какашка.\n";
 
 <p style="margin-bottom: 6px">Ставим <strong>Composer</strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S composer
+
+# или:
+sudo apt install composer
 </code></pre>
 
 <p style="margin-bottom: 0">У <strong>PixelFed</strong> примерно такая схема:</p>
@@ -66,14 +73,25 @@ PixelFed (PHP-код)
 
 # Проверяем:
 php-fpm -v
+   # в Debian бинарник php-fmp не запускается –
+   # есть только сервис php8.4-fpm
 
 # Запускаем сервис:
 sudo systemctl enable --now php-fpm
+# в Debian сервис уже активирован после установки. Можно преверить:
+systemctl is-active php8.4-fpm
 
 # Посмотреть какой сокет создал php-fpm:
 ls -l /run/php-fpm/
    # total 0
    # srw-rw---- 1 http http 0 Aug  4 21:57 php-fpm.sock
+
+# В Debian:
+ls -l /run/php/
+    # total 4
+    # lrwxrwxrwx 1 root     root     30 Aug  8 14:08 php-fpm.sock -> /etc/alternatives/php-fpm.sock
+    # -rw-r--r-- 1 root     root      5 Aug  8 14:08 php8.4-fpm.pid
+    # srw-rw---- 1 www-data www-data  0 Aug  8 14:08 php8.4-fpm.sock
 
 # Или можно так:
 find /run -name "*.sock" | grep php
@@ -94,6 +112,8 @@ server {
     listen 8081;
     server_name localhost;
 
+    ## Важно!! Не запихивать root и index внутрь "location /"
+    ## потому что внутри каждого нового блока root по умолчанию: /var/www/html;
     root /home/mark/projects/php;
     index index.php;
 
@@ -138,6 +158,9 @@ php -m | grep pg
 
 # Если его нет, то устанавливаем:
 sudo pacman -S php-pgsql
+
+# или:
+sudo apt install php-pgsql
 </code></pre>
 
 <p>На <strong>Arch</strong> пакет <strong>php-pgsql</strong> не создаёт автоматически файл <code style="background-color: #161616; padding: 0 8px">/etc/php/conf.d/pgsql.ini</code>. Расширение нужно включить самостоятельно. Создадим этот файл:</p>
@@ -155,6 +178,25 @@ extension=pgsql
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo systemctl restart php-fpm
 </code></pre>
 <p style="margin-top: 6px">И теперь можно открывать в браузере страничку <strong><i>http://localhost:8081/</i></strong>.</p>
+
+<h2>Обязательные расширения</h2>
+<p style="margin-bottom: 6px">Проверим, каких обязательных расширений нам не хватает:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php -m | grep -E 'bcmath|ctype|curl|intl|mbstring|openssl'
+  # ctype
+  # intl
+  # mbstring
+  # openssl
+</code></pre>
+
+<p style="margin-bottom: 0">У меня (на <strong>Debian</strong>) не хватает двух обязательных расширений:</p>
+<ul style="margin-top: 0">
+   <li>bcmath</li>
+   <li>curl</li>
+</ul>
+
+<p style="margin-bottom: 6px">Установим их (нам нужна не <strong><i>curl</i></strong>, а <strong><i>php8.4-curl</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install php8.4-curl php8.4-bcmath
+</code></pre>
 
 <!-- Шаблон -->
 <!--

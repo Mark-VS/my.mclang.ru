@@ -17,6 +17,7 @@
 <ul style="margin-top: 0">
    <li><strong><i>/etc/ssh/ssh_config</i></strong> – системный конфиг</li>
    <li><strong><i>~/.ssh/config</i></strong> – пользовательский конфиг</li>
+   <li><strong><i>~/.ssh/known_hosts</i></strong> – сюда записываются известные хосты.</li>
 </ul>
 
 <p style="margin-bottom: 6px">Зайти на удалённый сервер:</p>
@@ -58,8 +59,12 @@ Host *
 
 <p>Ключи к хостам находятся здесь: <strong><i>~/.ssh/known_hosts</i></strong>.</p>
 <p style="margin-bottom: 6px">Если мы, например, поменяли IP-адрес в DNS-записи и теперь старая DNS-запись указывает на новый IP, то скорее всего <strong>SSH</strong> не даст нам подключиться к серверу через доменное имя, потому что ключ будет соответствовать старой записи. Поэтому можно обновить файл <strong><i>~/.ssh/known_hosts</i></strong> вот так:</p>
-<pre style="margin-top: 6px"><code class="language-bash">ssh-keygen -R myname.ru
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ssh-keygen -R myname.ru
 </code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">То есть, теперь из файла <strong><i>~/.ssh/known_hosts</i></strong> удалилась строка <strong><i>myname.ru ...</i></strong> вместе с ключом. Теперь можно заново попытаться зайти на сервер:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ssh mark@myname.ru
+</code></pre>
+<p style="margin-top: 6px">После авторизации на сервере, <strong>ssh</strong> автоматически создаст новую запись <strong><i>myname.ru ...</i></strong> в файле <strong><i>~/.ssh/known_hosts</i></strong> и добавит туда новый ключ.</p>
 
 <!-- Шаблон -->
 <!--

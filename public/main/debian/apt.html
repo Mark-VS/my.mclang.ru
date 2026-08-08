@@ -15,10 +15,11 @@
 
 <p style="margin-bottom: 6px">Обновление:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo apt update
+sudo apt upgrade
 </code></pre>
 
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash"># Поиск пакета в репозитории по имени:
+<pre style="margin-top: 6px"><code class="language-bash"># Поиск пакета в репозитории по имени и описанию:
 apt search package_name
 
 # Только те пакеты, которые начинаются с "package_name":
@@ -33,6 +34,15 @@ apt-cache search package_name
 # Если установлен aptitude, то:
 aptitude search package_name
 </code></pre>
+
+<p style="margin-bottom: 6px"><strong><i>apt search</i></strong> ищет по имени и по описанию. Если же мы хотим искать только по имени, то:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Ищет точное совпадение по имени пакета:
+apt list "postgresql"
+
+# Ищет пакеты, начинающиеся с "postgresql":
+apt list "postgresql*"
+</code></pre>
+
 
 <p style="margin-bottom: 6px">Проверить, установлен ли какой-то пакет в системе:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># Примерно то же, что и "pacman -Q":

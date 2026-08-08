@@ -49,6 +49,9 @@ CREATE ROLE mark LOGIN PASSWORD 'мой_сеКрЕТный_парОлЬ';</code>
 
 <p style="margin-bottom: 8px">Устанавливаем <strong>PostgreSQL</strong>:</p>
 <pre style="margin-top: 8px"><code class="language-bash">sudo pacman -S postgresql
+
+# Или:
+sudo apt install postgresql
 </code></pre>
 
 <p style="margin-bottom: 8px"></p>
@@ -60,6 +63,8 @@ sudo systemctl status postgresql
   #     Loaded: loaded (/usr/lib/systemd/system/postgresql.service; disabled; preset: disabled)
   #     Active: inactive (dead)
   #       Docs: man:postgres(1)
+
+# В Debian после установки он автоматически запускается, а в Arch – нет.
 </code></pre>
 
 <p style="margin-bottom: 8px">Сначала проверим, был ли уже инициирован каталог с данными:</p>
@@ -77,7 +82,13 @@ sudo ls -la /var/lib/postgres/data
 # Каталог data уже есть, но он пустой. Значит, он не иницилизирован. Инициализацию нужно выполнить вручную.
 </code></pre>
 
-<p style="margin-bottom: 8px">Инициализируем вручную каталог <strong><i>/var/lib/postgres/data</i></strong> (создаём кластер):</p>
+<p style="margin-bottom: 6px">В <strong>Debian</strong> кластер находится в <strong><i>/var/lib/postgresql/17/main/</i></strong>, где <strong><i>17</i></strong> – это версия <strong>PostgreSQL</strong>, а <strong><i>main</i></strong> – это кластер. И он уже инициализирован сразу после установки.</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ls -l /var/lib/postgresql/17/main
+   # total 84
+   # ...
+</code></pre>
+
+<p style="margin-bottom: 8px">В <strong>Arch</strong> инициализируем вручную каталог <strong><i>/var/lib/postgres/data</i></strong> (создаём кластер):</p>
 <pre style="margin-top: 8px"><code class="language-bash">sudo -iu postgres
 
 initdb -D /var/lib/postgres/data
@@ -110,6 +121,11 @@ psql
   # Type "help" for help.
   #
   # postgres=# 
+</code></pre>
+
+<p style="margin-bottom: 8px">Или можно подключиться одной командой:</p>
+<pre style="margin-top: 8px"><code class="language-bash">sudo -u postgres psql
+# тут я просто запускаю bash от имени postgres, но это не login shell.
 </code></pre>
 
 <p><code style="background-color: #161616; padding: 0 8px">на postgres=#</code> — это приглашение <strong><i>psql</i></strong>.</p>
