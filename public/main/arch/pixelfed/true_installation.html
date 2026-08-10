@@ -13,7 +13,7 @@
 
 <h1>Установка PixelFed</h1>
 
-<p style="margin-bottom: 6px"></p>
+<p style="margin-bottom: 6px">Скачиваю проект в <strong><i>/var/www</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/pixelfed/pixelfed.git
 cd pixelfed
 
@@ -28,14 +28,391 @@ git status
    # nothing to commit, working tree clean
 </code></pre>
 
+<p style="margin-bottom: 6px">Проверяю права:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ls -ld /var/www/pixelfed/
+  # drwxrwxr-x 15 mark mark 4096 Aug  8 19:19 /var/www/pixelfed/
+</code></pre>
+<p style="margin-top: 6px"><strong>Nginx</strong> впоследствии <strong>должен смотреть в папку <i>/var/www/pixelfed/public</i></strong>. Владелец папки mark:mark. Это нормально. Менять на <strong><i>www-data</i></strong> не нужно.</p>
+
+
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-bash">git describe --tags
   # v0.12.7
 </code></pre>
 
-<p style="margin-bottom: 6px">Установим PHP-зависимости <strong>Pixelfed</strong> через <strong>Composer</strong>:</p>
+<p style="margin-bottom: 6px">Установим PHP-зависимости <strong>Pixelfed</strong> через <strong>Composer</strong> (запускаем без <strong><i>sudo</i></strong>):</p>
 <pre style="margin-top: 6px"><code class="language-bash">composer install
 </code></pre>
+
+<p style="margin-bottom: 0">После попытки установить зависимости через Composer, я получил кучу предупреждений или ошибок. Composer обнаружил четыре отсутствующих расширения PHP. Не нужно запускать <code style="background-color: #161616; padding: 0 8px">composer update</code>. У меня уже есть <strong><i>composer.lock</i></strong> и мы хотим установить именно зафиксированные в нём версии. Нам нужны:</p>
+<ul style="margin-top: 0; margin-bottom: 0">
+   <li>simplexml</li>
+   <li>zip</li>
+   <li>dom</li>
+   <li>xml</li>
+</ul>
+<p style="margin-top: 0"><strong>simplexml</strong>, <strong>dom</strong> и <strong>xml</strong> находятся в пакете <strong>php8.4-xml</strong>, а <strong>zip</strong> – в пакете <strong>php8.4-zip</strong>. Это в <strong>Debian</strong>.</p>
+
+<p style="margin-bottom: 6px">Устанавливаем их:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install php8.4-xml php8.4-zip
+</code></pre>
+
+<p style="margin-bottom: 6px">Ещё раз проверяем, всё ли у нас есть. На Debian/PHP SimpleXML входит в XML-расширение, и его стоит проверить отдельно:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php -m | grep -E 'bcmath|ctype|curl|dom|intl|mbstring|openssl|simplexml|xml|zip'
+  # bcmath
+  # ctype
+  # curl
+  # dom
+  # intl
+  # libxml
+  # mbstring
+  # openssl
+  # random
+  # xml
+  # xmlreader
+  # xmlwriter
+  # zip
+
+php -m | grep -i simplexml
+  # SimpleXML
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь всё на месте. Повторяем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">composer install
+</code></pre>
+
+<p style="margin-bottom: 0">Дальнейшии план действий:</p>
+<ol style="margin-top: 0">
+   <li>Создать <code style="background-color: #202020; padding: 0 8px">env</code> из примера;</li>
+   <li>Настроить в нём: домен, PostgreSQL, Valkey/Redis, параметры приложения;</li>
+   <li>Сгенерировать APP_KEY;</li>
+   <li>Создать пользователя и БД PostgreSQL</li>
+   <li>Выполнить миграции;</li>
+   <li>Настроить storage и права;</li>
+   <li>Настроить <strong>Nginx</strong> на <strong><i>/var/www/pixelfed/public</i></strong>;</li>
+   <li>Настроить очереди/Horizon и cron.</li>
+</ol>
+
+<p style="margin-bottom: 6px">В папке <strong><i>pixelfed</i></strong> нет конфигурационного <strong>.env</strong>-файла. Есть только шаблоны:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ls -la | grep -E '\.env|env'
+  # -rw-rw-r--  1 mark mark   2106 Aug  8 19:19 .env.docker.example
+  # -rw-rw-r--  1 mark mark   1845 Aug  8 19:19 .env.example
+  # -rw-rw-r--  1 mark mark   1506 Aug  8 19:19 .env.testing
+
+# Копируем шаблон:
+cp .env.example .env
+
+ls -la .env
+  # -rw-rw-r-- 1 mark mark 1845 Aug  9 12:39 .env
+</code></pre>
+
+<h2>PostgreSQL</h2>
+
+<p style="margin-bottom: 6px">Для начала нам нужно создать <strong>PostgreSQL</strong>-пользователя и базу данных. Подключаемся к серверу <strong>PostgreSQL</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u postgres psql
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-pgsql">CREATE USER pixelfed WITH PASSWORD '2m6a1r1k';
+CREATE DATABASE pixelfed OWNER pixelfed;
+
+-- и выходим:
+\q
+</code></pre>
+
+<p style="margin-bottom: 6px">И проверяем подключение:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">psql -h 127.0.0.1 -U pixelfed -d pixelfed
+</code></pre>
+
+<p style="margin-top: 6px">Пользователь и база данных созданы. Теперь можно заполнять файл <strong><i>.env</i></strong>.</p>
+
+<h2>Nginx</h2>
+
+<p style="margin-bottom: 6px">Подправим несколько строчек в нашем <strong>Nginx</strong>-конфиге:</p>
+<pre style="margin-top: 6px"><code class="language-nginx"># корень проекта:
+root /var/www/pixelfed/public;
+
+# Для Laravel/PixelFed нужно направлять неизвестные URL в index.php:
+try_files $uri $uri/ /index.php?$query_string;
+</code></pre>
+
+<p style="margin-bottom: 6px">Весь конфиг для <strong><i>pixeltest.mclang.ru</i></strong> у меня выглядит так:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   server_name pixeltest.mclang.ru www.pixeltest.mclang.ru;
+
+   return 301 https://pixeltest.mclang.ru;
+}
+
+server {
+   listen 443 ssl;
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+   server_name pixeltest.mclang.ru www.pixeltest.mclang.ru;
+   root /var/www/pixelfed/public;
+   index index.php;
+
+   location / {
+      try_files $uri $uri/ /index.php?$query_string;
+   }
+
+   location ~ \.php$ {
+     include fastcgi.conf;
+     fastcgi_pass unix:/run/php/php-fpm.sock;
+   }
+}
+</code></pre>
+
+<h2>Права доступа</h2>
+<p>Я работаю с исходниками и с <strong>Composer</strong> от пользователя <strong><i>mark</i></strong>. А вот <strong>PHP-FPM</strong> работает от пользователя <strong><i>www-data</i></strong>. Когда <strong>Laravel</strong> пытается создать скомпилированный шаблон <strong><i>storage/framework/views/...</i></strong>, или записать лог <strong><i>storage/logs/laravel.log</i></strong>, то <strong><i>www-data</i></strong> получает <code style="background-color: #181818; padding: 0 8px">Permission denied</code>.</p>
+<p style="margin-bottom: 6px">Не нужно делать весь <strong><i>pixelfed</i></strong>, принадлежащим <strong><i>www-data</i></strong>. Дадим владельца <strong><i>www-data</i></strong> только тем каталогам, в которые <strong>Laravel</strong> должен писать.</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo chown -R www-data:www-data /var/www/pixelfed/storage
+sudo chown -R www-data:www-data /var/www/pixelfed/bootstrap/cache
+
+# Проверяем:
+ls -ld /var/www/pixelfed/storage
+  # drwxrwxr-x 7 www-data www-data 4096 Aug  8 19:18 /var/www/pixelfed/storage
+ls -ld /var/www/pixelfed/storage/logs
+  # drwxrwxr-x 2 www-data www-data 4096 Aug  8 19:18 /var/www/pixelfed/storage/logs
+ls -ld /var/www/pixelfed/storage/framework
+  # drwxrwxr-x 6 www-data www-data 4096 Aug  8 19:18 /var/www/pixelfed/storage/framework
+ls -ld /var/www/pixelfed/bootstrap/cache
+  # drwxrwxr-x 2 www-data www-data 4096 Aug  9 11:17 /var/www/pixelfed/bootstrap/cache
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Проверяем с помощью <strong>curl</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">curl -I https://pixeltest.mclang.ru
+  # HTTP/1.1 404 Not Found
+  # Server: nginx
+  # Content-Type: text/html; charset=UTF-8
+  # Connection: keep-alive
+  # Cache-Control: no-cache, private
+  # date: Sun, 09 Aug 2026 14:22:46 GMT
+</code></pre>
+<p style="margin-top: 6px">Всё нормально. Цепочка <code style="background-color: #181818; padding: 0 8px">Браузер - HTTPS - Nginx - PHP-FPM - Laravel/PixelFed</code> уже работает. Но мы ещё не настроили <strong>PixelFed</strong> – не создали нормальный <strong><i>.env</i></strong>, – поэтому получаем ошибку 404. Её отдаёт само приложение.</code></p>
+
+
+<h2>.env</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Instance URL Configuration
+APP_URL="https://pixeltest.mclang.ru"
+APP_DOMAIN="pixeltest.mclang.ru"
+ADMIN_DOMAIN="pixeltest.mclang.ru"
+SESSION_DOMAIN="pixeltest.mclang.ru"
+
+# Database Configuration
+DB_CONNECTION="pgsql"
+DB_HOST="127.0.0.1"
+DB_PORT="5432"
+DB_DATABASE="pixelfed"
+DB_USERNAME="pixelfed"
+DB_PASSWORD="мой_пароль"
+
+# Redis Configuration
+# как есть
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0"><strong><i>ACTIVITY_PUB</i></strong> пока отключён. Для тестового сервера он нам пока не нужен.</p>
+<p style="margin-top: 0; margin-bottom: 0">У меня пока пустой <strong><i>APP_KEY</i></strong>. Его нужно сгенерировать.</p>
+<p style="margin-top: 0; margin-bottom: 6px">В папке <strong><i>pixelfed</i></strong> выполним:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">php artisan key:generate
+
+   # INFO  Application key set successfully.
+</code></pre>
+<p style="margin-top: 6px">Команда сама запишет ключ в файл <strong><i>.env</i></strong>.</p>
+
+<h2>Идём дальше</h2>
+
+<p style="margin-bottom: 6px">Проверим, что <strong>Laravel</strong> видит конфигурацию:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan about
+  # ...
+  # Storage
+  # public/storage ...... NOT LINKED
+  # ...
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим подключение к <strong>PostgreSQL</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">php artisan migrate:status
+  # ERROR  Migration table not found. 
+</code></pre>
+<p style="margin-top: 6px">Это нормально на только что созданное пустой базе данных. <strong>Laravel</strong> ещё не создал таблицу <strong><i>migrations</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Выполняем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan migrate --force
+</code></pre>
+
+<p style="margin-bottom: 6px">У меня <code style="background-color: #181818; padding: 0 8px">php artisan about</code> выдал: <code style="background-color: #181818; padding: 0 8px">public/storage .... NOT LINKED</code>. Исправим это:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan storage:link
+</code></pre>
+
+<h2>Следующий важный шаг – очистить и закэшировать конфигурацию</h2>
+
+<p style="margin-bottom: 6px">Поскольку <strong><i>.env</i></strong> мы уже настроили, <strong>PixelFed</strong> стоит заставить <strong>Laravel</strong> перечитать его и подготовить production-кэш:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cd /var/www/pixelfed
+
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+</code></pre>
+
+<p style="margin-bottom: 6px">А затем:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+</code></pre>
+<p style="margin-top: 6px">Вот тут у меня возникли проблемы с правами. У папки с кэшем владелец <strong><i>www-data</i></strong., а я пытаюсь записать туда данные от имени <strong><i>mark</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Меняю права на:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo chown -R mark:www-data /var/www/pixelfed/storage
+sudo chown -R mark:www-data /var/www/pixelfed/bootstrap/cache
+sudo chmod -R 775 /var/www/pixelfed/storage
+sudo chmod -R 775 /var/www/pixelfed/bootstrap/cache
+</code></pre>
+
+<p style="margin-bottom: 6px">Опять проверяем:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">php arisan about
+</code></pre>
+<p style="margin-top: 6px"><code style="background-color: #191919; padding: 0 8px">Events .... NOT CACHED</code> – это не ошибка. Это не мешает <strong>Laravel</strong> работать.</p>
+<p style="margin-bottom: 0"><strong>Laravel</strong> уже видит и использует:</p>
+<ul style="margin-top: 0">
+   <li>PostgreSQL</li>
+   <li>Valkey через Redis-протокол – кэш и очередь</li>
+   <li>PHP-FPM</li>
+   <li>правильный домен</li>
+   <li>правильный APP_KEY</li>
+   <li>правильные runtime-каталоги</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь можно смело открывать сайт:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">curl -I https://pixeltest.mclang.ru
+</code></pre>
+<p style="margin-top: 6px">Или можно открыть <strong>PixelFed</strong> прямо в браузере.</p>
+
+<h2>Создаём пользователя</h2>
+
+<p style="margin-bottom: 6px">Для начала вообще проверим, какие есть доступные команды:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan list | grep -Ei 'user|admin'
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотреть, какие доступны <strong>Passport</strong>-команды:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan list | grep -i passport
+  #  install:api                               Create an API routes file and install Laravel Sanctum or Laravel Passport
+  # passport
+  #  passport:client                           Create a client for issuing access tokens
+  #  passport:hash                             Hash all of the existing secrets in the clients table
+  #  passport:install                          Run the commands necessary to prepare Passport for use
+  #  passport:keys                             Create the encryption keys for API authentication
+  #  passport:purge                            Purge revoked and / or expired tokens and authentication codes
+</code></pre>
+
+<p style="margin-bottom: 6px">У меня в конфиге выставлено:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">OAUTH_ENABLED="true"
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">А <strong>Laravel</strong> <strong>Passport</strong> использует пару криптографических ключей для <strong>OAuth2</strong>. Сейчас эти ключи, судя по всему, ещё не были сгенерированы.</p>
+<p style="margin-top: 0">Кстати, APP_KEY тут не заменяет Passport keys. Это две разные вещи.</p>
+
+<p style="margin-bottom: 6px">Генерируем ключи:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверяем наличие ключей:
+ls -l storage/oauth-*.key
+
+# Генерируем ключи:
+php artisan passport:keys
+
+# Опять проверяем:
+ls -l storage/oauth-*.key
+  # -rw------- 1 mark mark 3322 Aug  9 16:10 storage/oauth-private.key
+  # -rw-rw---- 1 mark mark  812 Aug  9 16:10 storage/oauth-public.key
+</code></pre>
+
+<p>У меня <strong><i>oauth-private.key</i></strong> имеет права 600, поэтому <strong><i>www-data</i></strong> вообще не может его прочитать.</p>
+<p style="margin-bottom: 6px">Сменим владельца на <strong><i>www-data</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo chown www-data:www-data storage/oauth-*.key
+
+# Проверяем:
+ls -l storage/oauth-*.key
+  # -rw------- 1 www-data www-data 3322 Aug  9 16:10 storage/oauth-private.key
+  # -rw-rw---- 1 www-data www-data  812 Aug  9 16:10 storage/oauth-public.key
+</code></pre>
+<p style="margin-top: 6px">Теперь всё в порядке. Теперь <strong>PHP-FPM</strong> (<strong><i>www-data</i></strong>) должен увидеть наши <strong><i>Passport keys</i></strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Создаём пользователя:
+php artisan user:create
+
+# Делаем его администратором:
+php artisan user:admin mark
+
+# Проверяем:
+php artisan user:show mark
+</code></pre>
+
+<p>Теперь можно авторизовывать под своим никнеймом.</p>
+
+<h2>Изменение конфигурационного файла</h2>
+
+<p style="margin-bottom: 6px">Допустим, я хочу всключить <strong>Activity Pub</strong>. Я включаю эту настройку в <strong>.env</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ACTIVITY_PUB="true"
+AP_REMOTE_FOLLOW="true"
+AP_INBOX="true"
+AP_OUTBOX="true"
+AP_SHAREDINBOX="true"
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Важно!!! <strong>Laravel</strong> использует закэшированную конфигурацию, поэтому изменение <strong><i>.env</i></strong> само по себе не будет подхвачено.</p>
+<p style="margin-top: 0; margin-bottom: 6px">После изменения <strong><i>.env</i></strong> нужно обновить конфигурационный кэш:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo -u www-data php artisan config:cache
+</code></pre>
+<p style="margin-top: 6px">И всё. <strong>PHP-FPM</strong> перезапускать не нужно.</p>
+
+<p>Посмотреть работоспособность приложения можно в админской панели в разделе "Диагностика".</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo apt install php8.4-gd
+sudo apt install php8.4-imagick
+sudo apt install php8.4-redis
+</code></pre>
+
+<p>У меня в "Диагностике" отображалось: <code style="background-color: #161616; padding: 0 8px">instance actor cached: false</code> и я никак не мог это исправить. Но вдруг всё заработало. Фиг знает как. Стало: <code style="background-color: #161616; padding: 0 8px">instance actor cached: ✅ true</code></p>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# Посылал запросы типа:
+curl -I https://pixeltest.mclang.ru/i/actor
+curl -I https://mclang.ru/i/actor
+
+# Обновлял очищал кэши.
+</code></pre>
+
+
+<p>У меня в "Диагностике" до сих пор висит в списке переменных такая вот строка: <code style="background-color: #161616; padding: 0 8px">ACTIVITY_PUB – ❌ false</code>. То есть, не смотря на правильные записи в файле <strong><i>.env</i></strong>, <strong>PixelFed</strong> считает, что федерация выключена.</p>
+<p>Это происходит из-за редкой, но известной архитектурной проблемы кэширования Laravel в Pixelfed. В моём файле <strong><i>.env</i></strong> включена директива: <code style="background-color: #161616; padding: 0 8px">ENABLE_CONFIG_CACHE="true"</code>.</p>
+<p>Когда она активна, <strong>Pixelfed</strong> принудительно включает внутренний жесткий кэш конфигурации. Иногда этот кэш «залипает» в базе данных или Redis настолько глубоко, что обычная команда <code style="background-color: #161616; padding: 0 8px">php artisan config:cache</code> просто перезаписывает старую ошибку поверх новой, игнорируя реальное содержимое файла <strong><i>.env</i></strong>.</p>
+<p>Чтобы принудительно заставить Pixelfed применить настройки ACTIVITY_PUB="true", выполните пошагово следующие команды в терминале:</p>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Полностью очищаем кэш конфигурации и маршрутов
+sudo -u www-data php artisan config:clear
+sudo -u www-data php artisan route:clear
+sudo -u www-data php artisan cache:clear
+
+# Очищаем ВСЮ оперативную память Redis (там сидит старый конфиг!)
+valkey-cli flushall
+
+sudo systemctl restart php8.4-fpm
+
+# Давайте проверим, что выдает Pixelfed в консоли прямо сейчас, без веб-интерфейса. Выполните команду:
+sudo -u www-data php artisan config:show app
+
+# После того как вы выполните шаги выше и обнулите Redis, верните статус актора одной командой:
+sudo -u www-data php artisan instance:actor
+</code></pre>
+
 
 <!-- Шаблон -->
 <!--
@@ -46,6 +423,8 @@ git status
 -->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/pgsql.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>

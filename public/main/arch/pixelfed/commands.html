@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>empty</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed">Вернуться назад</a>
+
+<h1>lala</h1>
+
+
+<p style="margin-bottom: 6px">Очистить кэш:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+</code></pre>
+
+<p style="margin-bottom: 6px">А эта команда очищает все основные <strong>Laravel</strong>-кэши, поэтому можно выполнить только её:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan optimize:clear
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+</code></pre>
+
+
+<p style="margin-bottom: 6px">выполняем в Tinker:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+config('federation.activitypub.delivery.logger.enabled')
+  # = false
+</code></pre>
+
+<p style="margin-bottom: 6px">Добавляем в <strong><i>.env</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">AP_LOGGER_ENABLED="true"
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Очищаем кэш:
+php artisan config:clear
+
+# Заново кэшируем конфиг:
+sudo -u www-data php artisan config:cache
+</code></pre>
+
+<p style="margin-bottom: 6px">И теперь опять проверяем в Tinker, применилась ли настройка:</p>
+<pre style="margin-top: 6px"><code class="language-bash">config('federation.activitypub.delivery.logger.enabled')
+  # = true
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ochered</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed">Вернуться назад</a>
+
+<h1>ochered</h1>
+
+<p style="margin-bottom: 6px">Выполнить одно событие из очереди:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php artisan queue:work --once
+
+php artisan queue:work --once --queue=shared
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+Cache::has('status:replies:all:992188066106474498')
+  # = true
+
+Cache::get('status:replies:all:992188066106474498')
+  # тут должен быть объект пагинации
+
+# Можно просто удалить кэш:
+Cache::forget('status:replies:all:992188066106474498')
+
+# После этого:
+Cache::has('status:replies:all:992188066106474498')
+  # = false
+</code></pre>
+<p style="margin-bottom: 6px">Затем, не оставляя нового комментария, снова откроем фотографию, или выполним:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -s 'https://pixeltest.mclang.ru/api/v2/statuses/992188066106474498/replies?limit=10'
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
