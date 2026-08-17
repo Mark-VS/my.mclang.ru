@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>swap</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>swap</h1>
+
+<h2>Как создать swap-файл</h2>
+
+<p style="margin-bottom: 6px">Для начала создадим пустой файл размером 4 GB:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo fallocate -l 4G /swapfile
+</code></pre>
+
+<ul style="margin-top: 6px">
+   <li><strong><i>fallocate</i></strong> – создать файл с заранее выделенным дисковым пространством;</li>
+   <li><strong><i>-l 4G</i></strong> – размер файла 4 GiB;</li>
+   <li><strong><i>/swapfile</i></strong> – имя и расположение файла</li>
+</ul>
+
+<p style="margin-bottom: 6px">Впринципе то же самое можно сделать с помощью <strong>dd</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo dd if=/dev/zero of=/swapfile bs=1M count=4096 
+</code></pre>
+
+<p style="margin-bottom: 6px">Создаём <strong>swap</strong> из пустого файла:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo chown 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Проверяем:
+free -h
+   #                total        used        free      shared  buff/cache   available
+   # Mem:           3.8Gi       1.5Gi       792Mi        84Mi       1.9Gi       2.3Gi
+   # Swap:          4.0Gi          0B       4.0Gi
+</code></pre>
+<p style="margin-top: 6px"><strong><i>mkswap</i></strong> – в начале файла записывается специальная <strong>swap</strong>-разметка (swap header), чтобы Linux мог распознавать его как <strong>swap</strong>.</p>
+
+<p style="margin-bottom: 6px">Если нет записи в <strong><i>/etc/fstab</i></strong>, то после перезагрузки нужно будет заново включить подготовленный файл:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo swapon /swapfile
+
+# Проверить, включён ли swap-файл:
+sudo swapon --show
+
+# Если нужно выключить swap-файл, то:
+sudo swapoff /swapfile
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

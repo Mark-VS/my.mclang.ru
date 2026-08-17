@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Совместимость с GotoSocial</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed">Вернуться назад</a>
+
+<h1>Совместимость с GotoSocial</h1>
+
+<p style="margin-bottom: 0">Когда я отвечаю с <strong>PixelFed</strong>-аккаунта на пост, опубликованный в <strong>GotoSocial</strong>, то в логах получаю ошибки. И ответ не отображается в <strong>GotoSocial</strong>-посте.</p>
+<p style="margin-top: 0">Вот прямая ссылка на мой <strong>GotoSocial</strong>-пост: <i>https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</i></p>
+
+<p style="margin-bottom: 6px">Вот кусок из логов, который появляется в момент ответа:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">func=dereferencing.(*Dereferencer).dereferenceStatusAncestors
+level=ERROR
+username=mark
+original=https://pixeltest.mclang.ru/p/mark/993956318224556161
+parent=https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT
+msg="indirect in_reply_to_uri => https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT"
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0"><strong>GTS</strong> получил комментарий от <strong>PixelFed</strong>. Проблема не в доставке. И после этого <strong>GTS</strong> обнаружил проблему с <code style="background-color: #161616; padding: 0 8px">inReplyTo</code>.</p>
+<p style="margin: 0">Самое важное: два разных URL одного <strong>GTS</strong>-поста.</p>
+<p style="margin: 0"><strong>PixelFed</strong> говорит: <code style="background-color: #161616; padding: 0 8px">https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</code></p>
+<p style="margin: 0">А <strong>GotoSocial</strong> считает каноническим <i>ActivityPub URI</i> этого же поста: <code style="background-color: #161616; padding: 0 8px">https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</code></p>
+
+<p style="margin-bottom: 6px">То есть:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">Web URL:
+https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT
+
+ActivityPub URL:
+https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">И <strong>GotoSocial</strong> специально ругается: <code style="background-color: #161616; padding: 0 8px">indirect in_reply_to_uri</code></p>
+
+<p style="margin-top: 0">Причём в исходном коде <strong>GoToSocial</strong> эта ситуация прямо описана: если URI, указанный как <i>inReplyTo</i>, отличается от URI найденного родительского статуса, <strong>GTS</strong> считает это <i>indirect URL</i> и не связывает ответы через <i>database ID</i>, потому что это может приводить к неожиданным ситуациям.</p>
+
+<h2>Подробнее</h2>
+
+<ul>
+   <li><strong><i>https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</i></strong> – в браузере. Это публичный URL страницы поста. Именно его <strong>GTS</strong> показывает пользователю.</li>
+   <li>
+      <p style="margin: 0"><strong><i>https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</i></strong> – это ActivityPub ID объекта.</p>
+	  <p style="margin: 0">То есть, в ActivityPub JSON, который <strong>GTS</strong> отдаёт для этого поста, скорее всего будет: <code style="background-color: #161616; padding: 0 8px">"id": "https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT"</code></p>
+   </li>
+</ul>
+<p style="margin-bottom: 0">Оба URL могут совершенно нормально существовать одновременно.</p>
+<ul style="margin-top: 0">
+	<li><strong><i>/@mark/statuses/...</i></strong> – для человека</li>
+	<li><strong><i>/users/mark/statuses/...</i></strong> – ActivityPub Object ID</li>
+</ul>
+
+<p style="margin-bottom: 6px">Но в реализации <strong><i>DereferenceStatusAncestors</i></strong> в <strong>GoToSocial</strong> есть специальная проверка именно для такого случая:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">current.InReplyToURI != parent.URI
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">И при несовпадении <strong>GTS</strong> пишет: <code style="background-color: #161616; padding: 0 8px">indirect in_reply_to_uri</code></p>
+<p style="margin: 0">Причём комментарий в исходнике буквально объясняет логику: <strong>GoToSocial</strong> считает такой URL косвенным и намеренно не связывает два статуса через <i>database ID</i>, потому что это может приводить к неожиданным результатам.</p>
+<p style="margin: 0">То есть, это не случайная ошибка. Это предусмотренное поведение <strong>GTS</strong>.</p>
+
+<h2>Сравнение с Mastodon</h2>
+
+<p style="margin-bottom: 6px"><strong>Mastodon</strong> отправил:</p>
+<pre style="margin-top: 6px"><code class="language-bash">"inReplyTo": "https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT"
+</code></pre>
+
+<p style="margin-bottom: 6px">А <strong>PixelFed</strong> отправил:</p>
+<pre style="margin-top: 6px"><code class="language-bash">"inReplyTo": "https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT"
+</code></pre>
+
+<h2>Исправление</h2>
+
+<p style="margin-bottom: 6px">В <strong><i>app/Transformer/ActivityPub/Verb/CreateNote.php</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">'inReplyTo' =&gt; $status-&gt;in_reply_to_id ? $status-&gt;parent()-&gt;url() : null,
+</code></pre>
+<p style="margin-bottom: 6px">заменить на:</p>
+<pre style="margin-top: 6px"><code class="language-bash">'inReplyTo' =&gt; $status-&gt;in_reply_to_id ? $status-&gt;parent()-&gt;object_url : null,
+</code></pre>
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

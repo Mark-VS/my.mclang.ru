@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActivityPub</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed">Вернуться назад</a>
+
+<h1>ActivityPub</h1>
+
+<p style="margin: 0">Когда я отвечаю на чей-то пост (в <strong>PixelFed</strong> отвечаю на <strong>GTS</strong>-пост), то <strong>PixelFed</strong> создаёт в своей базе данных копию оригинального поста. Даже не копию, а запись со всей информацией об оригинальном посте. У этой записи есть свой ID.</p>
+<p style="margin-top: 0">Если я хочу найти у себя в базе данных <strong>PixelFed</strong> все комментарии-ответы, которые я оставлял к этому <strong>GTS</strong>-посту, то мне нужно искать у себя записи, в которых поле <strong><i>in_reply_to_id</i></strong> содержит <i>id</i> <strong>GTS</strong>-поста.</p>
+
+<p style="margin-bottom: 0">У меня в <strong>PixelFed</strong> шесть проблемных комментариев. Я их оставил к <strong>GTS</strong>-посту. <strong>PixelFed</strong>, открывая этот <strong>GTS</strong>-пост, не хочет их грузить. А <strong>GTS</strong> их не показывает из-за неправильного <code style="background-color: #191919; padding: 0 8px">inReplyTo</code>. Мне нужно найти их.</p>
+<p style="margin: 0">Идентификатор <strong>GTS</strong>-поста я могу взять из строки браузера. У меня он: <strong><i>https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</i></strong></p>
+<p style="margin-top: 0">Как мне узнать <i>id</i> <strong>GTS</strong>-поста у себя в <strong>PixelFed</strong>-записи?</p>
+<p style="margin-bottom: 6px">Выполняем в <strong>Tinker</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-php">App\Status::where('uri', 'https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT')-&gt;first();
+  # = App\Status {#7068
+  #     id: 993780522457985094,
+  #     uri: "https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT",
+  #     caption: "Вот и отпуск наступил. Подкрался незаметно.",
+  #     rendered: "<p>Вот и отпуск наступил. Подкрался незаметно.</p>",
+  #     profile_id: 992204256426938377,
+  #     in_reply_to_id: null,
+  #     reblog_of_id: null,
+  #     url: "https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT",
+  #     ...
+</code></pre>
+<p style="margin-top: 6px">В самом начале вывода можно заметить поле <strong><i>id</i></strong>, которое равно: <i>993780522457985094</i>.</p>
+
+<p style="margin-bottom: 6px">Или можно сразу достать <strong><i>id</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-php">App\Status::where('uri', 'https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT')->value('id');
+  # = 993780522457985094
+</code></pre>
+
+<p style="margin-bottom: 6px">У импортированного <strong>GTS</strong>-поста есть <code style="background-color: #191919; padding: 0 8px">object_url = https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT</code>, поэтому можно искать и так:</p>
+<pre style="margin-top: 6px"><code class="language-php">App\Status::where('object_url', 'https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT')->value('id');
+  # = 993780522457985094
+</code></pre>
+
+<h3>Немного о полях:</h3>
+<ul>
+   <li>id – внутренний <i>id</i> записи в базе <strong>PixelFed</strong>;</li>
+   <li>uri – идентификатор/URI оригинального ActivitPub-объекта.</li>
+   <li>url – веб-адрес статуса, который можно открыть в браузере</li>
+   <li>object_url – canonical URL самого ActivityPub-объекта. Именно его GTS использует как id в JSON ActivityPub</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь найдём все записи, которые являются ответами к <i>993780522457985094</i>:</p>
+<pre style="margin-top: 6px"><code class="language-php">App\Status::whereInReplyToId(993780522457985094)
+   -&gt;get(['id', 'caption', 'created_at', 'in_reply_to_id', 'uri', 'url', 'object_url'])
+   -&gt;sortBy('created_at');
+  # = Illuminate\Database\Eloquent\Collection {#6994
+  #     all: [
+  #       App\Status {#7019
+  #         id: 993995910870384776,
+  #         caption: "Что-нибудь накарякаю с Pixelfed-аккаунта.",
+  #         created_at: "2026-08-14 21:44:52",
+  #         in_reply_to_id: 993780522457985094,
+  #         uri: null,
+  #         url: null,
+  #         object_url: null,
+  #       },
+  #       App\Status {#7020
+  #         id: 993996129739673737,
+  #         caption: "Пиписон-бомжон",
+  #         created_at: "2026-08-14 21:45:44",
+  #         in_reply_to_id: 993780522457985094,
+  #         uri: null,
+  #         url: null,
+  #         object_url: null,
+  #       },
+  #       App\Status {#7021
+  #         id: 993996217071931530,
+  #         caption: "Две братушки-говнушки",
+  #         created_at: "2026-08-14 21:46:05",
+  #         in_reply_to_id: 993780522457985094,
+  #         uri: null,
+  #         url: null,
+  #         object_url: null,
+  #       },
+  #       App\Status {#7022
+  #         id: 993996275905888395,
+  #         caption: "Лошка-хаврошка",
+  #         created_at: "2026-08-14 21:46:19",
+  #         in_reply_to_id: 993780522457985094,
+  #         uri: null,
+  #         url: null,
+  #         object_url: null,
+  #       },
+  #       App\Status {#7023
+  #         id: 993996354882265228,
+  #         caption: "трюшка-пердушка",
+  #         created_at: "2026-08-14 21:46:38",
+  #         in_reply_to_id: 993780522457985094,
+  #         uri: null,
+  #         url: null,
+  #         object_url: null,
+  #       },
+  #       App\Status {#7024
+  #         id: 993996395739418765,
+  #         caption: "Шмона-распердона",
+  #         created_at: "2026-08-14 21:46:48",
+  #         in_reply_to_id: 993780522457985094,
+  #         uri: null,
+  #         url: null,
+  #         object_url: null,
+  #       },
+  #     ],
+  #   }
+</code></pre>
+
+<p>Видно, что у этих шести статусов <strong><i>uri</i></strong>, <strong><i>url</i></strong> и <strong><i>object_url</i></strong> равны <strong><i>null</i></strong>.</p>
+<p style="margin-bottom: 6px">Выполним для одного из них, чтобы найти его:</p>
+<pre style="margin-top: 6px"><code class="language-php">$s = App\Status::find(993995910870384776);
+</code></pre>
+<p style="margin-bottom: 6px">Теперь в объекте <strong><i>$s</i></strong> содержится конкретный пост (статус) и мы можем использовать его методы и просматривать свойства:</p>
+<pre style="margin-top: 6px"><code class="language-php">$s-&gt;getAttributes();
+$s-&gt;profile;
+$s-&gt;permalink();
+$s-&gt;url();
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Удалить конкретный статус:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-php">App\Jobs\StatusPipeline\StatusDelete::dispatch(
+    App\Status::find(993995910870384776)
+);
+</code></pre>
+<p style="margin-top: 6px"><code style="background-color: #191919; padding: 0 8px">dispatch()</code> не удаляет запись прямо сейчас. Он отправляет <i>StatusDelete</i> в <strong>Laravel Queue</strong>. А уже <strong>Horizon</strong> должен подобрать эту <i>job</i> и выполнить её.</p>
+
+<p style="margin-bottom: 6px">После удаления проверяем его наличие:</p>
+<pre style="margin-top: 6px"><code class="language-php">App\Status::find(993995910870384776);
+  # = null
+</code></pre>
+
+
+<h2>Пробуем редактировать статус:</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-php"># Достаём конкретный статус:
+$s = App\Status::find(993996395739418765)
+
+# Смотим его атрибуты:
+$s-&gt;getAttributes();
+
+# Присваиваем нужным атрибутам значения:
+$s-&gt;uri = 'https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT';
+$s-&gt;url = 'https://syu.su/@mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT';
+$s-&gt;object_url = 'https://syu.su/users/mark/statuses/01KWPTPKQZEDGD22H5B5G4PDYT';
+
+# Сохраняем:
+$s-&gt;save();
+
+# И опять проверяем, чтобы удостовериться, что всё верно:
+$s-&gt;getAttributes();
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/php.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

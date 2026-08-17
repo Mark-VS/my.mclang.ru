@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pixelfed">Вернуться назад</a>
+
+<h1>Horizon</h1>
+
+<p style="margin-bottom: 6px">Устанавливаем <strong>Horizon</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">php arisan horizon:install
+</code></pre>
+
+<p style="margin-bottom: 6px">Дальше просто запускаем <strong>Horizon</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">php artisan horizon
+</code></pre>
+<p style="margin-top: 6px">И <strong>Horizon</strong> поднимет workers согласно настройкам в: <code style="background-color: #191919; padding: 0 8px">config/horizon.php</code> и будет постоянно обрабатывать очереди.</p>
+
+<h2>Создадим unit-файл</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo touch /etc/systemd/system/pixelfed-horizon.service
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-ini">[Unit]
+Description=PixelFed Laravel Horizon
+After=network.target redis-server.service
+
+[Service]
+User=mark
+Group=mark
+WorkingDirectory=/var/www/pixelfed
+ExecStart=/usr/bin/php artisan horizon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p style="margin-top: 6px">Если папка <strong><i>/var/www/pixelfed/</i></strong> принадлежит <strong>www-data</strong>, то тогда лучше поменять поля <strong><i>User</i></strong> и <strong><i>Group</i></strong> на <strong>www-data</strong>.</p>
+
+<p style="margin-bottom: 6px">После создания unit-файла:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl daemon-reload
+
+# Попробуем запустить сервис:
+sudo systemctl start pixelfed-horizon
+
+# Если всё запускается нормально, то можно включить автозапуск:
+sudo systemctl enable pixelfed-horizon
+</code></pre>
+
+<p style="margin-bottom: 6px">unit-файл с оглядкой на предложенный на гитхабе (chatгпт):</p>
+<pre style="margin-top: 6px"><code class="language-ini">[Unit]
+Description=Pixelfed task queueing via Laravel Horizon
+After=network.target postgresql.service valkey-server.service
+Requires=postgresql.service
+Requires=valkey-server.service
+Requires=php8.4-fpm  # ГПТ посоветовал убрать эту строку
+Requires=nginx  # и эту тоже
+  # типа пусть php8.4-fpm и nginx живут своей независимой жизнью
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/php /var/www/pixelfed/artisan horizon
+User=mark
+Group=mark
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

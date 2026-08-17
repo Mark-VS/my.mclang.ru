@@ -98,6 +98,28 @@ find /run -name "*.sock" | grep php
 </code></pre>
 <p style="margin-top: 6px"><strong><i>php-fpm.sock</i></strong> – это не файл. Первая буква <strong><i>s</i></strong> означает <strong>Unix socket</strong>.</p>
 
+<h2>Ограничение размера загружаемых файлов</h2>
+
+<p style="margin-bottom: 0">По умолчанию <strong>php-fpm</strong> не будет разрешать нам загружать файлы больше 2 MB.</p>
+<p style="margin-top: 0">Чтобы это дело исправить, нам нужно зайти в файл настроек <strong>php-fpm</strong>: <strong><i>/etc/php/8.4/fpm/php.ini</i></strong></p>
+
+<p style="margin-bottom: 6px">Настройки по умолчанию:</p>
+<pre style="margin-top: 6px"><code class="language-ini">post_max_size = 8M
+upload_max_filesize = 2M
+</code></pre>
+
+<p style="margin-bottom: 6px">Заменим их на что-то более подходящее:</p>
+<pre style="margin-top: 6px"><code class="language-ini">post_max_size = 25M
+upload_max_filesize = 20M
+</code></pre>
+
+<p style="margin-bottom: 6px">А затем перезагружаем <strong>php-fpm</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl restart php8.4-fpm
+</code></pre>
+
+
+
+
 <p style="margin-bottom: 6px">Теперь создадим файл <strong><i>index.php</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-php">// ~/projects/php/index.php
 

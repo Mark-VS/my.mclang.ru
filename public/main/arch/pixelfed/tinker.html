@@ -34,6 +34,107 @@ config_cache('federation.activitypub.enabled')
 <p>В Settgins – Overview есть checkbox <strong>ActivityPub</strong>. Нужно его включить. И затем нажимает кнопку "Save".</p>
 
 
+<p style="margin-bottom: 6px">У меня есть опубликованный пост на pixelfed-аккаунте. Единственный пост. Под ним два локальных комментария и один комментарий с GotoSocial-аккаунта. При этом в Mastodon эти комментарии не подгружаются, когда я октываю фотку по прямой ссылке.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Найдём этот пост:
+php artisan tinker
+
+$status = App\Status::find(992889863641997347);
+  # = App\Status {#6988
+  #     id: 992889863641997347,
+  #     uri: null,
+  #     caption: "Это мой скриншотик. Правда, он классный?",
+  #     rendered: "",
+  #     profile_id: 992115466280386562,
+  #     in_reply_to_id: null,
+  #     reblog_of_id: null,
+  #     url: null,
+  #     is_nsfw: false,
+  #     visibility: "public",
+  #     reply: false,
+  #     likes_count: 0,
+  #     reblogs_count: 0,
+  #     language: null,
+  #     conversation_id: null,
+  #     local: true,
+  #     application_id: null,
+  #     in_reply_to_profile_id: null,
+  #     entities: null,
+  #     created_at: "2026-08-11 20:29:50",
+  #     updated_at: "2026-08-11 20:44:11",
+  #     deleted_at: null,
+  #     cw_summary: null,
+  #     scope: "public",
+  #     type: "photo",
+  #     reply_count: 3,
+  #     comments_disabled: false,
+  #     place_id: null,
+  #     object_url: null,
+  #     edited_at: null,
+  #     trendable: null,
+  #     media_ids: null,
+  #     pinned_order: null,
+  #   }
+</code></pre>
+
+<p style="margin-bottom: 6px">Кол-во ответов - верное (3). Но меня немного смущают вот эти строки:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">  # uri: null
+  # url: null
+  # object_url: null
+</code></pre>
+<p style="margin-top: 6px">Неплохо бы проверить на других инстансах эти поля.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+$status->reply_count
+  # = 3
+
+$status->comments()->count()
+  # = 3
+
+# Выдать все ответы к этому посту:
+App\Status::where('in_reply_to_id', 992889863641997347)->get();
+  # = Illuminate\Database\Eloquent\Collection {#6992
+  #     all: [
+  #       App\Status {#6993
+  #         id: 992890209885044772,
+  #         uri: null,
+  #         caption: "Я сам же и прокомментирую свой скриншот.",
+  #         rendered: "",
+  #         profile_id: 992115466280386562,
+  #         in_reply_to_id: 992889863641997347,
+  #         reblog_of_id: null,
+  #         url: null,
+  #         is_nsfw: false,
+  #         visibility: "public",
+  #         reply: false,
+  #         likes_count: 0,
+  #         reblogs_count: 0,
+  #         language: null,
+  #         conversation_id: null,
+  #         local: true,
+  #         application_id: null,
+  #         in_reply_to_profile_id: 992115466280386562,
+  #         entities: null,
+  #         created_at: "2026-08-11 20:31:13",
+  #         updated_at: "2026-08-11 20:31:13",
+  #         deleted_at: null,
+  #         cw_summary: null,
+  #         scope: "public",
+  #         type: "text",
+  #         reply_count: null,
+  #         comments_disabled: false,
+  #         place_id: null,
+  #         object_url: null,
+  #         edited_at: null,
+  #         trendable: null,
+  #         media_ids: null,
+  #         pinned_order: null,
+  #       },
+  #       App\Status {#6994
+  #       ...
+</code></pre>
+
+
 <!-- Шаблон -->
 <!--
 <p style="margin-bottom: 6px"></p>

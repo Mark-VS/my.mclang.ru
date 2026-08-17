@@ -9,12 +9,10 @@
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
-<a href="/arch">Вернуться назад</a>
+<a href="/arch/peertube/">Вернуться назад</a>
 
 <h1 style="margin-bottom: 8px">Установка</h1>
 
-<p style="margin-top: 8px; margin-bottom: 0">Официальный сайт: <a href="https://joinpeertube.org/">joinpeertube.org</a></p>
-<p style="margin-top: 0">Страничка на Github: <a href="https://github.com/chocobozzz/peertube">github.com/chocobozzz/peertube</a></p>
 
 <p style="margin-bottom: 6px">Скачиваем исходники:</p>
 <pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/Chocobozzz/PeerTube.git
@@ -31,7 +29,486 @@
    <li>Yarn</li>
 </ul>
 
+<p style="margin-bottom: 0"><strong>PeerTube</strong> официально ориентируется примерно на <strong>4 GB RAM</strong>.</p>
+<p style="margin: 0">У меня <strong>3.8 GB</strong>. Впринципе должно хватить, но во время установки/обработки видео память может закончиться. Поэтому неплохо бы сначала сделать <strong>swap</strong>-файл.</p>
+<p style="margin-top: 0"><a href="/arch/swap.html">Как создать swap-файл</a></p>
+
+<p style="margin-bottom: 6px">После создания <strong>swap</strong>-файла проверим память:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">free -h
+   #                total        used        free      shared  buff/cache   available
+   # Mem:           3.8Gi       1.5Gi       792Mi        84Mi       1.9Gi       2.3Gi
+   # Swap:          4.0Gi          0B       4.0Gi
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем, ЧТО уже есть в наличии:</p>
+<pre style="margin-top: 6px"><code class="language-bash">node --version
+   # -bash: node: command not found
+
+npm --version
+   # -bash: npm: command not found
+
+ffmpeg -version | head -n 1
+   # -bash: ffmpeg: command not found
+
+psql --version
+   # psql (PostgreSQL) 17.10 (Debian 17.10-0+deb13u1)
+
+valkey-server --version
+   # Valkey server v=8.1.1 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=ad0f3ed608b40934
+
+gcc --version | head -n 1
+   # -bash: gcc: command not found
+
+g++ --version
+   # -bash: g++: command not found
+
+make --version
+   # -bash: make: command not found
+
+python3 --version
+   # Python 3.13.5
+
+wget --version
+  # GNU Wget 1.25.0 built on linux-gnu.
+  # ...
+
+curl --version
+   # curl 8.14.1 (x86_64-pc-linux-gnu) libcurl/8.14.1 OpenSSL/3.5.6 zlib/1.3.1 brotli/1.1.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.64.0 nghttp3/1.8.0 librtmp/2.3 OpenLDAP/2.6.10
+   # Release-Date: 2025-06-04, security patched: 8.14.1-2+deb13u4
+   # Protocols: dict file ftp ftps gopher gophers http https imap imaps ipfs ipns ldap ldaps mqtt pop3 pop3s rtmp rtsp scp sftp smb smbs smtp smtps telnet tftp ws wss
+   # Features: alt-svc AsynchDNS brotli GSS-API HSTS HTTP2 HTTP3 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM PSL SPNEGO SSL threadsafe TLS-SRP UnixSockets zstd
+
+unzip --version
+   # -bash: unzip: command not found
+
+git --version
+   # git version 2.47.3
+
+dpkg -s build-essential
+   # dpkg-query: package 'build-essential' is not installed and no information is available
+   # Use dpkg --info (= dpkg-deb --info) to examine archive files.
+
+dpkg -s python3-dev
+   # dpkg-query: package 'python3-dev' is not installed and no information is available
+   # Use dpkg --info (= dpkg-deb --info) to examine archive files.
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Проверим, какая версия <strong>PeerTube</strong> сейчас последняя:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -s https://api.github.com/repos/Chocobozzz/PeerTube/releases/latest | grep '"tag_name"'
+  #  "tag_name": "v8.2.4",
+</code></pre>
+<p style="margin-bottom: 6px">Проверим доступность <strong>Valkey</strong>-сервера:</p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli ping
+   # PONG
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt update
+sudo apt upgrade
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Ставим ffmpeg:
+sudo apt install ffmpeg
+
+# Ставим build-essential (gcc, g++, make и т.д.):
+sudo apt install build-essential
+
+sudo apt install unzip
+</code></pre>
+
+<h2>Ставим Node.js 22</h2>
+
+<p style="margin-bottom: 6px">Эта команда добавит репозиторий <strong><i>NodeSource</i></strong> для <strong>Node.js 22</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+</code></pre>
+
+<p style="margin-bottom: 6px">Устанавливаем:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo apt install nodejs
+
+# Проверим:
+node --version
+npm --version
+
+corepack --version
+   # 0.34.6
+sudo corepack enable
+corepack prepare pnpm@10 --activate
+pnpm --version
+   # 10.34.5
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0"><strong>corepack</strong> – это вспомогательная программа, которая идёт вместе с <strong>Node.js</strong> и предназначена для управления менеджерами пакетов вроде <strong>pnpm</strong> и <strong>yarn</strong>.</p>
+<p style="margin: 0">Зачем <strong>corepack</strong> нужен <strong>PeerTube</strong>? У <strong><i>JavaScript</i></strong> есть несколько менеджеров пакетов: <strong>npm</strong>, <strong>yarn</strong>, <strong>pnpm</strong>. <strong>PeerTube</strong> использует <strong>pnpm</strong>.</p>
+<p style="margin-top: 0"><strong>Corepack</strong> позволяет сказать: «Мне нужна конкретная версия pnpm — установи/подключи её и используй её». Например: <code style="background-color: #191919; padding: 0 8px">corepack prepare pnpm@10 --activate</code>. После этого <code style="background-color: #191919; padding: 0 8px">pnpm --version</code> может показать: <code style="background-color: #191919; padding: 0 8px">10.x.x</code>. И нам не придётся вручную искать, скачивать и устанавливать <strong>pnpm</strong>.</p>
+
+<p>Теперь у нас есть Node.js, npm, pnpm.</p>
+
+<p style="margin-bottom: 6px">Создадим отдельного системного пользователя <strong><i>peertube</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd --system --create-home --home-dir /var/www/peertube \
+    --shell /bin/bash peertube
+
+# Проверяем:
+id peertube
+   # uid=999(peertube) gid=989(peertube) groups=989(peertube)
+
+# Проверим каталог:
+ls -ld /var/www/peertube
+   # drwx------ 2 peertube peertube 4096 Aug 16 16:16 /var/www/peertube
+</code></pre>
+
+<h2>Домен</h2>
+<p>Создаём домены <strong><i>peertest.mclang.ru</i></strong> и <strong><i>www.peertest.mclang.ru</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Создаём пробный <strong>Nginx</strong>-конфиг и проверяем работоспособность домена:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name peertest.mclang.ru www.peertest.mclang.ru;
+   http2 on;
+
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Hello, говнюшонок!";
+   }
+}
+</code></pre>
+
+<h2>Сертификат</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть мои сертификаты:
+sudo certbot certificates
+  # Saving debug log to /var/log/letsencrypt/letsencrypt.log
+  # 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Found the following certs:
+  #   Certificate Name: mclang.ru
+  #     Serial Number: 62febadd587f03d3b842d0de91fe1570e1c
+  #     Key Type: ECDSA
+  #     Domains: mclang.ru pixeltest.mclang.ru www.mclang.ru www.pixeltest.mclang.ru
+  #     Expiry Date: 2026-11-07 12:30:52+00:00 (VALID: 82 days)
+  #     Certificate Path: /etc/letsencrypt/live/mclang.ru/fullchain.pem
+  #     Private Key Path: /etc/letsencrypt/live/mclang.ru/privkey.pem
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Добавляем к уже существующим 4-м доменам ещё два
+# (выполняем с запущенным Nginx'ом):
+sudo certbot --nginx -d mclang.ru -d www.mclang.ru \
+   -d pixeltest.mclang.ru -d www.pixeltest.mclang.ru \
+   -d peertest.mclang.ru -d www.peertest.mclang.ru
+</code></pre>
+
+<p style="margin-bottom: 6px">После обновления сертификата <strong>Certbot</strong> "любезно" обновит наш <strong>Nginx</strong>-конфиг. Желательно привести его к более читаемому виду:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name peertest.mclang.ru www.peertest.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   server_name peertest.mclang.ru www.peertest.mclang.ru;
+   http2 on;
+
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Hello, говнюшонок!";
+   }
+}
+</code></pre>
+<p style="margin-bottom: 6px">Проверяем работоспособность конфига:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo nginx -t
+
+# И если всё в порядке, перезапускаем Nginx:
+sudo systemctl restart nginx
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё работает нормально, то заменим <strong><i>location</i></strong> на <strong><i>reverse proxy</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name peertest.mclang.ru www.peertest.mclang.ru;
+   return 301 https://$host$request_uri;
+   return 404; # managed by Certbot
+}
+
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+   server_name peertest.mclang.ru www.peertest.mclang.ru;
+   http2 on;
+
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+   location / {
+      proxy_pass http://127.0.0.1:9000;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_http_version 1.1;
+
+      client_max_body_size 0;
+      proxy_request_buffering off;
+   }
+}
+</code></pre>
+<ul style="margin-top: 6px">
+    <li><strong><i>client_max_body_size 0;</i></strong> – не ограничивать размер запроса со стороны <strong>Nginx</strong>. Для <strong>PeerTube</strong> это удобно, потому что пользователь может загружать большие видео.</li>
+</ul>
+
+<h2>PostgreSQL</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u postgres psql
+</code></pre>
+
+<p style="margin-bottom: 6px">Создаём пользователя <strong><i>peertube</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-pgsql">CREATE USER peertube WITH PASSWORD 'МОЙ_СГЕНЕРИРОВАННЫЙ_ПАРОЛЬ';
+
+-- Создаём базу:
+CREATE DATABASE peertube_prod OWNER peertube;
+
+-- и выходим:
+\q
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u postgres psql -c "\du"
+sudo -u postgres psql -c "\l"
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем подключение от <strong><i>peertube</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-pgsql">psql -h 127.0.0.1 -U peertube -d peertube_prod
+
+-- Если всё в порядке, выходим:
+\q
+</code></pre>
+
+<h2>Valkey Server</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli ping
+  # PONG
+
+# Посмотрим, какие logical databases используются.
+valkey-cli INFO keyspace
+  # # Keyspace
+  # db0:keys=578,expires=464,avg_ttl=478849889
+</code></pre>
+
+<p>В моём случае <strong><i>DB 0</i></strong> используется <strong>PixelFed</strong>'ом.</p>
+<p style="margin-bottom: 6px">Проверим <strong><i>DB 1</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">valkey-cli -n 1 DBSIZE
+  # (integer) 0
+</code></pre>
+<p style="margin-top: 6px"><strong><i>DB 1</i></strong> свободна. Значит, можем спокойно отдать её <strong>PeerTube</strong>.</p>
+
+
+
+<h2>Скачиваем PeerTube</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -iu peertube
+
+# Скачиваем последний релиз:
+wget https://github.com/Chocobozzz/PeerTube/releases/download/v8.2.4/peertube-v8.2.4.zip
+
+# Распаковываем (появится папка peertube-v8.2.4):
+unzip peertube-v8.2.4.zip
+
+ls -la
+   # total 344940
+   # ...
+   # rwxrwxr-x 9 peertube peertube      4096 Aug 16 16:22 peertube-v8.2.4
+   # -rw-rw-r-- 1 peertube peertube 353185792 Aug  4 07:29 peertube-v8.2.4.zip
+
+# Создаём симлинк для удобства:
+ln -s peertube-v8.2.4 peertube-latest
+
+# Переходим в папку:
+cd peertube-latest
+
+# Создаём конфиг на основе официального шаблона:
+cp config/production.yaml.example config/production.yaml
+</code></pre>
+
+<h2>production.yaml</h2>
+
+<p style="margin-bottom: 6px">Генерируем секрет <strong>PeerTube</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">openssl rand -hex 32
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">webserver:
+  https: true
+  hostname: 'peertest.mclang.ru'
+  port: 443
+
+secrets:
+  peertube: 'ТВОЙ_СЕКРЕТ'
+
+database:
+  hostname: '127.0.0.1'
+  port: 5432
+  ssl: false
+  suffix: '_prod'
+  username: 'peertube'
+  password: 'ТВОЙ_ПАРОЛЬ_POSTGRESQL'
+  pool:
+    max: 5
+
+redis:
+  hostname: '127.0.0.1'
+  port: 6379
+  auth: null
+  db: 1
+  enable_tls: false
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong>PeerTube</strong> уже настроен на локальное хранение. В <strong><i>storage</i></strong> ничего менять не нужно.</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">storage:
+  tmp: '/var/www/peertube/storage/tmp/'
+  web_videos: '/var/www/peertube/storage/web-videos/'
+  original_video_files: '/var/www/peertube/storage/original-video-files/'
+  ...
+
+object_storage:
+  enabled: false
+</code></pre>
+<p style="margin-top: 6px">А вот <strong><i>object_storage false</i></strong> означает, что S3/объектное хранилище отключено. Для нашего тестового сервера это именно то, что нужно.</p>
+
+<p style="margin-bottom: 6px">SMTP пока не настроен. Для первого запуска это не проблема. PeerTube сможет работать без отправки почты, а SMTP потом можно настроить.</p>
+<pre style="margin-top: 6px"><code class="language-bash">smtp:
+  hostname: null
+</code></pre>
+
+
+<h2>pnpm</h2>
+
+<p style="margin-bottom: 6px">Устанавливаем...</p>
+<pre style="margin-top: 6px"><code class="language-bash">pnpm install --prod
+  # ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.15.1.tgz
+  # ? Do you want to continue? [Y/n]  
+  # ...
+</code></pre>
+
+<p>В <strong>PeerTube 8.2.4</strong> есть не только обычное локальное хранилище, но и object_storage. Нам сейчас object storage не нужен — для тестового сервера вполне достаточно обычного локального диска.</p>
+
+<p style="margin-bottom: 6px">Создадим каталоги:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir -p /var/www/peertube/storage/{tmp,tmp-persistent,bin,avatars,web-videos,streaming-playlists,original-video-files,redundancy,logs,previews,thumbnails,storyboards,torrents,captions,cache,plugins,well-known,uploads,client-overrides}
+</code></pre>
+
+<p>Для production <strong>PeerTube</strong> уже собран в <strong><i>dist</i></strong>, и собирать его через <strong><i>pnpm build</i></strong> нам не нужно.</p>
+
+<p>Прежде чем запускать <strong><i>node dist/server</i></strong>, нужно убедиться, что <strong>PeerTube</strong> сможет подключиться к <strong>PostgreSQL</strong> и <strong>Valkey</strong> и выполнить свои миграции.</p>
+
+<p><strong>PeerTube</strong> использует переменную: <code style="background-color: #191919; padding: 0 8px">NODE_ENV=production</code></p>
+<p style="margin-bottom: 6px">Выполним:</p>
+<pre style="margin-top: 6px"><code class="language-bash">NODE_ENV=production node dist/server --help
+</code></pre>
+<p><strong>PeerTube</strong> подхватил оба конфига: <code style="background-color: #191919; padding: 0 8px">default.yaml -&gt; production.yaml</code></p>
+
+<p style="margin-bottom: 6px">Теперь можно проверить полноценный запуск:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">NODE_ENV=production node dist/server --benchmark-startup
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">После этого первого запуска создастся пользователь <strong><i>root</i></strong> и <strong>с генерируется пароль</strong>. Этот пароль нужно запомнить/сохранить – он выведется на экран, но нигде не сохранится. Посмотреть позже его будет нельзя.</p>
+<p style="margin-top: 0">Теперь можно зайти в браузере под юзером <strong>root</strong> и ввести этот пароль.</p>
+
+
+<h2>Следующий шаг – сделать PeerTube постоянным сервисом</h2>
+
+
+<p style="margin-bottom: 6px">Сейчас мы запускаем <strong>PeerTube</strong> вручную:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">NODE_ENV=production node dist/server
+</code></pre>
+<p style="margin-top: 6px">Но после выхода из SSH/перезагрузки он остановится. Поэтому неплохо бы создать <strong><i>/etc/systemd/system/peertube.service</i></strong></p>
+
+<p style="margin-bottom: 6px">Создаём <strong><i>unit</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo nano /etc/systemd/system/peertube.service
+</code></pre>
+
+<p style="margin-bottom: 6px">Вставляем туда:</p>
+<pre style="margin-top: 6px"><code class="language-ini">[Unit]
+Description=PeerTube
+After=network.target postgresql.service valkey-server.service
+Wants=postgresql.service valkey-server.service
+
+[Service]
+Type=simple
+User=peertube
+Group=peertube
+WorkingDirectory=/var/www/peertube/peertube-v8.2.4
+
+Environment=NODE_ENV=production
+
+ExecStart=/usr/bin/node dist/server
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p style="margin-bottom: 6px">Затем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl daemon-reload
+
+sudo systemctl start peertube
+</code></pre>
+
+<h2>Проверка</h2>
+
+<p style="margin-bottom: 6px">Минуя <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -I http://127.0.0.1:9000
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Через <strong>Nginx</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -I https://peertest.mclang.ru
+</code></pre>
+
+<p>hifebovetuxipulobido</p>
+
+
+
+
+
+<p>----</p>
+
+<p style="margin-bottom: 6px">Устанавливаем системные пакеты, которые нам точно понадобятся:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install curl wget unzip git python3 python3-dev build-essential ffmpeg
+</code></pre>
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+   lala
+</code></pre>
+-->
+
+
 <script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script src="/assets/highlight/languages/pgsql.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>

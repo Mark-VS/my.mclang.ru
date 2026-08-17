@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>journalctl</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>journalctl</h1>
+
+<p style="margin-bottom: 6px">Посмотреть сколько места занимает весь <strong>journal</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo journalctl --disk-usag
+   # Archived and active journals take up 117.8M in the file system.
+</code></pre>
+
+<p style="margin-bottom: 6px">Запустить журнал в режиме мониторинга:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo systemctl -u pixelfed-horizon -f
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>-u</i></strong> – unit. Показывает записи для конкретного юнита;</li>
+   <li><strong><i>-f</i></strong> – follow. Продолжает следить за журналом и показывать новые строки в реальном времени.</li>
+</ul>
+
+
+<p style="margin-bottom: 6px">Показать логи за последние пять минут:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Показать все доступные записи для юнита pixelfed-horizon:
+sudo journalctl -u pixelfed-horizon
+
+# Показать все записи для этого юнита за последние 5 минут:
+sudo journalctl -u pixelfed-horizon --since "5 minutes ago"
+
+# Показать последние 50 строк:
+sudo journalctl -u pixelfed-horizon -n 50
+
+# Показать последние 50 строк, а затем продолжить следить:
+sudo journalctl -u pixelfed-horizon -n 50 -f
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

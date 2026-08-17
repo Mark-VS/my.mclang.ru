@@ -137,8 +137,9 @@ try_files $uri $uri/ /index.php?$query_string;
 </code></pre>
 
 <p style="margin-bottom: 6px">Весь конфиг для <strong><i>pixeltest.mclang.ru</i></strong> у меня выглядит так:</p>
-<pre style="margin-top: 6px"><code class="language-nginx">server {
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-nginx">server {
    listen 80;
+   listen [::]:80;
    server_name pixeltest.mclang.ru www.pixeltest.mclang.ru;
 
    return 301 https://pixeltest.mclang.ru;
@@ -146,15 +147,24 @@ try_files $uri $uri/ /index.php?$query_string;
 
 server {
    listen 443 ssl;
+   listen [::]:443 ssl;
+   http2 on;
    ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
    ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
 
+   # эти 2 настройки добавил certbot:
    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
    server_name pixeltest.mclang.ru www.pixeltest.mclang.ru;
    root /var/www/pixelfed/public;
    index index.php;
+
+   client_max_body_size 20M;
+
+   # эти 2 настройки взяты из инструкции:
+   add_header X-Frame-Options "SAMEORIGIN";
+   add_header X-Content-Type-Options "nosniff";
 
    location / {
       try_files $uri $uri/ /index.php?$query_string;
@@ -164,8 +174,23 @@ server {
      include fastcgi.conf;
      fastcgi_pass unix:/run/php/php-fpm.sock;
    }
+
+   # Небольшая доп. оптимизация:
+   location = /favicon.ico { access_log off; log_not_found off; }
+   location = /robots.txt  { access_log off; log_not_found off; }
+
+   # Защита скрытых файлов (кроме .well-knonw):
+   location ~ /\.(?!well-known).* {
+      deny all;
+   }
 }
 </code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Эти две настройки приведены в инструкции по установке <strong>PixelFed</strong> на <strong>GitHub</strong>'е:</p>
+<ul style="margin-top: 0; margin-bottom: 0">
+   <li><code style="background-color: #191919; padding: 0 8px">add_header X-Frame-Options "SAMEORIGIN";</code> – этот заголовок говорит браузеру: Не разрешай странице отображаться внутри <strong><i>&lt;iframe&gt;</i></strong> на чужом сайте. Например, если злоумышленник сделает так: <code style="background-color: #191919; padding: 0 8px">&lt;iframe src="https://pixeltest.mclang.ru"&gt;</iframe></code>, браузер не должен позволить ему встроить мой <strong>PixelFed</strong> в iframe с другого origin. <strong><i>SAMEORIGIN</i></strong> означает: Разрешить <strong><i>iframe</i></strong> только если родительская страница находится на том же <strong><i>origin</i></strong>. Это защита от определённого класса атак, в частности <strong><i>clickjacking</i></strong>.</li>
+   <li><code style="background-color: #191919; padding: 0 8px">add_header X-Content-Type-Options "nosniff";</code> – Полезная настройка. Она говорит браузеру: Не пытайся самостоятельно угадывать MIME-тип файла. Доверяй тому Content-Type, который сообщил сервер. Например, если сервер сказал: <code style="background-color: #191919; padding: 0 8px">Content-Type: text/plain</code>, браузер не должен решать как ему вздумается и интерпретировать данные иначе.</li>
+</ul>
+
 
 <h2>Права доступа</h2>
 <p>Я работаю с исходниками и с <strong>Composer</strong> от пользователя <strong><i>mark</i></strong>. А вот <strong>PHP-FPM</strong> работает от пользователя <strong><i>www-data</i></strong>. Когда <strong>Laravel</strong> пытается создать скомпилированный шаблон <strong><i>storage/framework/views/...</i></strong>, или записать лог <strong><i>storage/logs/laravel.log</i></strong>, то <strong><i>www-data</i></strong> получает <code style="background-color: #181818; padding: 0 8px">Permission denied</code>.</p>
@@ -189,9 +214,9 @@ ls -ld /var/www/pixelfed/bootstrap/cache
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">curl -I https://pixeltest.mclang.ru
   # HTTP/1.1 404 Not Found
   # Server: nginx
-  # Content-Type: text/html; charset=UTF-8
+  # Content-Type: text/html; charset=UTF-8gg
   # Connection: keep-alive
-  # Cache-Control: no-cache, private
+  # Cache-Control: no-cache, privateg
   # date: Sun, 09 Aug 2026 14:22:46 GMT
 </code></pre>
 <p style="margin-top: 6px">Всё нормально. Цепочка <code style="background-color: #181818; padding: 0 8px">Браузер - HTTPS - Nginx - PHP-FPM - Laravel/PixelFed</code> уже работает. Но мы ещё не настроили <strong>PixelFed</strong> – не создали нормальный <strong><i>.env</i></strong>, – поэтому получаем ошибку 404. Её отдаёт само приложение.</code></p>
@@ -367,13 +392,15 @@ AP_SHAREDINBOX="true"
 <p style="margin-top: 0; margin-bottom: 6px">После изменения <strong><i>.env</i></strong> нужно обновить конфигурационный кэш:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo -u www-data php artisan config:cache
 </code></pre>
-<p style="margin-top: 6px">И всё. <strong>PHP-FPM</strong> перезапускать не нужно.</p>
+<p style="margin-top: 6px; margin-bottom: 0">И всё. <strong>PHP-FPM</strong> перезапускать не нужно.</p>
+
+<p style="margin-top: 0; margin-bottom: 0">Помимо настроек в <strong>.env</strong>-файле, нужно поставить галочку напротив <strong><i>ActivityPub</i></strong> в админской панели. Находится это здесь: Admin Dashboard -&gt; Settings</p>
+<p style="margin-top: 0">Если этого не сделать, то настройки в графическом интерфейсе будут как бы перезаписывать те настройки, которые указаны в <strong>.env</strong>-файле.</p>
 
 <p>Посмотреть работоспособность приложения можно в админской панели в разделе "Диагностика".</p>
 
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">
-sudo apt install php8.4-gd
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install php8.4-gd
 sudo apt install php8.4-imagick
 sudo apt install php8.4-redis
 </code></pre>
