@@ -426,7 +426,10 @@ object_storage:
 <p style="margin-bottom: 6px">Теперь можно проверить полноценный запуск:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">NODE_ENV=production node dist/server --benchmark-startup
 </code></pre>
-<p style="margin-top: 6px; margin-bottom: 0">После этого первого запуска создастся пользователь <strong><i>root</i></strong> и <strong>с генерируется пароль</strong>. Этот пароль нужно запомнить/сохранить – он выведется на экран, но нигде не сохранится. Посмотреть позже его будет нельзя.</p>
+<ul style="margin-top: 6px; margin-bottom: 0">
+   <li><strong><i>--benchmark-startub</i></strong> – запустить PeerTube, дождаться завершения инициализации, а затем автоматически завершить процесс.</li>
+</ul>
+<p style="margin-top: 0; margin-bottom: 0">После этого первого запуска создастся пользователь <strong><i>root</i></strong> и <strong>с генерируется пароль</strong>. Этот пароль нужно запомнить/сохранить – он выведется на экран, но нигде не сохранится. Посмотреть позже его будет нельзя.</p>
 <p style="margin-top: 0">Теперь можно зайти в браузере под юзером <strong>root</strong> и ввести этот пароль.</p>
 
 
