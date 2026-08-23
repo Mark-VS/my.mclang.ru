@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Файловая структура PeerTube</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/peertube/">Вернуться назад</a>
+
+<h1>Файловая структура PeerTube</h1>
+
+<p style="margin-bottom: 2px">Пользовательские данные хранятся здесь:</p>
+<pre style="margin-top: 2px">
+/
+├─ var
+│  └── www
+│      └── peertube
+│          ├── storage (пользовательские данные)
+│          │   ├── ...
+│          │   ├── ... 
+│          │   ...
+│          ├── peertube-v8.2.4 (распакованный zip-архив)
+│          │   ├── config
+│          │   │   └── production.yaml – конфигурационный файл
+│          │   ├── ...
+│          │   ├── ...
+│          │   ...
+│          ├── peertube-latest (ссылка на peertube-v8.2.4)
+│          └── peertube-v8.2.4.zip
+</pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Сколько места занимает хранилище:
+sudo du -hs /var/www/peertube/storage
+
+# Посмотреть, сколько занимают все папки внутри:
+sudo du -h --max-depth=1 /var/www/peertube/storage | sort -hr
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

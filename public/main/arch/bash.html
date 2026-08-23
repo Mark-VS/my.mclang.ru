@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bash</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>bash</h1>
+
+<h2>Строка приветствия</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Дефолтная строка приветствия:
+PS1='[\u@\h \W]\$ '
+
+# Ещё один пример:
+PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
+</code></pre>
+
+<ul>
+   <li>\u – имя пользователя;</li>
+   <li>\h – имя хоста;</li>
+   <li>\w – текущий рабочий каталог (с полным путём);</li>
+   <li>\W – рабочий каталог (только последний компонент пути);</li>
+   <li>
+      <p style="margin: 0 0 4px 0">Теперь обсудим вот этот блок:</p>
+      <pre style="margin-top: 4px; margin-bottom: 4px"><code class="language-bash">\[
+...
+\]</code></pre>
+      <p style="margin: 4px 0 0 0">то, что находится здесь, не занимает место на экране. Это используется для управляющих последовательностей терминала, например для изменения цвета.</p>
+   </li>
+   <li>
+      <p style="margin: 0">\e – означает ESC, т.е. escape-символ.</p>
+	  <p style="margin: 0"><strong><i>[1;32m</i></strong> – это ANSI-код цвета, где <strong><i>1</i></strong> – это яркий/жирный режим, а <strong><i>32</i></strong> – зелёный цвет.</p>
+	  <p style="margin: 0"><code style="background-color: #191919; padding: 0 8px">\e[1;32m</code> – означает жирный зелёный текст</p>
+	  <p style="margin: 0"><code style="background-color: #191919; padding: 0 8px">\e[0m</code> – означает сбросить форматирование</p>
+   </li>
+</ul>
+
+<p style="margin-bottom: 0">Теперь расшифруем всю строку:</p>
+<ul style="margin-top: 0">
+   <li><code style="background-color: #191919; padding: 0 8px">\[\e[1;32m\]</code> – включить жирный зелёный цвет</li>
+   <li><code style="background-color: #191919; padding: 0 8px">\u@\h</code> – показать mark@hostname</li>
+   <li><code style="background-color: #191919; padding: 0 8px">\[\e[0m\]</code> – сбросить цвет</li>
+   <li><code style="background-color: #191919; padding: 0 8px">:</code> – выводим двоеточие</li>
+   <li><code style="background-color: #191919; padding: 0 8px">\[\e[1;34m\]</code> – включаем жирный синий цвет текста</li>
+   <li><code style="background-color: #191919; padding: 0 8px">\w</code> – показываем текущий каталог</li>
+   <li><code style="background-color: #191919; padding: 0 8px">\[\e[0m\]</code> – сбрасываем цвет</li>
+   <li><code style="background-color: #191919; padding: 0 8px">\$</code> – показываем <strong><i>$</i></strong> для обычного пользователя или <strong><i>#</i></strong> – для root.</li>
+</ul>
+
+<h3>Управляющие команды</h3>
+
+<p style="margin-bottom: 0"><code style="background-color: #191919; padding: 0 8px">[1;32m</code> – это часть ANSI escape sequence, т.е. команды, которую терминал понимает.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Полная последовательность:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ESC [ 1 ; 32 m
+</code></pre>
+<ul style="margin-top: 6px">
+	<li><code style="background-color: #191919; padding: 0 8px">[</code> – это CSI (Control Sequence Introducer). То есть, это начало определённого типа управляющей последовательности. После <strong><i>[</i></strong> идут параметры: <strong><i>1;32</i></strong>.</li>
+	<li><code style="background-color: #191919; padding: 0 8px">m</code> –  исторически относится к <strong>Select Graphic Rendition</strong> (SGR) – управление визуального оформления символов. То есть, это команда, которая отвечает за отображение текста.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Другой пример escape-последовательности:</p>
+<pre style="margin-top: 6px; margin-bottom: 2px"><code class="language-bash">ESC [ 2 J
+</code></pre>
+<p style="margin-top: 2px">Здесь <strong><i>J</i></strong> – это команда очистки экрана, <strong><i>2</i></strong> – параметр, который означает очистить ВЕСЬ экран.</p>
+
+
+<p style="margin-bottom: 6px">То есть, общая идея:</p>
+<pre style="margin-top: 6px; margin-bottom: 1px"><code class="language-bash">ESC [ <параметры> <команда>
+</code></pre>
+<p style="margin-top: 1px; margin-bottom: 0">где:</p>
+<ul style="margin-top: 0">
+   <li><strong><i>[</i></strong> – начало CSI-последовательности;</li>
+   <li><strong><i>m</i></strong> – конкретная команда SGR.</li>
+</ul>
+
+<p style="margin-bottom: 6px">В терминал можно вывести текст, окрашенный в жирный зелёный цвет, вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">echo -e '\e[1;32mHello\e[0m'
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># очистка экрана:
+echo -e '\e[2J'
+
+# ... и переместить курсор в левый верхний угол:
+echo -e '\e[2J\e[H'
+
+# то же самое, но более явно:
+echo -e '\e[2J\e[1;1H'
+
+# убирает пустую строку в самом верху:
+printf '\033[2J\033[H'
+   # printf не добавляет \n после esc-последовательности
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

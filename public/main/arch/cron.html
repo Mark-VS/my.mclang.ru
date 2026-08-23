@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cron</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>cron</h1>
+
+<p style="margin-bottom: 0">В <strong>Debian</strong> пакет называется <strong><i>cron</i></strong>, а в <strong>Arch</strong> – <strong><i>cronie</i></strong>.</p>
+<p style="margin: 0">После установки, в фоне должен работать демон <strong>cron</strong>. В Debian он после установки сам включается, а в Arch придётся включить его самому.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Для управления <strong>cron</strong>'ом используется утилита <strong>crontab</strong>.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть список задач для текущего пользователя:
+crontab -l
+
+# Посмотреть список задач для root'а:
+sudo crontab -l
+
+# Создать новую задачу для root'а:
+sudo crontab -e
+</code></pre>
+
+<p style="margin-bottom: 6px">Строка с задачей должна выглядеть примерно так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">0 4 * * * /usr/local/sbin/backup-peertube.sh
+</code></pre>
+
+<pre>
+┌──── минута
+│ ┌─── час
+│ │ ┌── день месяца
+│ │ │ ┌─ месяц
+│ │ │ │ ┌─ день недели
+│ │ │ │ │
+0 4 * * *
+</pre>
+
+<p style="margin-bottom: 0">Разъяснение:</p>
+<ul style="margin-top: 0">
+   <li>0 – 0-я минута</li>
+   <li>4 – 4 часа утра</li>
+   <li>* – любой день месяца</li>
+   <li>* – любой месяц</li>
+   <li>* – любой день недели</li>
+</ul>
+
+<p style="margin-bottom: 6px">Ещё примеры:</p>
+<pre style="margin-top: 6px"><code class="language-bash">Каждые 5 минут:
+*/5 * * * *
+
+# Каждый час в начале часа:
+0 * * * *
+
+# Каждый день в 23:30:
+30 23 * * *
+
+# Каждое воскресение в 4:00:
+0 4 * * 0
+
+# Каждое первое число месяца в 4:00:
+0 4 1 * *
+
+# Только в июле, каждый день в 4:00:
+0 4 * 7 *
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

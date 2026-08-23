@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бэкап</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/peertube/">Вернуться назад</a>
+
+<h1>Бэкап</h1>
+
+<p style="margin-bottom: 0">Что нужно скопировать:</p>
+<ul style="margin-top: 0">
+   <li>storage</li>
+   <li>PostgreSQL-бд</li>
+   <li>Конфигурация PeerTube (/var/www/peertube/peertube-v8.2.4/config/)</li>
+</ul>
+
+<h2></h2>
+
+<p style="margin-bottom: 6px">Моя база данных в <strong>PostgreSQL</strong> называется <strong><i>peertube_prod</i></strong>. Поэтому бэкап можно сделать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u postgres pg_dump peertube_prod &gt; peertube_prod.sql
+</code></pre>
+
+<p style="margin-bottom: 6px">А если база данных, была потеряна, то её можно восстановить вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Сначала создаём пустую базу данных:
+sudo -u postgres createdb -O peertube peertube_prod
+
+# и восстанавливаем:
+sudo -u postgres psql peertube_prod &lt; peertube_prod.sql
+</code></pre>
+
+<p style="margin-bottom: 6px">Сжимать <strong><i>storage</i></strong> в <strong><i>.tar.gz</i></strong> скорее всего нет смысла, потому что видео и так уже сжаты, поэтому имеет просто всё это запихнуть в .tar-контейнер:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo tar -cf peertube-storage.tar /var/www/peertube/storage
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -6,6 +6,20 @@
     <title>PeerTube List</title>
     <link rel="stylesheet" href="/assets/styles/style.css">
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+    <style>
+       .good::marker {
+           color: green;
+		   content: "✓  ";
+	   }
+	   .bad::marker {
+           color: red;
+		   content: "✕  ";
+	   }
+	   .hz::marker {
+           color: white;
+		   content: "?   ";
+	   }
+    </style>
 </head>
 <body>
 <script src="/assets/highlight/highlight.min.js"></script>
@@ -17,46 +31,63 @@
 <p style="margin-bottom: 0">Официальный сайт: <a href="https://joinpeertube.org/">https://joinpeertube.org/</a></p>
 <p style="margin-top: 0">Страничка на GitHub: <a href="https://github.com/Chocobozzz/PeerTube">github.com/Chocobozzz/PeerTube</a></p>
 
+<p style="margin-bottom: 6px">Русскоязычные:</p>
+<ul style="margin-top: 6px">
+   <li class="good">peervideo.ru: <a href="https://peervideo.ru/">peervideo.ru</a></li>
+   <li class="bad">xxivproduction.video: <a href="https://xxivproduction.video/">xxivproduction.video</a></li>
+   <li class="good">xxiv.sdu.li: <a href="https://xxiv.sdu.li/videos/browse">xxiv.sdu.li</a> – это, судя по всему, то же, что и предыдущий сайт</li>
+   <li class="good">mirtube.ru: <a href="https://mirtube.ru/">mirtube.ru</a> – англоязычный, но сервер в России</li>
+   <li class="good">pt.minhinprom.ru: <a href="https://pt.minhinprom.ru/">pt.minhinprom.ru</a></li>
+   <li class="bad">video.fhtagn.org: <a href="https://video.fhtagn.org/">video.fhtagn.org</a></li>
+   <li class="hz">tube.surdeus.su: <a href="https://tube.surdeus.su/">tube.surdeus.su</a></li>
+   <li class="bad">pt.irnok.net: <a href="https://pt.irnok.net/">pt.irnok.net</a> – Иркутск, сайт запускается, но видео не грузятся</li>
+   <li class="good">video.pavel-english.ru: <a href="https://video.pavel-english.ru/">video.pavel-english.ru</a> – Томск</li>
+   <li class="bad">nvsk.tube: <a href="https://nvsk.tube/">nvsk.tube</a> – Новосибирск, сайт запускается, но видео не грузятся</li>
+   <li>-</li>
+   <li class="good">22x22.ru: <a href="https://k-pop.22x22.ru/">22x22.ru</a> – какая фигня кей-поповская</li>
+   <li class="good">libretube.ru: <a href="https://libretube.ru/">libretube.ru</a> – российские песни</li>
+</ul>
+
 
 <p style="margin-bottom: 6px">Частные:</p>
 <ul style="margin-top: 6px">
-   <li>Luanti.ru PeerTube: <a href="https://peertube.luanti.ru/">peertube.luanti.ru</a></li>
-   <li>Квизиторий: <a href="https://kviz.leemoon.network/">kviz.leemoon.network</a></li>
-   <li>peertube.astral0pitek.synology.me: <a href="https://peertube.astral0pitek.synology.me/">peertube.astral0pitek.synology.me</a> – здесь только стримы</li>
-   <li>peertube.cluster.wtf: <a href="https://peertube.cluster.wtf/videos/browse">peertube.cluster.wtf</></li>
+   <li class="good">Luanti.ru PeerTube: <a href="https://peertube.luanti.ru/">peertube.luanti.ru</a></li>
+   <li class="bad">Квизиторий: <a href="https://kviz.leemoon.network/">kviz.leemoon.network</a></li>
+   <li class="good">peertube.astral0pitek.synology.me: <a href="https://peertube.astral0pitek.synology.me/">peertube.astral0pitek.synology.me</a> – здесь только стримы</li>
+   <li class="bad">peertube.cluster.wtf: <a href="https://peertube.cluster.wtf/videos/browse">peertube.cluster.wtf</a></li>
 </ul>
 
 <p style="margin-bottom: 6px">Англоязычные:</p>
 <ul style="margin-top: 6px">
-   <li>video.gamerstavern.online: <a href="https://video.gamerstavern.online/videos/browse">video.gamerstavern.online</a></li>
-   <li>spectra.video: <a href="https://spectra.video/home">spectra.video</a></li>
-   <li>video.sadmin.io: <a href="https://video.sadmin.io/videos/browse">video.sadmin.io</a> – разные</li>
-   <li>urbanist.video: <a href="https://urbanists.video/">urbanist.video</a> (163 accounts)</li>
-   <li>makertube.net: <a href="https://makertube.net/">makertube.net</a></li>
-   <li>phijkchu.com: <a href="https://phijkchu.com">phijkchu.com</a> – игровые стримы</li>
-   <li>peertube.wtf: <a href="https://peertube.wtf">peertube.wtf</a> – linux, it</li>
-   <li>nicecrew.tv: <a href="https://nicecrew.tv/">nicecrew.tv</a></li>
-   <li>video.4d2.org: <a href="https://video.4d2.org">video.4d2.org</a></li>
-   <li>kolektiva.media: <a href="https://kolektiva.media">kolektiva.media</a></li>
-   <li>rankett.net: <a href="https://rankett.net/">rankett.net</a> (332 аккаунта) – тут был канал про садоводство</li>
-   <li>thecool.tube: <a href="https://thecool.tube/">thecool.tube</a> (2100 аккаунтов)</li>
-   <li>https://sizetube.com – хрень какая-то</li>
+   <li class="bad">gamerstavern: <a href="https://video.gamerstavern.online/videos/browse">video.gamerstavern.online</a></li>
+   <li class="bad">spectra.video: <a href="https://spectra.video/home">spectra.video</a></li>
+   <li class="good">video.sadmin.io: <a href="https://video.sadmin.io/videos/browse">video.sadmin.io</a> – разные</li>
+   <li class="bad">urbanist.video: <a href="https://urbanists.video/">urbanist.video</a> (163 accounts)</li>
+   <li class="bad">makertube.net: <a href="https://makertube.net/">makertube.net</a></li>
+   <li class="good">phijkchu.com: <a href="https://phijkchu.com">phijkchu.com</a> – игровые стримы</li>
+   <li class="good">peertube.wtf: <a href="https://peertube.wtf">peertube.wtf</a> – linux, it</li>
+   <li class="bad">nicecrew.tv: <a href="https://nicecrew.tv/">nicecrew.tv</a></li>
+   <li class="good">video.4d2.org: <a href="https://video.4d2.org">video.4d2.org</a> – одни live'ы</li>
+   <li class="bad">kolektiva.media: <a href="https://kolektiva.media">kolektiva.media</a></li>
+   <li class="bad">rankett.net: <a href="https://rankett.net/">rankett.net</a> (332 аккаунта) – тут был канал про садоводство</li>
+   <li class="bad">thecool.tube: <a href="https://thecool.tube/">thecool.tube</a> (2100 аккаунтов)</li>
+   <li class="bad">https://sizetube.com – хрень какая-то</li>
 </ul>
 
 <p style="margin-bottom: 6px">Немецкие:</p>
 <ul style="margin-top: 6px">
-   <li>p.lu: <a href="https://p.lu">p.lu</a></li>
-   <li>video.querdenken-711.de: <a href="https://video.querdenken-711.de/">video.querdenken-711.de</a></li>
+   <li class="bad">p.lu: <a href="https://p.lu">p.lu</a></li>
+   <li class="good">video.querdenken-711.de: <a href="https://video.querdenken-711.de/">video.querdenken-711.de</a></li>
 </ul>
 
 <p style="margin-bottom: 6px">Итальянские:</p>
 <ul style="margin-top: 6px">
-   <li>peertube.uno: <a href="https://peertube.uno/">peertube.uno</a> – итальянский</li>
+   <li class="bad">peertube.uno: <a href="https://peertube.uno/">peertube.uno</a> – итальянский</li>
 </ul>
 
 <p style="margin-bottom: 6px">Испанские:</p>
 <ul style="margin-top: 6px">
-   <li>freedomtv.pro: <a href="https://freedomtv.pro">freedomtv.pro</a></li>
+   <li class="good">freedomtv.pro: <a href="https://freedomtv.pro">freedomtv.pro</a></li>
 </ul>
 
 <p style="margin-bottom: 6px">Французские:</p>
@@ -73,25 +104,6 @@
 <p style="margin-bottom: 6px">Японские:</p>
 <ul style="margin-top: 6px">
    <li>pony.tube: <a href="https://pony.tube/">pony.tube</a></li>
-</ul>
-
-<p style="margin-bottom: 6px">Русскоязычные:</p>
-<ul style="margin-top: 6px">
-   <li>Luanti.ru PeerTube: <a href="https://peertube.luanti.ru/">peertube.luanti.ru</a></li>
-   <li>Квизиторий: <a href="https://kviz.leemoon.network/">kviz.leemoon.network</a></li>
-   <li>peervideo.ru: <a href="https://peervideo.ru/">peervideo.ru</a></li>
-   <li>xxivproduction.video: <a href="https://xxivproduction.video/">xxivproduction.video</a></li>
-   <li>xxiv.sdu.li: <a href="https://xxiv.sdu.li/videos/browse">xxiv.sdu.li</a> – это, судя по всему, то же, что и предыдущий сайт</li>
-   <li>mirtube.ru: <a href="https://mirtube.ru/">mirtube.ru</a> – англоязычный, но сервер в России</li>
-   <li>pt.minhinprom.ru: <a href="https://pt.minhinprom.ru/">pt.minhinprom.ru</a></li>
-   <li>video.fhtagn.org: <a href="https://video.fhtagn.org/">video.fhtagn.org</a></li>
-   <li>tube.surdeus.su: <a href="https://tube.surdeus.su/">tube.surdeus.su</a></li>
-   <li>pt.irnok.net: <a href="https://pt.irnok.net/">pt.irnok.net</a> – Иркутск</li>
-   <li>video.pavel-english.ru: <a href="https://video.pavel-english.ru/">video.pavel-english.ru</a> – Томск</li>
-   <li>nvsk.tube: <a href="https://nvsk.tube/">nvsk.tube</a> – Новосибирск</li>
-   <li>-</li>
-   <li>22x22.ru: <a href="https://k-pop.22x22.ru/">22x22.ru</a> – какая фигня кей-поповская</li>
-   <li>libretube.ru: <a href="https://libretube.ru/">libretube.ru</a> – российские песни</li>
 </ul>
 
 
