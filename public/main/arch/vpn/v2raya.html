@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>empty</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/vpn/">Вернуться назад</a>
+
+<h1>lala</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">ps aux | grep -E 'v2raya|xray'
+  # root        1728  0.0  0.2 1268200 47560 ?       Ssl  08:34   0:00 /usr/bin/v2raya --log-disable-timestamp
+  # root       29864  0.2  0.2 1298708 42100 ?       Sl   09:09   0:00 /usr/bin/xray run --config=/etc/v2raya/config.json
+  # mark       31797  0.0  0.0   7200  4340 pts/0    S+   09:12   0:00 grep --color=auto -E v2raya|xray
+</code></pre>
+<p><strong>v2raya</strong> запустил отдельный процесс <strong>Xray</strong>, и <strong>Xray</strong> сейчас работает с конфигом <strong><i>/etc/v2raya/config.json</i></strong>.</p>
+<p>Из конфига видно, что это вообще не TUN.</p>
+<p style="margin-bottom: 6px">В конфиге весь JSON записан в одну строку. Его неудобно читать. Но с этим нам поможет утилита <strong>jq</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo jq . /etc/v2raya/config.json
+</code></pre>
+
+<p style="margin-bottom: 6px">Вот ключевой момент:</p>
+<pre style="margin-top: 6px"><code class="language-json">{
+  "port": 52345,
+  "protocol": "dokodemo-door",
+  "listen": "0.0.0.0",
+  ...
+  "settings": {
+    "network": "tcp,udp",
+    "followRedirect": true
+  },
+  "streamSettings": {
+    "sockopt": {
+      "tproxy": "redirect"
+    }
+  },
+  "tag": "transparent"
+}
+</code></pre>
+<p>То есть <strong>v2rayA</strong> настроил <strong>Xray</strong> на <strong>transparent proxy через REDIRECT</strong>.</p>
+
+<p>Упрощённо схема такая:</p>
+<pre>
+                   обычная программа
+                         │
+                         │ TCP/UDP
+                         ▼
+                  Linux networking
+                         │
+                         ▼
+                  iptables/nftables
+                         │
+                    REDIRECT
+                         │
+                         ▼
+                 127.0.0.1:52345
+                         │
+                         ▼
+                       Xray
+                  dokodemo-door
+                    "transparent"
+                         │
+                         ▼
+                 routing Xray
+                    ┌────┴────┐
+                    │         │
+                  direct    proxy
+                    │         │
+                    │         ▼
+                    │      VLESS
+                    │      Reality
+                    │      XHTTP
+                    │         │
+                    └────┬────┘
+                         ▼
+                      Internet
+</pre>
+<p>То есть, ядро <strong>Linux</strong> перехватывает соединение, перенаправляет его на порт <strong><i>52345</i></strong>, а <strong>Xray</strong> уже решает, что с ним делать.</p>
+<p><strong>dokodemo-door</strong> – это название протокола <strong>Xray</strong>. В данном случае он используется не как обычный прокси, а как приёмник перехваченных соединений.</p>
+<ul>
+   <li><code style="background-color: #191919; padding: 0 8px">"followRedirect": true</code> – говорит Xray примерно следующее: соединение пришло через REDIRECT. Посмотри, куда оно первоначально направлялось, и обработай его как прозрачный прокси.</li>
+   <li><code style="background-color: #191919; padding: 0 8px">"tproxy": "redirect"</code> – здесь <strong><i>redirect</i></strong> означает именно <strong>Linux REDIRECT</strong>, а не <strong>TUN</strong>.</li>
+</ul>
+
+<p>А где находится правило REDIRECT ? В конфиге <strong>Xray</strong> мы видим порт <strong><i>52345</i></strong>, но сам <strong>Xray</strong> НЕ заставляет весь компьютер отправлять трафик на этот порт. Это должна делать система – через firewall/netfilter.</p>
+
+<p style="margin-bottom: 6px">Проверим:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo nft list ruleset
+
+  # table inet v2raya {
+  #    set whitelist {
+  #       type ipv4_addr
+  #       flags interval
+  #       auto-merge
+  #       elements = { 0.0.0.0, 10.0.0.0/8,
+  #          100.64.0.0/10, 127.0.0.0/8,
+  #          169.254.0.0/16, 172.16.0.0/12,
+  #          192.0.0.0/24, 192.0.2.0/24,
+  #          192.88.99.0/24, 192.168.0.0/16,
+  #          198.51.100.0/24, 203.0.113.0/24,
+  #          224.0.0.0/3 }
+  #    }
+  # 
+  #    set whitelist6 {
+  #       type ipv6_addr
+  #       flags interval
+  #       auto-merge
+  #       elements = { ::/127,
+  #          64:ff9b::/96,
+  #          100::/64,
+  #          2001::/32,
+  #          2001:20::/28,
+  #          fe80::/10,
+  #          ff00::/8 }
+  #    }
+  # 
+  #    set interface {
+  #       type ipv4_addr
+  #       flags interval
+  #       auto-merge
+  #       elements = { 127.0.0.0/8, 192.168.1.0/24 }
+  #    }
+  # 
+  #    set interface6 {
+  #       type ipv6_addr
+  #       flags interval
+  #       auto-merge
+  #       elements = { ::1,
+  #          2a00:1370:8196:567::/64,
+  #          fe80::/64 }
+  #    }
+  # 
+  #    chain tp_rule {
+  #       ip daddr @whitelist return
+  #       ip daddr @interface return
+  #       ip6 daddr @whitelist6 return
+  #       ip6 daddr @interface6 return
+  #       meta mark & 0x00000080 == 0x00000080 return
+  #       meta l4proto tcp redirect to :52345
+  #    }
+  # 
+  #    chain tp_pre {
+  #       type nat hook prerouting priority dstnat - 5; policy accept;
+  #       meta nfproto { ipv4, ipv6 } meta l4proto tcp jump tp_rule
+  #    }
+  # 
+  #    chain tp_out {
+  #       type nat hook output priority dstnat - 5; policy accept;
+  #       meta nfproto { ipv4, ipv6 } meta l4proto tcp jump tp_rule
+  #    }
+  # }
+</code></pre>
+
+<p style="margin-bottom: 0">У меня <strong>v2rayA</strong> работает прозрачно, но не через <strong><i>TUN</i></strong> и не через <strong><i>TProxy</i></strong>. Он использует обычный <strong><i>REDIRECT</i></strong> через <strong>nftables</strong>.</p>
+<p style="margin-top: 0">Таблица называется <strong><i>v2rayA</i></strong>, потому что её создаёт <strong>v2rayA</strong> при запуске. Когда я останавливаю <strong>v2rayA</strong>, таблица пропадает.</p>
+
+<p>Разберём</p>
+<ul>
+	<li><strong>v2rayA</strong> создал отдельную таблицу nftables: <code style="background-color: #191919; padding: 0 8px">table inet v2raya</code>. <strong><i>inet</i></strong> означает, что таблица может работать и с IPv4, и с IPv6. В ней две основные цепочки: <strong><i>tp_pre</i></strong> и <strong><i>tp_out</i></strong>.</li>
+	<li>Входящий трафик попадает в <strong><i>tp_pre</i></strong></li>
+	<li>Исходящий локальный трафик идёт через <strong><i>tp_out</i></strong>.</li>
+	<li>Самое главное находится здесь: <code style="background-color: #191919; padding: 0 8px">meta l4proto tcp redirect to :52345</code>. Это буквально означает: если это TCP-пакет, перенаправь его на локальный порт <strong><i>52345</i></strong>.</li>
+	<li>А что делает <strong><i>set whitelist?</i></strong> Это адреса, которые не надо отправлять в прокси. Например, <code style="background-color: #191919; padding: 0 8px">192.168.1.1</code> попадает сюда: <code style="background-color: #191919; padding: 0 8px">ip daddr @whitelist return</code>. <strong><i>return</i></strong> означает: выйти из <strong><i>tp_rule</i></strong> и ничего не перенаправлять. Поэтому если я буду обращаться к своему роутеру (192.168.1.1), то это обращение не пойдёт в <strong>Xray</strong>.</li>
+	<li><code style="background-color: #191919; padding: 0 8px">set interface { elements = { 127.0.0.0/8, 192.168.1.0/24 } }</code> – а это дополнительные адреса самого компьютера/локальной сети, которые тоже исключаются: <code style="background-color: #191919; padding: 0 8px">ip daddr @interface return</code></li>
+   <li>
+      <p style="margin: 0"><code style="background-color: #191919; padding: 0 8px">meta mark & 0x00000080 == 0x00000080 return</code> – означает: если пакет уже имеет firewall <strong><i>mark 0x80</i></strong>, не перехватывать его повторно.</p>
+	  <p style="margin-top: 0; margin-bottom: 4px">А я уже видел у себя в <strong>Xray</strong>:</p>
+	  <pre style="margin-top: 4px; margin-bottom: 0"><code class="language-json">"sockopt": {
+    "mark": 128
+}</code></pre>
+      <p style="margin: 0">128 в десятичной системе = 0x80.</p>
+	  <p style="margin: 0">То есть <strong>Xray</strong> отправляет исходящий трафик с: <code style="background-color: #191919; padding: 0 8px">mark = 128</code>, а <strong>nftables</strong> видит: <code style="background-color: #191919; padding: 0 8px">mark & 0x80 == 0x80</code> и говорит: а, этот пакет уже обработан <strong>Xray</strong>. Не надо отправлять его обратно в <strong>Xray</strong>. Это очень важная часть конструкции.</p>
+   </li>
+   <li><code style="background-color: #191919; padding: 0 8px">meta l4proto tcp redirect to :52345</code> – стоит обратить внимание: здесь ТОЛЬКО <strong><i>TCP</i></strong>. UDP в этих правилах отсутствует. Именно этот nftables-конфиг не перехватывает UDP. При этом Xray inbound на 52345 настроен на <code style="background-color: #191919; padding: 0 8px">"network": "tcp,udp"</code></li>
+</ul>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
