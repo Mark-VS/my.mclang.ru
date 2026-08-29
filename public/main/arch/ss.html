@@ -15,8 +15,7 @@
 <p style="margin-top: 0"><strong>ss</strong> – замена старому <strong>netstat</strong></p>
 
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">
-ss -t src :443
+<pre style="margin-top: 6px"><code class="language-bash">ss -t src :443
 
 # показывает TCP-соединения, которые ...
 # ... находятся в состоянии SYN-RECV:
@@ -33,11 +32,55 @@ ss -lnt
 
 # кто владелец сети:
 whois 91.221.176.1
-
 </code></pre>
+
+<p style="margin-bottom: 0">Какие бывают типы соединений:</p>
+<ul style="margin-top: 0">
+   <li>LISTEN</li>
+   <li>ESTAB</li>
+   <li>UNCONN – обычно относится к UDP-сокетам, потому что UDP не устанавливает соединение так, как TCP.</li>
+   <li>SYN-SENT</li>
+   <li>SYN-RECV</li>
+   <li>FIN-WAIT-1</li>
+   <li>FIN-WAIT-2</li>
+   <li>TIME-WAIT</li>
+   <li>CLOSE-WAIT</li>
+   <li>LAST-ACK</li>
+   <li>CLOSING</li>
+   <li>CLOSED</li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Показать все TCP-сокеты (кроме слушающих):
+ss -t
+
+# Показать все сокеты:
+ss -a
+
+# Unix domain sockets:
+ss -x
+
+# RAW sockets:
+ss -w
+
+# Показать все TCP-сокеты:
+ss -ta
+
+# Показать только слушающие TCP-сокеты:
+ss -tl
+
+# Добавить колонку с процессами, которые владеют этими сокетами:
+ss -tlp
+
+# Показать только установленные (ESTAB) TCP-соединения:
+ss -t state established
+</code></pre>
+
+<p><strong><i>Unix domain socket</i></strong> — это способ, которым процессы на одном и том же компьютере общаются друг с другом. Часто такой сокет выглядит в файловой системе как файл (например, <strong><i>/run/user/1000/something.sock</i></strong>). Это тоже вполне себе обычные сокеты, просто вместо IP-адреса и TCP/UDP они используют механизм IPC внутри одного компьютера.</p>
 
 <p style="margin-bottom: 0">Покажи все TCP-соединения и TCP-сокеты, где на моей стороне используется порт 443!</p>
 <p style="margin: 0"><code style="background-color: #161616; padding: 0 8px">ss -t src :443</code></p>
+
 <ul style="margin-top: 0">
    <li>ss – показать сокеты/соединения</li>
    <li>-t – только TCP</li>
@@ -47,6 +90,25 @@ whois 91.221.176.1
    <li>-p – процессы, владеющие сокетами</li>
    <li>-n – не преобразовывать номера портов в имена (443 вместо https)</li>
 </ul>
+
+
+<p style="margin-bottom: 6px">Проверить, слушает ли кто-нибудь порт <strong><i>10808</i></strong>, можно вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ss -ltpn | grep 10808
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверить сразу несколько портов:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ss -ltpn | grep -E "20170|20171|10808"
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим, установлены ли соединения на портах 20170 и 10808:</p>
+<pre style="margin-top: 6px"><code class="language-bash">nc -zv 127.0.0.1 20170
+  # nc: connect to 127.0.0.1 port 20170 (tcp) failed: Connection refused
+
+nc -zv 127.0.0.1 10808
+  # Connection to 127.0.0.1 10808 port [tcp/*] succeeded!
+</code></pre>
+
+
 <!-- Шаблон -->
 <!--
 <p style="margin-bottom: 6px"></p>

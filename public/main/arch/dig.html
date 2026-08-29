@@ -23,6 +23,53 @@
    <li><strong><i>+nocmd</i></strong> – скрывает первую строку вывода с номером версии</li>
 </ul>
 
+<p style="margin-bottom: 6px">Достучаться до ютуба, используя гугловский DNS:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">dig youtube @8.8.8.8
+  # ; &lt;&lt;&gt;&gt; DiG 9.20.27 &lt;&lt;&gt;&gt; youtube.com @8.8.8.8
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NXDOMAIN, id: 22204
+  # ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 0, ADDITIONAL: 1
+  # 
+  # ;; OPT PSEUDOSECTION:
+  # ; EDNS: version: 0, flags:; udp: 1232
+  # ;; QUESTION SECTION:
+  # ;youtube.com.			IN	A
+  # 
+  # ;; Query time: 45 msec
+  # ;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)
+  # ;; WHEN: Sat Aug 29 19:33:23 MSK 2026
+  # ;; MSG SIZE  rcvd: 40
+</code></pre>
+<p style="margin-top: 6px"><strong><i>status: NXDOMAIN</i></strong> означает, что такого домена не существует. <strong><i>NXDOMAIN</i></strong> – Non-Existent Domain</p>
+<p style="margin-bottom: 0">А мы знаем, что Ютуб существует. Значит, домен кто-то подменяет. Давайте поставим <strong>dnscrypt-proxy</strong>. Это прокси для DNS. Он слушает порт 53.</p>
+<p style="margin-top: 0; margin-bottom: 6px">И теперь укажем его в качестве DNS:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">dig youtube.com @127.0.0.1
+  # 
+  # ; &lt;&lt;&gt;&gt; DiG 9.20.27 &lt;&lt;&gt;&gt; youtube.com @127.0.0.1
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 13641
+  # ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+  # 
+  # ;; OPT PSEUDOSECTION:
+  # ; EDNS: version: 0, flags:; udp: 1232
+  # ;; QUESTION SECTION:
+  # ;youtube.com.			IN	A
+  # 
+  # ;; ANSWER SECTION:
+  # youtube.com.		1523	IN	A	142.251.40.110
+  # 
+  # ;; Query time: 0 msec
+  # ;; SERVER: 127.0.0.1#53(127.0.0.1) (UDP)
+  # ;; WHEN: Sat Aug 29 19:48:14 MSK 2026
+  # ;; MSG SIZE  rcvd: 56
+</code></pre>
+<p style="margin-top: 6px">Теперь всё хорошо. Теперь DNS-запрос не идёт в открытом виде через обычный DNS-маршрут.</p>
+<p>То есть, происходит примерно так: я ввожу в браузер доменное имя. Запрос попадает на 127.0.0.1:53 в dnscrypt-proxy. <strong>dnscrypt-proxy</strong> шифрует его (то ли с помощью DoH, то ли с помощью ещё чего) и отправляет через HTTPS на удалённый DNS-резолвер. Провайдер видит ЧТО это за DNS-резолвер, но не видит содержимое запроса (не видит какой адрес я запрашиваю). DNS-резолвер возвращает IP-адрес домена и теперь мы можем к нему обратиться по IP-адресу.</p>
+
 
 <!-- Шаблон -->
 <!--

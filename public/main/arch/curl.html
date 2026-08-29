@@ -9,17 +9,54 @@
     <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
 </head>
 <body>
-    <script src="/assets/highlight/highlight.min.js"></script>
+<script src="/assets/highlight/highlight.min.js"></script>
     
-    <a href="/arch">Вернуться назад</a>
+<a href="/arch">Вернуться назад</a>
     
-    <h1>curl</h1>
-    <pre><code class="language-bash">
-    # Пример скачивания установщика haskell GHCup через http:
-    curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
-    </code></pre>
-    
-    <script src="/assets/highlight/languages/bash.min.js"></script>
-    <script>hljs.highlightAll();</script>
+<h1>curl</h1>
+<pre><code class="language-bash"># Пример скачивания установщика haskell GHCup через http:
+curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh</code></pre>
+
+
+<h2>Диагностика</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Загрузим HTTP-заголовки страницы:
+curl -4 -I https://youtube.com
+
+# То же самое, но через IPv6:
+curl -6 -I https://youtube.com
+
+# Более подробный вывод:
+curl -4 -I -v https://youtube.com
+</code></pre>
+
+<ul style="margin-top: 6px">
+   <li>-4 – принудительно использовать IPv4</li>
+   <li>-6 – принудительно использовать IPv6</li>
+   <li>-I – запросить только HTTP-заголовки, без загрузки содержимого страницы</li>
+</ul>
+
+<h2>getent</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">getent ahosts youtube.com
+</code></pre>
+<p style="margin-top: 6px">Здесь <strong>getent</strong> обращается к системному механизму разрешения имён (NSS), то есть фактически проверяет, какой IP-адрес система сама получит для ютуб.</p>
+
+
+<!-- Шаблон -->
+<!--
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+   lala
+</code></pre>
+
+-->
+
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

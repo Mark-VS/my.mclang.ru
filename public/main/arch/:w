@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ip-route</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>ip-route</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">ip route show
+  # default via 192.168.1.1 dev enp2s0 
+  # 172.18.0.0/30 dev tun0 proto kernel scope link src 172.18.0.1 
+  # 192.168.1.0/24 dev enp2s0 proto kernel scope link src 192.168.1.3 
+</code></pre>
+
+<p style="margin-bottom: 6px">Какую таблицу маршрутизации вообще использовать для этого пакета:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ip rule
+  # 0:	from all lookup local
+  # 9000:	from all to 172.18.0.0/30 lookup 2022
+  # 9001:	from all lookup 2022 suppress_prefixlength 0
+  # 9002:	not from all dport 53 lookup main suppress_prefixlength 0
+  # 9002:	from all iif tun0 goto 9010
+  # 9003:	not from all iif lo lookup 2022
+  # 9003:	from 0.0.0.0 iif lo lookup 2022
+  # 9003:	from 172.18.0.0/30 iif lo lookup 2022
+  # 9010:	from all nop
+  # 32766:	from all lookup main
+  # 32767:	from all lookup default
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">9000 – 9010 – это правила, которые добавил <strong>Happ</strong>.</p>
+<p style="margin-top: 0">Числа в начале каждой строки – это приоритет для выполнения правила.</p>
+
+<p style="margin-bottom: 0">Здесь можно заметить таблицу маршрутизации номер 2022.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Можно посмотреть, что в ней находится:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip route show table 2022
+  # default via 172.18.0.2 dev tun0
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотрим таблицы <strong><i>main</i></strong> и <strong><i>local</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip route show table main
+  # default via 192.168.1.1 dev enp2s0 
+  # 172.18.0.0/30 dev tun0 proto kernel scope link src 172.18.0.1 
+  # 192.168.1.0/24 dev enp2s0 proto kernel scope link src 192.168.1.3 
+
+ip route show table local
+  # local 127.0.0.0/8 dev lo proto kernel scope host src 127.0.0.1 
+  # local 127.0.0.1 dev lo proto kernel scope host src 127.0.0.1 
+  # broadcast 127.255.255.255 dev lo proto kernel scope link src 127.0.0.1 
+  # local 172.18.0.1 dev tun0 proto kernel scope host src 172.18.0.1 
+  # broadcast 172.18.0.3 dev tun0 proto kernel scope link src 172.18.0.1 
+  # local 192.168.1.3 dev enp2s0 proto kernel scope host src 192.168.1.3 
+  # broadcast 192.168.1.255 dev enp2s0 proto kernel scope link src 192.168.1.3 
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Посмотреть список всех таблиц:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip route show table all
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Посмотреть ip-адрес конкретного интерфейса:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip addr show tun0
+8: tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 500
+    link/none 
+    inet 172.18.0.1/30 brd 172.18.0.3 scope global tun0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::501c:9770:a1da:9d2f/64 scope link stable-privacy proto kernel_ll 
+       valid_lft forever preferred_lft forever
+</code></pre>
+
+
+<pre>             IP RULE
+                ↓
+       какую таблицу выбрать?
+                ↓
+        ┌───────┴────────┐
+        ↓                ↓
+    table main       table 2022
+        ↓                ↓
+    enp2s0             tun0
+        ↓                ↓
+   обычный интернет    HAPP/Xray</pre>
+
+<p style="margin-bottom: 6px">Добавить маршрут в таблицу маршрутизации main:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ip route add default via 192.168.1.1 dev enp2s0 table main
+
+# Но явное указание таблицы можно опустить, 
+# потому что main – это таблица по умолчанию:
+sudo ip route add default via 192.168.1.1 dev enp2s0
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

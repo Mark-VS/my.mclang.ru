@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>happ</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/vpn/">Вернуться назад</a>
+
+<h1>happ</h1>
+
+
+<p>При старте компа запускается happd.service. Потом я запускаю программу:</p>
+<ul>
+   <li>root         458  0.0  0.1 299244 29288 ?        Ssl  13:22   0:00 /opt/happ/bin/happd</li>
+   <li>mark        2061  8.6  1.7 1542860 279024 ?      Sl   13:26   0:04 /opt/happ/bin/Happ</li>
+</ul>
+<p>Даже если happd не запущен, то запуск программы Happ также запускает happd.servie.</p>
+<p>После подключения к серверу в процессах появлюются:</p>
+<ul>
+   <li>mark        2536  3.0  0.3 1364764 49444 ?       Sl   13:27   0:00 /opt/happ/bin/core/xray</li>
+   <li>root        2554  0.2  0.2 1272676 40036 ?       Sl   13:27   0:00 /opt/happ/bin/tun/sing-box run -c /home/mark/.config/Happ/config.json --disable-color</li>
+</ul>
+
+<h3>Проблема с подключением</h3>
+<p>У меня была проблема с подключением. Камнем предкновения оказался конфиг <strong><i>~/config.json</i></strong>, который непонятно откуда у меня взялся. При старте программы <strong>Happ</strong>, она запускала процесс <strong>xray</strong>, явно не указывая в параметрах путь к конфигу. И почему-то <strong>XRay</strong> подхватывал <strong><i>~/config.json</i></strong>, хотя должен был подхватывать <strong><i>~/.config/Happ/config.json</i></strong>, который использует и <strong>XRay</strong>, и <strong>sing-box</strong>. Нужно было этот конфиг удалить, и тогда <strong>XRay</strong> сам нашёл нужный ему конфиг.</p>
+
+<p style="margin-bottom: 6px">После подключения к серверу появляется TUN-интерфейс:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether d8:bb:c1:dc:58:56 brd ff:ff:ff:ff:ff:ff
+    altname enxd8bbc1dc5856
+4: tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN mode DEFAULT group default qlen 500
+    link/none 
+
+ip route
+default via 192.168.1.1 dev enp2s0 
+172.18.0.0/30 dev tun0 proto kernel scope link src 172.18.0.1 
+192.168.1.0/24 dev enp2s0 proto kernel scope link src 192.168.10.3
+
+ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether d8:bb:c1:dc:58:56 brd ff:ff:ff:ff:ff:ff
+    altname enxd8bbc1dc5856
+    inet 192.168.1.3/24 scope global enp2s0
+       valid_lft forever preferred_lft forever
+    inet6 2a00:1370:8196:567:dabb:c1ff:fedc:5856/64 scope global dynamic mngtmpaddr proto kernel_ra 
+       valid_lft 366sec preferred_lft 366sec
+    inet6 fe80::dabb:c1ff:fedc:5856/64 scope link proto kernel_ll 
+       valid_lft forever preferred_lft forever
+4: tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 500
+    link/none 
+    inet 172.18.0.1/30 brd 172.18.0.3 scope global tun0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::c0bd:5158:fb3f:e0ac/64 scope link stable-privacy proto kernel_ll 
+       valid_lft forever preferred_lft forever
+</code></pre>
+
+
+<p>Main log:</p>
+<pre>[29.08 13:26:43] [INIT]: System locale: en_US
+[29.08 13:26:44] [INIT]: HWID:b6dd615d8fb84419931feb99426b8bb9
+[29.08 13:26:44] [INIT]: X_Device_OS: Linux
+[29.08 13:26:44] [INIT]: X_Ver_OS: arch_unknown
+[29.08 13:26:44] [INIT]: X_Device_model: Govnuter_x86_64
+[29.08 13:26:44] [INIT]: X_Device_Locale: EN
+[29.08 13:26:44] [SUBSCRIPTION]: Subscription update timer interval unit: hours (production mode)
+[29.08 13:26:44] [SUBSCRIPTION]: Subscription database opened: /home/mark/.config/Happ/subs.db
+[29.08 13:26:44] [SUBSCRIPTION]: Loaded 4 subscriptions from database
+[29.08 13:26:44] [API]: PremiumFallback: fetching from gdrive: https://drive.usercontent.google.com/download?id=1skw19VP2GQsj2Av8nYHKhHoQR3qcpMJW
+[29.08 13:26:44] [TUN]: [CommunicationClient] Connected to happd daemon
+[29.08 13:26:44] [TUN]: [DaemonManager] Heartbeat worker started
+[29.08 13:26:44] [INIT]: [DaemonManager] Daemon started and connected successfully
+[29.08 13:26:44] [INIT]: Process cleanup completed in 2ms (parallel execution)
+[29.08 13:26:44] [INIT]: No persisted backup found - app shutdown was clean, not touching proxy settings
+[29.08 13:26:44] [INIT]: LoadHash completed in 59ms - loaded 79 servers from 4 subscriptions
+[29.08 13:26:44] [INIT]: Startup initialization completed in 61ms - hiding loading dialog
+[29.08 13:26:44] [CORE]: Setting XRAY_LOCATION_ASSET to: /opt/happ/bin/core/
+[29.08 13:26:44] [CORE]: core output: Xray 26.3.27 (Xray, Penetrates Everything.) d2758a0 (go1.26.1 linux/amd64);A unified platform for anti-censorship.
+[29.08 13:26:49] [SUBSCRIPTION]: Auto-updating 3 subscription(s) based on individual update intervals
+[29.08 13:26:49] [SUBSCRIPTION]:   - 👨‍🦳 DedVPN (interval: 1 hour(s))
+[29.08 13:26:49] [SUBSCRIPTION]:   - ✨SiriusVPN ✨ Main -:69645 (interval: 1 hour(s))
+[29.08 13:26:49] [SUBSCRIPTION]:   - ✨SiriusVPN 🚀 Ultra -:120 (interval: 1 hour(s))
+[29.08 13:26:50] [API]: PremiumFallback: decode failed: decoded tag is not 16 bytes
+[29.08 13:26:50] [API]: PremiumFallback: gdrive returned a payload that failed to decode
+[29.08 13:26:50] [API]: PremiumFallback: fetching from happ.su: https://check.happ.su/files/data.result
+[29.08 13:26:54] [SUBSCRIPTION]: Auto-updating 3 subscription(s) based on individual update intervals
+[29.08 13:26:54] [SUBSCRIPTION]:   - 👨‍🦳 DedVPN (interval: 1 hour(s))
+[29.08 13:26:54] [SUBSCRIPTION]:   - ✨SiriusVPN ✨ Main -:69645 (interval: 1 hour(s))
+[29.08 13:26:54] [SUBSCRIPTION]:   - ✨SiriusVPN 🚀 Ultra -:120 (interval: 1 hour(s))
+[29.08 13:26:54] [SUBSCRIPTION]: Subscription 1756601096 update already in progress, skipping reentrant call
+[29.08 13:26:54] [SUBSCRIPTION]: Subscription -1502565453 update already in progress, skipping reentrant call
+[29.08 13:26:54] [SUBSCRIPTION]: Subscription 1573846088 update already in progress, skipping reentrant call
+[29.08 13:26:55] [SUBSCRIPTION]: Saved 4 subscriptions to database
+[29.08 13:27:10] [API]: PremiumFallback: happ.su fetch failed (status=200, err=4, bytes=0)
+[29.08 13:27:10] [API]: PremiumFallback: all sources failed
+[29.08 13:27:10] [UI]: [ACTIVE-SERVER] user: ServersScreen click | prev=(sub=1756601096,srv=-174563967) -> new=(sub=-1502565453,srv=-916244389)
+[29.08 13:27:13] [CORE]: Connecting to: ICEbreaker🧊
+[29.08 13:27:13] [ROUTING]: Pre-flight check: routing enabled=0
+[29.08 13:27:13] [CORE]: Setting XRAY_LOCATION_ASSET to: /opt/happ/bin/core/
+[29.08 13:27:13] [CORE]: core output: Xray 26.3.27 (Xray, Penetrates Everything.) d2758a0 (go1.26.1 linux/amd64);A unified platform for anti-censorship.
+[29.08 13:27:13] [CORE]: Setting XRAY_LOCATION_ASSET to: /opt/happ/bin/core/
+[29.08 13:27:13] [CORE]: Setting XRAY_LOCATION_ASSET to: /opt/happ/bin/core/
+[29.08 13:27:13] [UI]: [CONNECTION TIMING] Core startup: 422ms
+[29.08 13:27:13] [TUN]: Starting TUN - current state: tunState=false, createError=false, tunProcess=exists, createTryCount=0
+[29.08 13:27:13] [TUN]: DNS detour set to 'direct' (tunDnsEnable=true)
+[29.08 13:27:13] [TUN]: Starting tun ...
+[29.08 13:27:13] [TUN]: Tun executable: /opt/happ/bin/tun/sing-box
+[29.08 13:27:13] [TUN]: Config file: /home/mark/.config/Happ/config.json
+[29.08 13:27:13] [TUN]: Starting TUN with elevated privileges via daemon
+[29.08 13:27:13] [TUN]: [DaemonManager] Starting process 'sing-box-tun' with executable: /opt/happ/bin/tun/sing-box
+[29.08 13:27:13] [TUN]: [DaemonManager] Arguments: run -c /home/mark/.config/Happ/config.json --disable-color
+[29.08 13:27:13] [TUN]: [DaemonManager] Process 'sing-box-tun' started
+[29.08 13:27:13] [TUN]: [DaemonManager] Daemon response: {"message":"Process started successfully","request-id":"req_1","status":"started","timestamp":"2026-08-29T13:27:13"}
+[29.08 13:27:13] [TUN]: [DaemonManager] Process started successfully
+[29.08 13:27:13] [TUN]: TUN process started via daemon
+[29.08 13:27:13] [TUN]: Waiting for interface creation (attempt 1/3)...
+[29.08 13:27:13] [TUN]: Tunnel interface created successfully (via daemon)
+[29.08 13:27:13] [TUN]: Wait finished - tunState: true, createError: false, elapsed: 200ms
+[29.08 13:27:13] [TUN]: Tun started up in 200ms
+[29.08 13:27:13] [TUN]: Tun mode enabled
+[29.08 13:27:13] [UI]: [CONNECTION TIMING] TUN startup: 211ms
+[29.08 13:27:13] [UI]: [CONNECTION TIMING] Total connection time: 633ms
+[29.08 13:27:13] [API]: PremiumFallback: VPN connected — retrying via happ.su after startup failure
+[29.08 13:27:13] [API]: PremiumFallback: fetching from happ.su: https://check.happ.su/files/data.result
+[29.08 13:27:13] [API]: Failed to query initial stats, will retry on next poll
+[29.08 13:27:13] [API]: PremiumFallback: happ.su fetch failed (status=0, err=2, bytes=0)</pre>
+
+<p>Core log:</p>
+<pre>Xray 26.3.27 (Xray, Penetrates Everything.) d2758a0 (go1.26.1 linux/amd64)
+A unified platform for anti-censorship.
+2026/08/29 13:27:13.569654 [Info] infra/conf/serial: Reading config: &{Name:/home/mark/config.json Format:json}
+2026/08/29 13:27:13.569517 Using default config:  /home/mark/config.json</pre>
+
+<p>TUN log:</p>
+<pre>WARN[0000] legacy DNS servers is deprecated in sing-box 1.12.0 and will be removed in sing-box 1.14.0, checkout documentation for migration: https://sing-box.sagernet.org/migration/#migrate-to-new-dns-server-formats
++0300 2026-08-29 13:27:13 INFO network: updated default interface enp2s0, index 2
++0300 2026-08-29 13:27:13 INFO inbound/tun[tun-in]: started at tun0
++0300 2026-08-29 13:27:13 INFO sing-box started (0.33s)
++0300 2026-08-29 13:27:13 INFO router: found process path: /opt/happ/bin/Happ, user: mark
++0300 2026-08-29 13:27:13 INFO [745029057 0ms] inbound/tun[tun-in]: inbound connection from 172.18.0.1:41180
++0300 2026-08-29 13:27:13 INFO [745029057 0ms] inbound/tun[tun-in]: inbound connection to 116.202.234.207:443
++0300 2026-08-29 13:27:13 INFO [745029057 2ms] router: found process path: /opt/happ/bin/Happ, user: mark
++0300 2026-08-29 13:27:13 INFO [745029057 5ms] outbound/socks[proxy]: outbound connection to 116.202.234.207:443
++0300 2026-08-29 13:27:13 ERROR [745029057 5ms] connection: open connection to 116.202.234.207:443 using outbound/socks[proxy]: dial tcp 127.0.0.1:10808: connect: connection refused
++0300 2026-08-29 13:27:25 INFO router: found process path: /usr/bin/ping, user: mark
++0300 2026-08-29 13:27:25 INFO [3146210073 0ms] inbound/tun[tun-in]: inbound packet connection from 172.18.0.1:33384
++0300 2026-08-29 13:27:25 INFO [3146210073 0ms] inbound/tun[tun-in]: inbound packet connection to 8.8.8.8:53
++0300 2026-08-29 13:27:25 INFO [3146210073 4ms] router: found process path: /usr/bin/ping, user: mark
++0300 2026-08-29 13:27:25 INFO [3146210073 27ms] outbound/direct[direct]: outbound packet connection to 8.8.8.8:53
++0300 2026-08-29 13:27:25 INFO [3146210073 58ms] dns: exchanged A archlinux.org. 30 IN A 209.126.35.79
++0300 2026-08-29 13:27:35 ERROR [3146210073 10.3s] dns: exchange failed for archlinux.org. IN AAAA: context deadline exceeded</pre>
+
+
+<p>Вроде всё подключено. Я пингую ip:</p>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=0.157 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=64 time=0.140 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=64 time=0.129 ms
+^C
+--- archlinux.org ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2148ms
+rtt min/avg/max/mdev = 0.105/0.151/0.203/0.040 ms
+
+ping 8.8.4.4
+PING 8.8.4.4 (8.8.4.4) 56(84) bytes of data.
+64 bytes from 8.8.4.4: icmp_seq=1 ttl=64 time=0.185 ms
+64 bytes from 8.8.4.4: icmp_seq=2 ttl=64 time=0.125 ms
+64 bytes from 8.8.4.4: icmp_seq=3 ttl=64 time=0.213 ms
+^C
+--- 8.8.4.4 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2053ms
+rtt min/avg/max/mdev = 0.125/0.174/0.213/0.036 ms
+
+ping google.com
+PING google.com (64.233.164.138) 56(84) bytes of data.
+64 bytes from lf-in-f138.1e100.net (64.233.164.138): icmp_seq=1 ttl=64 time=0.065 ms
+64 bytes from lf-in-f138.1e100.net (64.233.164.138): icmp_seq=2 ttl=64 time=0.140 ms
+64 bytes from lf-in-f138.1e100.net (64.233.164.138): icmp_seq=3 ttl=64 time=0.223 ms
+64 bytes from lf-in-f138.1e100.net (64.233.164.138): icmp_seq=4 ttl=64 time=0.183 ms
+^C
+--- google.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3033ms
+rtt min/avg/max/mdev = 0.065/0.152/0.223/0.058 ms
+
+ping archlinux.org
+PING archlinux.org (209.126.35.79) 56(84) bytes of data.
+64 bytes from 209.126.35.79: icmp_seq=1 ttl=64 time=0.138 ms
+64 bytes from 209.126.35.79: icmp_seq=2 ttl=64 time=0.148 ms
+64 bytes from 209.126.35.79: icmp_seq=3 ttl=64 time=0.225 ms
+^C
+--- archlinux.org ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2662ms
+rtt min/avg/max/mdev = 0.138/0.170/0.225/0.038 ms
+
+ping fedidb.com
+PING fedidb.com (172.67.218.3) 56(84) bytes of data.
+64 bytes from 172.67.218.3: icmp_seq=1 ttl=64 time=0.112 ms
+64 bytes from 172.67.218.3: icmp_seq=2 ttl=64 time=0.186 ms
+64 bytes from 172.67.218.3: icmp_seq=3 ttl=64 time=0.164 ms
+64 bytes from 172.67.218.3: icmp_seq=4 ttl=64 time=0.172 ms
+64 bytes from 172.67.218.3: icmp_seq=5 ttl=64 time=0.218 ms
+64 bytes from 172.67.218.3: icmp_seq=6 ttl=64 time=0.161 ms
+^C
+--- fedidb.com ping statistics ---
+6 packets transmitted, 6 received, 0% packet loss, time 5075ms
+rtt min/avg/max/mdev = 0.112/0.168/0.218/0.031 ms
+</code></pre>
+
+<p>Причём, пинг ip-адресов происходит быстро, а вот когда я пишу ping fedidb.com, например, то проходит 4-5 секунд, прежде чем я начинаю получать ответ.</p>
+<p>Но когда пытаюсь зайти на любой сайт через браузер, то ничего не выходит. Сайт не открывается. В LibreWolf: "Looks like there’s a problem with this site". Или в Falkon: "This site can’t be reached".</p>
+
+<h2>Ответ ГПТ</h2>
+
+<p>Схема у Happ примерно такая:</p>
+<pre>Браузер
+   ↓
+ TUN (tun0)
+   ↓
+sing-box
+   ↓
+SOCKS-прокси 127.0.0.1:10808
+   ↓
+Xray
+   ↓
+VPN-сервер
+   ↓
+Интернет</pre>
+
+<p>Всё ломается на этом этапе: <code style="background-color: #191919; padding: 0 8px">sing-box → 127.0.0.1:10808</code></p>
+<p><strong><i>connection refused</i></strong> означает буквально: sing-box попытался подключиться к SOCKS-серверу на 127.0.0.1:10808, но там никто не слушает порт.</p>
+
+<p>То есть TUN у тебя успешно создаётся, sing-box успешно запускается, Xray тоже запускается, но Happ настроил sing-box так, чтобы он передавал трафик в SOCKS-прокси на 127.0.0.1:10808, а Xray на этом порту, судя по всему, SOCKS не открыл.</p>
+
+<p style="margin-bottom: 6px">Проверяем, слушает ли вообще кто-то порт 10808:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ss -ltnp | grep 10808
+
+# Ещё лучше:
+sudo ss -ltnp | grep -E '10808|xray'
+</code></pre>
+
+<p>В моём Core log написано: <strong><i>Reading config: /home/mark/config.json</i></strong>, то есть, <strong>XRay</strong> реально читает этот файл. Нужно посмотреть именно раздел <strong><i>Inbounds</i></strong>.</p>
+
+<p style="margin-bottom: 6px">У меня в разделе Inbounds вот что:</p>
+<pre style="margin-top: 6px"><code class="language-json">{
+  "port": 20170,
+  "protocol": "socks",
+  "listen": "127.0.0.1"
+}
+</code></pre>
+
+<p style="margin: 0">Файл <strong><i>~/config.json</i></strong> содержит <strong><i>json</i></strong> в одной строке. Его неудобно читать.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Вывести содержимое файла красиво:</p>
+<pre style="margin-top: 6px"><code class="language-bash">python -m json.tool ~/config.json
+</code></pre>
+
+
+
+<p>То есть Xray, если успешно загрузил этот конфиг, должен слушать 127.0.0.1:20170</p>
+
+<h3>Но тут обнаруживается ещё более интересная вещь:</h3>
+<p>Happ запускает /opt/happ/bin/core/xray и говорит ему: Reading config: /home/mark/config.json. То есть Xray получает твой старый/внешний ~/config.json</p>
+<p>Этот конфиг выглядит как конфиг <strong>v2rayA</strong> (порты 20170, 20171, 20172, 52345, 39627, соответствующие правила и т. д.).</p>
+<p>А sing-box получает совершенно другой конфиг: /home/mark/.config/Happ/config.json</p>
+
+<pre>                    Happ
+                     │
+          ┌──────────┴──────────┐
+          ↓                     ↓
+       Xray                  sing-box
+          │                     │
+~/config.json          ~/.config/Happ/config.json
+          │                     │
+ SOCKS :20170             SOCKS :10808</pre>
+<p>И sing-box пытается отправить трафик в 127.0.0.1:10808, но Xray, судя по твоему config.json, должен слушать 20170.</p>
+<p>Это похоже на корень проблемы.</p>
+
+<p style="margin-bottom: 6px">И можно посмотреть конфиг <strong>sing-box</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">python -m json.tool ~/.config/Happ/config.json
+</code></pre>
+
+<p>А вот sing-box действительно настроен как TUN → SOCKS 127.0.0.1:10808:</p>
+
+<pre>TUN
+ ↓
+sing-box
+ ↓
+127.0.0.1:10808
+ ↓
+???</pre>
+
+<p style="margin-bottom: 6px">Проверим, прослушивается ли какой-либо порт:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ss -ltnp | grep -E '20170|20171|10808'
+
+ps aux | grep '[x]ray'
+</code></pre>
+
+
+<pre>                    HAPP
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+          ▼                       ▼
+       Xray                  sing-box
+          │                       │
+  ~/config.json          ~/.config/Happ/config.json
+          │                       │
+  SOCKS 127.0.0.1:20170    SOCKS → 127.0.0.1:10808
+          │                       │
+		  └─────── X ─────────────┘</pre>
+
+<p>То есть, sing-box стучится на порт 10808, а Xray слушает порт 20170.</p>
+
+<h2>DNS, DoH</h2>
+
+<p style="margin-bottom: 6px">В <strong><i>~/.config/Happ/config.json</i></strong> у нас:</p>
+<pre style="margin-top: 6px"><code class="language-json">"dns": {
+    "servers": [
+        {
+            "address": "8.8.8.8",
+            "detour": "direct",
+            "tag": "dns-proxy"
+        }
+    ]
+}
+</code></pre>
+<p style="margin-bottom: 6px">А в <strong><i>Advanced Settings</i></strong> в GUI:</p>
+<pre style="margin-top: 6px"><code class="language-bash">TUN DNS Enable              On
+TUN DNS Address             1.1.1.1
+</code></pre>
+
+<p>Но TUN DNS Address: 1.1.1.1 не означает, что sing-box отправляет DNS-запросы на 1.1.1.1 безопасным способом. Это адрес DNS-сервера, а не DoH.</p>
+<p>При этом Use DNS from JSON: Off означает, что настройки DNS из JSON (из нашего конфига ~/.config/Happ/config.json) не являются источником DNS-конфигурации TUN.</p>
+
+<p>~/.config/Happ/config.json — это конфигурация sing-box, который Happ запускает для TUN, а не конфигурация самого Xray.</p>
+
+<p style="margin-bottom: 6px">Ставим <strong>dnscrypt-proxy</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S dnscrypt-proxy
+</code></pre>
+<p>По умолчанию он слушает 127.0.0.1:53</p>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Запускаем dnscrypt-proxy:
+sudo systemctl start dnscrypt-proxy
+
+# Потом сразу:
+systemctl status dnscrypt-proxy --no-pager
+
+# И проверяем, действитльно ли он слушает порт 53:
+ss -lunp | grep ':53'
+
+# И главный тест:
+dig youtube.com @127.0.0.1
+
+# т.е. мы пытаемся достучаться  до youtube, используя
+# наш локальный dnscrypt-proxy 127.0.0.1:53
+</code></pre>
+
+
+<p>Теперь осталось заменить системный dns в файле /etc/resolv.conf на 127.0.0.1. То есть меняем строку <code style="background-color: #191919; padding: 0 8px">nameserver 8.8.8.8</code> на <code style="background-color: #191919; padding: 0 8px">nameserver 127.0.0.1</code></p>
+
+<p>Конфиг dnscrypt-proxy: <strong><i>/etc/dnscrypt-proxy/dnscrypt-proxy.toml</i></strong></p>
+
+<p style="margin-bottom: 6px">Строка с именами серверов по умолчанию у меня в конфиге закомментирована:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
+</code></pre>
+<p></p>
+
+<p style="margin-bottom: 6px">А вот эти настройки на строке 770:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">[sources]
+[sources.public-resolvers]
+</code></pre>
+<p style="margin-top: 6px">означают, что <strong>dnscrypt-proxy</strong> использует удалённый список публичных DNS-резолверов.</p>
+
+<p>то есть схема у меня такая:</p>
+<pre>                    ┌─ DNSCrypt/DoH сервер №1
+                    │
+Arch → 127.0.0.1:53 → dnscrypt-proxy ─┼─ DNSCrypt/DoH сервер №2
+                    │
+					└─ DNSCrypt/DoH сервер №3</pre>
+<p><strong>dnscrypt-proxy</strong> сам получает список серверов и выбирает из него.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nftables</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1 style="margin-bottom: 2px">nftables</h1>
+<p style="margin-top: 2px"><strong>nftables</strong> — современная система фильтрации пакетов <strong>Linux</strong>, пришедшая на смену старому <strong>iptables</strong>.</p>
+
+<p style="margin-bottom: 6px">Проверить таблицы (правила):</p>
+<pre style="margin-top: 6px"><code class="language-bash"># показывает правила firewall-а nftables:
+sudo nft list ruleset
+</code></pre>
+
+<p style="margin-bottom: 6px">Когда я выполняю вот такую команду:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ip route show table all
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">... то я смотрю, таблицы маршрутизации ядра <strong>Linux</strong>.</p>
+<ul style="margin-top: 0">
+   <li><code style="background-color: #191919; paddig: 0 8px">default via 192.168.1.1 dev enp2s0</code> означает: Если пакет предназначен неизвестно куда, отправить его через шлюз 192.168.1.1 через интерфейс enp2s0.</li>
+   <li><code style="background-color: #191919; padding: 0 8px">default via 172.18.0.2 dev tun0 table 2022</code> означает: В таблице маршрутизации №2022 маршрут по умолчанию ведёт через 172.18.0.2, интерфейс tun0.</li>
+</ul>
+
+<p style="margin: 0">А <strong>nftables</strong> – это фильтрация и обработка пакетов.</p>
+<p style="margin-top: 0; margin-bottom: 8px">В <strong>nftables</strong> тоже есть понятие <strong>table</strong>. Но это не таблицы маршрутизации – это таблицы <strong>nftables</strong>.</p>
+
+<p style="margin-top: 8px; margin-bottom: 0"><strong>nftables</strong> может, например, разрешить или заблокировать пакет, перенаправить его, изменить его, сделать NAT, пометить пакет.</p>
+<p style="margin-top: 0; margin-bottom: 0">Если TCP-порт 22 → разрешить, если TCP-порт 23 → заблокировать. Это уже не маршрутизация.</p>
+<p style="margin-top: 0">В <strong>nftables</strong> таблица – это контейнер для правил firewall'а.</p>
+
+<ul>
+   <li><strong><i>ip route</i></strong> – куда отправлять</li>
+   <li><strong><i>ip rule</i></strong> – какую таблицу маршрутизации использовать</li>
+   <li><strong><i>nft list ruleset</i></strong> – что делать с пакетами по правилам firewall/NAT/перенаправления</li>
+</ul>
+
+<pre>             IP RULE
+                ↓
+       какую таблицу выбрать?
+                ↓
+        ┌───────┴────────┐
+        ↓                ↓
+    table main       table 2022
+        ↓                ↓
+    enp2s0             tun0
+        ↓                ↓
+   обычный интернет    HAPP/Xray</pre>
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
