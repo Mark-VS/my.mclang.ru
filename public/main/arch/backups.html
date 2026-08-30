@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бэкапы</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>Бэкапы</h1>
+
+<p style="margin-bottom: 2px">Программы:</p>
+<ul style="margin-top: 2px">
+   <li>rsync</li>
+   <li>restic</li>
+   <li>BorgBackup – главный исторический конкурент restic. Очень популярен среди Linux-пользователей.</li>
+   <li>Kopia – более современный инструмент. Тоже поддерживает snapshots, дедупликацию и шифрование. Есть GUI и веб-интерфейс.</li>
+   <li>Duplicati – Популярен у людей, которым хочется управлять бэкапами через браузер.</li>
+   <li>rclone – это скорее «rsync для облаков». Он сам по себе не является полноценной системой versioned backup в том же смысле, что <strong>restic</strong> или <strong>Borg</strong>.</li>
+</ul>
+
+<p>Для <storng>PeerTube</strong> лучше смотреть в сторону <strong>restic</strong>.</p>
+<p>Допустим, у меня storage весит 100ГБ. Я делаю первый бэкап.</p>
+<p>Затем я загрузил ещё ролик на 2ГБ. Следующий запуск restic не будет заново заливать 102ГБ. Он создаст новый снапшот, но в бэкап-хранилище добавит только новые/изменившиеся данные. Restic использует дедупликацию, причём большие файлы разбиваются на блоки; если изменился только кусок файла, повторно сохраняется только изменившаяся часть. А если ничего не изменилось, то в бэкап ничего и не добавится.</p>
+<p>Это отличается  от обычного <strong>rsync</strong>.</p>
+
+<p style="margin-bottom: 6px"><strong>rsync</strong> тоже очень полезен, например:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">rsync -a /var/www/peertube/storage/ /mnt/backup/peertube/storage/
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">При следующем запуске он не будет копировать неизменившиеся файлы заново.</p>
+<p style="margin-top: 0">Если у меня storage весит 100ГБ и я сделал бэкап. Потом я загрузил видео на 2ГБ. Повторный запуск не будет заново копировать весь storage – он скопирует только новове двухгигабайтное видео. Если при третьем запуске ничего не изменилось, то ничего и не скопируется. В этом rsync ведёт себя так же, как и restic.</p>
+
+<p style="margin-bottom: 0">В чём же отличие?</p>
+<p style="margin: 0">Представим, что я на сервере удалил одну видеозапись (<strong><i>video5.mp4</i></strong>).</p>
+<p style="margin: 0">Если я запущу rsync без специальных опций, то файл <strong><i>video5.mp4</i></strong> останется в бэкапе. Но бэкап – это ведь копия ведь копия оригинал, значит логично удалить <strong><i>video5.mp4</i></strong> и из бэкапа тоже? Для этого есть опция <strong><i>--delete</i></strong>. Тогда бэкап всегда будет в точности соответствовать оригиналу и лишние (удалённые) файлы будут оттуда удаляться. Но тогда я теряю возможность вернуть удалённый файл.</p>
+<p style="margin: 0">В <strong>restic</strong> же у нас есть возможность всегда вернуть файлы назад, ведь мы работаем со снапшотами. То есть, сейчас снапшот показывает, что файла <strong><i>video5.mp4</i></strong> нет. Но я в любой момент могу переместиться по истории снапшотов назад и восстановить файл.</p>
+<p style="margin-top: 0">Можно сказать так: <strong>rsync</strong> — это прежде всего инструмент синхронизации, а <strong>restic</strong> — инструмент резервного копирования с историей.</p>
+
+
+<h2>Практика</h2>
+
+<p>Попробуем сделать бэкап для <strong>peertube</strong>.</p>
+<p style="margin-bottom: 6px">Проверяем права:</p>
+<pre style="margin-top: 6px"><code class="language-bash"> ls -ld /var/www/peertube
+  # drwx------+ 7 peertube peertube 4096 Aug 16 21:03 /var/www/peertube
+
+sudo ls -l /var/www/peertube/storage
+  # total 84
+  # drwxrwxr-x 2 peertube peertube  4096 Aug 17 15:19 avatars
+  # drwxrwxr-x 2 peertube peertube  4096 Aug 17 06:54 bin
+  # drwxrwxr-x 6 peertube peertube  4096 Aug 16 21:15 cache
+  # ...
+</code></pre>
+<p>У пользователя <strong><i>mark</i></strong> есть ограничение на вход в папку <strong><i>/var/www/peertube/</i></strong> и на доступ к ещё некоторым вложенным папкам. Но у них у всех во владельцах записана группа <strong><i>peertube</i></strong>. Поэтому мы добавим пользователя <strong><i>mark</i></strong> в группу <strong><i>peertube</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Добавим пользователя <strong><i>mark</i></strong> в группу <strong><i>peertube</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo usermod -aG peertube mark
+
+# Перелогиниваемся и проверяем:
+id
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь дадим группе <strong><i>peertube</i></strong> право заходить в папку <strong><i>/var/www/peertube/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo chmod g+x /var/www/peertube
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ls -ld /var/www/peertube
+  # drwx--x---+ 7 peertube peertube 4096 Aug 16 21:03 /var/www/peertube
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь можно делать бэкап:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rsync -av mark@mclang.ru:/var/www/peertube/storage/ ~/tmp/peertube/
+</code></pre>
+<p style="margin-bottom: 6px">Но в <strong><i>storage</i></strong> есть один файл: <strong><i>/var/www/peertube/storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key</i></strong>, на который у нас нет прав! Даже владелец не может его изменить – только прочитать:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ls -l /var/www/peertube/storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key
+  # -r-------- 1 peertube peertube 1704 Aug 16 21:51 /var/www/peertube/storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong><i>peertest.mclang.ru.key</i></strong> – это приватный ключ, поэтому у него такие строгие правила. Его лучше не включать в регулярный бэкап. Просто скопируем его куда-то в надёжное место и будем хранить отдельно. А в регулярном бэкапе исключим его из копирования:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rsync -av \
+  --exclude='plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key' \
+  mark@mclang.ru:/var/www/peertube/storage/ ~/tmp/peertube/
+</code></pre>
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

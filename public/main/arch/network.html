@@ -15,20 +15,58 @@
 
 <p style="margin-bottom: 6px">Файлы:</p>
 <ul style="margin-top: 6px">
-   <li>/etc/resolv.conf – DNS</li>
-   <li>/etc/gai.conf – GetAddressInfo – нужен для настройки того, как система выбирает IP-адрес (IPv4 или IPv6) при подключении к хосту.</li>
-   <li>/etc/nsswitch.conf – настройка порядка и способов поиска информации о системных объектах, таких как пользователи, группы, хосты, пароли и т.д. Системные функции, такие как getent, getpwnam(), gethostbyname(), используют NSS.</li>
-   <li>/etc/hosts – хосты</li>
-   <li>/etc/hostname – имя компьютера</li>
+   <li><strong><i>/etc/resolv.conf</i></strong> – DNS-резолвер</li>
+   <li><strong><i>/etc/gai.conf</i></strong> – GetAddressInfo – нужен для настройки того, как система выбирает IP-адрес (IPv4 или IPv6) при подключении к хосту.</li>
+   <li><strong><i>/etc/nsswitch.conf</i></strong> – настройка порядка и способов поиска информации о системных объектах, таких как пользователи, группы, хосты, пароли и т.д. Системные функции, такие как getent, getpwnam(), gethostbyname(), используют NSS.</li>
+   <li><strong><i>/etc/hosts</i></strong> – хосты</li>
+   <li><strong><i>/etc/hostname</i></strong> – имя компьютера</li>
+   <li><strong><i>/usr/share/iproute2/rt_tables</i></strong> – словарь соответствия номеров и имён таблиц маршрутизации</li>
 </ul>
 
-<pre><code class="language-bash"># Присваиваем интерфейсу IP-адрес:
+<p style="margin-bottom: 0">У нас в системе по умолчанию две таблицы маршрутизации:</p>
+<ul style="margin-top: 0; margin-bottom: 2px">
+    <li>local</li>
+	<li>main (таблица по умолчанию)</li>
+</ul>
+<p style="margin-top: 2px; margin-bottom: 6px">Таблица <strong>main</strong> – пустая, а в <strong>local</strong> содержатся три записи.</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip route show table local
+  # local 127.0.0.0/8 dev lo proto kernel scope host src 127.0.0.1 
+  # local 127.0.0.1 dev lo proto kernel scope host src 127.0.0.1 
+  # broadcast 127.255.255.255 dev lo proto kernel scope link src 127.0.0.1 
+</code></pre>
+<p style="margin-bottom: 6px">В правилах выбора таблицы тоже три записи:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ip rule show all
+  # 0:	from all lookup local
+  # 32766:	from all lookup main
+  # 32767:	from all lookup default
+</code></pre>
+
+<ul style="margin-top: 6px; margin-bottom: 2px">
+   <li><strong><i>from all</i></strong> – все запросы</li>
+   <li><strong><i>lookup</i></strong> &lt;имя_тиблицы&gt; – отправляет в конкретную таблицу за поиском маршрутов</li>
+</ul>
+<p style="margin-top: 2px; margin-bottom: 0">А числа <strong><i>0</i></strong>, <strong><i>32766</i></strong>, <strong><i>32767</i></strong> – это приоритеты.</p>
+<p style="margin-top: 0">Т.е., сначала (0 – самый высокий приоритет) система смортит в таблицу <strong><i>local</i></strong>, затем, если там ничего не найдено, – в <strong><i>main</i></strong>. И в последнюю очередь – в таблицу <strong><i>defaul</i></strong>.</p>
+<p style="margin-bottom: 0">Но таблицы <strong><i>default</i></strong> по факту не существует. По факту у нас только две таблицы: <strong><i>local</i></strong> и <strong><i>main</i></strong>.</p>
+<p style="margin-top: 0">В современных системах таблица <strong><i>default</i></strong> обычно не используется. Это исторически предусмотренная стандартная таблица. Это просто ещё один предусмотренный ядром уровень маршрутизации. Теоретически администратор мог положить туда маршруты, которые должны проверяться после <strong><i>main</i></strong>. Но на практике почти никто так не делает. То есть <strong><i>default</i></strong> по-прежнему существует как зарезервированный идентификатор таблицы в системе маршрутизации <strong>Linux</strong>, но сама <strong>FIB</strong>-таблица может вообще не быть создана, пока в неё не добавлен хотя бы один маршрут.</p>
+
+<pre style="margin-bottom: 6px"><code class="language-bash"># Присваиваем интерфейсу IP-адрес:
 sudo ip addr add 192.168.1.3/24 dev enp2s0
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Теперь у интерфейса <strong><i>enp2s0</i></strong> появился IPv4-адрес.</p>
+<p style="margin-top: 0">А в таблице <strong><i>local</i></strong> появилась ещё одна запись: <code style="background-color: #191919; padding: 0 8px">local 192.168.1.3 dev enp2s0 proto kernel scope host src 192.168.1.3 </code></p>
 
-# Включаем интерфейс(нужно подождать около 2 сек.):
+<p style="margin-bottom: 6px">Но у интерфейса статус: <strong><i>DOWN</i></strong>. Это значит, что он не работает. Чтобы его включить, надо присвоить ему статус <strong><i>UP</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Включаем интерфейс(нужно подождать около 2 сек.):
 sudo ip link set dev enp2s0 up
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Включение инерфейса может происходить не сразу. Нужно подождать 1-2 секунды.</p>
+<p style="margin: 0">Теперь у нас появилась запись в таблице <strong>main</strong>: <code style="background-color: #191919; padding: 0 8px">192.168.1.0/24 dev enp2s0 proto kernel scope link src 192.168.1.3</code></p>
+<p style="margin: 0">И появилась ещё одна запись в <strong><i>ip rule</i></strong>: <code style="background-color: #191919; padding: 0 8px">broadcast 192.168.1.255 dev enp2s0 proto kernel scope link src 192.168.1.3</code></p>
 
-# локальный маршрут в таблицу маршрутизации уже добавился автоматический
+<p>Теперь у нас дожна работать локальная сеть?</p>
+
+<pre style="margin-bottom: 6px"><code class="language-bash"># локальный маршрут в таблицу маршрутизации уже добавился автоматический
 # но нам нужно добавить маршрут для интернета в основную таблицу main:
 sudo ip route add default via 192.168.1.1 dev enp2s0 table main
 
@@ -36,6 +74,8 @@ sudo ip route add default via 192.168.1.1 dev enp2s0 table main
 # main – это таблица по умолчанию:
 sudo ip route add default via 192.168.1.1 dev enp2s0
 </code></pre>
+
+<p style="margin-top: 6px">Теперь у нас в таблице <strong><i>main</i></strong> появилась ещё одна запись: <code style="background-color: #191919; padding: 0 8px">default via 192.168.1.1 dev enp2s0</code>. Теперь все запросы, которые не удовлетворяют предыдущим правилам, будут отправлять на шлюз 192.168.1.1.</p>
 
 <p style="margin-bottom: 6px">Помимо таблицы <strong>main</strong>, есть ещё таблица <strong>local</strong>. Смотреть их содержимое можно вот так:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># Посмотреть таблицу main:
@@ -54,11 +94,50 @@ sudo ip route show table all
 ping -4 servername.ru
 </code></pre>
 
-<p>Как сделать, чтобы система по умолчанию работала с IPv4</p>
-<p style="margin-bottom: 6px">Нужно открыть файл <strong><i>/etc/gai.conf</i></strong> и раскомментировать там следующую строку:</p>
+<h2>gai.conf</h2>
+
+<p style="margin-bottom: 0">Как сделать, чтобы система по умолчанию работала с IPv4?</p>
+<p style="margin-top: 0; margin-bottom: 6px">Нужно открыть файл <strong><i>/etc/gai.conf</i></strong> и раскомментировать там следующую строку:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">precedence ::ffff:0:0/96  100
 </code></pre>
 <p style="margin-top: 6px">Теперь можно пинговать адрес и не указывать явно IPv4. Система будет по умолчанию использовать именно IPv4.</p>
+
+
+<h2 style="margin-bottom: 2px">rt_tables</h2>
+<p style="margin-top: 2px; margin-bottom: 0"><strong>rt_tables</strong> – это по сути словарь соответствия номеров и имён таблиц маршрутизации.</p>
+<p style="margin: 0">Утилита <strong>rt_tables</strong> является частью пакета <strong>iproute2</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Сами соответствия хранятся в файле <strong><i>/usr/share/iproute2/rt_tables</i></strong>:</p>
+
+<pre style="margin-top: 6px"><code class="language-bash">cat /usr/share/iproute2/rt_tables
+#
+# reserved values
+#
+255	local
+254	main
+253	default
+0	unspec
+#
+# local
+#
+#1	inr.ruhep
+</code></pre>
+
+<p style="margin-bottom: 0">Например, если использовать VPN, то может создастся доп. таблица с номером 2022. И она будет отображаться как таблица 2022. Но если мы хотим добавить ей имя, то технически можно вписать его в файл <strong><i>/usr/share/iproute2/rt_tables</i></strong>: <code style="background-color: #191919; padding: 0 8px">2022 MyCustomName</code>. И тогда мы сможем обращаться к ней по имени: <code style="background-color: #191919; padding: 0 8px">ip route show table MyCustomName</code></p>
+<p style="margin-top: 0; margin-bottom: 0">Но лучше не делать это непосредственно в <strong><i>/usr/share/iproute2/rt_tables</i></strong>.</p>
+<ul style="margin-top: 0; margin-bottom: 0">
+   <li><strong><i>/usr/share/iproute2/rt_tables</i></strong> принадлежит пакету <strong>iproute2</strong>,</li>
+   <li>а <strong><i>/etc/iproute2/rt_tables</i></strong> предназначен именно для локальных настроек администратора.</li>
+</ul>
+<p style="margin-top: 0; margin-bottom: 0">Поэтому можно создать файл <strong><i>/etc/iproute2/rt_tables</i></strong> и добавить запись туда. <strong>ip</strong> умеет использовать <strong><i>/etc/iproute2/rt_tables</i></strong> как локальное дополнение к системному файлу.</p>
+<p style="margin-top: 0">Это поможет избежать проблем с перезаписыванием файла во время обновления программы.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+   lala
+</code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script>hljs.highlightAll();</script>

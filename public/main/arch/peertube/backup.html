@@ -16,6 +16,7 @@
 <p style="margin-bottom: 0">Что нужно скопировать:</p>
 <ul style="margin-top: 0">
    <li>storage</li>
+   <li>И отдельно – ключ <strong><i>storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key</i></strong></li>
    <li>PostgreSQL-бд</li>
    <li>Конфигурация PeerTube (/var/www/peertube/peertube-v8.2.4/config/)</li>
 </ul>
@@ -34,9 +35,45 @@ sudo -u postgres createdb -O peertube peertube_prod
 sudo -u postgres psql peertube_prod &lt; peertube_prod.sql
 </code></pre>
 
-<p style="margin-bottom: 6px">Сжимать <strong><i>storage</i></strong> в <strong><i>.tar.gz</i></strong> скорее всего нет смысла, потому что видео и так уже сжаты, поэтому имеет просто всё это запихнуть в .tar-контейнер:</p>
-<pre style="margin-top: 6px"><code class="language-bash">sudo tar -cf peertube-storage.tar /var/www/peertube/storage
+<p style="margin-bottom: 6px">Сжимать <strong><i>storage</i></strong> в <strong><i>.tar.gz</i></strong> скорее всего нет смысла, потому что видео и так уже сжаты, поэтому имеет смысл просто всё это запихнуть в <strong><i>.tar</i></strong>-контейнер:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo tar -cf peertube-storage.tar /var/www/peertube/storage
 </code></pre>
+<p style="margin-top: 6px">Но создавать <strong><i>.tar</i></strong>-архив имеет смысл, если мы планируем сделать один архив для долгого хранения. Если же мы хотим делать регулярные бэкапы, то это неудобно.</p>
+
+<p style="margin-bottom: 6px">Делаем бэкап <strong>PostgreSQL</strong>-базы данных:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo -u postgres pg_dump peertube_prod &gt; ~/tmp/peertube_prod.sql
+
+ls -l ~/tmp/
+  # total 456
+  # -rw-rw-r-- 1 mark mark 464276 Aug 30 21:02 peertube_prod.sql
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Владельцем бэкап-файла является <strong><i>mark</i></strong>. Почему? Потому что команда состоит из двух частей:</p>
+<p style="margin-top: 0">первая часть, <strong><i>pg_dump</i></strong>, выполняется от имени <strong><i>postgres</i></strong>, а вот вторая часть, <strong><i>&gt; peertube_prod.sql</i></strong>, т.е. вывод в файл, выполняется моей оболочкой от имени <strong><i>mark</i></strong>, поэтому владелец файла: <strong><i>mark</i></strong>.</p>
+
+
+<p style="margin-bottom: 6px">Если нужно делать регулярные бэкапы, то конечно проще делать, например, вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Копируем всё содержимое папки storage, кроме ключа
+# (на копирование ключа у mark'а всё равно нет прав):
+rsync -av \
+  --exclude='plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key' \
+  mark@mclang.ru:/var/www/peertube/storage/ ~/tmp/peertube/
+
+# Копируем базу данных:
+rsync -av mark@mclang.ru:~/tmp/peertube_prod.sql ~/tmp/peertube/
+
+# Копируем конфиг:
+rsync -av mark@mclang.ru:/var/www/peertube/peertube-v8.2.4/config/production.yaml ~/tmp/peertube/
+
+# И отдельно сохраняем ключ storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key
+</code></pre>
+
+<h3>дополнительно</h3>
+
+<p style="margin-bottom: 0"><code style="background-color: #191919; padding: 0 8px">sudo -u postgres pg_dump peertube_prod &gt; peertube_prod.sql</code> сохраняет содержимое базы <strong>PeerTube</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Но можно ещё сделать дамп ролей/глобальных объектов <strong>PostgreSQL</strong>, чтобы была возможность восстановить сервер полностью:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo -u postgres pg_dumpall --globals-only &gt; postgres_globals.sql
+</code></pre>
+<p style="margin-top: 6px">Это не обязательно для восстановления самой базы <strong><i>peertube_prod</i></strong>, но полезно при восстановлении всего <strong>PostgreSQL</strong>-сервера, чтобы не пришлось, например, заново создавать пользователя <strong><i>peertube</i></strong> при переезде на новый сервер.</p>
 
 
 <!-- Шаблон -->

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACL</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1 style="margin-bottom: 0">ACL</h1>
+<p style="margin-top: 0"><strong>ACL</strong> – <strong>A</strong>ccess <strong>C</strong>ontrol <strong>L</strong>ist (список контроля доступа)</p>
+
+<p style="margin-bottom: 6px">Установка пакета <strong>acl</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># В Arch:
+sudo pacman -S acl
+
+# В Debian:
+sudo apt install acl
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 0">Вместе с пакетом <strong>acl</strong> установились три утилиты: <strong>getfacl</strong>, <strong>setfacl</strong> и <strong>chacl</strong>.</p>
+<p style="margin-top: 0"><strong>chacl</strong> – устаревшая.</p>
+
+<p style="margin-bottom: 6px">Проверяем права у каталога <strong><i>/var/www/peertube/</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">getfacl /var/www/peertube
+  # getfacl: Removing leading '/' from absolute path names
+  # # file: var/www/peertube
+  # # owner: peertube
+  # # group: peertube
+  # user::rwx
+  # group::---
+  # other::---
+</code></pre>
+<p style="margin-top: 6px">Я как пользователь <strong><i>mark</i></strong> не могу получить доступ к <strong><i>/var/www/peertube/</i></strong>.</p>
+
+<h3>Дать доступ</h3>
+
+<p style="margin-bottom: 6px">Добавим возможность пользователю <strong><i>mark</i></strong> заходить в папку <strong><i>/var/www/peertube/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo setfacl -m u:mark:--x /var/www/peertube
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">getfacl /var/www/peertube
+  # getfacl: Removing leading '/' from absolute path names
+  # # file: var/www/peertube
+  # # owner: peertube
+  # # group: peertube
+  # user::rwx
+  # user:mark:--x
+  # group::---
+  # mask::--x
+  # other::---
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь я могу просматривать содержимое каталога от пользователя <strong><i>mark</i></strong> без <strong>sudo</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ls /var/www/peertube/storage
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь можно с локального компьютера скопировать <strong><i>storage</i></strong> от имени пользователя <strong><i>mark</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rsync -av mark@mclang.ru:/var/www/peertube/storage/ ~/tmp/peertube/
+</code></pre>
+
+<h3>Забрать доступ</h3>
+<p style="margin-bottom: 6px">Обратно забрать доступ у пользователя <strong><i>mark</i></strong> заходить в папку <strong><i>/var/www/peertube/</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo setfacl -x u:mark /var/www/peertube
+
+# полностью вернуть каталог к обычным Linux-правам и отказаться от ACL:
+sudo setfacl -b /var/www/peertube
+</code></pre>
+<ul style="margin-top: 6px">
+   <li><strong><i>-b</i></strong> означает удалить все <strong>extended ACL entries</strong>.</li>
+</ul>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
