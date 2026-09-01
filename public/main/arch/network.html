@@ -28,13 +28,16 @@
     <li>local</li>
 	<li>main (таблица по умолчанию)</li>
 </ul>
-<p style="margin-top: 2px; margin-bottom: 6px">Таблица <strong>main</strong> – пустая, а в <strong>local</strong> содержатся три записи.</p>
+<p style="margin-top: 2px; margin-bottom: 6px">Таблица <strong>main</strong> – пустая, а в <strong>local</strong> содержатся четыре записи.</p>
 <pre style="margin-top: 6px"><code class="language-bash">ip route show table local
   # local 127.0.0.0/8 dev lo proto kernel scope host src 127.0.0.1 
   # local 127.0.0.1 dev lo proto kernel scope host src 127.0.0.1 
   # broadcast 127.255.255.255 dev lo proto kernel scope link src 127.0.0.1 
+
+ip -6 route show table all
+  # local ::1 dev lo table local proto kernel metric 0 pref medium
 </code></pre>
-<p style="margin-bottom: 6px">В правилах выбора таблицы тоже три записи:</p>
+<p style="margin-bottom: 6px">В правилах выбора таблицы три записи:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">ip rule show all
   # 0:	from all lookup local
   # 32766:	from all lookup main
@@ -55,14 +58,23 @@ sudo ip addr add 192.168.1.3/24 dev enp2s0
 </code></pre>
 <p style="margin-top: 6px; margin-bottom: 0">Теперь у интерфейса <strong><i>enp2s0</i></strong> появился IPv4-адрес.</p>
 <p style="margin-top: 0">А в таблице <strong><i>local</i></strong> появилась ещё одна запись: <code style="background-color: #191919; padding: 0 8px">local 192.168.1.3 dev enp2s0 proto kernel scope host src 192.168.1.3 </code></p>
+<p>Теперь в таблице <strong><i>local</i></strong> пять записей:</p>
 
 <p style="margin-bottom: 6px">Но у интерфейса статус: <strong><i>DOWN</i></strong>. Это значит, что он не работает. Чтобы его включить, надо присвоить ему статус <strong><i>UP</i></strong>:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Включаем интерфейс(нужно подождать около 2 сек.):
 sudo ip link set dev enp2s0 up
 </code></pre>
 <p style="margin-top: 6px; margin-bottom: 0">Включение инерфейса может происходить не сразу. Нужно подождать 1-2 секунды.</p>
+
+<p style="margin-bottom: 6px">Проверим ещё раз записи в таблице <strong><i>local</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip -4 route show table local &amp;&amp; \
+ip -6 route show table local
+</code></pre>
+
+<!--
 <p style="margin: 0">Теперь у нас появилась запись в таблице <strong>main</strong>: <code style="background-color: #191919; padding: 0 8px">192.168.1.0/24 dev enp2s0 proto kernel scope link src 192.168.1.3</code></p>
 <p style="margin: 0">И появилась ещё одна запись в <strong><i>ip rule</i></strong>: <code style="background-color: #191919; padding: 0 8px">broadcast 192.168.1.255 dev enp2s0 proto kernel scope link src 192.168.1.3</code></p>
+-->
 
 <p>Теперь у нас дожна работать локальная сеть?</p>
 

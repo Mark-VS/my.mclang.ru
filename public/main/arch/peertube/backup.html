@@ -67,6 +67,24 @@ rsync -av mark@mclang.ru:/var/www/peertube/peertube-v8.2.4/config/production.yam
 # И отдельно сохраняем ключ storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key
 </code></pre>
 
+<p style="margin-bottom: 6px">И отдельно сохраняем ключ. Делаем это вручную:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Заходим на VPS и делаем временную копию:
+sudo -u peertube cp \
+  /var/www/peertube/storage/plugins/data/peertube-plugin-livechat/prosody/data/peertest.mclang.ru.key \
+  /tmp/peertest.mclang.ru.key
+
+# Меняем владельца и ограничиваем права:
+sudo chown mark:mark /home/mark/tmp/peertest.mclang.ru.key
+chmod 600 /home/mark/tmp/peertest.mclang.ru.key
+
+# Теперь забираем файл с домашнего компьютера:
+rsync -av mark@mclang.ru:~/tmp/peertest.mclang.ru.key ~/tmp/peertube/
+
+# А на VPS удаляем временную копию:
+rm ~/tmp/peertest.mclang.ru.key
+
+</code></pre>
+
 <h3>дополнительно</h3>
 
 <p style="margin-bottom: 0"><code style="background-color: #191919; padding: 0 8px">sudo -u postgres pg_dump peertube_prod &gt; peertube_prod.sql</code> сохраняет содержимое базы <strong>PeerTube</strong>.</p>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS-сервера</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>DNS-сервера</h1>
+
+<ul>
+   <li>Google: 8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, ::8844</li>
+   <li>Cloudflare: 1.1.1.1, 1.0.0.1, 2606:4700:4700::1111, ::1001</li>
+   <li>Yandex: 77.88.8.8, 77.88.8.1, 2a02:6b8::feed:0ff, 2a02:6b8:0:1::feed:0ff</li>
+   <li>Quad9: 9.9.9.9, 149.112.112.112, 2620:fe::fe, 2620:fe::9</li>
+   <li>OpenDNS: 208.67.222.222, 208.67.220.220, 2620:119:35::35, 2620:119:53::53</li>
+   <li>Mullvad DNS: 194.242.2.2, 2a07:e340::2</li>
+</ul>
+
+<p style="margin-bottom: 0">Яндекс предоставляет <strong>DoH</strong> и <strong>DoT</strong>, например для обычного DNS:</p>
+<ul style="margin-top: 0">
+   <li>DoH: https://common.dot.dns.yandex.net</li>
+   <li>DoT: common.dot.dns.yandex.net:853</li>
+</ul>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

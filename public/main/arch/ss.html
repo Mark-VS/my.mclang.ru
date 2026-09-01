@@ -83,7 +83,8 @@ ss -t state established
 
 <ul style="margin-top: 0">
    <li>ss – показать сокеты/соединения</li>
-   <li>-t – только TCP</li>
+   <li>-t – только TCP-сокеты</li>
+   <li>-u – только UDP-сокеты</li>
    <li>src :443 – показать записи, у которых локальный (source) порт равен 443</li>
    <li>-s – summary (сводка) – не показывает сами сокеты, а выводит статистику по ним</li>
    <li>-l – только слушающие порты</li>
@@ -99,6 +100,15 @@ ss -t state established
 <p style="margin-bottom: 6px">Проверить сразу несколько портов:</p>
 <pre style="margin-top: 6px"><code class="language-bash">ss -ltpn | grep -E "20170|20171|10808"
 </code></pre>
+
+<p style="margin-bottom: 6px">Проверить кто слушает 53-й порт, показать UDP:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo ss -lunp | grep ':53'
+
+  # UNCONN 0      0        224.0.0.251:5353       0.0.0.0:*    users:(("falkon",pid=4665,fd=459))
+  # UNCONN 0      0        224.0.0.251:5353       0.0.0.0:*    users:(("falkon",pid=4665,fd=281))
+  # UNCONN 0      0          127.0.0.1:53         0.0.0.0:*    users:(("dnscrypt-proxy",pid=3719,fd=5))
+</code></pre>
+<p style="margin-top: 6px">В выводе можно убедиться, что <strong>dnscrypt-proxy</strong> слушает 53-й порт. Обычные <strong>DNS</strong>-запросы по классическому <strong>DNS</strong>-протоколу идут по <strong>UDP</strong> на порт <strong><i>53</i></strong>. Но это не значит, что <strong>DNS</strong> работает только через <strong>UDP</strong>. DNS использует и <strong>UDP</strong>, и <strong>TCP</strong>.</p>
 
 <p style="margin-bottom: 6px">Проверим, установлены ли соединения на портах 20170 и 10808:</p>
 <pre style="margin-top: 6px"><code class="language-bash">nc -zv 127.0.0.1 20170

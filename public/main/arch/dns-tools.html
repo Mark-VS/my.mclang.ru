@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS tools</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>DNS tools</h1>
+
+<h3>dig</h3>
+
+<p style="margin-bottom: 6px">Запросить IPv4-адрес домена <strong><i>google.com</i></strong> у DNS-сервера <strong><i>8.8.8.8</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">dig google.com A @8.8.8.8
+  
+  # ; &lt;&lt;&gt;&gt; DiG 9.20.27 &lt;&lt;&gt;&gt; google.com A @8.8.8.8
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 33171
+  # ;; flags: qr rd ra; QUERY: 1, ANSWER: 6, AUTHORITY: 0, ADDITIONAL: 1
+  # 
+  # ;; OPT PSEUDOSECTION:
+  # ; EDNS: version: 0, flags:; MBZ: 0x002d, udp: 1232
+  # ;; QUESTION SECTION:
+  # ;google.com.			IN	A
+  # 
+  # ;; ANSWER SECTION:
+  # google.com.		45	IN	A	64.233.162.138
+  # google.com.		45	IN	A	64.233.162.102
+  # google.com.		45	IN	A	64.233.162.113
+  # google.com.		45	IN	A	64.233.162.139
+  # google.com.		45	IN	A	64.233.162.100
+  # google.com.		45	IN	A	64.233.162.101
+  # 
+  # ;; Query time: 28 msec
+  # ;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)
+  # ;; WHEN: Mon Aug 31 23:33:37 MSK 2026
+  # ;; MSG SIZE  rcvd: 195
+</code></pre>
+
+<p style="margin-bottom: 6px">Запросить IPv6-адреса домена <strong><i>google.com</i></strong> у DNS-сервера <strong><i>8.8.8.8</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">dig google.com AAAA @8.8.8.8
+
+  # ; &lt;&lt;&gt;&gt; DiG 9.20.27 &lt;&lt&gt;&gt; google.com AAAA @8.8.8.8
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 33478
+  # ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 1
+  # 
+  # ;; OPT PSEUDOSECTION:
+  # ; EDNS: version: 0, flags:; MBZ: 0x00eb, udp: 1232
+  # ;; QUESTION SECTION:
+  # ;google.com.			IN	AAAA
+  # 
+  # ;; ANSWER SECTION:
+  # google.com.		235	IN	AAAA	2a00:1450:4010:c01::71
+  # google.com.		235	IN	AAAA	2a00:1450:4010:c01::66
+  # google.com.		235	IN	AAAA	2a00:1450:4010:c01::8a
+  # google.com.		235	IN	AAAA	2a00:1450:4010:c01::8b
+  # 
+  # ;; Query time: 7 msec
+  # ;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)
+  # ;; WHEN: Mon Aug 31 23:37:25 MSK 2026
+  # ;; MSG SIZE  rcvd: 191
+</code></pre>
+
+<p style="margin-bottom: 6px">Если не нужна лишняя информация, а нужны только IP-адреса, то добавляем аргумент <strong><i>+short</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">dig google.com A @8.8.8.8 +short
+
+  # 64.233.162.113
+  # 64.233.162.100
+  # 64.233.162.102
+  # 64.233.162.138
+  # 64.233.162.139
+  # 64.233.162.101
+</code></pre>
+
+<p>Если не указать DNS-сервер, то адрес DNS-сервера будет взят системный (из <strong><i>/etc/resolv.conf</i></strong>).</p>
+
+<h3>nslookup</h3>
+
+<p style="margin-bottom: 6px">IPv4:</p>
+<pre style="margin-top: 6px"><code class="language-bash">nslookup -type=A google.com 8.8.8.8
+
+  # Server:		8.8.8.8
+  # Address:	8.8.8.8#53
+  # 
+  # Non-authoritative answer:
+  # Name:	google.com
+  # Address: 108.177.14.113
+  # Name:	google.com
+  # Address: 108.177.14.138
+  # Name:	google.com
+  # Address: 108.177.14.101
+  # Name:	google.com
+  # Address: 108.177.14.102
+  # Name:	google.com
+  # Address: 108.177.14.139
+  # Name:	google.com
+  # Address: 108.177.14.100
+</code></pre>
+
+<p style="margin-bottom: 6px">IPv6:</p>
+<pre style="margin-top: 6px"><code class="language-bash">nslookup -type=AAAA google.com 8.8.8.8
+
+  # Server:		8.8.8.8
+  # Address:	8.8.8.8#53
+  # 
+  # Non-authoritative answer:
+  # Name:	google.com
+  # Address: 2a00:1450:4010:c07::71
+  # Name:	google.com
+  # Address: 2a00:1450:4010:c07::64
+  # Name:	google.com
+  # Address: 2a00:1450:4010:c07::65
+  # Name:	google.com
+  # Address: 2a00:1450:4010:c07::8b
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
