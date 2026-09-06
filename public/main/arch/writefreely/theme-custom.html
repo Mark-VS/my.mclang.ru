@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Theme</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely/themes.html">Вернуться назад</a>
+
+<h1>Custom Theme</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-css">
+:root {
+    --dark: #282c34;
+    --text: #8aa3ad;
+}
+
+html {
+   font-size: 16px;
+}
+
+body, article {
+    background-color: var(--dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+/* Размер заголовка поста в новостной ленте: */
+.post-title {
+    font-size: xx-large;
+}
+
+/* Цвет заголовка поста в новостной ленте (это ссылка): */
+.post-title a:link {
+    color: #333;
+}
+
+/*  Текст в постах внутри поста: */
+body#post article.norm {
+    font-size: 1.16rem;
+    line-height: 1.2;
+}
+
+/* Текст в постах в новостной ленте: */
+#modal-preview article p,
+body#collection article p,
+body#subpage article p {
+   line-height: 1.2;
+   font-size: 1.2rem;
+}
+
+/* вот это правило в оригинальной html-страничке для элемента article указывает максимальную ширину в 40rem: */
+#post .alert, #subpage .alert, body#collection article, body#post article, body#subpage #wrapper h1, body#subpage article, pre {
+    max-width: 40rem;
+    margin: 0 auto;
+}
+
+/* Чтобы увеличить ширину статьи, напишем: */
+body#collection article,
+body#post article,
+body#subpage article {
+    max-width: 80rem;
+}
+
+/* Ширина новостной ленты, внутри которой находится article: */
+#wrapper {
+    max-width: 80rem;
+}
+
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/css.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

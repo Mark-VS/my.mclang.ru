@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установка WriteFreely</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely/">Вернуться назад</a>
+
+<h1>Установка WriteFreely</h1>
+
+
+<p style="margin-bottom: 6px">Конфигурация <strong>Nginx</strong>, которую приводят в пример в официальном гайде по установке <strong>WriteFreely</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+    listen 80;
+    listen [::]:80;
+
+    server_name example.com;
+
+    gzip on;
+    gzip_types
+      application/javascript
+      application/x-javascript
+      application/json
+      application/rss+xml
+      application/xml
+      image/svg+xml
+      image/x-icon
+      application/vnd.ms-fontobject
+      application/font-sfnt
+      text/css
+      text/plain;
+    gzip_min_length 256;
+    gzip_comp_level 5;
+    gzip_http_version 1.1;
+    gzip_vary on;
+
+    location ~ ^/.well-known/(webfinger|nodeinfo|host-meta) {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://127.0.0.1:8080;
+        proxy_redirect off;
+    }
+
+    location ~ ^/(css|img|js|fonts)/ {
+        root /var/www/example.com/static;
+        # Optionally cache these files in the browser:
+        # expires 12M;
+    }
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://127.0.0.1:8080;
+        proxy_redirect off;
+    }
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Для начала создадим системного пользователя <strong><i>writefreely</i></strong> с домашней директорией в <strong><i>/var/lib/writefreely/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd --system --create-home --home-dir /var/lib/writefreely --shell /usr/sbin/nologin writefreely
+
+# Проверим:
+id writefreely
+</code></pre>
+
+<p>Официальный архив <strong>WriteFreely</strong> содержит не только бинарник, но и необходимые для работы файлы (templates, static, pages и т.д). Поэтому удобнее держать весь <strong>WriteFreely</strong> в одном каталоге: <strong><i>/opt/writefreely/</i></strong>.</p>
+<p style="margin-bottom: 6px">Создадим этот каталог:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo mkdir /opt/writefreely
+sudo chown writefreely:writefreely /opt/writefreely
+</code></pre>
+
+<p style="margin-bottom: 6px">Переходим в этот каталог и скачиваем релиз 0.17.2:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cd /opt/writefreely
+
+sudo -u writefreely wget https://github.com/writefreely/writefreely/releases/download/v0.17.2/writefreely_0.17.2_linux_amd64.tar.gz
+
+# Проверяем владельца  архива. Должен быть writefreely:
+ls -lh
+
+# Распаковываем:
+sudo -u writefreely tar -xvzf writefreely_0.17.2_linux_amd64.tar.gzip
+
+cd /opt/writefreely/writefreely
+
+# Посмотрим две справки:
+sudo -u writefreely ./writefreely --help
+sudo -u writefreely ./writefreely config --help
+</code></pre>
+
+<p style="margin-bottom: 0">Из вывода видно, что:</p>
+<ul style="margin-top: 0">
+   <li><strong><i>config generate</i></strong> – создать базовый конфиг автоматически:</li>
+  <li><strong><i>config start</i></strong> – интерактивная настройка.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Запускаю интерактивную настройку:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely config start
+</code></pre>
+<p>Я выбираю: Production, behind reverse proxy, порт 8080, </p>
+<p>Public URL: ... тут важно указать публичный адрес моего блога: https://writetest1.mclang.ru/. Этот адрес будет использоваться для формирования абсолютных ссылок.</p>
+<p>После завершения настроек появилось два файла: <strong><i>config.ini</i></strong> и <strong><i>writefreely.db</i></strong>. Всё это принадлежит пользователю <strong><i>writefreely</i></strong>.</p>
+
+<p>Прежде чем запускать WriteFreely, нужно ещё сгененировать ключи. Иначе WriteFreely не запустится. Он будет ругаться на отсутствие ключей. Папка <strong><i>keys</i></strong> у нас пустая.</p>
+<p style="margin-bottom: 6px">Запросим справку по ключам:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely keys --help
+
+# Теперь генерируем ключи:
+sudo -u writefreely ./writefreely keys generate
+</code></pre>
+
+<p style="margin-bottom: 0">В папке <strong><i>keys</i></strong> создались четыре ключа:</p>
+<pre style="margin-top: 0">keys/
+├── cookies_auth.aes256
+├── cookies_enc.aes256
+├── csrf.aes256
+└── email.aes256
+</pre>
+
+<p style="margin-bottom: 6px">Теперь можно запускать сервер:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely serve
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим в другом терминале:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -I http://127.0.0.1:8080
+  # HTTP/1.1 200 OK
+  # Set-Cookie: wfu=MTc4ODcwMzc1MXxRRHEwYnpUS1l6WUpGZVBQT18xUEtZQTJ1ekV5U0lJbWNxdVNhY0xXQzRwSlVVVT18tKv2wKb4skPNw7dyd7fgy_onrzufgCUj4hKJD7GrHRk=; Path=/; Expires=Fri, 05 Mar 2027 14:09:11 GMT; Max-Age=15552000; HttpOnly; Secure; SameSite=None
+  # Date: Sun, 06 Sep 2026 14:09:11 GMT
+  # Content-Type: text/html; charset=utf-8
+</code></pre>
+<p>Отлично. Сам <strong>WriteFreely</strong> работает на порту 8080.</p>
+
+<h2>Nginx</h2>
+
+<p style="margin-bottom: 6px">Сейчас сексция <strong><i>location</i></strong> в моём <strong>Nginx</strong>-конфиге выглядит вот так:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">location / {
+   default_type "text/plain; charset=utf-8";
+   return 200 "Hello World!";
+}
+</code></pre>
+<p style="margin-bottom: 6px">Заменим её на:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">location / {
+    proxy_pass http://127.0.0.1:8080;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+</code></pre>
+<p style="margin-bottom: 6px">Теперь можно запускать <strong>WriteFreely</strong> и проверять сайт в действии через браузер:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely serve
+</code></pre>
+
+
+<h2>CSS</h2>
+
+<p>В админской панели в настройках есть возможность вписать CSS, чтобы кастомизировать внешний вид.</p>
+
+<p style="margin-bottom: 6px">Чуть увеличим заголовки в постах:</p>
+<pre style="margin-top: 6px"><code class="language-css">.post-title {
+    font-size: xx-large;
+}
+</code></pre>
+
+
+
+
+<h2>Ознакомление</h2>
+
+<p>Для того, чтобы написать заголово первого уровня, используем символ <strong><i>#</i></strong></p>
+<p>Для того, чтобы отделить текст-превью от содержимого страницы используется специальный тег <strong><i>&lt;!--more--&gt;</i></strong></p>
+
+<ul>
+   <li>**Жирный текст**</li>
+   <li>__Жирный текст__</li>
+   <li>*Курсив*</li>
+   <li>_Курсив_</li>
+   <li>***Жирный курсив***</li>
+   <li>`короткий фрагмент кода внутри предложения` – тег &lt;code&gt;&lt;/code&gt;</li>
+   <li><pre>```
+блок кода
+блок кода
+блок кода
+```</pre></li>
+   <li><pre>```bash
+блок кода с указанием языка
+блок кода с указанием языка
+блок кода с указанием языка
+```</pre></li>
+</ul>
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script src="/assets/highlight/languages/css.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
