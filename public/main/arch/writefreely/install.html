@@ -13,8 +13,35 @@
 
 <h1>Установка WriteFreely</h1>
 
+<p style="margin-bottom: 6px">Тестовый конфиг для проверки:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 443 ssl;
+   server_name writetest1.mclang.ru www.writetest1.mclang.ru;
+   ssl_certificate /etc/letsencrypt/live/mclang.ru-0001/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru-0001/privkey.pem; # managed by Certbot
 
-<p style="margin-bottom: 6px">Конфигурация <strong>Nginx</strong>, которую приводят в пример в официальном гайде по установке <strong>WriteFreely</strong>:</p>
+   location / {
+      proxy_pass http://127.0.0.1:8080;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+   }
+
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+   listen 80;
+   server_name writetest1.mclang.ru www.writetest1.mclang.ru;
+
+   return 301 https://$host$request_uri;
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Конфигурация <strong>Nginx</strong>, которую приводят в пример в официальном гайде по установке <strong>WriteFreely</strong> (<a href="https://writefreely.org/start">writefreely.org/start</a>):</p>
 <pre style="margin-top: 6px"><code class="language-nginx">server {
     listen 80;
     listen [::]:80;
@@ -63,6 +90,11 @@
 }
 </code></pre>
 
+<p></p>
+<ul>
+   <li><strong><i>proxy_set_header X-Forwarded-Proto $scheme;</i></strong> – это передача <strong>WriteFreely</strong> информации о том, какой протокол использовал клиент при обращении к <strong>Nginx</strong>.</li>
+   <li><strong><i>proxy_redirect off</i></strong>Nginx по умолчанию умеет изменять заголовки Location в HTTP-ответах от upstream и при определённых условиях может переписать этот URL в соответствии с внешним адресом. А при использовании директивы <strong><i>proxy_redirect off</i></strong> мы как бы говорим: «Не переписывай Location в ответах от <strong><i>WriteFreely</i></strong>. Передавай как есть»</li>
+</ul>
 
 <p style="margin-bottom: 6px">Для начала создадим системного пользователя <strong><i>writefreely</i></strong> с домашней директорией в <strong><i>/var/lib/writefreely/</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo useradd --system --create-home --home-dir /var/lib/writefreely --shell /usr/sbin/nologin writefreely
@@ -159,10 +191,41 @@ sudo -u writefreely ./writefreely keys generate
 <pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely serve
 </code></pre>
 
+<h2>systemd</h2>
+
+<p style="margin-bottom: 6px">Официальный пример:</p>
+<pre style="margin-top: 6px"><code class="language-ini"># /etc/systemd/system/writefreely.service
+
+[Unit]
+Description=WriteFreely Instance
+After=syslog.target network.target
+# If MySQL is running on the same machine, uncomment the following 
+# line to use it, instead. 
+#After=syslog.target network.target mysql.service
+
+[Service]
+Type=simple
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=/var/www/example.com
+ExecStart=/var/www/example.com/writefreely
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p>Я в своём файле заменил только WorkingDirectory и ExecStart на <strong><i>/opt/writefreely/writefreely</i></strong></p>
+
+<p style="margin-bottom: 6px">Затем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl daemon-reload
+</code></pre>
+
 
 <h2>CSS</h2>
 
 <p>В админской панели в настройках есть возможность вписать CSS, чтобы кастомизировать внешний вид.</p>
+<p>И ещё добавим строку: <code>User=writefreely</code>. В официально примере сервис запускается от root'а. А мы специально создали пользователя <strong><i>writefreely</i></strong></p>
+<p>Если убрать StandartOutput¿syslog и StandartError=syslog, то вывод будет попадать в journal. А это неплохо.</p>
 
 <p style="margin-bottom: 6px">Чуть увеличим заголовки в постах:</p>
 <pre style="margin-top: 6px"><code class="language-css">.post-title {
@@ -210,6 +273,7 @@ sudo -u writefreely ./writefreely keys generate
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/nginx.min.js"></script>
 <script src="/assets/highlight/languages/css.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>
