@@ -31,6 +31,15 @@ body, article {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
+/* --- Ссылки --- */
+a:link {
+    color: #61AFEF;
+}
+
+body#collection header nav a.pinned {
+    color: #61AFEF;
+}
+
 /* Цвет заголовка блога В НОВОСТНОЙ ЛЕНТЕ: */
 #collection #blog-title a.h-card.p-author.u-url {
     color: var(--text);
@@ -57,9 +66,32 @@ body, article {
     color: var(--text);
 }
 
+/* Цвета hidden-кнопок редактирования поста: */
+body#collection section#wrapper article.norm.h-entry h2.post-title a.user.hidden.action {
+    color: #7CA9C0;
+}
+body#collection section#wrapper article.norm.h-entry h2.post-title a.user.hidden.pin.action {
+    color: #7F9A86;
+}
+body#collection section#wrapper article.norm.h-entry h2.post-title a.user.hidden.delete.action {
+    color: #96494A;
+}
+body#collection section#wrapper article.norm.h-entry h2.post-title div.user.hidden.action.flat-select label {
+    color: #808080;
+}
+
+/* --- */
+body#post article#post-body.norm.h-entry h2#title.p-name.dated {
+    margin-bottom: .1rem;
+}
+body#collection section#wrapper article.norm.h-entry h2.post-title {
+    margin-bottom: 0;
+}
+
 /* Дата и время публицкации поста В НОВОСТНОЙ ЛЕНТЕ:  */
 #collection section#wrapper article.norm.h-entry time.dt-published {
-    color: green;
+    margin-top: 0;
+    color: #50646C;
 }
 /* Дата и время публикации поста ВНУТРИ ПОСТА: */
 #post article#post-body.norm.h-entry time.dt-published {
@@ -142,6 +174,29 @@ body#post article p code {
 #collection #wrapper pre {
     background-color: var(--bckg);
     border: solid 1px var(--bckg);
+}
+
+
+/* -- Меняем расстояние между заголовком списка и списком */
+/* А также расстояние между эл-тами списка ВНУТРИ ПОСТА */
+body#post article#post-body.norm.h-entry div.e-content ul {
+    margin-top: 1rem;
+}
+body#post article#post-body.norm.h-entry div.e-content ul li {
+    margin-top: -.7rem;
+    margin-bottom: -.7rem;
+    /* line-height: 1; */
+}
+
+/* Делаем то же самое В НОВОСТНОЙ ЛЕНТЕ */
+/* Тут у li нет margin'ов - они у "p" */
+body#collection  section#wrapper article.norm.h-entry div.book.e-content p:has(+ ul) {
+    margin-bottom: .2rem;
+}
+/* Уменьшим расстояния между элементами списка: */
+body#collection  section#wrapper article.norm.h-entry div.book.e-content ul li {
+    margin-top: -.2rem;
+    margin-bottom: -.2rem;
 }
 </code></pre>
 
