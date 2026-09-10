@@ -19,6 +19,12 @@
     --dark: #282c34;
     --text: #8aa3ad;
     --bckg: #232629;
+    
+    --link: #61AFEF;
+    
+    --del: #96494A;
+    --green1: #7F9A86;
+    --yellow1: #8F803C;
 }
 
 html {
@@ -33,8 +39,12 @@ body, article {
 
 /* --- Ссылки --- */
 a:link {
-    color: #61AFEF;
+    color: var(--link);
 }
+a:visited {
+    color: var(--link);
+}
+
 
 body#collection header nav a.pinned {
     color: #61AFEF;
@@ -61,8 +71,27 @@ body#collection header nav a.pinned {
     font-size: xx-large;
 }
 
+/* ВНУТРИ ПОСТА nav-bar */
+body#post header nav a.pinned {
+    color: #4B9BB5;
+}
+body#post header nav span.views {
+    color: #7F9A86;
+}
+body#post header nav a {
+    color: var(--yellow1);
+}
+body#post header nav a.xtra-feature.unpin {
+    color: var(--del);
+}
+
 /* Цвет заголовка поста В НОВОСТНОЙ ЛЕНТЕ (это ссылка): */
-.post-title a:link {
+body#collection section#wrapper article.norm.h-entry h2.post-title a:link {
+    color: var(--text);
+}
+body#collection section#wrapper article.norm.h-entry h2.post-title a:visited {
+    /* если не указать, то writefreely окрашивает посещённый заголовок в #444 */
+    /* А мы сделаем цвет текста такой же, как и у обычной ссылки: */
     color: var(--text);
 }
 
@@ -71,10 +100,10 @@ body#collection section#wrapper article.norm.h-entry h2.post-title a.user.hidden
     color: #7CA9C0;
 }
 body#collection section#wrapper article.norm.h-entry h2.post-title a.user.hidden.pin.action {
-    color: #7F9A86;
+    color: var(--green1);
 }
 body#collection section#wrapper article.norm.h-entry h2.post-title a.user.hidden.delete.action {
-    color: #96494A;
+    color: var(--del);
 }
 body#collection section#wrapper article.norm.h-entry h2.post-title div.user.hidden.action.flat-select label {
     color: #808080;
