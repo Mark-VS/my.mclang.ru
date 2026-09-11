@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely/">Вернуться назад</a>
+
+<h1>Templates</h1>
+
+<p>У меня задача подправить страничку <strong><i>&lt;body id="post"&gt;</i></strong>. То есть, это страничка конкретного поста. Я оказываюсь на ней, когда кликаю в новостной ленте по названию поста. Для этого мне нужно подправить шаблон <strong><i>templates/collection-post.tmpl</i></strong>.</p>
+<p>Если я добавлю в этот шаблон какой-нибудь новый элемент, то он появится на страничке всех постов, когда мы будем в них заходить. Тут всё просто.</p>
+
+<p style="margin-bottom: 0">Допустим мне нужно добавить что-то уникальное на страничку конкретного поста. Я создал пост с названием "Проба" и добавил туда немного бессмыленного текста.</p>
+<p style="margin: 0">Теперь у него вот такой адрес: <strong><i>https://my-domain.ru/blogname/proba</i></strong>. То есть, slug нашей записи сгенерировался такой: <strong><i>proba</i></strong>.</p> 
+<p style="margin: 0">Я хочу сделать так, чтобы когда я захожу в этот пост, на самом верху странички отображался элемент <strong>"&lt;p&gt;Hello World&lt;/p&gt;"</strong>. Но чтобы на страничке других постов этого элемента не было.</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">Открываем <strong><i>/opt/writefreely/writefreely/templates/collection-post.tmpl</i></strong>, находим место на страничке, куда мы хотим добавить элемент, и пишем:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-go">{{if eq .Slug.String "proba"}}
+   <p>Hello, World!</p>
+{{end}}
+</code></pre>
+<p style="margin-top: 4px">Перезагрузим <strong>WriteFreely</strong>. И теперь <strong><i>Hello, World!</i></strong> будет отображаться только на страничке <strong><i>https://my-domain.ru/username/proba</i></strong>. На остальных страничках – не будет.</p>
+
+<p style="margin-bottom: 0">А теперь другая задача.</p>
+<p style="margin: 0">У моего аккаунта два блога: <strong><i>https://my-domain.ru/blog1</i></strong> и <strong><i>https://my-domain.ru/blog2</i></strong>.</p>
+<p style="margin: 0">Я хочу, чтобы <strong><i>&lt;p&lt;Hello, World!&lt;/p&gt;</i></strong> отображался на страничках всех постов, но только на втором блоге.</p>
+<ul style="margin-top: 0">
+   <li><i>https://my-domain.ru/<strong>blog1/anypost1</strong></i> – тут не отображаем;</li>
+   <li><i>https://my-domain.ru/<strong>blog1/anypost2</strong></i> – тут не отображаем;</li>
+   <li><i>https://my-domain.ru/<strong>blog2/anypost1</strong></i> – здесь отображаем <strong><i>Hello, World!</i></strong>;</li>
+   <li><i>https://my-domain.ru/<strong>blog2/anypost2</strong></i> – здесь тоже отображаем <strong><i>Hello, World!</i></strong>;</li>
+</ul>
+
+<p style="margin-bottom: 6px">Это можно сделать вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">{{if eq .Collection.Alias "second-blog"}}
+   <p>Hello, World!</p>
+{{end}}
+</code></pre>
+
+
+<h2>Практическая задача</h2>
+
+<p style="margin: 0">У меня два блога: <strong>blog1</strong> и <strong>blog2</strong>.</p>
+<p style="margin: 0">В первом блоге у меня есть закреплённый пост partitions: <strong><i>blog1/partitions</i></strong></p>
+<p style="margin: 0">Когда я захожу в любой пост <strong>блога2</strong> и кликаю по заговку <strong><i>h1</i></strong>, то попадаю на главную страницу <strong>блога2</strong>.</p>
+<p style="margin: 0">Но я хочу изменить это поведение: чтобы когда я кликаю по <strong><i>h1</i></strong> в любом посте во втором блоге, я попадал в первый блог на <strong><i>blog1/partitions</i></strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-xml">
+&lt;h1 dir="{{.Direction}}" id="blog-title"&gt;
+   &lt;a rel="author" href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author"&gt;
+      {{.Collection.DisplayTitle}}
+   &lt;/a&gt;
+&lt;/h1&gt;
+</code></pre>
+
+<p style="margin-bottom: 6px">Внутри <strong><i>href</i></strong> содержится вот эта конструкция:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-go">{{if .IsTopLevel}}
+   /
+{{else}}
+   /{{.Collection.Alias}}/
+{{end}}
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 2px">Здесь следует подметить, что <strong>WriteFreely</strong> поддерживает посты, которые находятся непосредственно на верхнем уровне сайта, а также посты могут быть внутри коллекции:</p>
+<ul style="margin-top: 2px; margin-bottom: 6px">
+   <li><i>https://my-domain/<strong>my-post</strong></i> – пост на верхнем уровне</li>
+   <li><i>https://my-domain/<strong>blog1/my-post</strong></i> – внутри коллекции <strong>blog1</strong></li>
+   <li><i>https://my-domain/<strong>blog2/my-post</strong></i> – внутри коллекции <strong>blog2</strong></li>
+</ul>
+
+<p style="margin-top: 6px; margin-bottom: 0">То есть, если у нас пост на верхнем уровне, то перебросить нас на <strong><i>/</i></strong>.</p>
+<p style="margin: 0">А иначе (т.е. если пост принадлежит какой-то коллекции) перебрасываем на эту коллекцию.</p>
+<p style="margin: 0">Например, мы зашли на /blog1/my-post. Перебрость на коллекцию <strong>blog1</strong>, т.е. на главную страницу блога <strong>/blog1/</strong>.</p>
+<p style="margin: 0">А если у нас пост – на верхнем уровне <strong><i>/my-post</i></strong>. То перебросить на главную страницу сайта <strong><i>/</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Добавим в <strong><i>href</i></strong> ещё одно условие:</p>
+<pre style="margin-top: 6px"><code class="language-bash">{{if eq .Collection.Alias "blog2"}}
+   /blog1/partitions
+{{else if .IsTopLevel}}
+   /
+{{else}}
+   /{{.Collection.Alias}}/
+{{end}}
+</code></pre>
+
+<p style="margin-bottom: 6px">HTML будет выглядеть так:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-xml">&lt;h1 dir="{{.Direction}}" id="blog-title"&gt;
+   &lt;a rel="author" href="{{if eq .Collection.Alias "blog2"}}/blog1/partitions{{else if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author"&gt;
+      {{.Collection.DisplayTitle}}
+   &lt;/a&gt;
+&lt;/h1&gt;
+</code></pre>
+<p style="margin-top: 6px">Здесь внутри <strong><i>href=""</i></strong> используются повторно двойные ковычки. Это нормально. <i>"blog2"</i> – это строковый литерал внутри <strong>Go template</strong>. Браузер сначал получает результат работы <strong>Go template</strong> – до него не доходят внутренние <i>"blog2"</i>. А вот подсветка синтаксиса может ломаться.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/go.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
