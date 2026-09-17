@@ -27,17 +27,30 @@
    <li>me – Menu -&gt; View Drafts (https://my-domain/me/posts/)</li>
    <li>me – Menu -&gt; Admin dashboard (https://my-domain/admin)</li>
    <li>me – Menu -&gt; Account settings (https://my-domain/me/settings)</li>
-   <li>me – Menut -&gt; Export (https://my-domain/me/export)</li>
+   <li>me – Menu -&gt; Export (https://my-domain/me/export)</li>
+   <li>me – Blogs -&gt; Stats (https://writetest1.mclang.ru/me/c/mark/stats)</li>
+   <li>me – Blogs -&gt; Subscribers (https://writetest1.mclang.ru/me/c/mark/subscribers)</li>
 </ul>
 
 <p style="margin-bottom: 0">Шаблоны:</p>
 <ul style="margin-top: 0">
-   <li>collection-post.tmpl – страничка ВНУТРИ ПОСТА</li>
+   <li><strong><i>collection.tmpl</i></strong> – страничка с новостной лентой</li>
+   <li><strong><i>collection-post.tmpl</i></strong> – страничка ВНУТРИ ПОСТА</li>
+   <li><strong><i>post.tmpl</i></strong> – страничка поста в черновиках</li>
    <li>
       <p style="margin: 0"><strong><i>pad.tmpl</i></strong> – страничка, где я пишу статью</p>
 	  <p style="margin: 0">Подгружает <strong>css</strong>-файл <strong><i>/css/write.css</i></strong>.</p>
 	  <p style="margin: 0">Если находит кастомный файл <strong><i>/local/custom.css</i></strong>, то вторым подгружает и его.</p>
+	  <p style="margin: 0">Поэтому странички "collection" и "post" оформляем в настройках блога в <strong><i>Custom CSS</i></strong>. А все остальные странички – в файле <strong><i>/local/custom.css</i></strong>.</p>
    </li>
+   <li><strong><i>base.tmpl</i></strong> – добавил HTML-элемент, и он отображается на главной страничке, на контактах, на <strong><i>about</i></strong>, на <strong><i>privacy</i></strong>.</li>
+</ul>
+
+<p style="margin-bottom: 0">Шаблоны, которые я не понял за что отвечают:</p>
+<ul style="margin-top: 0">
+   <li>bare.tmpl</li>
+   <li>classic.tmpl</li>
+   <li>read.tmpl</li>
 </ul>
 
 <p style="margin-bottom: 6px"></p>
