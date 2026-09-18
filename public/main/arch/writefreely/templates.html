@@ -51,7 +51,7 @@
 <p style="margin: 0">Когда я захожу в любой пост <strong>блога2</strong> и кликаю по заговку <strong><i>h1</i></strong>, то попадаю на главную страницу <strong>блога2</strong>.</p>
 <p style="margin: 0">Но я хочу изменить это поведение: чтобы когда я кликаю по <strong><i>h1</i></strong> в любом посте во втором блоге, я попадал в первый блог на <strong><i>blog1/partitions</i></strong>.</p>
 
-<p style="margin-bottom: 6px"></p>
+<p style="margin-bottom: 6px">Вот так выглядит HTML-код нашего заголовка <strong><i>h1</i></strong> в шаблоне <strong><i>collection-post.tmpl</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-xml">
 &lt;h1 dir="{{.Direction}}" id="blog-title"&gt;
    &lt;a rel="author" href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author"&gt;
@@ -89,14 +89,14 @@
 {{end}}
 </code></pre>
 
-<p style="margin-bottom: 6px">HTML будет выглядеть так:</p>
+<p style="margin-bottom: 6px">Полный <strong>HTML</strong> заголовка <strong><i>h1</i></strong> будет выглядеть так:</p>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-xml">&lt;h1 dir="{{.Direction}}" id="blog-title"&gt;
    &lt;a rel="author" href="{{if eq .Collection.Alias "blog2"}}/blog1/partitions{{else if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author"&gt;
       {{.Collection.DisplayTitle}}
    &lt;/a&gt;
 &lt;/h1&gt;
 </code></pre>
-<p style="margin-top: 6px">Здесь внутри <strong><i>href=""</i></strong> используются повторно двойные ковычки. Это нормально. <i>"blog2"</i> – это строковый литерал внутри <strong>Go template</strong>. Браузер сначал получает результат работы <strong>Go template</strong> – до него не доходят внутренние <i>"blog2"</i>. А вот подсветка синтаксиса может ломаться.</p>
+<p style="margin-top: 6px">Здесь внутри <strong><i>href=""</i></strong> используются повторно двойные ковычки. Это нормально. <i>"blog2"</i> – это строковый литерал внутри <strong>Go template</strong>. Браузер сначала получает результат работы <strong>Go template</strong> – до него не доходят внутренние <i>"blog2"</i>. А вот подсветка синтаксиса может ломаться.</p>
 
 <!-- Шаблон -->
 <!--
