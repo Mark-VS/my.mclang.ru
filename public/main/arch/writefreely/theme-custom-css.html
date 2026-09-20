@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom CSS</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely/themes.html">Вернуться назад</a>
+
+<h1>Custom CSS</h1>
+
+<p style="margin-bottom: 6px"><strong><i>/opt/writefreely/writefreely/static/local/custom.css</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-css">
+:root {
+   --text: #8aa3ad;
+   --dark: #282c34;
+   --title: #A2B9C3;
+   --link: #61AFEF;
+   --link-faded: #78A4BD;
+   --link-site-title: #4B9BB5;
+   --link-site-title-hover: #78A4BD;
+   --link-outer: #916B6B;
+
+   --input-text-bg: #324A5B;
+   --input-text-text: #8AA3AD;
+   --input-submit-bg: #293D4A;
+   --input-submit-text: #6798B3;
+   --input-submit-bg-hover: #2F4655;
+
+ /* 2-я половина: */
+   --link-blog-title: #72A8C5;
+   --link-pinned-post: #78A4BD;
+   --blog-title-description: #5D8198;
+   --menu-text: #668BA2;
+   --menu-text-hover: #6AAFD8;
+   --menu-text-first: #78A4BD;
+   --menu-text-first-hover: #6AAFD8;
+   --menu-bg-hover: #2E353E;
+   --menu-popup-window: #303B45;
+   --menu-popup-text: #78A4BD;
+
+   --user-hidden-action: #7CA9C0;
+   --user-hidden-pin-action: #7CA9C0;
+   --user-hidden-delete-action: #9B6464;
+   --user-hidden-action-flat-select: #808080;
+
+   --pub-date: #50646C;
+
+   --code-bckg: #232629;
+   --code-line-bckg: #212121;
+}
+
+body {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+   color: var(--text);
+   background-color: var(--dark);
+   a {
+      color: var(--link);
+   }
+}
+
+
+/* ---------- HEADER главной страницы  ----------  */
+body header h2 a {
+   color: var(--link-site-title);
+   transition-duration: .3s;
+}
+
+body header h2 a:hover {
+   color: var(--link-site-title-hover);
+
+}
+
+#user-nav .tabs a {
+   /* Ссылки "About", "Log In" – рядом с названием сайта: */
+   color: var(--link-faded);
+}
+/* ---------- END HEADER главной страницы ---------- */
+
+
+/* ---------- СТАТЬИ на главной странице  ---------- */
+
+/* Заголовки статей на главной странице: */
+body #official-writing h2 {
+   color: var(--title);
+}
+/* ---------- END СТАТЬИ на главной странице ---------- */
+
+
+/* ---------- FOOTER главной страницы ---------- */
+body footer .marketing-section a.home {
+   color: var(--link-blog-title);
+}
+body footer.contain-me div.marketing-section div.half:nth-child(2) h3 a {
+    color: var(--link-blog-title) !important;
+    /* font-weight: bold; */
+}
+
+   /* Все эл-ты списка в футере обёрнуты в <a>, ... */
+   /* только версия WriteFreely не обёрнута: */
+body footer .marketing-section ul li {
+   color: var(--link-faded);
+}
+body footer .marketing-section ul li a {
+   color: var(--link);
+}
+/* ---------- END FOOTER главной страницы ---------- */
+
+
+/* ---------- LOGIN FORM ---------- */
+body div#official-writing form input {
+   border-color: var(--input-text-bg);
+   color: var(--input-text-text);
+   background-color: var(--input-text-bg);
+}
+body div#official-writing form input[type="submit"] {
+   border-color: var(--input-submit-bg);
+   color: var(--input-submit-text);
+   background-color: var(--input-submit-bg);
+}
+body div#official-writing form input[type="submit"]:hover {
+   border-color: var(--input-submit-bg-hover);
+   background-color: var(--input-submit-bg-hover);
+}
+
+   /* цвет предупреждения об ошибке ввода: */
+body div#official-writing ul.errors li.urgent {
+   color: #A8954A;
+}
+/* ---------- END LOGIN FORM ---------- */
+
+
+/* --------- 0000000000000 ----------- */
+/* 0000000000 2-я половина 00000000000 */
+/* --------- 0000000000000 ----------- */
+
+/* ---------- NAV ---------- */
+#manage ul li.has-submenu a {
+   color: var(--menu-text);
+   background-color: var(--dark);
+}
+#manage ul li.has-submenu a:hover {
+   color: var(--menu-text-hover);
+   background-color: var(--menu-bg-hover);
+}
+#manage ul li.has-submenu ul li a.write {
+   color: var(--menu-text-first);
+}
+#manage ul li.has-submenu ul li a.write:hover {
+   color: var(--menu-text-first-hover);
+}
+#manage ul li.has-submenu ul li a {
+   color: var(--menu-popup-text);
+   background-color: var(--menu-popup-window);
+}
+#manage ul li.has-submenu:has(ul:hover) > a {
+   color: var(--menu-text-hover);
+   background-color: var(--menu-bg-hover);
+}
+#manage ul li.has-submenu ul li.separator {
+   background-color: red;
+}
+#manage ul li.has-submenu ul {
+   background-color: #404040;
+   border: solid 1px #6AAFD8;
+}
+/* ---------- END NAV ---------- */
+
+
+/* ---------- HEADER новостной ленты ---------- */
+body header h1#blog-title a {
+   color: var(--link-blog-title);
+}
+
+body header p.description.p-note {
+   color: var(--blog-title-description);
+   margin-top: 0;
+}
+/* ---------- END HEADER новостной ленты ---------- */
+
+
+/* ---------- PINNED POSTS  ---------- */
+a.pinned {
+   color: var(--link-pinned-post);
+}
+/* ---------- END PINNED POSTS ---------- */
+
+
+/* ---------- КОНТЕЙНЕР НОВОСТНОЙ ЛЕНТЫ ---------- */
+#wrapper {
+   max-width: 60rem;
+}
+body#collection article.norm {
+   max-width: 54rem;
+}
+/* ---------- END КОНТЕЙНЕР НОВОСТНОЙ ЛЕНТЫ ---------- */
+
+
+/* ---------- ПОСТ В НОВОСТНОЙ ЛЕНТЕ  ---------- */
+.post-title a:link {
+   color: var(--text);
+}
+.post-title a:visited {
+   color: var(--text);
+}
+.post-title {
+   font-size: 1.6rem;
+}
+#collection #wrapper .norm.h-entry .post-title {
+   /* переопределяем margin .post-titl'а: */
+   margin-bottom: 0;
+}
+
+/* User hidden actions: */
+a.user.hidden.action {
+   color: var(--user-hidden-action);
+}
+a.user.hidden.pin.action {
+   color: var(--user-hidden-pin-action);
+}
+a.user.hidden.delete.action {
+   color: var(--user-hidden-delete-action);
+}
+div.user.hidden.action.flat-select label {
+   color: var(--user-hidden-action-flat-select);
+}
+/* SELECT изменяется только в Falkon и то - только текст: */
+div.user.hidden.action.flat-select select option {
+   color: var(--menu-text);
+   background-color: var(--dark);
+}
+
+.dt-published {
+   color: var(--pub-date);
+}
+#collection #wrapper .norm.h-entry .dt-published {
+   /* переопределяем margin даты публикации: */
+   margin-top: 0;
+}
+
+/* Текст статей в новостной ленте: */
+#collection #wrapper .norm.h-entry .book.e-content {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.book.e-content ul li {
+   /* расстояние между эл-тами списка: */
+   margin-top: -.2rem;
+   margin-bottom: -.2rem;
+}
+.book.e-content p:has(+ ul) {
+   /* расстояние между p и ul: */
+   margin-bottom: .2rem;
+}
+/* ---------- END ПОСТ В НОВОСТНОЙ ЛЕНТЕ ---------- */
+
+
+/* ---------- БЛОКИ КОДА В НОВОСТНОЙ ЛЕНТЕ ---------- */
+#wrapper .book.e-content pre {
+  background-color: var(--code-bckg);
+  border: solid 1px var(--code-bckg);
+}
+#wrapper .book.e-content pre code {
+   background-color: var(--code-bckg);
+   color: var(--text);
+}
+
+#wrapper .book.e-content p code {
+  background-color: var(--code-line-bckg);
+  border: solid 1px var(--code-line-bckg);
+}
+
+/* ---------- END БЛОКИ КОДА В НОВОСТНОЙ ЛЕНТЕ ---------- */
+
+
+/* ---------- FOOTER ---------- */
+
+
+/* ---------- END FOOTER ---------- */
+</code></pre>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/css.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
