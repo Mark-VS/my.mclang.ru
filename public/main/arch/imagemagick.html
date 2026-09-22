@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageMagick</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>ImageMagick</h1>
+
+<p style="margin-bottom: 6px">Проверить, установлен ли:</p>
+<pre style="margin-top: 6px"><code class="language-bash">which magick
+</code></pre>
+
+<p style="margin-bottom: 6px">Устанавливаем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo pacman -S imagemagick
+</code></pre>
+
+<p style="margin-bottom: 6px">У меня есть стрелочка вниз чёрного цвета на прозрачном фоне: <strong><i>ic_down_arrow_dark@2x.png</i></strong>. И я хочу изменить её цвет на серый, оставив при этом фон прозрачным. Для этого выполню следующую команду:</p>
+<pre style="margin-top: 6px"><code class="language-bash">magick ic_down_arrow_dark@2x.png -fill '#888888' -colorize 100% arrow-gray.png
+</code></pre>
+<p style="margin-bottom: 6px">Если нужно просто заменить чёрный цвет, то можно сделать точную замену:</p>
+<pre style="margin-top: 6px"><code class="language-bash">magick arrow.png -fill '#888888' -opaque black arrow-gray.png
+</code></pre>
+
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
