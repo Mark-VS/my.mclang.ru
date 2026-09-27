@@ -14,8 +14,7 @@
 <h1>Custom CSS</h1>
 
 <p style="margin-bottom: 6px"><strong><i>/opt/writefreely/writefreely/static/local/custom.css</i></strong>:</p>
-<pre style="margin-top: 6px"><code class="language-css">
-:root {
+<pre style="margin-top: 6px"><code class="language-css">:root {
    --text: #8aa3ad;
    --dark: #282c34;
    --title: #A2B9C3;
@@ -30,16 +29,28 @@
    --input-submit-bg: #293D4A;
    --input-submit-text: #6798B3;
    --input-submit-bg-hover: #2F4655;
+   
+   --button1-active-bg: #23343F;
+   --button1-not-active-border: #537E96;
+   --button1-not-active-text: #4A7189;
+   --button1-selected-bg: #263944;
+   --button1-selected-text-color: #537E96;
+   --button1-selected-border-color: #5D8BA4;
 
  /* 2-я половина: */
-   --link-blog-title: #72A8C5;
+   --link-blog-title: #84A2B1;
+   --link-blog-title-hover: #829DB0;
    --link-pinned-post: #78A4BD;
+   --link-post-title: #7DA0B6;
+   --link-read-more: #72A8C5;
    --blog-title-description: #5D8198;
    --menu-text: #668BA2;
    --menu-text-hover: #6AAFD8;
    --menu-text-first: #78A4BD;
    --menu-text-first-hover: #6AAFD8;
    --menu-bg-hover: #2E353E;
+   --menu-bg-hover-pad: #3B444D;
+   --menu-bg-selected-hover-pad: #454C54;
    --menu-popup-window: #303B45;
    --menu-popup-text: #78A4BD;
 
@@ -52,6 +63,19 @@
 
    --code-bckg: #232629;
    --code-line-bckg: #212121;
+   --code-text: #7A929C;
+   --code-line-text: #718A94;
+   --blockquote-text: #60767F;
+   --blockquote-border: #30434B;
+
+   --link-paging: #78A4BD;
+   --powered-by: #586D75;
+   --link-wf: #84A2B1;
+   /* Пост: */
+   --post-nav-green: #7F9A86;
+   --post-nav-purple: #AAA2B7;
+   --post-nav-yellow: #B8AD88;
+   --post-body-title: #87A3B0;
 }
 
 body {
@@ -82,13 +106,77 @@ body header h2 a:hover {
 /* ---------- END HEADER главной страницы ---------- */
 
 
-/* ---------- СТАТЬИ на главной странице  ---------- */
+/* --------- HEADER остальных страниц ---------- */
+/* ---- ориентируюсь на страницу Blogs (/me/c/) ---- */
+body header h1 a {
+   color: var(--link-site-title);
+   transition-duration: .3s;
+}
+body header h1 a:hover {
+   color: var(--link-site-title-hover);
+}
+nav#full-nav a.simple-btn {
+   color: var(--button1-not-active-text);
+   border: solid 1px var(--button1-not-active-border) !important;
+}
+nav#full-nav a.simple-btn:hover {
+  color: var(--text);
+  border: solid 1px var(--link-faded) !important;
+  background-color: var(--button1-active-bg);
+}
+/* ---------- END HEADER остальных страниц ---------- */
 
+
+/* ---------- СТАТЬИ на главной странице  ---------- */
 /* Заголовки статей на главной странице: */
 body #official-writing h2 {
    color: var(--title);
 }
 /* ---------- END СТАТЬИ на главной странице ---------- */
+
+.atoms h3 a {
+   color: #66869C;
+}
+.atoms h3 a:hover {
+   color: #7DA0B6;
+}
+
+
+/* ---------- СТАТЬИ (СПИСОК БЛОГОВ) ---------- */
+
+#official-writing ul.collections li.collection a.title:any-link {
+   color: var(--link-faded);
+}
+.pager a {
+   color: var(--button1-not-active-text);
+}
+.pager:not(.pages) a {
+   border: solid 1px var(--button1-not-active-border);
+}
+.pager a:hover {
+  background-color: var(--button1-active-bg);
+  color: var(--text);
+}
+.pager:not(.pages) a:hover {
+   border: solid 1px var(--link-faded);
+}
+.pager a.selected {
+   background-color: var(--button1-selected-bg);
+}
+.pager a.selected:hover {
+   color: var(--button1-selected-text-color);
+   background-color: var(--button1-selected-bg);
+   border: solid 1px var(--button1-selected-border-color);
+}
+
+/* ---------- END СТАТЬИ (СПИСОК БЛОГОВ) ----------- */
+
+
+/* ---------- DRAFTS ---------- */
+
+
+
+/* ---------- END DRAFTS ---------- */
 
 
 /* ---------- FOOTER главной страницы ---------- */
@@ -109,6 +197,24 @@ body footer .marketing-section ul li a {
    color: var(--link);
 }
 /* ---------- END FOOTER главной страницы ---------- */
+
+
+/* ---------- FOOTER в списке блогов ---------- */
+body footer nav a.home:any-link {
+   color: #5D8198;
+}
+body footer nav a.home:hover {
+   /* color: var(--link-blog-title-hover); */
+   color: var(--link-blog-title);
+}
+
+body footer nav a:any-link {
+   color: #6F96AD;
+}
+body footer nav a:hover {
+   color: #ACBAC8;
+}
+/* ---------- END FOOTER в списке блогов ---------- */
 
 
 /* ---------- LOGIN FORM ---------- */
@@ -138,6 +244,91 @@ body div#official-writing ul.errors li.urgent {
 /* 0000000000 2-я половина 00000000000 */
 /* --------- 0000000000000 ----------- */
 
+
+/* ---------- NAV разворачивающееся pad-меню ---------- */
+.dark #target .has-submenu a,
+.dark #font-picker .has-submenu a {
+   background-color: var(--dark);
+}
+.dark #target .has-submenu ul > li {
+  background-color:  red;
+}
+body.dark#pad #tools nav ul li.menu-heading {
+   background-color: #3B444D;
+   color: #92ACB8;
+   border-bottom: solid 1px var(--menu-popup-window);
+}
+body.dark#pad #tools nav ul li.menu-heading:hover {
+   background-color: var(--menu-bg-hover-pad) !important;
+}
+.dark #target .has-submenu ul > li > a,
+.dark #font-picker .has-submenu ul > li > a {
+  background-color: var(--menu-popup-window);
+}
+.dark #target .has-submenu ul > li.selected a,
+.dark #font-picker .has-submenu ul > li.selected a {
+   background-color: var(--menu-bg-hover-pad);
+}
+body.dark#pad #tools #target .has-submenu ul > li.selected a,
+body.dark#pad #tools #font-picker .has-submenu ul > li.selected a {
+   color: var(--text);
+}
+body.dark#pad #tools #target .has-submenu ul > li.selected a:hover,
+body.dark#pad #tools #font-picker .has-submenu ul > li.selected a:hover {
+  background-color: var(--menu-bg-selected-hover-pad);
+}
+body.dark#pad #tools nav ul > li.has-submenu ul > li > a:hover {
+   background-color: var(--menu-bg-hover-pad);
+   color: var(--text);
+}
+/* ---------- END NAV разворачивающееся pad-меню ---------- */
+
+
+/* ---------- NAV разворачивающееся меню username ---------- */
+.dropdown-nav ul li.has-submenu a {
+   color: var(--menu-text);
+   background-color: var(--dark);
+}
+.dropdown-nav ul li.has-submenu a:hover {
+   color: var(--menu-text-hover);
+   background-color: var(--menu-bg-hover);
+}
+.dropdown-nav ul li.has-submenu ul li a {
+   color: var(--menu-popup-text);
+   background-color: var(--menu-popup-window);
+}
+/* «Если курсор находится на подменю этого пункта, покрась ссылку родительского пункта как hover». */
+.dropdown-nav ul li.has-submenu:has(ul:hover) > a {
+   color: var(--menu-text-hover);
+   background-color: var(--menu-bg-hover);
+}
+/*И ещё немого допов к предыдущему пункту */
+.dropdown-nav ul li.has-submenu {
+   background-color: var(--dark);
+}
+.dropdown-nav ul li.has-submenu:hover {
+   background-color: var(--menu-bg-hover);
+}
+.dropdown-nav ul li.has-submenu:hover > a {
+   background-color: var(--menu-bg-hover);
+   color: var(--menu-text-hover);
+}
+/* конец допам */
+
+.dropdown-nav ul li.has-submenu ul li.separator {
+   background-color: red;
+}
+.dropdown-nav ul li.has-submenu ul {
+   background-color: #404040;
+   border: solid 1px #6AAFD8;
+}
+/* меняем стрелочку меню на серую */
+img.ic-18dp {
+   filter: invert(50%);
+}
+/* ---------- END NAV разворачивающееся меню username ---------- */
+
+
 /* ---------- NAV ---------- */
 #manage ul li.has-submenu a {
    color: var(--menu-text);
@@ -157,6 +348,7 @@ body div#official-writing ul.errors li.urgent {
    color: var(--menu-popup-text);
    background-color: var(--menu-popup-window);
 }
+/* «Если курсор находится на подменю этого пункта, покрась ссылку родительского пункта как hover». */
 #manage ul li.has-submenu:has(ul:hover) > a {
    color: var(--menu-text-hover);
    background-color: var(--menu-bg-hover);
@@ -194,7 +386,27 @@ a.pinned {
 #wrapper {
    max-width: 60rem;
 }
-body#collection article.norm {
+
+/* .norm – класс присваивается, если статья написана шрифтом Serif,
+   .sans – статья написана шрифтом Sans-serif,
+   .wrap – статья написана шрифтом Monospace */
+body#collection article.norm,
+body#collection article.sans,
+body#collection article.wrap {
+   max-width: 54rem;
+}
+
+/* То же, но для страницы с тегами: */
+body#subpage article.norm,
+body#subpage article.sans,
+body#subpage article.wrap {
+   max-width: 54rem;
+}
+
+/* То же, но для страницы поста: */
+body#post article.norm,
+body#post article.sans,
+body#post article.wrap {
    max-width: 54rem;
 }
 /* ---------- END КОНТЕЙНЕР НОВОСТНОЙ ЛЕНТЫ ---------- */
@@ -202,19 +414,21 @@ body#collection article.norm {
 
 /* ---------- ПОСТ В НОВОСТНОЙ ЛЕНТЕ  ---------- */
 .post-title a:link {
-   color: var(--text);
+   color: var(--link-post-title);
 }
 .post-title a:visited {
-   color: var(--text);
+   color: var(--link-post-title);
 }
 .post-title {
    font-size: 1.6rem;
 }
-#collection #wrapper .norm.h-entry .post-title {
+#collection #wrapper .h-entry .post-title,
+#subpage #wrapper .h-entry .post-title {
    /* переопределяем margin .post-titl'а: */
    margin-bottom: 0;
+   /* шрифт: */
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
-
 /* User hidden actions: */
 a.user.hidden.action {
    color: var(--user-hidden-action);
@@ -234,19 +448,34 @@ div.user.hidden.action.flat-select select option {
    background-color: var(--dark);
 }
 
-.dt-published {
+.dt-published,
+#subpage #wrapper .norm.h-entry time.dt-published {
    color: var(--pub-date);
 }
-#collection #wrapper .norm.h-entry .dt-published {
+#collection #wrapper .h-entry .dt-published,
+#subpage #wrapper .h-entry .dt-published {
+   /*--link-wf: #66869C;*/
    /* переопределяем margin даты публикации: */
    margin-top: 0;
 }
 
 /* Текст статей в новостной ленте: */
-#collection #wrapper .norm.h-entry .book.e-content {
+#collection #wrapper .h-entry .book,
+#subpage #wrapper .h-entry .book {
+   font-size: 1.2rem;
+}
+#collection #wrapper .h-entry .book p,
+#subpage #wrapper .h-entry .book p {
+   line-height: 1.3;
+}
+body#collection a.read-more,
+body#subpage a.read-more {
+   color: var(--link-read-more);
    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
-
+#paging a {
+   color: var(--link-paging);
+}
 .book.e-content ul li {
    /* расстояние между эл-тами списка: */
    margin-top: -.2rem;
@@ -260,27 +489,155 @@ div.user.hidden.action.flat-select select option {
 
 
 /* ---------- БЛОКИ КОДА В НОВОСТНОЙ ЛЕНТЕ ---------- */
-#wrapper .book.e-content pre {
-  background-color: var(--code-bckg);
-  border: solid 1px var(--code-bckg);
-}
-#wrapper .book.e-content pre code {
-   background-color: var(--code-bckg);
-   color: var(--text);
-}
 
-#wrapper .book.e-content p code {
+/* .book.e-content – без "read more" */
+/* .book.p-summary – с "read more" */
+
+#wrapper .book pre {
+  /* background-color: var(--code-bckg); */
+   background-color: var(--code-bckg);
+   border: solid 1px var(--code-bckg);
+}
+/* многострочный блок кода: */
+#wrapper .book pre code {
+   background-color: var(--code-bckg);
+   color: var(--code-text);
+   white-space: pre;
+}
+/* однострочный блок кода: */
+#wrapper .book p code {
   background-color: var(--code-line-bckg);
   border: solid 1px var(--code-line-bckg);
+  color: var(--code-line-text);
 }
 
 /* ---------- END БЛОКИ КОДА В НОВОСТНОЙ ЛЕНТЕ ---------- */
 
 
-/* ---------- FOOTER ---------- */
+/* ---------- ЦИТАТЫ В НОВОСТНОЙ ЛЕНТЕ и не только ---------- */
+body#collection blockquote,
+body#subpage blockquote,
+body#post blockquote {
+   color: var(--blockquote-text);
+   border-left: solid 4px var(--blockquote-border);
+}
+/* ---------- END ЦИТАТЫ В НОВОСТНОЙ ЛЕНТЕ и не только ---------- */
 
 
-/* ---------- END FOOTER ---------- */
+/* ---------- FOOTER НОВОСТНОЙ ЛЕНТЫ ---------- */
+#collection footer nav {
+   color: var(--powered-by);
+}
+#collection footer nav a {
+   color: var(--link-wf);
+}
+#collection footer nav a.home.pubd {
+   color: var(--menu-text);
+}
+/* ---------- END FOOTER НОВОСТНОЙ ЛЕНТЫ ---------- */
+
+
+/* 00000000 --- 00000000 */
+/* ------- ПОСТ --------- */
+/* 0000 ---------- 000000 */
+
+
+/* --------- POST HEADER ---------- */
+span.views {
+   color: var(--post-nav-green);
+}
+#post header nav a:not(.pinned):not(.unpin) {
+   /* color: #B8AD88; */
+   /* color: #A59DB2; */
+   color: var(--post-nav-purple);
+}
+a.unpin {
+   color: var(--post-nav-yellow);
+}
+/* --------- END POST HEADER ---------- */
+
+
+/* --------- POST CONTENT ---------- */
+#post-body h2 {
+   color: var(--post-body-title);
+}
+body#post article h2#title.dated {
+   margin-bottom: 0;
+}
+
+#post #post-body .dt-published {
+   color: var(--pub-date);
+}
+
+/* .e-content – это статья целиком (и внутри поста, и в новостной ленте, и на #subpage), а ...
+   .p-summary – это превьюшка в новостной ленте или на #subpage.  */
+.e-content, .p-summary {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+/* Расстояние между эл-тами списка: */
+body#post article li {
+   margin-top: -1rem;
+   margin-bottom: -1rem;
+}
+/* --------- END POST CONTENT ---------- */
+
+
+/* ---------- БЛОКИ КОДА В ПОСТЕ ---------- */
+
+/* Фон в многострочном блоке кода: */
+#post-body .e-content pre {
+   background-color: var(--code-bckg);
+   border: solid 1px var(--code-bckg);
+   overflow-x: auto;
+}
+body#post pre code {
+   white-space: pre;
+}
+/* Цвет текста внутри многострочного блока, который hljs не окрасил: */
+#post-body .e-content code {
+   color: var(--code-text);
+}
+/* Цвет текста внутри однострочного блока: */
+#post-body .e-content p code {
+   background-color: var(--code-line-bckg);
+   border: solid 1px var(--code-line-bckg);
+   color: var(--code-line-text);
+}
+/* ---------- END БЛОКИ КОДА В ПОСТЕ ---------- */
+
+
+/* --------- POST FOOTER ---------- */
+#post footer nav {
+   color: var(--powered-by);
+   /* color: #7A929C; */
+}
+#post footer nav a {
+   color: var(--link-wf);
+}
+/* --------- END POST FOOTER ---------- */
+
+
+/* ---------- PAD ---------- */
+body#pad.dark #tools nav > ul > li a {
+   color: #7192A7;
+}
+body#pad.dark #tools .hidden#wc {
+   /* цвет текста "кол-во слов": */
+   color: var(--text);
+}
+body#pad.dark textarea {
+   color: var(--text);
+   background-color: #282C34;
+}
+body#pad.dark .modal {
+   color: var(--text);
+   background-color: #282C34;
+}
+body#pad.dark .modal > div {
+   color: #5D8198 !important;
+}
+/* ---------- END PAD ---------- */
 </code></pre>
 
 <!-- Шаблон -->

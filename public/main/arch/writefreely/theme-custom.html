@@ -53,6 +53,17 @@
    <li>read.tmpl</li>
 </ul>
 
+<p style="margin-bottom: 0">ID'шки тэга body:</p>
+<ul style="margin-top: 0">
+   <li>collection – страничка блога с новостной лентой</li>
+   <li>subpage – страничка, где статьи отсортированы по тэгу</li>
+   <li>post – внутри поста</li>
+</ul>
+
+<p style="margin-bottom: 0">Темы <strong>Highlight.js</strong>:</p>
+<p style="margin: 0">Цветовые схемы <strong>highlight.js</strong> лежат в папке <strong><i>static/css/lib/</i></strong>. По умолчанию <strong>WriteFreely</strong> ставит сюда только два файлика: <strong><i>atom-one-light.min.css</i></strong> и <strong><i>mono-blue.min.css</i></strong> и в качестве дефолтной цветовой схемы подключает первый (<strong>Atom One Light</strong>).</p>
+<p style="margin-top: 0">Подключается цветовая схема через <i>js</i>-скрипт в файле <strong><i>templates/include/post-render.tmpl</i></strong>. Ищем строку <strong><i>atom-one-light.min.css</i></strong> и заменяем её на нужный файл.</p>
+
 <p style="margin-bottom: 6px"></p>
 <pre style="margin-top: 6px"><code class="language-css">
 :root {
