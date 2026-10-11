@@ -13,6 +13,7 @@
 
 <h1>Custom CSS</h1>
 
+<p>Последнее обновление: 11.10.2026 в 18:48 MSK</p>
 <p style="margin-bottom: 6px"><strong><i>/opt/writefreely/writefreely/static/local/custom.css</i></strong>:</p>
 <pre style="margin-top: 6px"><code class="language-css">:root {
    --text: #8aa3ad;
@@ -26,10 +27,13 @@
 
    --input-text-bg: #324A5B;
    --input-text-text: #8AA3AD;
+   --input-text-placeholder: #687F89;
    --input-submit-bg: #293D4A;
    --input-submit-text: #6798B3;
+   --input-submit-text-disabled: #8B9AA0;
+   --input-submit-bg-disabled: #385267;
    --input-submit-bg-hover: #2F4655;
-   
+
    --button1-active-bg: #23343F;
    --button1-not-active-border: #537E96;
    --button1-not-active-text: #4A7189;
@@ -37,7 +41,7 @@
    --button1-selected-text-color: #537E96;
    --button1-selected-border-color: #5D8BA4;
 
- /* 2-я половина: */
+ /* 2-я половина: */ 
    --link-blog-title: #84A2B1;
    --link-blog-title-hover: #829DB0;
    --link-pinned-post: #78A4BD;
@@ -71,7 +75,7 @@
    --link-paging: #78A4BD;
    --powered-by: #586D75;
    --link-wf: #84A2B1;
-   /* Пост: */
+/* Пост: */
    --post-nav-green: #7F9A86;
    --post-nav-purple: #AAA2B7;
    --post-nav-yellow: #B8AD88;
@@ -86,6 +90,25 @@ body {
       color: var(--link);
    }
 }
+
+
+/* Заголовок тега на #subpage: */
+h1 {
+   color: var(--text);
+}
+
+/* Цвет горизонтальной линии в футере: */
+hr {
+   background: #586D75;
+}
+
+/* ---------- КОНТЕЙНЕР главной страницы ---------- */
+#official-writing {
+   /* Отступы слева и справа от края экрана: */
+   margin-left: 1em;
+   margin-right: 1em;
+}
+/* ---------- END КОНТЕЙНЕР главной страницы ---------- */
 
 
 /* ---------- HEADER главной страницы  ----------  */
@@ -134,19 +157,154 @@ body #official-writing h2 {
 }
 /* ---------- END СТАТЬИ на главной странице ---------- */
 
+
+/* ---------- ADMIN ---------- */
+
+/* Выделенная вкладка: */
+nav#admin a.selected {
+   background: var(--menu-popup-window);
+   color: var(--text);
+}
+
+/* Description: */
+.features div p {
+   color: #60767F;
+}
+
+/* Ниже – стиль чекбоксов: */
+body div#official-writing form input[type="checkbox"] {
+   background-color: #3E5A73;
+   appearance: none;
+   width: 20px;
+   height: 20px;
+   border-radius: 3px;
+   cursor: pointer;
+   padding: 0;
+   margin: 0;
+   line-height: 16px;
+   position: relative;
+}
+body div#official-writing form input[type="checkbox"]:focus-visible {
+   outline: solid 2px var(--text);
+}
+body div#official-writing form input[type="checkbox"]:checked {
+   background-color: #2C414F;
+   color: var(--text);
+}
+
+body div#official-writing form input[type="checkbox"]:checked::after {
+   position: absolute;
+   top: 10px;
+   left: 3px;
+   content: "✔";
+   line-height: 0;
+   display: block;
+   font-size: 18px;
+}
+/* ---------- END ADMIN ---------- */
+
+
+/* ---------- ACCOUNT SETTINGS ---------- */
+
+/* Цвет заголовков полей в Account Settings: */
+#official-writing h3 {
+   color: var(--link-post-title);
+}
+/* ---------- END ACCOUNT SETTINGS ---------- */
+
+
+/* ---------- IMPORT POSTS ---------- */
+#official-writing form input[type="file"]:focus-visible {
+   outline: 2px solid var(--text);
+}
+#official-writing form input[type="file"]::file-selector-button {
+   color: var(--input-text-text);
+   background-color: var(--input-submit-bg);
+   border: solid 2px var(--input-submit-bg);
+   border-radius: 4px 0 0 4px;
+}
+#official-writing form input[type="file"]::file-selector-button:hover {
+   background-color: var(--input-submit-bg-hover);
+   border-style: solid;
+   border-width: 2px;
+   border-color: var(--input-submit-bg-hover) var(--input-submit-bg) var(--input-submit-bg-hover) var(--input-submit-bg-hover);
+}
+#official-writing form input[type="file"]::file-selector-button:active {
+   background-color: var(--input-submit-bg-disabled);
+   border: solid 2px var(--input-submit-bg-disabled);
+}
+#official-writing form select {
+    color: var(--input-text-text);
+    background-color: var(--input-text-bg);
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #40535B;
+    border-right-color: #60767F;
+    border-bottom-color: #60767F;
+    border-left-color: #40535B;
+}
+
+/* Фокусная рамка вокруг эл-та: */
+#official-writing form select:focus-visible {
+   outline: 2px solid var(--text);
+}
+/* ---------- END IMPORT POSTS ---------- */
+
+
+/* ---------- DRAFTS ---------- */
+
+/* Заголовки статей */
 .atoms h3 a {
    color: #66869C;
 }
 .atoms h3 a:hover {
    color: #7DA0B6;
 }
+.atoms date {
+  color: #687F89;
+}
+.atoms a.action:any-link {
+   color: #708066;
+}
+.atoms a.action.delete {
+   color: var(--user-hidden-delete-action);
+}
+#official-writing h4 {
+   color: #8D8C53;
+}
+#official-writing h4 select {
+    background-color: var(--menu-popup-window);
+    padding: 10px;
+    color: var(--text);
+    /* обводка не хочет переопределяться: */
+    /*
+    border: solid 1px blue !important;
+    border-radius: 4px !important;
+    */
+}
+@media (max-width: 600px) {
+   #user-nav .tabs a:first-child {
+      margin-left: -50px;
+   }
+   header nav#user-nav .tabs > a + a {
+      margin-left: 1em;
+   }
+}
+/* ---------- END DRAFTS ---------- */
 
 
 /* ---------- СТАТЬИ (СПИСОК БЛОГОВ) ---------- */
 
+/* Заголовок блога: */
 #official-writing ul.collections li.collection a.title:any-link {
    color: var(--link-faded);
 }
+
+/* Описание блога: */
+.atoms .electron {
+   color: var(--text);
+}
+
 .pager a {
    color: var(--button1-not-active-text);
 }
@@ -170,13 +328,6 @@ body #official-writing h2 {
 }
 
 /* ---------- END СТАТЬИ (СПИСОК БЛОГОВ) ----------- */
-
-
-/* ---------- DRAFTS ---------- */
-
-
-
-/* ---------- END DRAFTS ---------- */
 
 
 /* ---------- FOOTER главной страницы ---------- */
@@ -223,14 +374,29 @@ body div#official-writing form input {
    color: var(--input-text-text);
    background-color: var(--input-text-bg);
 }
+body div#official-writing form input::placeholder {
+  color: var(--input-text-placeholder);
+}
 body div#official-writing form input[type="submit"] {
    border-color: var(--input-submit-bg);
    color: var(--input-submit-text);
    background-color: var(--input-submit-bg);
 }
+body div#official-writing form input[type="submit"]:focus-visible {
+   outline: solid 2px var(--text);
+}
 body div#official-writing form input[type="submit"]:hover {
    border-color: var(--input-submit-bg-hover);
    background-color: var(--input-submit-bg-hover);
+}
+/* Когда я нажимаю на кнопку "Log In", то она приобретает статус disabled
+ и её текст меняется на "Loggin In ...".
+ И в течение какого-то времени мы видим её в качестве disabled.
+ Здесь мы редактируем именно этот disabled-стиль: */
+body div#official-writing form input#btn-login[type="submit"]:disabled {
+   color: var(--input-submit-text-disabled);
+   border-color: var(--input-submit-bg-disabled) !important;
+   background-color: var(--input-submit-bg-disabled) !important;
 }
 
    /* цвет предупреждения об ошибке ввода: */
@@ -297,6 +463,7 @@ body.dark#pad #tools nav ul > li.has-submenu ul > li > a:hover {
    color: var(--menu-popup-text);
    background-color: var(--menu-popup-window);
 }
+
 /* «Если курсор находится на подменю этого пункта, покрась ссылку родительского пункта как hover». */
 .dropdown-nav ul li.has-submenu:has(ul:hover) > a {
    color: var(--menu-text-hover);
@@ -330,6 +497,15 @@ img.ic-18dp {
 
 
 /* ---------- NAV ---------- */
+
+/* Для мобильников делаем отступ слева меньше:
+ по умолчанию он 1.5em, а мы меняем на 0.5em */
+@media (max-width: 600px) {
+   body#collection nav#manage {
+      left: 0.5em;
+   }
+}
+
 #manage ul li.has-submenu a {
    color: var(--menu-text);
    background-color: var(--dark);
@@ -386,6 +562,11 @@ a.pinned {
 #wrapper {
    max-width: 60rem;
 }
+article {
+   /* Отступы слева и справа от края страницы: */
+   padding-left: 1em;
+   padding-right: 1em;
+}
 
 /* .norm – класс присваивается, если статья написана шрифтом Serif,
    .sans – статья написана шрифтом Sans-serif,
@@ -413,11 +594,33 @@ body#post article.wrap {
 
 
 /* ---------- ПОСТ В НОВОСТНОЙ ЛЕНТЕ  ---------- */
-.post-title a:link {
-   color: var(--link-post-title);
+
+/* Разделитель между постами: */
+
+body#collection #wrapper article,
+body#subpage #wrapper article {
+   /* margin'ы укажем явно для каждой страницы: */
+   /* уменьшим их с 4rem до 2rem */
+    margin-bottom: 2rem;
 }
+body #wrapper article:not(:last-of-type)::after {
+   content: "";
+   display: block;
+   width: 90%;
+   margin: 2rem auto 0 auto;
+   border-bottom: solid 1px #30434B;
+}
+
+/* Заголовок: */
+.post-title a:link,
 .post-title a:visited {
    color: var(--link-post-title);
+}
+/* Если заголовок отстутсвует, то им станонвится дата. Её тоже подкрашиваем: */
+.post-title time a:link,
+.post-title time a:visited {
+   color: var(--link-post-title);
+   font-size: 1.6rem;
 }
 .post-title {
    font-size: 1.6rem;
@@ -429,6 +632,7 @@ body#post article.wrap {
    /* шрифт: */
    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
+
 /* User hidden actions: */
 a.user.hidden.action {
    color: var(--user-hidden-action);
@@ -462,12 +666,22 @@ div.user.hidden.action.flat-select select option {
 /* Текст статей в новостной ленте: */
 #collection #wrapper .h-entry .book,
 #subpage #wrapper .h-entry .book {
-   font-size: 1.2rem;
+   /* font-size: 1.2rem; */
+   font-size: 1.3rem;
+}
+@media (max-width: 600px) {
+   #collection #wrapper .h-entry .book,
+   #subpage #wrapper .h-entry .book {
+      font-size: 1.2rem;
+   }
 }
 #collection #wrapper .h-entry .book p,
 #subpage #wrapper .h-entry .book p {
    line-height: 1.3;
+   margin-top: .7rem;
+   margin-bottom: .7rem;
 }
+
 body#collection a.read-more,
 body#subpage a.read-more {
    color: var(--link-read-more);
@@ -478,13 +692,30 @@ body#subpage a.read-more {
 }
 .book.e-content ul li {
    /* расстояние между эл-тами списка: */
-   margin-top: -.2rem;
-   margin-bottom: -.2rem;
+   /* margin-top: -.2rem;
+   margin-bottom: -.2rem; */
+   line-height: 1.2;
 }
-.book.e-content p:has(+ ul) {
-   /* расстояние между p и ul: */
-   margin-bottom: .2rem;
+.book.e-content ol li {
+   line-height: 1.2;
 }
+
+#collection #wrapper .h-entry .book p {
+
+}
+.book ol {
+   margin: 0;
+}
+
+ /* Если после P идёт UL или OL, то убираем margin-bottom: */
+/*
+#collection #wrapper .h-entry .book p:has(+ ul),
+#collection #wrapper .h-entry .book p:has(+ ol) {
+   margin-bottom: 0;
+}
+
+*/
+
 /* ---------- END ПОСТ В НОВОСТНОЙ ЛЕНТЕ ---------- */
 
 
@@ -497,6 +728,8 @@ body#subpage a.read-more {
   /* background-color: var(--code-bckg); */
    background-color: var(--code-bckg);
    border: solid 1px var(--code-bckg);
+   font-size: .9em;
+   line-height: 1.3;
 }
 /* многострочный блок кода: */
 #wrapper .book pre code {
@@ -525,16 +758,34 @@ body#post blockquote {
 
 
 /* ---------- FOOTER НОВОСТНОЙ ЛЕНТЫ ---------- */
-#collection footer nav {
+
+/* надпись "powered by" в футере на страничках collection и subpage: */
+body footer nav {
    color: var(--powered-by);
 }
 #collection footer nav a {
    color: var(--link-wf);
 }
+
 #collection footer nav a.home.pubd {
    color: var(--menu-text);
 }
+
 /* ---------- END FOOTER НОВОСТНОЙ ЛЕНТЫ ---------- */
+
+
+/* 0000000 ---- 000000000 */
+/* -------- ТЭГИ --------- */
+/* 000000000 --- 000000000 */
+
+
+/* ---------- КОНТЕТ  ---------- */
+
+body#subpage #wrapper h1 {
+   max-width: 54rem;
+}
+
+/* ---------- END КОНТЕНТ ---------- */
 
 
 /* 00000000 --- 00000000 */
@@ -571,15 +822,52 @@ body#post article h2#title.dated {
 
 /* .e-content – это статья целиком (и внутри поста, и в новостной ленте, и на #subpage), а ...
    .p-summary – это превьюшка в новостной ленте или на #subpage.  */
+/* Это текст на страничке #post */
 .e-content, .p-summary {
    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+   font-size: 1.3rem;
+}
+@media (max-width: 600px) {
+   .e-content, .p-summary {
+      font-size: 1.2rem;
+   }
 }
 
-/* Расстояние между эл-тами списка: */
-body#post article li {
-   margin-top: -1rem;
-   margin-bottom: -1rem;
+/* ОТСТУПЫ МЕЖДУ АБЗАЦАМИ */
+/* задаются шириной строки вышестоящего элемента .e-content */
+/* Эл-ты <p> преобразованы в inline, а расстояния между ними задаются */
+/*  с помощью line-height: */
+body#post .e-content {
+   line-height: .8rem;
 }
+/* Зададим высоту строки <p>, чтобы */
+/* чтобы она не наследовалась элементом .e-content: */
+body#post .e-content p {
+   line-height: 1.3;
+}
+
+
+/* Расстояние между эл-тами списка: */
+/*
+body#post article li {
+   margin-top: -.6rem;
+   margin-bottom: -.6rem;
+}
+*/
+/* Списки верхнего уровня: */
+body#post article ul,
+body#post article ol {
+   margin-top: .5rem;
+   line-height: .6;
+}
+/* Вложенные списки: */
+body#post article ul ul,
+body#post article ul ol,
+body#post article ol ol,
+body#post article ol ul {
+   margin-top: .5rem;
+}
+
 /* --------- END POST CONTENT ---------- */
 
 
@@ -590,6 +878,8 @@ body#post article li {
    background-color: var(--code-bckg);
    border: solid 1px var(--code-bckg);
    overflow-x: auto;
+   font-size: .9em;
+   line-height: 1.2;
 }
 body#post pre code {
    white-space: pre;
@@ -619,6 +909,11 @@ body#post pre code {
 
 
 /* ---------- PAD ---------- */
+body#pad textarea {
+   /* Отступы от края экрана уменьшим с 2em до 1.2em: */
+   padding-left: 1.2em;
+   padding-right: 1.2em;
+}
 body#pad.dark #tools nav > ul > li a {
    color: #7192A7;
 }

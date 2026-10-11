@@ -14,12 +14,37 @@
 <h1>SQLite</h1>
 
 
-<p style="margin-bottom: 6px">Создать базу данных:</p>
-<pre style="margin-top: 6px"><code class="language-bash">sqlite3 mydb.db
+<p style="margin-bottom: 6px">Прежде всего, нужно установить <strong>sqlite3</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt update
+sudo apt install sqlite3
+</code></pre>
+
+<p style="margin-bottom: 6px">Создать новую базу данных:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># от имени текущего пользователя:
+sqlite3 mydb.db
+
+# от имени пользователя writefreely:
+sudo -u writefreely sqlite3 mydb.db
+</code></pre>
+
+<p style="margin-bottom: 6px">Открыть уже имеющуюся базу данных:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># от имени текущего пользователя:
+sqlite3 dbname.db
+
+# но лучше запускать базу данных от имени пользователя, которому принадлежит файл:
+sudo -u writefreely sqlite3 writefreely.db
+
+# и мы сразу же попадаем в интерактивную консоль.
+</code></pre>
+<p style="margin-bottom: 6px">Выйти из интерактивной консоли:</p>
+<pre style="margin-top: 6px"><code class="language-pgsql">.quit
+
+-- Или просто:
+Ctrl+D
 </code></pre>
 
 <p style="margin-bottom: 6px">Пример создания таблицы:</p>
-<pre style="margin-top: 6px"><code class="language-sql">-- создаём таблицу заметок
+<pre style="margin-top: 6px"><code class="language-pgsql">-- создаём таблицу заметок
 CREATE TABLE notes (
   id INTEGER PRIMARY KEY, -- уникальный ID
   text TEXT               -- текст заметки
@@ -30,15 +55,76 @@ CREATE TABLE notes (
 <pre><code class="language-pgsql">-- вывести список таблиц:
 .tables
 
+-- посмотреть структуру таблицы:
+.schema table_name
+
 -- Полноценный SQL-запрос:
 SELECT name FROM sqlite_master WHERE type='table';
 </code></pre>
 
+<p style="margin-bottom: 6px">На примере базы данных <strong>WriteFreely</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-pgsql">-- Смотрим, какие у нас есть таблицы:
+.tables
+  -- accesstokens          emailsubscribers      remoteuserkeys      
+  -- appcontent            oauth_client_states   remoteusers         
+  -- appmigrations         oauth_users           userattributes      
+  -- collectionattributes  password_resets       userinvites         
+  -- collectionkeys        posts                 users               
+  -- collectionpasswords   publishjobs           usersinvited        
+  -- collectionredirects   remote_likes        
+  -- collections           remotefollows   
+
+-- Смотрим структуру табилцы users:
+.schema users
+  -- CREATE TABLE `users` (
+  --   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  --   username TEXT NOT NULL UNIQUE,
+  --   password TEXT NOT NULL,
+  --   email TEXT DEFAULT NULL,
+  --   created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  -- , status INTEGER DEFAULT '0' NOT NULL);
+
+-- Вывести список всех пользователей:
+SELECT * FROM users;
+  -- 1|mark|$2a$12$3RmHXx2Zsnl5BqdcYxhQTuAO1cU8c1xw1z4yAbTV7pk2gBqFwEqs2||2026-09-06 13:50:53|0
+</code></pre>
+
+
+<h2>Бэкап</h2>
+
+<p style="margin-bottom: 0">Бэкап можно делать, просто скопировала файл базы данных. Предварительно желательно остановить <strong>WriteFreely</strong> (или другие сервисы, которые используют эту базу данных), а потом выполнить копирование.</p>
+<p style="margin-top:0; margin-bottom: 6px">Но у <strong>SQLite</strong> есть и встроенный механизм для создания бэкапа, который можно использовать, не останавилвая сервисы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely sqlite3 /opt/writefreely/writefreely/writefreely.db \
+   ".backup '/opt/writefreely/writefreely/writefreely-2026-10-08.db'"
+</code></pre>
+
+<p style="margin-bottom: 6px">А ещё лучше автоматически формировать дату и время при бэкапе:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely sqlite3 /opt/writefreely/writefreely/writefreely.db \
+  ".backup '/opt/writefreely/writefreely/writefreely-backup-$(date +%Y-%m-%d_%H-%M-%S).db'"
+</code></pre>
+
+
+<h2>Восстановление из бэкапа</h2>
+
+<p style="margin-bottom: 6px">Перед восстановлением проверяем бэкап на целостность:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely sqlite3 /opt/writefreely/writefreely/writefreely-2026-10-08_17-35-22.db \
+   "PRAGMA integrity_check;"
+
+# и восстанавливаем базу данных:
+sudo -u writefreely sqlite3 /opt/writefreely/writefreely/writefreely.db \
+   ".restore '/opt/writefreely/writefreely/backup-writefreely-2026-10-08_20-46-22.db'"
+</code></pre>
+
+<p>Во время восстановления базы данных из бэкапа лучше остановить <strong>WriteFreely</strong> (или другой сервис) во избежание недоразумений.</p>
+
+
 <!-- Шаблон -->
+<!--
 <p style="margin-bottom: 6px">Шаблон:</p>
 <pre style="margin-top: 6px"><code class="language-bash">
   lala
 </code></pre>
+-->
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/sql.min.js"></script>

@@ -17,6 +17,13 @@
 		<li><strong><i>/var/log/pacman.log</i></strong> – сюда пишутся логи</li>
 	</ul>
 
+	<p style="margin-bottom: 6px">Я вчера обновил систему, а сегодня обнаружил, что браузер <strong>Falkon</strong> не запускается. Во-первых, конечно, стоит запустить его из консоли, чтобы увидеть ошибку, которую он выдаёт. В моём случае это что-то, связанное с Qt6. Теперь мне хочется проверить, что именно вчера обновлялось. Это можно сделать примерно вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grep -E '\[ALPM\] upgraded (falkon|qt6-base|qt6-webengine)' /var/log/pacman.log | tail -20
+  # falkon 26.08.2-1
+  # qt6-base 6.12.0-2
+  # qt6-webengine 6.11.2-2
+</code></pre>
+
 
 	<pre><code class="language-bash">
 # update system

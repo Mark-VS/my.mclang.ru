@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Файловая структура WriteFreely</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+    <style>
+        .custom-file {
+           color: green;
+		}
+    </style>
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely/">Вернуться назад</a>
+
+<h1>Файловая структура WriteFreely</h1>
+
+<pre>
+/
+├─ opt
+│  └── writefreely
+│      └── writefreely
+│          ├── <span class="custom-file">keys</span>
+│          │    <span class="custom-file">├── cookies_auth.aes256</span>
+│          │    <span class="custom-file">├── cookies_enc.aes256</span>
+│          │    <span class="custom-file">├── csrf.aes256</span>
+│          │    <span class="custom-file">└── email.aes256</span>
+│          ├── pages
+│          │    ├── 404-general.tmpl
+│          │    ├── ...
+│          │    ...
+│          ├── static
+│          │    ├── css 
+│          │    │    ├── lib
+│          │    │    │    ├── atom-one-light.min.css
+│          │    │    │    ├── mono-blue.min.css
+│          │    │    │    └── <span class="custom-file">androidstudio.min.css</span>
+│          │    │    ├── fonts.css
+│          │    │    ├── icons.css
+│          │    │    ├── prose.css
+│          │    │    └── write.css
+│          │    ├── fonts
+│          │    │    ├── Lora-Bold.eot
+│          │    │    ├── Lora-Bold.ttf
+│          │    │    ...
+│          │    ├── img
+│          │    │    ├── avatars
+│          │    │    │   ├── 0.png
+│          │    │    │   ├── 1.png
+│          │    │    │   ...
+│          │    │    │   └── z.png
+│          │    │    ├── ic_blogs@2x.png
+│          │    │    ├── ic_blogs_dark@2x.png
+│          │    │    ...
+│          │    │    └── wf-sq.png
+│          │    ├── js
+│          │    │    ├── README.md
+│          │    │    ├── ace.js
+│          │    │    ├── h.js
+│          │    │    ...
+│          │    ├── <span class="custom-file">local</span>
+│          │    │    <span class="custom-file">└── custom.css</span>
+│          │    ├── <span class="custom-file">my_img</span>
+│          │    │    <span class="custom-file">├── my_img1.jpg</span>
+│          │    │    <span class="custom-file">├── my_img2.jpg</span>
+│          │    │    ...
+│          ├── templates 
+│          │    ├── bare.tmpl 
+│          │    ├── base.tmpl
+│          │    ...
+│          │    ├── collection.tmpl
+│          │    ├── collection-post.tmpl
+│          │    ├── pad.tmpl
+│          │    ├── post.tmpl
+│          │    ...
+│          ├── <span class="custom-file">config.ini</span>
+│          ├── writefreely
+│          └── <span class="custom-file">writefreely.db</span>
+
+</pre>
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

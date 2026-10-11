@@ -136,12 +136,12 @@ sudo -u writefreely ./writefreely config --help
 <p style="margin-bottom: 6px">Запускаю интерактивную настройку:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely config start
 </code></pre>
-<p>Я выбираю: Production, behind reverse proxy, порт 8080, </p>
-<p>Public URL: ... тут важно указать публичный адрес моего блога: https://writetest1.mclang.ru/. Этот адрес будет использоваться для формирования абсолютных ссылок.</p>
-<p>После завершения настроек появилось два файла: <strong><i>config.ini</i></strong> и <strong><i>writefreely.db</i></strong>. Всё это принадлежит пользователю <strong><i>writefreely</i></strong>.</p>
+<p style="margin-bottom: 0">Я выбираю: Production, behind reverse proxy, порт 8080, </p>
+<p style="margin: 0">Public URL: ... тут важно указать публичный адрес моего блога: https://writetest1.mclang.ru/. Этот адрес будет использоваться для формирования абсолютных ссылок.</p>
+<p style="margin-top: 0">После завершения настроек появилось два файла: <strong><i>config.ini</i></strong> и <strong><i>writefreely.db</i></strong>. Всё это принадлежит пользователю <strong><i>writefreely</i></strong>.</p>
 
-<p>Прежде чем запускать WriteFreely, нужно ещё сгененировать ключи. Иначе WriteFreely не запустится. Он будет ругаться на отсутствие ключей. Папка <strong><i>keys</i></strong> у нас пустая.</p>
-<p style="margin-bottom: 6px">Запросим справку по ключам:</p>
+<p style="margin-bottom: 0">Прежде чем запускать <strong>WriteFreely</strong>, нужно ещё сгененировать ключи. Иначе <strong>WriteFreely</strong> не запустится. Он будет ругаться на отсутствие ключей. Папка <strong><i>keys</i></strong> у нас пустая.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Запросим справку по ключам:</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo -u writefreely ./writefreely keys --help
 
 # Теперь генерируем ключи:
@@ -223,9 +223,9 @@ WantedBy=multi-user.target
 
 <h2>CSS</h2>
 
-<p>В админской панели в настройках есть возможность вписать CSS, чтобы кастомизировать внешний вид.</p>
-<p>И ещё добавим строку: <code>User=writefreely</code>. В официально примере сервис запускается от root'а. А мы специально создали пользователя <strong><i>writefreely</i></strong></p>
-<p>Если убрать StandartOutput¿syslog и StandartError=syslog, то вывод будет попадать в journal. А это неплохо.</p>
+<p style="margin-bottom: 0">В админской панели в настройках есть возможность вписать CSS, чтобы кастомизировать внешний вид.</p>
+<p style="margin: 0">И ещё добавим строку: <code>User=writefreely</code>. В официально примере сервис запускается от root'а. А мы специально создали пользователя <strong><i>writefreely</i></strong></p>
+<p style="margin-top: 0">Если убрать StandartOutput=syslog и StandartError=syslog, то вывод будет попадать в journal. А это неплохо.</p>
 
 <p style="margin-bottom: 6px">Чуть увеличим заголовки в постах:</p>
 <pre style="margin-top: 6px"><code class="language-css">.post-title {
@@ -238,8 +238,8 @@ WantedBy=multi-user.target
 
 <h2>Ознакомление</h2>
 
-<p>Для того, чтобы написать заголово первого уровня, используем символ <strong><i>#</i></strong></p>
-<p>Для того, чтобы отделить текст-превью от содержимого страницы используется специальный тег <strong><i>&lt;!--more--&gt;</i></strong></p>
+<p style="margin-bottom: 0">Для того, чтобы написать заголовок первого уровня, используем символ <strong><i>#</i></strong></p>
+<p style="margin-top: 0">Для того, чтобы отделить текст-превью от содержимого страницы используется специальный тег <strong><i>&lt;!--more--&gt;</i></strong></p>
 
 <ul>
    <li>**Жирный текст**</li>
