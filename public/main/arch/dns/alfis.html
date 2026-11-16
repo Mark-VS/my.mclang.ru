@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfis</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/dns">Вернуться назад</a>
+
+<h1>Alfis</h1>
+
+<h3>Как мы будем запускать Alfis после установки</h3>
+<p style="margin-bottom: 0">Бинарник <strong>Alfis</strong> будем устанавливать в <strong><i>/usr/local/bin/</i></strong>.</p>
+<p style="margin: 0">Рабочая директория будет здесь: <strong><i>~/.local/share/alfis/</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">А затем запускаем <strong>Alfis</strong> вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">LUMIO_BACKEND=software alfis --work-dir ~/.local/share/alfis
+</code></pre>
+
+<p style="margin-bottom: 0"><strong><i>LUMIO_BACKEND</i></strong> – это переменная окружения, которая указывает библиотеке <strong>Lumio GUI</strong>, какой механизм использовать для отрисовки интерфейса. Она может принимать два значения:</p>
+<ul style="margin: 0">
+   <li><strong>gl</strong> – аппаратная отрисовка через <strong>OpenGL</strong>, с использованием видеокарты;</li>
+   <li><strong>software</strong> – программная отрисовка, когда изображение интерфейса формируется процессором (CPU).</li>
+</ul>
+<p style="margin-top: 0; margin-bottom: 6px">Если явно не передать переменной <strong><i>LUMIO_BACKEND</i></strong> значение <strong><i>software</i></strong>, то по умолчанию она будет равна <strong><i>gl</i></strong>.</p>
+<p style="margin-top: 6px; margin-bottom: 0">В чём проблема с этим значением, <strong><i>gl</i></strong>?</p>
+<p style="margin: 0">В моей системе (<strong>Arch</strong> + <strong>Sway</strong>) оно приводит к зависанию всплывающего окна "New domain". И никак не получается ничего сделать со своими доменами. А если запустить <strong>Alfis</strong>, передав ей переменную <strong><i>LUMIO_BACKEND</i></strong> со значением <strong><i>software</i></strong>, то окно исправно работает.</p>
+<p style="margin-top: 0">Поэтому если мне нужно запустить <strong>Alfis</strong> в графическом режиме, то я при его запуске всегда передаю ему переменную <strong><i>LUMIO_BACKEND</i></strong> со значением <strong><i>software</i></strong>.</p>
+
+<p>Через параметр <strong><i>--work-dir</i></strong> мы передаём <strong>Alfis</strong> путь к рабочей директории. Если эту директорию не указать явно при запуске, то по умолчанию будет использоваться домашняя директория пользователя. И конфиги, и ключи, и всё прочее будет генерироваться в домашней папке. Это неудобно. Обычно используют <strong><i>~/.local/share/alfis</i></strong>.</p>
+
+<h2>Установка</h2>
+
+<p style="margin-bottom: 6px">Для начала проверим, установлены ли <strong>Rust</strong> и <strong>Cargo</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rustc --version
+cargo --version
+</code></pre>
+
+<p style="margin-bottom: 6px">Далее:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash"># Получаем исходники:
+mkdir -p ~/tmp/src/alfis-test
+git clone https://github.com/Revertron/Alfis.git ~/tmp/src/alfis-test
+
+# И запускаем сборку:
+cd ~/tmp/src/alfis-test
+cargo build --release
+</code></pre>
+
+<p style="margin-top: 4px; margin-bottom: 0">Сборка закончилась.</p>
+<p style="margin-top: 0; margin-bottom: 10px">Бинарник скомпилировался в <strong><i>target/release/</i></strong>.</p>
+
+<p style="margin-top: 10px; margin-bottom: 6px">Скопируем его в <strong><i>/usr/local/bin/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo install -Dm755 ~/tmp/src/alfis-test/target/release/alfis /usr/local/bin/alfis
+
+# Проверяем:
+which alfis
+  # /usr/local/bin/alfis
+</code></pre>
+
+<p style="margin-bottom: 6px">Сразу после установки нужно сгенерировать конфигурационный файл <strong><i>alfis.toml</i></strong>, иначе программа не запустится:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Эта команда вывыдет сгенерированный конфиг в stdout:
+alfis --generate
+
+# Создадим рабочую директорию и сохраним туда alfis.toml:
+mkdir -p ~/.local/share/alfis
+alfis --generate &gt; ~/.local/share/alfis/alfis.toml
+</code></pre>
+
+<p style="margin-top: 6px;">Если мы запустим <strong>Alfis</strong> прямо сейчас, то он будет ругаться на то, что у него нет доступа к 53-му порту.</p>
+
+<h3 style="margin-bottom: 4px">53-й порт</h3>
+<p style="margin-top: 4px; margin-bottom: 0">В сгенерированном конфиге <strong><i>alfis.toml</i></strong> указан дефолтный порт для <strong>DNS</strong>: 53.</p>
+<p style="margin: 0">Но в <strong>Linux</strong> обычному пользователю запрещено слушать порты ниже <strong>1024</strong>.</p>
+<p style="margin: 0">Можно запустить <strong>Alfis</strong> от <strong>sudo</strong>, но это не очень хорошая идея с точки зрения безопасности.</p>
+<p style="margin: 0">Можно поменять порт в конфиге. Например, на 5353.</p>
+<p style="margin: 0">Но я хочу оставить дефолтный 53-й порт.</p>
+<p style="margin-bottom: 6px">Чтобы решить эту проблему, воспользуемся утилитой <strong>setcap</strong>. Она даст бинарнику нужные нам полномочия:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">sudo setcap 'cap_net_bind_service=+ep' "$(which alfis)"
+
+# Проверяем:
+getcap "$(which alfis)"
+  # /usr/bin/alfis cap_net_bind_service=ep
+</code></pre>
+
+<ul style="margin-top: 6px">
+   <li><strong><i>cap_net_bind_service</i></strong> — разрешить программе открывать привилегированные сетевые порты;</li>
+   <li><strong><i>+e</i></strong> — включить это полномочие при запуске;</li>
+   <li><strong><i>+p</i></strong> — записать его в список разрешённых полномочий файла.</li>
+</ul>
+
+<p style="margin-bottom: 6px">В конфиге есть ещё настройка <strong><i>forwarders</i></strong>, в которой указан по умолчанию <strong>AdGuard</strong>. Это DNS-сервер, на который <strong>Alfis</strong> передаёт запрос, если сам не может разрешить имя:</p>
+<pre style="margin-top: 6px; margin-bottom: 10px"><code class="language-ini">key_files = ["key1.toml", "key2.toml", "key3.toml", "key4.toml", "key5.toml"]
+
+[dns]
+listen = "127.0.0.3:53"
+
+forwarders = ["https://dns.adguard.com/dns-query"]
+</code></pre>
+
+<p style="margin-top: 10px; margin-bottom: 6px">То есть, если я укажу браузеру не <strong>ALFIS</strong>-домен, а обычный домен, то он пойдёт разрешать его на <strong><i>dns.adguard.com/dns-query</i></strong>. Но этот сайт у нас заблочен, так что ничего он не разрешит. Поэтому логичней поменять DNS-сервер на гугловский. У меня в <strong><i>/etc/resolv.conf</i></strong> прописаны: <strong><i>8.8.8.8</i></strong> и <strong><i>8.8.4.4</i></strong>. Их я и добавлю:</p>
+
+<pre style="margin-top: 6px; margin-bottom: 10px"><code class="language-ini">forwarders = ["8.8.8.8:53", "8.8.4.4:53"]
+</code></pre>
+
+<p style="margin-top: 10px; margin-bottom: 6px">Перечисление ключей тоже как будто бы бессмыслено на начальном этапе. Это скорее пример (шаблон) того, как и где надо указывать ключи. Там нужно указать или имена реальных файлов с ключами, или сделать массив пустым, если ни одного ключа ещё нет. Впринципе <strong>Alfis</strong> запустится и так, но будет выдавать ошибки о том, что указанные ключи не найдены. Поэтому просто укажем ему, что у нас нет ключей:</p>
+<pre style="margin-top: 6px"><code class="language-ini">key_files = []
+</code></pre>
+
+<p style="margin-bottom: 6px">И вот теперь можно запускать <strong>Alfis</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">LUMIO_BACKEND=software alfis --work-dir ~/.local/share/alfis
+
+# Или вот так, если графический интерфейс не нужен:
+alfis --work-dir ~/.local/share/alfist --nogui
+</code></pre>
+
+<p style="margin-bottom: 0">После первого запуска начнётся синхронизация.</p>
+<p style="margin: 0">У меня синхронизация заняла два вечера. Работала в фоновом режиме. В сумме это примерно 4-5 часов.</p>
+<p style="margin: 0">Во время синхронизации в рабочей директории создаётся файл <strong><i>blockchain.db</i></strong>. В конечном итоге он у меня весил всего <strong>23M</strong>.</p>
+<p style="margin-top: 0">Синхронизацию можно прерывать. Просто закрываем окно и всё. На следующий день при запуске программы синхронизация продолжится.</p>
+
+<p style="margin-bottom: 6px">Теперь можно проверить работу DNS-резолвера на реальном домене:</p>
+<pre style="margin-top: 6px"><code class="language-bash">dig @127.0.0.3 -p 5354 maksimushka.ygg AAAA
+
+  # ; &lt;&lt;*&gt;&gt; DiG 9.20.30 &lt;&lt;&gt;&gt; @127.0.0.3 -p 5354 maksimushka.ygg AAAA
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 19743
+  # ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+  # 
+  # ;; QUESTION SECTION:
+  # ;maksimushka.ygg.		IN	AAAA
+  # 
+  # ;; ANSWER SECTION:
+  # maksimushka.ygg.	3600	IN	AAAA	228:fd47:dce:9fd7:52b0:889d:f1e:29be
+  # 
+  # ;; Query time: 0 msec
+  # ;; SERVER: 127.0.0.3#5354(127.0.0.3) (UDP)
+  # ;; WHEN: Tue Nov 03 00:19:33 MSK 2026
+  # ;; MSG SIZE  rcvd: 61
+</code></pre>
+
+<h3>Desktop-файл</h3>
+
+<p style="margin-bottom: 0">Чтобы не запускать каждый раз <strong>Alfis</strong> из командной строки со всеми этими параметры, неплохо было бы прописать этот запуск в <strong>desktop</strong>-файл.</p>
+<p style="margin-top:0; margin-bottom: 6px">Выясним, какое имя у десктоп-файла:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grep -ril 'alfis' /usr/share/applications/
+
+  # /usr/share/applications/name.alfis.Alfis.desktop
+  # /usr/share/applications/mimeinfo.cache
+</code></pre>
+
+<p style="margin-bottom: 6px">Вот его содержимое:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># name.alfis.Alfis.desktop
+
+[Desktop Entry]
+Categories=Network;P2P;
+Exec=alfis %U
+GenericName=Alfis client
+Comment=Alternative Free Identity System
+Icon=alfis
+MimeType=application/x-alfis;
+Name=Alfis
+Terminal=false
+Type=Application
+StartupNotify=false
+StartupWMClass=alfis
+Keywords=dns;p2p;
+</code></pre>
+
+<p style="margin-top: 6px">Такой <strong>desktop</strong>-файл создаётся автоматически, если ставить <strong>Alfis</strong> из <strong>AUR</strong>. А если мы ставили <strong>Alfis</strong> вручную, то и этот файл придётся создать самим.</p>
+
+<p style="margin-bottom: 0">В <strong>desktop</strong>-файлах нельзя просто в строчке указать переменную. Для этого используется <strong><i>/usr/bin/env</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Поэтому вместо <code style="background-color: #191919; padding: 0 8px">Exec=alfis %U</code> напишем так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">Exec=/usr/bin/env LUMIO_BACKEND=software /usr/bin/alfis --work-dir /home/mark/.local/share/alfis %U
+</code></pre>
+
+
+<h3>Добавление домена</h3>
+
+<p style="margin-bottom: 10px">Вписываем доменное имя, указываем доменную зону, а затем кликаем по кнопке "Add record".</p>
+
+<p style="margin-top: 10px; margin-bottom: 0">Пример добавления записи для домена второго уровня:</p>
+<ul style="margin-top: 0; margin-bottom: 10px">
+   <li><strong><i>Name</i></strong>: @</li>
+   <li><strong><i>Type</i></strong>: AAAA</li>
+   <li><strong><i>TTL</i></strong>: 3600</li>
+   <li><strong><i>Data host</i></strong>: мой IPv6 Yggdrasil</li>
+</ul>
+<p style="margin-top: 10px; margin-bottom: 0">Пример добавления записи для домена третьего уровня <strong><i>blog</i></strong>:</p>
+<ul style="margin-top: 0; margin-bottom: 10px">
+   <li><strong><i>Name</i></strong>: blog</li>
+   <li><strong><i>Type</i></strong>: AAAA</li>
+   <li><strong><i>TTL</i></strong>: 3600</li>
+   <li><strong><i>Data host</i></strong>: мой IPv6 Yggdrasil</li>
+</ul>
+
+<p style="margin-top: 10px">Поля <strong><i>Priority</i></strong>, <strong><i>Weight</i></strong> и <strong><i>Port</i></strong> не нужны для обычной AAAA-записи.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/mastodon">Вернуться назад</a>
+
+<h1>Backup</h1>
+
+<ul>
+   <li><strong>PostgreSQL</strong> база данных</li>
+   <li>Пользовательские файлы и медиа (вся папка <i>~/mastodon/live/<strong>public/system/</strong></i>)</li>
+   <li>
+      <p style="margin: 0">Секреты и ключи: <i>/home/mastodon/live/<strong>.env.production</strong></i></p>
+	  <p style="margin: 0">В этом файле находятся:</p>
+	  <ul style="margin-top: 0; margin-bottom: 4px">
+         <li>SECRET_KEY_BASE</li>
+		 <li>VAPID_PRIVATE_KEY</li>
+		 <li>VAPID_PUBLIC_KEY</li>
+		 <li>ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY</li>
+		 <li>ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY</li>
+		 <li>ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT</li>
+	  </ul>
+	  <p style="margin-top: 4px; margin-bottom: 0">Особенно важны ключи Active Record Encryption. Они используются для расшифровки зашифрованных данных в базе.</p>
+	  <p style="margin: 0"><strong>При переносе нельзя генерировать новые ключи вместо старых</strong>. Нужно перенести исходный <strong><i>.env.production</i></strong> без изменений.</p>
+   </li>
+   <li>Конфигурация. Я изменял только файл <strong><i>config/themes.yml</i></strong>. Его и копируем. Все остальные файлы – дефолтные;</li>
+   <li>
+      <p style="margin: 0">И все изменения во фронтенде, которые я наделал:</p>
+	  <ul style="margin-top: 0; margin-bottom: 4px">
+         <li><i>app/javascript/styles/<strong>jopa_application.scss</strong></i> – точка входа</li>
+		 <li><i>app/javascript/styles/<strong>jopa/</strong></i> – здесь у меня содержится мой файлик <strong><i>tokens/theme/_dark.scss</i></strong>, где хранятся мои цвета для тёмной темы</li>
+	  </ul>
+   </li>
+   <li>
+      <p style="margin-top: 4px; margin-bottom: 0"><strong>Valkey</strong>. В моей конфигурации <strong>Mastodon</strong> использует логическую базу №2: <code style="background-color: #191919; padding: 0 8px">redis://127.0.0.1:6379/2</code>.</p>
+      <p style="margin: 0">Потеря <strong>Valkey</strong> не катастрофична: основные данные находятся в <strong>PostgreSQL</strong>. Однако можно потерять ещё не обработанные фоновые задачи. Ленты пользователей можно построить заново.</p>
+	  <p style="margin: 0">Для полноценного переноса лучше сохранить состояние <strong>Valkey</strong>. При этом не стоит автоматически предполагать, что файл называется <strong><i>/var/lib/redis/dump.rdb</i></strong>: у тебя <strong>Valkey</strong> (а не <strong>Redis</strong>), поэтому сначала нужно посмотреть его фактическую конфигурацию и каталог данных.</p>
+   </li>
+</ul>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

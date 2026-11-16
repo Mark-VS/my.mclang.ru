@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pleroma First Installation</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pleroma">Вернуться назад</a>
+
+<h1>Pleroma First Installation</h1>
+
+<p style="margin-bottom: 6px">Перед установкой убедимся, что </p>
+<pre style="margin-top: 6px"><code class="language-bash">
+cat /etc/debian_version
+  # 13.7
+
+elixir --version
+  #Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [jit:ns]
+
+  #Elixir 1.18.3 (compiled with Erlang/OTP 27)
+
+df -h /
+  # Filesystem      Size  Used Avail Use% Mounted on
+  # /dev/vda1        38G   12G   24G  34% /
+
+# Список существующих баз данных:
+sudo -u postgres psql -c '\l'
+</code></pre>
+<p>Отлично. <strong>Elixir</strong> и <strong>Erlang/OTP 27</strong> уже установлены. <strong>PostgreSQL</strong> тоже.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo apt update
+
+sudo apt install git \
+  build-essential cmake libmagic-dev \
+  imagemagick ffmpeg libimage-exiftool-perl
+</code></pre>
+
+<h3>Создадим системного пользователя</h3>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo useradd --system --create-home \
+  --home-dir /var/lib/pleroma \
+  --shell /bin/bash pleroma
+
+# Создаём каталог для приложения:
+sudo mkdir -p /opt/pleroma
+sudo chown pleroma:pleroma /opt/pleroma
+
+# Проверям:
+getent passwd pleroma
+ls -ld /var/lib/pleroma /opt/pleroma
+</code></pre>
+
+<h3>Скачиваем стабильную версию</h3>
+<p>Посмотреть стабильные релизы можно <a href="https://git.pleroma.social/pleroma/pleroma/releases">здесь</a>. На данный момент это v2.10.0</p>
+
+<p style="margin-bottom: 6px">Клонирование стабильной ветки:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma git clone -b stable \
+  https://git.pleroma.social/pleroma/pleroma /opt/pleroma
+</code></pre>
+<p>Но без VPN вряд ли запустится.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+~/happ-linux-amd6 happ connect 2 --mode proxy
+
+# Проверяем соединение:
+curl -I --connect-timeout 15 --max-time 30 \
+  --proxy socks5h://127.0.0.1:10808 \
+  https://git.pleroma.social
+
+  # HTTP/1.1 200 Connection established
+  # ...
+  # дальше дело не идёт. Handshake не выполнен
+
+# Меняем сервер в happ-cli и пробуем ещё раз:
+
+curl -I --connect-timeout 15   --proxy http://127.0.0.1:10809   https://git.pleroma.social
+  # HTTP/1.1 200 Connection established
+  # 
+  # HTTP/2 200 
+  # alt-svc: h3=":443"; ma=2592000
+  # date: Fri, 30 Oct 2026 06:47:19 GMT
+  # via: 1.1 Caddy
+
+# Теперь всё норм.
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь клонируем <strong>Pleroma</strong> через прокси:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma env \
+  https_proxy=http://127.0.0.1:10809 \
+  http_proxy=http://127.0.0.1:10809 \
+  git clone -b stable \
+  https://git.pleroma.social/pleroma/pleroma \
+  /opt/pleroma
+
+# После завершения проверяем:
+sudo -Hu pleroma git -C /opt/pleroma status -sb
+  ## stable...origin/stable
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотрим последний полученный коммит:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma git -C /opt/pleroma log -1 --oneline
+  # 762058f2c (HEAD -&gt; stable, tag: v2.11.1, origin/stable) Merge pull request 'Release 2.11.1' (#8016) from release/2.11.1 into stable
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Перед установкой зависимостей проверим, что <strong>mix</strong> доступен именно для пользователя <strong><i>Pleroma</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma mix --version
+</code></pre>
+
+
+<p><strong>mix</strong> — это инструмент <strong>Elixir</strong>, который управляет зависимостями и сборкой проекта.</p>
+<p><strong>Hex</strong> — менеджер пакетов для <strong>Elixir</strong>, через который загружаются многие зависимости <strong>Pleroma</strong>.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Ставим hex:
+sudo -Hu pleroma mix local.hex --force
+
+# Или через прокси:
+sudo -Hu pleroma env \
+  https_proxy=http://127.0.0.1:10809 \
+  http_proxy=http://127.0.0.1:10809 \
+  mix local.hex --force
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Скачаем зависимости, необходимые <strong>Pleroma</strong> для сборки и работы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma sh -c 'cd /opt/pleroma &amp;&amp; mix deps.get'
+</code></pre>
+
+<p style="margin-bottom: 6px">Собираем приложение:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma sh -c 'cd /opt/pleroma &amp;&amp; MIX_ENV=prod mix compile'
+</code></pre>
+<p>Повылезало множество всяких предупреждений про устаревший конструкции языка, про отсутствующий конфиг, странное сообщение про ошибку украинского перевода и т.п. Но в конечном итоге: <code style="background-color: #191919; padding: 0 8px">Generated pleroma app</code>, а значит компиляция завершилась успешно.</p>
+
+
+<p style="margin-bottom: 6px">Создаём конфигурацию:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma sh -c 'cd /opt/pleroma &amp;&amp; MIX_ENV=prod mix pleroma.instance gen'
+  # Writing config to config/generated_config.exs.
+  # Writing the postgres script to config/setup_db.psql.
+  # Writing /opt/pleroma/instance/static/robots.txt.
+  # 
+  #  All files successfully written! Refer to the installation instructions for your platform for next steps.
+  #  Please transfer your config to the database after running database migrations. Refer to "Transferring the config to/from the database" section of the docs for more information.
+</code></pre>
+
+<p>Генератор рекомендует перенести конфигурацию в базу данных после выполнения миграций.</p>
+<p>Создалось три файла:</p>
+<ul>
+   <li><strong><i>config/generated_config.exs</i></strong> – Конфигурация нашего экземпляра <strong>Pleroma</strong>;</li>
+   <li><strong><i>config/setup_db.psql</i></strong> – SQL-скрипт создания пользователя и базы <strong>PostgreSQL</strong>;</li>
+   <li><strong><i>instance/static/robots.txt</i></strong> – Файл с правилами для поисковых роботов.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь файл <strong><i>generated_config.exs</i></strong> нужно переименовать в <strong><i>prox.secret.exs</i></strong>. А лучше скопировать, чтобы сохранился оригиальный файл:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo cp /opt/pleroma/config/generated_config.exs /opt/pleroma/config/prod.secret.exs
+# И меняем владельца:
+sudo chown pleroma:pleroma /opt/pleroma/config/prod.secret.exs
+sudo chmod 640 /opt/pleroma/config/prod.secret.exs
+</code></pre>
+
+<p style="margin-bottom: 6px">Запускаем скрипт создания пользователя и базы данных <strong>PostgreSQL</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu postgres psql -f /opt/pleroma/config/setup_db.psql
+</code></pre>
+
+<p><code style="background-color: #191919; padding: 0 8px">config :pleroma, configurable_from_database: true</code> – Эта настройка разрешает хранить изменяемую конфигурацию в базе данных. Именно поэтому генератор упомянул перенос конфигурации после миграций.</p>
+
+<p style="margin-bottom: 0"><strong>Pleroma</strong> использует два уровня конфигурации:</p>
+<ul style="margin-top: 0">
+  <li>config/prod.exs — штатные настройки production-режима;</li>
+  <li>config/generated_config.exs — настройки нашего экземпляра, созданные генератором.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь выполняем миграцию базы данных:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu pleroma sh -c 'cd /opt/pleroma &amp;&amp; MIX_ENV=prod mix ecto.migrate'
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь переносим конфиг в базу данных:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu pleroma sh -c 'cd /opt/pleroma && MIX_ENV=prod mix pleroma.config migrate_to_db'
+</code></pre>
+
+<p style="margin-bottom: 6px">Делаю пробный запуск сервера:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu pleroma sh -c 'cd /opt/pleroma && MIX_ENV=prod mix phx.server'
+</code></pre>
+
+<p style="margin-bottom: 6px">Перед запуском <strong>Pleroma</strong> подправим <strong>Nginx</strong>-конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+server {
+   listen 80;
+   listen [::]:80;
+   server_name pleroma1.mclang.ru www.pleroma1.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+
+server {
+   listen 443 ssl; # managed by Certbot
+   listen [::]:443 ssl; # managed by Certbot
+   server_name pleroma1.mclang.ru www.pleroma1.mclang.ru;
+   http2 on;
+
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem; # managed by Certbot
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem; # managed by Certbot
+   include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+   client_max_body_size 16M;
+
+   location / {
+      proxy_pass http://127.0.0.1:4000;
+      proxy_http_version 1.1;
+
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+   }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">И пробуем запустить <strong>Pleroma</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu pleroma sh -c 'cd /opt/pleroma &amp;&amp; MIX_ENV=prod mix phx.server'
+
+# Если сервер запустился, проверим:
+curl -I https://pleroma1.mclang.ru
+
+# И если всё нормально, то зайдём через браузер.
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё в порядке, то остановим сервер и скопируем файл службы из папки <strong><i>installation</i></strong> в систему:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo cp /opt/pleroma/installation/pleroma.service /etc/systemd/system/
+
+ls -l /etc/systemd/system/ | grep pleroma.service
+  # -rw-r--r-- 1 root root 1500 Oct 30 22:41 pleroma.service
+
+# Сообщим systemd о появлении новой службы:
+sudo systemctl daemon-reload
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть инфу об управлении аккаунтами:
+cd /opt/pleroma/
+sudo -Hu pleroma MIX_ENV=prod mix help pleroma.user
+
+# Создаём пользователя:
+sudo -Hu pleroma MIX_ENV=prod mix pleroma.user new mark mark-sw@yandex.ru --admin --password my_password
+
+# Проверить список пользователей:
+sudo -Hu pleroma MIX_ENV=prod mix pleroma.user list
+
+# Получить ссылку для сброса пароля:
+sudo -Hu pleroma MIX_ENV=prod mix pleroma.user reset_password mark
+</code></pre>
+
+<h3>доп</h3>
+
+<p style="margin-bottom: 0">В консоли вылезают ошибки, связанные с отсутствием файлов:</p>
+<ul style="margin-top: 0">
+   <li>https://pleroma1.mclang.ru/static/styles.custom.json</li>
+   <li>https://pleroma1.mclang.ru/static/stickers.json</li>
+</ul>
+
+<p>У меня также вылезала ошибка, связанная с политикой безопасности <strong><i>CSP</i></strong>. И тут причиной было расширение браузера <strong>uBlock Origin</strong>. у меня эта ошибка появлялась в <strong>LibreWolf</strong>, а стало быть, и в <strong>Firefox</strong> тоже появилось бы. Заходим в <code style="background-color: #191919; padding: 0 8px">about:addons</code> и выключаем его.</p>
+
+<h3>Убираем обои</h3>
+
+<p>Дефолтная обоина указан в админских настройках: <strong><i>/images/city.jpg</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Но сервер по-прежнему отдаёт картинку:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -s https://pleroma1.mclang.ru/api/pleroma/frontend_configurations | jq '.pleroma_fe.background'
+  # "/images/city.jpg"
+</code></pre>
+
+
+<p style="margin-bottom: 0">Фронтенд получает background: "<i>/images/city.jpg</i>" из <strong><i>frontend_configurations</i></strong>.</p>
+<p style="margin: 0">При этом в базе у меня есть другая настройка: <strong><i>instance.background_image</i></strong>. Она не заменяет <strong><i>pleroma_fe.background</i></strong>.</p>
+<p style="margin-top: 0">Нам нужно изменить только <i>background</i> внутри <strong><i>frontend_configurations</i></strong>, например на пустую строку: <code style="background-color: #191919; padding: 0 8px">background: ""</code></p>
+
+
+<p style="margin-bottom: 6px">Добавим в конец файла <strong><i>config/prod.secret.exs</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 2px"><code class="language-bash">config :pleroma, :frontend_configurations,
+  pleroma_fe: %{
+    background: ""
+  }
+</code></pre>
+<p style="margin-top: 2px; margin-bottom: 0">И перезагружаем сервер.</p>
+<p style="margin-top: 0">Правда, я не очень понял, зачем вообще переносить настройки в базу данных, если всё равно приходится прописывать настройку вручную в файле. Чтобы не перекомпилировалось каждый раз?</p>
+
+<p style="margin-bottom: 0">Периодически на страничке вылезают всплывающие окна вот с такими ошибками:</p>
+<ul style="margin-top: 0; margin-bottom: 6px">
+   <li>Error fetching notifications:  can't access property "is_seen", e.pleroma is undefined</li>
+   <li>Error fetching notifications: can't convert undefined to object</li>
+</ul>
+<p style="margin-top: 6px">Ошибки эти всплывают ТОЛЬКО в <strong>LibreWolf</strong>. В <strong>Falkon</strong> и в <strong>Chromiumf</strong> нет никаких всплывающих окон. При этом если открыть страничку Pleroma в приватном окне <strong>LibreWolf</strong>, то всплывающих окон с ошибка тоже не будет. Я создал новый профиль (<strong><i>about:profiles</i></strong>) и зашёл через него. Ошибки тоже перестали появляться во всплывающих окнах. Вероятно, тут виноваты какие-то особенные "настройки приватности" у дефолтного профиля <strong>LibreWolf</strong>.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

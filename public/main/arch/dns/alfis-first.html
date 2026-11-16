@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfis – первая установка</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/dns">Вернуться назад</a>
+
+<h1 style="margin-bottom: 2px">Alfis – первая установка</h1>
+
+<p style="margin-top: 2px; margin-bottom: 0">Github: <a href="https://github.com/Revertron/Alfis">github.com/Revertron/Alfis</a></p>
+<p style="margin-top: 0">Официальная страничка: <a href="https://alfis.name">alfis.name</a> – редирект на Github</p>
+
+<p style="margin-bottom: 0"><strong>Lumio</strong> – это графическая библиотека, которую использует <strong>ALIFS</strong>.</p>
+<ul style="margin: 0">
+   <li>Исходники <strong>Lumio</strong>: ~/.cargo/registry/src/index.crates.io-*/lumio-gui-0.3.0/src/</li>
+</ul>
+<p style="margin-top: 0">Все скомпилированные библиотеки <strong>lumio-gui</strong> попадают в состав бинарника после компиляции.</p>
+
+<p style="margin-bottom: 6px">Нашли источник сообщений:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grep -RniE 'Loading drawables|Failed to load drawable|Doing click' \
+~/.cargo/registry/src/index.crates.io-*/lumio-gui-0.3.0/
+  # /home/mark/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lumio-gui-0.3.0/src/views/button.rs:386:                    println!("Doing click!");
+  # /home/mark/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lumio-gui-0.3.0/src/drawing/registry.rs:23:        println!("Loading drawables");
+  # /home/mark/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lumio-gui-0.3.0/src/drawing/registry.rs:63:                eprintln!("Failed to load drawable '{}': {}", name, e);
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">RUST_BACKTRACE=1 RUST_LOG=debug alfis --work-dir ~/.local/share/alfis 2&gt;&amp;1 | tee ~/alfis-debug.log
+</code></pre>
+
+<br>
+<hr>
+<br>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">yay -S alfis
+
+# И сразу после установки генерируем конфиг, иначе программа не запустится:
+alfis --generate
+</code></pre>
+
+<p style="margin-bottom: 6px">Сразу после установки нужно сгенерировать конфигурационный файл <strong><i>alfis.toml</i></strong>, иначе программа не запустится.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Генерация конфига и вывод на экран:
+alfis --generate
+
+# Сохраняем генерацию в файл:
+mkdir -p ~/.local/share/alfis
+alfis --generate &gt; ~/.local/share/alfis/alfis.toml
+
+# Запускаем программу с указанием конфига:
+alfis --config ~/.local/share/alfis/alfis.toml
+</code></pre>
+
+<p style="margin-bottom: 0">По умолчанию <strong>ALFIS</strong> пытается открыть DNS-порт <strong>53</strong>, но обычному пользователю <strong>Linux</strong> запрещено слушать порты ниже <strong><i>1024</i></strong>.</p>
+<p style="margin: 0">Но запускать <strong>ALFIS</strong> через <strong><i>sudo</i></strong> – плохая идея. Лучше изменить порт в конфиге.</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">Проверим порт <strong><i>5353</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ss -lntup | grep -E '(:53|:5353)'
+  # udp   UNCONN 0      0        224.0.0.251:5353       0.0.0.0:*    users:(("falkon",pid=2056,fd=229))
+</code></pre>
+<p>Но его уже слушает <strong>Falkon</strong>. Лучше занять другой, чтобы в будущем не было конфликта с <strong>Falkon</strong>. А вот порт <strong><i>5354</i></strong> свободный.</p>
+<p style="margin-bottom: 6px">Найдём в <strong><i>alfis.toml</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-ini">[dns]
+listen = "127.0.0.3:53"
+</code></pre>
+<p style="margin-bottom: 6px">И заменим на:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-ini">[dns]
+listen = "127.0.0.3:5354"
+</code></pre>
+<p style="margin-top: 4px">И перезапускаем <strong>ALFIS</strong>.</p>
+
+<p style="margin-bottom: 6px">Теперь проверим произвольный домен:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">dig @127.0.0.3 -p 5354 example.ygg AAAA
+
+  # ; &lt;&lt;&gt;&gt; DiG 9.20.30 &lt;&lt;&gt;&gt; @127.0.0.3 -p 5354 example.ygg AAAA
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NXDOMAIN, id: 54234
+  # ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 0
+  # 
+  # ;; QUESTION SECTION:
+  # ;example.ygg.			IN	AAAA
+  # 
+  # ;; AUTHORITY SECTION:
+  # ygg.			60	IN	SOA	ns.alfis.name. admin.alfis.name. 1627534853 3600 300 604800 60
+  # 
+  # ;; Query time: 0 msec
+  # ;; SERVER: 127.0.0.3#5354(127.0.0.3) (UDP)
+  # ;; WHEN: Mon Nov 02 01:48:23 MSK 2026
+  # ;; MSG SIZE  rcvd: 84
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 0">Всё в порядке. Ответ получен, а значит <strong>ALFIS</strong> работает.</p>
+<p style="margin-top: 0">Теперь дожидаемся пока закончится синхронизация и тогда уже можно будет проверить реальный <strong>.ygg</strong>-адрес на доступность.</p>
+
+<p style="margin-bottom: 0">У меня синхронизация заняла два вечера. Работала в фоновом режиме. Это примерно 4 часа.</p>
+<p style="margin: 0">Вот такие показатели были (02.11.2026):</p>
+<ul style="margin-top: 0">
+   <li>Blocks in chain: 24482</li>
+   <li>Domains: 1480</li>
+   <li>Users/Keys: 765</li>
+   <li>Connected nodes: 8-14</li>
+</ul>
+
+<p style="margin-bottom: 0"><strong><i>blockchain.db</i></strong> создался в домашней директории. И весит он всего <strong><i>23M</i></strong>.</p>
+<p style="margin: 0">Желательно перенести его ... например, в <strong><i>~/.local/share/alfis/</i></strong>, к конфигу, – чтобы все файлы хранились в одном месте.</p>
+<p style="margin: 0">Но прежде чем переносить, нужно остановить <strong>Alfis</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Теперь перенесём базу данных в <strong><i>~/.local/share/alfis/</i></strong> и укажем при запуске эту директорию как рабочую, чтобы <strong>Alfis</strong> искал всё ему нужное (и конфиг, и базу данных) там:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">mv ~/.blockchain.db ~/.local/share/alfis/
+
+# И запускаем, указав рабочую директорию:
+alfis --work-dir ~/.local/share/alfis
+</code></pre>
+
+<p style="margin-bottom: 0">При запуске <strong>Alfis</strong> ругается на отсутствие ключей, но так мы их ещё и не содавали.</p>
+<p style="margin-top: 0; margin-bottom: 6px">У нас в файле конфигурации прописаны пути к этим ключам:</p>
+<pre style="margin-top: 6px"><code class="language-ini">key_files = ["key1.toml", "key2.toml", "key3.toml", "key4.toml", "key5.toml"]
+</code></pre>
+<p style="margin-bottom: 6px">Чтобы убрать эти ошибки, можно заменить массив с перечислением ключей в <strong><i>alfis.toml</i></strong> на пустой:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-ini">key_files = []
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 6px">А позже, когда мы сгенерируем ключи, – тогда и добавим их обратно в этот массив:</p>
+<pre style="margin-top: 6px"><code class="language-ini">key_files = ["alfis_secret_key.toml"]
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Теперь можно проверить на реальном <strong>.ygg</strong>-домене:</p>
+<pre style="margin-top: 6px"><code class="language-bash">dig @127.0.0.3 -p 5354 maksimushka.ygg AAAA
+
+  # ; &lt;&lt;&gt;&gt; DiG 9.20.30 &lt;&lt;&gt;&gt; @127.0.0.3 -p 5354 maksimushka.ygg AAAA
+  # ; (1 server found)
+  # ;; global options: +cmd
+  # ;; Got answer:
+  # ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 19743
+  # ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+  # 
+  # ;; QUESTION SECTION:
+  # ;maksimushka.ygg.		IN	AAAA
+  # 
+  # ;; ANSWER SECTION:
+  # maksimushka.ygg.	3600	IN	AAAA	228:fd47:dce:9fd7:52b0:889d:f1e:29be
+  # 
+  # ;; Query time: 0 msec
+  # ;; SERVER: 127.0.0.3#5354(127.0.0.3) (UDP)
+  # ;; WHEN: Tue Nov 03 00:19:33 MSK 2026
+  # ;; MSG SIZE  rcvd: 61
+</code></pre>
+
+<p>Ещё ст</p>
+
+<p style="margin-bottom: 6px">У меня в конфиге, помимо порта, указан ещё по умолчанию <strong>AdGuard</strong>. Это <strong>DNS</strong>-сервер, на который <strong>Alfis</strong> передаёт запрос, если сам не может разрешить имя:</p>
+<pre style="margin-top: 6px"><code class="language-ini">[dns]
+listen = "127.0.0.3:5354"
+
+forwarders = ["https://dns.adguard.com/dns-query"]
+</code></pre>
+<p>То есть, если я укажу браузеру не ALFIS-домен, а обычный домен, то он пойдёт разрешать его на <strong><i>dns.adguard.com/dns-query</i></strong>. Но этот сайт у нас заблочен, так ничего он не разрешит. Поэтому логичней поменять DNS-сервер на гугловский. У меня в <strong><i>/etc/resolv.conf</i></strong> прописаны: <strong><i>8.8.8.8</i></strong> и <strong><i>8.8.4.4</i></strong>.</p>
+
+<p style="margin-bottom: 0">Дальше я поменял порт, который слушает <strong>ALFIS</strong>, на 53. Но <strong>ALFIS</strong> не запустился – из-за отсутствия прав.</p>
+<p style="margin: 0">В <strong>Linux</strong> по умолчанию нельзя без <strong><i>root</i></strong>'а использовать порты ниже <strong><i>1024</i></strong>. А от <strong><i>sudo</i></strong> нежелательно запускать <strong>ALFIS</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px"><strong>setcap</strong> – утилита, которая назначает исполняемому файлу определённые полномочия.</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo setcap 'cap_net_bind_service=+ep' "$(which alfis)"
+
+# Проверяем:
+getcap "$(which alfis)"
+  # /usr/bin/alfis cap_net_bind_service=ep
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li><strong><i>cap_net_bind_service</i></strong> — разрешить программе открывать привилегированные сетевые порты;</li>
+   <li><strong><i>+e</i></strong> — включить это полномочие при запуске;</li>
+   <li><strong><i>+p</i></strong> — записать его в список разрешённых полномочий файла.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Запускаем заново <strong>ALFIS</strong>, только на этот раз он будет слушать дефолтный DNS-порт 53:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">alfis --work-dir ~/.local/share/alfis
+</code></pre>
+<p style="margin-top: 4px">При этом, если мы введём какой-нибудь <strong><i>google.com</i></strong>, <strong>Alfis</strong> его не сможет разрешить и передаст запрос <strong><i>8.8.8.8</i></strong>.</p>
+
+
+<p>2026-11-08. Вчера в 14:17 поставил генерироваться новый ключ в ALFIS. Вчера в 0:00 проверял - он ещё генерировался. Сегодня в 10 утра он уже был сгенерирован. Я нажал кнопку "Save" и графический интерфейс программы завис. Выпадающий список был выбран по умолчанию "In memory".</p>
+<p>ГПТ говорит, что нужно установить zenity - для того, чтобы alfis мог открывать нормально диалоговое окно для сохранения файла.</p>
+
+
+<br>
+<br>
+<hr>
+<br>
+<br>
+
+<h3>Установка вручную</h3>
+
+<p style="margin-bottom: 6px">Проверяем, установлены ли <strong>rust</strong> и <strong>cargo</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">rustc --version
+cargo --version
+</code></pre>
+
+<p style="margin-bottom: 6px">Получаем исходники:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir -p ~/tmp/src/alfis-test
+git clone https://github.com/Revertron/Alfis.git ~/tmp/src/alfis-test
+
+cd ~/tmp/src/alfis-test
+cargo build --release
+</code></pre>
+
+<p>Бинарник установился в папку <strong><i>target/release/</i></strong>.</p>
+<p style="margin-bottom: 6px">Запускаем этот бинарник и указываем скопированную рабочую директорию:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Даём бинарнику право на использование порта 53:
+sudo setcap 'cap_net_bind_service=+ep' /home/mark/tmp/src/alfis-test/target/release/alfis
+# Проверяем:
+getcap /home/mark/tmp/src/alfis-test/target/release/alfis
+
+# И запускаем бинарник, передавая ему переменную LUMIO_BACKEND:
+LUMIO_BACKEND=software ~/tmp/src/alfis-test/target/release/alfis \
+  --work-dir ~/.local/share/alfis-gui-test
+</code></pre>
+
+<p style="margin-bottom: 2px"><strong><i>LUMIO_BACKEND</i></strong>это переменная окружения, которая указывает библиотеке <strong>Lumio GUI</strong>, какой механизм использовать для отрисовки интерфейса.</p>
+<ul style="margin-top: 2px; margin-bottom: 2px">
+   <li><strong><i>gl</i></strong> — аппаратная отрисовка через OpenGL, с использованием видеокарты;</li>
+   <li><strong><i>software</i></strong> — программная отрисовка, когда изображение интерфейса формируется процессором (CPU).</li>
+</ul>
+<p style="margin-top: 2px">Если мы запустим <strong>Alfis</strong> без явного указания <strong><i>software</i></strong>, скорее всего <strong>Alfis</strong> запустится с дефолтным значением <strong><i>gl</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Установим пользовательскую версию в <strong><i>/usr/local/bin/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# Проверяем, где ищется бинарник:
+which alfis
+  # /usr/bin/alfis
+
+# Устанавливаем наш новый бинарник в /usr/local/bin:
+sudo install -Dm755 ~/tmp/src/alfis-test/target/release/alfis /usr/local/bin/alfis
+
+Проверяем:
+which alfis
+  # /usr/local/bin/alfis
+
+# Теперь можно запустить нашу версию вот так:
+LUMIO_BACKEND=software --work-dir ~/.local/share/alfis-gui-test
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

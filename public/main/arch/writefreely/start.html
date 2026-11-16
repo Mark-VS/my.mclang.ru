@@ -13,13 +13,14 @@
 
 <h1>Первые настройки</h1>
 
-<p>lala</p>
-<ul>
+<p style="margin-bottom: 0">Что надо подправить при первом запуске:</p>
+<ol style="margin-top: 0">
    <li>Подправить ширину контента. Вроде бы я менял две ширины чего-то и margin'ы - чтобы в мобильной версии сократить отступы от краёв;</li>
-   <li>Для мобильной версии уменьшить расстояние между краями экрана и текстом статьи. По умолчанию: 2em. Но 1em смотрится лучше;</li>
-   <li>Убрать для мобильной версии левый margin для меню в левом верхнему углу: я изменил с 1.5em на .5em;</li>
-   <li>Для мобильной версии на страницах Blogs и Drafts убрать расстояние между кнопками Blogs и Drafts, а также сделать отрицательным левый margin у Blogs - кнопки сдвинутся чуть левее, чтобы "New Post" не налазил на них.</li>
-</ul>
+   <li>Ширина хедера на страницами с тегами;</li>
+   <li>Для мобильной версии уменьшить расстояние между краями экрана и текстом статьи. По умолчанию: <i>2em</i>. Но <i>1em</i> смотрится лучше;</li>
+   <li>Убрать для мобильной версии левый <strong><i>margin</i></strong> для меню в левом верхнему углу: я изменил с <i>1.5em</i> на <i>.5em</i>;</li>
+   <li>Для мобильной версии на страницах <strong>Blogs</strong> и <strong>Drafts</strong> убрать расстояние между кнопками <strong><i>Blogs</i></strong> и <strong><i>Drafts</i></strong>, а также сделать отрицательным левый margin у <strong><i>Blogs</i></strong> - кнопки сдвинутся чуть левее, чтобы <strong><i>"New Post"</i></strong> не налазил на них.</li>
+</ol>
 
 <p style="margin-bottom: 6px">1. Отступы от левого и правого края страницы уменьшаем с 2em на 1em, чтобы в мобильной версии они так не бросались в глаза:</p>
 <pre style="margin-top: 6px"><code class="language-css">#wrapper {
@@ -81,11 +82,15 @@ body#post article.wrap {
       margin-left: -50px;
    }
    /* Уменьшаем расстояние между Blogs и Drafts с 2em на 1em: */
-   header nav#user-nav .tabs > a + a {
+   header nav#user-nav .tabs &gt; a + a {
       margin-left: 1em;
    }
 }
 </code></pre>
+
+<h3>Встраивание видосиков с PeerTube</h3>
+
+<p>Про встраивание видосиков можно посмотреть <a href="/arch/writefreely/learn.html">здесь</a></p>
 
 
 <!-- Шаблон -->
@@ -98,6 +103,7 @@ body#post article.wrap {
 
 <script src="/assets/highlight/languages/bash.min.js"></script>
 <script src="/assets/highlight/languages/css.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
 <script>hljs.highlightAll();</script>
 </body>
 </html>

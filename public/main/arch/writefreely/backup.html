@@ -25,8 +25,11 @@ sudo cp -r keys ~/tmp/writefreely/
 sudo chmod 644 ~/tmp/writefreely/keys/*
 
 # С локального компьютера:
-rsync -av mark@mclang.ru:~/tmp/writefreely/keys ~/backups2/writefreely/
-# И удаляем времменную папку с ключами:
+rsync -av mark@mclang.ru:~/tmp/writefreely/keys ~/writefreely/
+# Для безопасности опять убираем права на чтение:
+chmod 600 ~/writefreely/keys/*
+
+# И удаляем времменную папку с ключами с сервера:
 ssh -t mark@mclang.ru "sudo rm -rf ~/tmp/writefreely/keys/"
 </code></pre>
 
@@ -38,7 +41,10 @@ sudo cp config.ini ~/tmp/writefreely/
 sudo chmod 644 ~/tmp/writefreely/config.ini
 
 # А затем с локального компьютера:
-rsync mark@mclang.ru:~/tmp/writefreely/config.ini ~/backups2/writefreely/
+rsync mark@mclang.ru:~/tmp/writefreely/config.ini ~/writefreely/
+# И опять убираем права на чтение:
+chmod 600 ~/writefreely/config.ini
+
 # И удаляем временный конфиг с сервера:
 ssh -t mark@mclang.ru "sudo rm ~/tmp/writefreely/config.ini"
 </code></pre>
@@ -74,7 +80,80 @@ mkdir -p ~/backups2/writefreely/static/css/lib/
 rsync mark@mclang.ru:/opt/writefreely/writefreely/static/css/lib/androidstudio.css ~/writefreely/static/css/lib/
 </code></pre>
 
+<h2>Восстановление</h2>
 
+<h3>Восстанавливаем ключи</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># На локальном компьютере:
+chmod 644 ~/writefreely/keys/*
+# Убедимся, что на сервере существует временная папка:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+rsync -av ~/writefreely/keys mark@mclang.ru:~/tmp/writefreely/
+
+# На сервере:
+sudo cp -r ~/tmp/writefreely/keys /opt/writefreely/writefreely/
+cd /opt/writefreely/writefreely
+# Возвращаем владение пользователю writefreely:
+sudo chown -R writefreely:writefreely ./keys
+# И забираем права на чтение для всех остальных:
+sudo -u writefreely chmod 600 ./keys/*
+
+# И удаляем временные файлы:
+rm -r ~/tmp/writefreely/keys/
+</code></pre>
+
+<h3>Восстанавливаем конфиг</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># На локальном компьютере:
+chmod 644 ~/writefreely/config.ini
+# Убедимся, что временная папка на сервере существует:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+rsync ~/writefreely/config.ini mark@mclang.ru:~/tmp/writefreely/
+
+# На сервере:
+sudo cp ~/tmp/writefreely/config.ini /opt/writefreely/writefreely/
+cd /opt/writefreely/writefreely
+# Возвращаем владение пользователю writefreely:
+sudo chown writefreely:writefreely config.ini
+# И забираем права на чтение:
+sudo -u writefreely chmod 600 config.ini
+
+# И удаляем временный файл:
+rm ~/tmp/writefreely/config.ini
+</code></pre>
+
+<h3>Восстанавливаем базу данных</h3>
+
+<p style="margin-bottom: 6px">Напрямую скопировать базу данных не сервер не получится, потому что у пользователя <strong><i>mark</i></strong> нет права на запись в папке <strong><i>/opt/writefreely/writefreely</i></strong>. Только на чтение. Поэтому:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Убедимся, что временная папка на сервере существует:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+
+# Копируем базу данных во временную папку на сервере:
+rsync ~/writefreely/backup/wf-bak-2026-10-11_21-24-29.db mark@mclang.ru:~/tmp/writefreely/writefreely.db
+ssh -t mark@mclang.ru "sudo cp ~/tmp/writefreely/writefreely.db /opt/writefreely/writefreely/writefreely.db"
+
+# На сервере возвращаем права пользователю writefreely:
+sudo chown writefreely:writefreely writefreely.db
+
+# Удаляем временный файл:
+ls ~/tmp/writefreely/
+</code></pre>
+
+
+<h3>Восстанавливаем шаблон collection-post.tmpl</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Убедимся, что временная папка на сервере существует:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+
+# Копируем шаблон во временную папку на сервер:
+rsync ~/writefreely/templates/collection-post.tmpl mark@mclang.ru:~/tmp/writefreely/
+ssh -t mark@mclang.ru "sudo cp ~/tmp/writefreely/collection-post.tmpl /opt/writefreely/writefreely/templates/"
+ssh -t mark@mclang.ru "sudo chown writefreely:writefreely /opt/writefreely/writefreely/templates/collection-post.tmpl"
+ssh -t mark@mclang.ru "rm ~/tmp/writefreely/collection-post.tmpl"
+</code></pre>
 
 <!-- Шаблон -->
 <!--

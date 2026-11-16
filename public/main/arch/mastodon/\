@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastodon First Installation</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/mastodon/">Вернуться назад</a>
+
+<h1>Mastodon First Installation</h1>
+
+<p style="margin-bottom: 0">Основные компоненты:</p>
+<ul style="margin-top: 0">
+   <li><strong>Ruby on Rails</strong> – Основная серверная часть;</li>
+   <li><strong>PostgreSQL</strong> – База данных;</li>
+   <li><strong>Redis</strong> – Очереди и кэширование;</li>
+   <li><strong>Node.js</strong> – Streaming API и компоненты интерфейса;</li>
+   <li><strong>Nginx</strong> – Веб-сервер и HTTPS;</li>
+   <li><strong>FFmpeg</strong> – Обработка мультимедиа.</li>
+</ul>
+
+<p style="margin-bottom: 0">Официальная документация <strong>Mastodon</strong> описывает несколько одновременно работающих компонентов:</p>
+<ul style="margin-top: 0; margin-bottom: 0">
+   <li>Puma – основной веб-сервер;</li>
+   <li>Sidekiq – обработка фоновых задач;</li>
+   <li>Streaming API – передача обновлений в реальном времени;</li>
+   <li>PostgreSQL – база данных;</li>
+   <li>Redis – кеш и домашние ленты.</li>
+</ul>
+<p style="margin-top: 0">Все они потребляют память независимо друг от друга. Так что <strong>Mastodon</strong> довольно прожорлив и не столько из-за количества пользователей, сколько из-за своей архитектуры. И рекомендация по оперативной памяти примерно такая: 2ГБ – на грани; 4ГБ – оптимально; 8ГБ – с запасом.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

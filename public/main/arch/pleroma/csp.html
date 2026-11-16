@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Security Policy</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/pleroma">Вернуться назад</a>
+
+<h1>Content Security Policy</h1>
+
+<p><strong>CSP</strong> (Content Security Policy) — это политика безопасности сайта. Сервер отправляет браузеру специальный HTTP-заголовок, который указывает, какие скрипты, стили, изображения и другие ресурсы разрешено загружать и выполнять.</p>
+
+<p style="margin: 0">Когда я захожу на только что установленные инстанс <strong>Pleroma</strong>, то вижу в <strong>DevTools</strong> в консоли в первой строчке такую ошибку:</p>
+<p style="margin: 0"><code style="background-color: #894648">Content-Security-Policy: The page’s settings blocked an inline script (script-src-elem) from being executed because it violates the following directive: “script-src 'self'”. Consider using a hash ('sha256-i6UVp+OjwgULV3tkCdG6v8F2aNgEf4Sp/SoeOwYsMHo=') or a nonce.</code></p>
+
+<p style="margin: 0">При этом браузер предлагает конкретный SHA-256-хэш: <i>sha256-i6UVp+OjwgULV3tkCdG6v8F2aNgEf4Sp/SoeOwYsMHo=</i></p>
+<p style="margin: 0">Это позволяет разрешить именно один конкретный встроенный скрипт, не открывая выполнение всех встроенных скриптов через 'unsafe-inline'.</p>
+
+<p style="margin-bottom: 0">В моём случае браузер получил заголовок примерно такого типа: <code style="background-color: #191919; padding: 0 8px;">Content-Security-Policy: upgrade-insecure-requests; script-src 'self'; connect-src 'self' blob: https://pleroma1.mclang.ru wss://pleroma1.mclang.ru https:; ...</code>. И в этом заголовке есть часть: <code style="background-color: #191919; padding: 0 8px">script-src 'self'</code>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Этот заголовок можно увидеть в ответе <strong>Pleroma</strong>, если обратиться к серверу:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -I https://pleroma1.mclang.ru
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверить заголовки политики безопасности инстанса:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -sI https://pleroma1.mclang.ru | grep -i content-security-policy
+</code></pre>
+
+<p style="margin: 0">Заголово CSP формирует <strong>Pleroma</strong> в файле: <strong><i>lib/pleroma/web/plugs/http_security_plug.ex</i></strong>. Именно в нём на строке 52 устанавливается <strong><i>content-security-policy</i></strong>.</p>
+<p style="margin: 0">Функция <strong><i>headers()</i></strong> добавляет заголовок, а <strong><i>csp_string()</i></strong> формирует его содержимое.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Вот фрагмент:</p>
+<pre style="margin-top: 6px"><code class="language-bash">script_src =
+  if @config_impl.get([:http_security, :allow_unsafe_eval]) do
+    if @config_impl.get([:env]) == :dev do
+      "script-src 'self' 'unsafe-eval'"
+    else
+      "script-src 'self' 'wasm-unsafe-eval'"
+    end
+  else
+    "script-src 'self'"
+  end
+</code></pre>
+<p>В моём случае используется ветка <code style="background-color: #191919; padding: 0 8px">script-src 'self'</code>. Она разрешает загружать <strong>JavaScript</strong> с собственного сайта, но запрещает встроенные скрипты (inline scripts). То есть, скрипты, которые находятся непосредственно внутри HTML-страницы.</p>
+<p style="margin-bottom: 6px">Вот пример, где JavaScript – прямо внутри HTML-элемента. Это тоже считается встроенным кодом и обычно блокируется такой политикой:</p>
+<pre style="margin-top: 6px"><code class="language-xml">&lt;button onclick="alert('Привет!')"&gt;Нажми&lt;/button&gt;
+</code></pre>
+
+
+<h3>Как убрать</h3>
+<p>В моём случае всё дело было в расширении <strong>uBlock Origin</strong>. Оно у меня включено в <strong>LibreWolf</strong> даже в приватном режиме. Если отключить это расширение, то ошибка пропадает.</p>
+<p>В <strong>Falkon</strong> вроде всё норм.</p>
+
+<p style="margin-bottom: 0">Помимо этого, ещё есть ошибки, которые сообщают о том, что не найдены файлы:</p>
+<ul style="margin-top: 0">
+   <li>https://pleroma1.mclang.ru/static/styles.custom.json</li>
+   <li>https://pleroma1.mclang.ru/static/stickers.json</li>
+   <li>https://pleroma1.mclang.ru/static/styles.custom.json</li>
+</ul>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

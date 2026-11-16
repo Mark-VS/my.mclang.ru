@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yggdrasil</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch">Вернуться назад</a>
+
+<h1>yggdrasil</h1>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Ставим yggdrasil:
+sudo pacman -S yggdrasil
+
+# Версия:
+yggdrasil -version
+
+# Проверяем что установилось:
+pacman -Ql yggdrasil
+</code></pre>
+
+<p>У меня в списке нет <strong><i>/etc/yggdrasil.conf</i></strong>. Значит, конфигурация ещё не создана.</p>
+<p>Документация Arch говорит, что /etc/yggdrasil.conf создаётся при запуске <strong><i>yggdrasil-default-config.service</i></strong>, либо при первом запуске <strong><i>yggdrasil.service</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Создаём конфигурационный файл:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl start yggdrasil-default-config.service
+</code></pre>
+
+<ul>
+   <li>Peers: [] – нет заданных исходящих подключений</li>
+   <li>Listen: [] – нет явно настроенных TCP/TLS-слушателей</li>
+   <li>MulticastInterfaces: Beacon: true, Listen: true – Разрешено обнаружение соседних узлов в локальных сетях</li>
+   <li>IfName: auto – Интерфейс TUN выбирается автоматически</li>
+   <li>GroupPassword: "" – Не задан пароль частной группы</li>
+   <li>NodeInfoPrivacy: false – Стандартная информация об узле может передаваться другим участникам по запросу</li>
+</ul>
+
+<p style="margin-bottom: 6px">Я добавил 4 пира:</p>
+<pre style="margin-top: 6px"><code class="language-bash">  Peers: [
+    tls://kursk.cleverfox.org:15015
+    tcp://kem.txlyre.website:1337
+    tcp://box.paulll.cc:13337
+    quic://ekb.itrus.su:7993
+  ]
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo systemctl start yggdrasil.service
+
+# Проверяем состояние службы:
+systemctl status yggdrasil.service
+
+# Проверяем подключённые пиры:
+sudo yggdrasilctl getPeers
+
+# Посмотреть информацию о своём узле:
+sudo yggdrasilctl getSelf
+
+# В выводе должен появиться интерфейс yggdrasil:
+ip -6 addr
+</code></pre>
+
+<p style="margin-bottom: 0">Приватный ключ хранится в конфигурационном файле <strong><i>/etc/yggdrasil.conf</i></strong> в самом начале файла. Он так и подписан: <strong>PrivateKey</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">А вот, чтобы посмотреть публичный ключ, а также IPv6 и ещё некоторую информацию о моём узле, то можно запустить команду (<strong><i>PublicKey</i></strong> вычисляется из <strong><i>PrivateKey</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo yggdrasilctl getPeers
+</code></pre>
+
+
+<h2>Бэкап</h2>
+
+<p style="margin-bottom: 6px">Сделать бэкап приватного ключа можно вот так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo yggdrasil -useconffile /etc/yggdrasil.conf -exportkey &gt; /home/mark/yggdrasil.key
+
+# И ограничим права:
+chmod 600 /home/mark/yggrasil.key
+</code></pre>
+
+<p style="margin-bottom: 6px">А можно просто скопировать весь конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo cp -a /etc/yggdrasil.conf /home/mark/yggdrasil.conf.backup
+sudo chown mark:mark /home/mark/yggdrasil.conf.backup
+chmod 600 /home/mark/yggdrasil.conf.backup
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Пингуем свой IPv6-адрес:
+ping -6 -c 4 203:de23:1fce:9a55:8cf8:58eb:2c78:2e61
+  # PING 203:de23:1fce:9a55:8cf8:58eb:2c78:2e61 (203:de23:1fce:9a55:8cf8:58eb:2c78:2e61) 56 data bytes
+  # 64 bytes from 203:de23:1fce:9a55:8cf8:58eb:2c78:2e61: icmp_seq=1 ttl=64 time=0.056 ms
+  # 64 bytes from 203:de23:1fce:9a55:8cf8:58eb:2c78:2e61: icmp_seq=2 ttl=64 time=0.021 ms
+  # ...
+
+# Пингуем адрес одного из подключённых пиров:
+# (при запущенном HAPP не пингуется)
+ping -6 -c 4 202:fff0::445a:d2e5:64c:3d48
+  # PING 202:fff0::445a:d2e5:64c:3d48 (202:fff0::445a:d2e5:64c:3d48) 56 data bytes
+  # 64 bytes from 202:fff0::445a:d2e5:64c:3d48: icmp_seq=1 ttl=64 time=17.3 ms
+  # 64 bytes from 202:fff0::445a:d2e5:64c:3d48: icmp_seq=2 ttl=64 time=18.0 ms
+  # ...
+</code></pre>
+
+<p style="margin-bottom: 6px">Проблема с Happ:</p>
+<pre style="margin-top: 6px"><code class="language-bash">ip -6 rule show
+  # 0:	from all lookup local
+  # 9000:	from all unreachable
+  # 32766:	from all lookup main
+</code></pre>
+<p><strong>9000: from all unreachable</strong> – проблема здесь! Это правило предписывает Linux возвращать ошибку <strong><i>Network is unreachable</i></strong> для трафика, который доходит до приоритета 9000. Поскольку правило <strong><i>lookup main</i></strong> имеет приоритет 32766, оно не успевает примениться.</p>
+
+<p style="margin-bottom: 0">Список адресов:</p>
+<ul style="margin-top: 0">
+   <li><a href="https://yggdrasil-network.github.io/services.html">https://yggdrasil-network.github.io/services.html</a></li>
+</ul>
+
+<p style="margin-bottom: 0">Публичные пиры:</p>
+<ul style="margin-top: 0">
+   <li><a href="http://[200:2688:699a:ce30:5897:cd3d:f999:8782]/">http://[200:2688:699a:ce30:5897:cd3d:f999:8782]/</a> – Public Peers</li>
+   <li><a href="http://[301:5ef6:a4de:abf9::dead:face]/">[301:5ef6:a4de:abf9::dead:face]</a> (<a href="http://publicpeer.i2p/">publicpeer.i2p</a>)</li>
+   <li><a href="http://[300:eba4:231:980c::dead:face]/">[300:eba4:231:980c::dead:face]</a></li>
+</ul>
+
+<p style="margin-bottom: 0">Крупные проекты:</p>
+<ul style="margin-top: 0">
+   <li><a href="http://portal.ygg/">portal.ygg</a></li>
+   <li><a href="http://[300:ffb4:8643:34d8::f1fa:0]/">[300:ffb4:8643:34d8::f1fa:0]</a> – SearXNG</li>
+   <li><a href="http://[200:b48d:469e:c7c7:3e13:c41d:ba4d:d2b8]/">[200:b48d:469e:c7c7:3e13:c41d:ba4d:d2b8]</a> – Mimir</li>
+</ul>
+
+<p style="margin-bottom: 0">Коммьюнити:</p>
+<ul style="margin-top: 0">
+   <li><a href="http://[202:cbff:6f7f:fa95:c6e9:3768:a96e:d1c8]/">202:cbff:6f7f:fa95:c6e9:3768:a96e:d1c8]</a> – tilde.horse (ygg, i2p, onion, gemini, matrix)</li>
+</ul>
+
+<p style="margin-bottom: 0">IPv6-адреса:</p>
+<ul style="margin-top: 0">
+   <li><a href="http://[21e:a51c:885b:7db0:166e:927:98cd:d186]/">http://[21e:a51c:885b:7db0:166e:927:98cd:d186]/</a></li>
+   <li><a href="http://[222:a8e4:50cd:55c:788e:b0a5:4e2f:a92c]/">http://[222:a8e4:50cd:55c:788e:b0a5:4e2f:a92c]/</a> – How to YGG</li>
+   <li><a href="http://[21a:34aa:c782:3ad2:1bf8:73f8:141:66e8]/">http://[21a:34aa:c782:3ad2:1bf8:73f8:141:66e8]/</a> – Yggdrasil форум</li>
+   <li><a href="http://[300:8101:e046:d91e::5]/">http://[300:8101:e046:d91e::5]/</a> – yggdrasil project homepage</li>
+   <li><a href="http://[321:c99a:91a1:cd2c::1]/">http://[321:c99a:91a1:cd2c::1]/</a> – i2pd homepage</li>
+   <li><a href="http://[200:b76:1d2f:b7a9:ef98:97d3:59e0:adbd]:1111/">http://[200:b76:1d2f:b7a9:ef98:97d3:59e0:adbd]:1111/</a> – Element</li>
+   <li><a href="http://[200:43d4:4b52:b201:5a5d:45a7:30b4:ebf4]/">http://[200:43d4:4b52:b201:5a5d:45a7:30b4:ebf4]/</a> – Yggdrasil Minecraft Server Activity Tracker</li>
+   <li><a href="http://[321:c99a:91a1:cd2c::18]/forum/index.php">http://[321:c99a:91a1:cd2c::18]/forum/index.php</a> – зеркало rutracker.org</li>
+   <li><a href="http://[321:c99a:91a1:cd2c::16]/">http://[321:c99a:91a1:cd2c::16]/</a> – Rutor</li>
+   <li><a href="http://[202:68d0:f0d5:b88d:1d1a:555e:2f6b:3148]:6969/">http://[202:68d0:f0d5:b88d:1d1a:555e:2f6b:3148]:6969/</a> – какой-то βtracker</li>
+   <li><a href="http://[316:a486:ec13:8e37:128::10]/">http://[316:a486:ec13:8e37:128::10]/</a> – flibusta</li>
+
+   <li><a href="http://[30d:4ebe:12fa:d8fc::2024]/">http://[30d:4ebe:12fa:d8fc::2024]/</a> – Введение в программирование на Go</li>
+   <li><a href="http://[321:4f6f:8b5f:d4d6::dead:b0ad]/home/index.html">http://[321:4f6f:8b5f:d4d6::dead:b0ad]/home/index.html</a> – что-то рашкинское</li>
+   <li><a href="http://[200:b55c:4e16:578f:9956:b6b7:99cb:55df]/">http://[200:b55c:4e16:578f:9956:b6b7:99cb:55df]/</a> – Личный сайт XXXX Pro — Web-разработчика, сторонника IndieWeb, идеалиста Интернет</li>
+   <li><a href="http://[200:a359:9640:ec0a:7d4:8e50:285e:1403]/">http://[200:a359:9640:ec0a:7d4:8e50:285e:1403]/</a> – Личный сайт Павла Гарина / Pavel Garin's personal website / RU|EN</li>
+   <li><a href="http://[200:362:5cac:6d5c:53d4:dad1:d8f:9537]/">http://[200:362:5cac:6d5c:53d4:dad1:d8f:9537]/</a> – lain.moscow</li>
+   <li><a href="http://[302:dead:aada:7e69::1]/">http://[302:dead:aada:7e69::1]/</a> – Русская тоска: пакеты сброшены. Всё идёт по RST. Хроника DPiнессанса Рунета.</li>
+   <li><a href="http://[300:c0:ffee:a481::c89]/">http://[300:c0:ffee:a481::c89]/</a> – Личный сайт OverLessski. Matrix-сервер overless.ygg с федерацией и Element Call.</li>
+   <li><a href="http://[300:d858:ddda:9b33::1]/">http://[300:d858:ddda:9b33::1]/</a> – cyberwolf DevSecOps blog</li>
+   <li>---</li>
+   <li><a href="http://[203:75b7:45af:ecca:d641:cd42:38dc:4788]/">Tristan B. Kildaire</a> (<a href="http://ygg.deavmi.assigned.network/">обычная ссылка</a>)</li>
+   <li><a href="http://[203:75b7:45af:ecca:d641:cd42:38dc:4788]/projects/crxn/">crxn</a></li>
+</ul>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

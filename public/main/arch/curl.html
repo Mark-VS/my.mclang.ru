@@ -37,6 +37,18 @@ curl -4 -I -v https://youtube.com
    <li>-I – запросить только HTTP-заголовки, без загрузки содержимого страницы</li>
 </ul>
 
+<p style="margin-bottom: 6px">Отправляем запрос на сервер по https, игнорируя сертификат:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -k https://akkoma1.mclang.ru/
+</code></pre>
+
+<p style="margin-bottom: 6px">Пример скачивания с <strong>Github</strong>'а:</p>
+<pre style="margin-top: 6px; margin-bottom: 2px"><code class="language-bash">curl -LO https://github.com/GenkaOk/happ-cli/releases/download/v0.0.4/happ-linux-amd64.tar.gz
+</code></pre>
+<ul style="margin-top: 2px">
+   <li>-L – переходить по перенаправлениям Github;</li>
+   <li>-O – сохарнить файл под исходным именем.</li>
+</ul>
+
 <h2>getent</h2>
 
 <p style="margin-bottom: 6px"></p>
@@ -44,6 +56,57 @@ curl -4 -I -v https://youtube.com
 </code></pre>
 <p style="margin-top: 6px">Здесь <strong>getent</strong> обращается к системному механизму разрешения имён (NSS), то есть фактически проверяет, какой IP-адрес система сама получит для ютуб.</p>
 
+<p style="margin-bottom: 6px">запрос гпт к посту akkoma:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -sS -H 'Accept: application/json' \
+  'https://akkoma1.mclang.ru/api/v1/statuses/BBmMnRJNJ0gjqC0pFJ' \
+  | jq '.media_attachments[] | {
+      type,
+      url,
+      preview_url,
+      remote_url,
+      meta
+    }'
+  # {
+  #   "type": "video",
+  #   "url": "https://peertest.mclang.ru/static/web-videos/162dfcf0-68d3-4b31-9b41-62384d3f6a78-1080.mp4",
+  #   "preview_url": "https://peertest.mclang.ru/static/web-videos/162dfcf0-68d3-4b31-9b41-62384d3f6a78-1080.mp4",
+  #   "remote_url": "https://peertest.mclang.ru/static/web-videos/162dfcf0-68d3-4b31-9b41-62384d3f6a78-1080.mp4",
+  #   "meta": {
+  #     "original": {
+  #       "width": 1920,
+  #       "aspect": 1.7777777777777777,
+  #       "height": 1080
+  #     }
+  #   }
+  # }
+</code></pre>
+
+<h3>Тихий режим</h3>
+
+<p style="margin-bottom: 6px">Допустим, я хочу посмотреть заголовки политики безопасности у своего инстанса <strong>Pleroma</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 2px"><code class="language-bash">curl -sI https://pleroma1.mclang.ru | grep -i content-security-policy
+
+# А можно ещё добавить и -S (--show-error):
+curl -sSI https://pleroma1.mclang.ru | grep -i content-security-policy
+</code></pre>
+
+<ul style="margin-top: 2px; margin-bottom: 2px">
+   <li>-s (--silent) – подавляет диагностический вывод и индикатор прогресса. Оставляет только полученные данные;</li>
+   <li>-S (--show-error) – показывать сообщения об ошибках, даже если включён <strong><i>-s</i></strong>.</li>
+   <li>-I (--head) – запрашивает только заголовки</li>
+</ul>
+<p style="margin-top: 2px; margin-bottom: 0">Таким образом, мы получим только заголовки(без всякой ненужной шелухи), но при этом если будут ошибки, они тоже отобразятся.</p>
+
+
+<h3>Прокси</h3>
+
+<p style="margin-bottom: 6px">Пример скачивания фронтенда Pleroma-FE через прокси:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -fL --retry 3 --retry-all-errors \
+  --connect-timeout 15 --max-time 180 \
+  --proxy http://127.0.0.1:10809 \
+  -o akkoma-fe.zip \
+  https://akkoma-updates.s3-website.fr-par.scw.cloud/frontend/stable/akkoma-fe.zip
+</code></pre>
 
 <!-- Шаблон -->
 <!--

@@ -179,7 +179,7 @@ sudo chmod 640 /etc/letsencrypt/archive/mclang.ru/privkey1.pem
 <p>То есть, <strong>Certbot</strong> умеет расширять существующий сертификат, добавляя новые домены. Удалять старый сертификат и пересоздавать его не нужно. Но <strong>ОБРАТИ ВНИМАНИЕ</strong>: <strong>нужно перечислить все домены, которые должны остаться в сертификате</strong>, а не только новые.</p>
 
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">sudo certbot --nginx \
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo certbot --nginx \
   -d tupniki.ru -d www.tupniki.ru \
   -d lala.tupniki.ru -d www.lala.tupniki.ru \
   -d gts.tupniki.ru -d www.gts.tupniki.ru
@@ -203,6 +203,18 @@ sudo chmod 640 /etc/letsencrypt/archive/mclang.ru/privkey1.pem
 
 # Выбираем E – expand
 </code></pre>
+
+<p style="margin-top: 4px; margin-bottom: 0">Почему-то, обновив старый сертификат, у меня создался новый: <strong><i>mclang.ru-0001</i></strong>.</p>
+<p style="margin-top: 0"><strong>Certbot</strong> решил придумать именно такое имя.</p>
+
+<p style="margin-bottom: 6px">Чтобы не гадать, какое имя <strong>Certbot</strong> решит присвоить сертификату в этот раз, лучше указать имя явно:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo certbot --nginx \
+  --cert-name mclang.ru-0002 \
+  -d mclang.ru \
+  -d www.mclang.ru \
+  -d peertest.mclang.ru \
+  -d www.peertest.mclang.ru \
+  </code></pre>
 
 <p style="margin-bottom: 6px">Или так (имя сертификата можно указать через флаг <strong><i>--cert-name</i></strong>):</p>
 <pre style="margin-top: 6px"><code class="language-bash">sudo certbot --nginx \

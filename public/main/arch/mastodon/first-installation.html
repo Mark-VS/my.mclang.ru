@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastodon First Installation</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/mastodon/">Вернуться назад</a>
+
+<h1>Mastodon First Installation</h1>
+
+<p style="margin-bottom: 0">Основные компоненты:</p>
+<ul style="margin-top: 0">
+   <li><strong>Ruby on Rails</strong> – Основная серверная часть;</li>
+   <li><strong>PostgreSQL</strong> – База данных;</li>
+   <li><strong>Redis</strong> – Очереди и кэширование;</li>
+   <li><strong>Node.js</strong> – Streaming API и компоненты интерфейса;</li>
+   <li><strong>Nginx</strong> – Веб-сервер и HTTPS;</li>
+   <li><strong>FFmpeg</strong> – Обработка мультимедиа.</li>
+</ul>
+
+<p style="margin-bottom: 0">Официальная документация <strong>Mastodon</strong> описывает несколько одновременно работающих компонентов:</p>
+<ul style="margin-top: 0; margin-bottom: 0">
+   <li><strong>Puma</strong> – основной веб-сервер;</li>
+   <li><strong>Sidekiq</strong> – обработка фоновых задач;</li>
+   <li><strong>Streaming API</strong> – передача обновлений в реальном времени;</li>
+   <li><strong>PostgreSQL</strong> – база данных;</li>
+   <li><strong>Redis</strong> – кеш и домашние ленты.</li>
+</ul>
+<p style="margin-top: 0">Все они потребляют память независимо друг от друга. Так что <strong>Mastodon</strong> довольно прожорлив – и не столько из-за количества пользователей, сколько из-за своей архитектуры. И рекомендация по оперативной памяти примерно такая: 2ГБ – на грани; <strong>4ГБ</strong> – оптимально; 8ГБ – с запасом.</p>
+
+<p style="margin-bottom: 0">В <strong>Mastodon</strong> есть специальная настройка: <code style="background-color: #191919; padding: 0 8px">SINGLE_USER_MODE=true</code>. Она автоматически отключает регистрацию новых пользователей и перенаправляет главную страницу на профиль первого пользователя.</p>
+<p style="margin-top: )">И ещё. <strong>Mastodon</strong> довольно активно кэширует медиафайлы с других серверов <strong><i>Fediverse</i></strong> и если я подписан на сотни аккаунтов, локальное хранилище может постепенно разрастаться. Поэтому лучше не экономить на диске: 40–60 ГБ для начала – разумный выбор.</p>
+
+
+<p>Технически <strong>Mastodon</strong> использует <strong>Redis</strong>-протокол, который поддерживается <strong>Valkey</strong>. Но официальная инструкция <strong>Mastodon</strong> предусматривает <strong>Redis</strong>.</p>
+
+<p style="margin-bottom: 0">Для <strong>Mastodon</strong> нам понадобятся дополнительные системные библиотеки и инструменты:</p>
+<ul style="margin-top: 0">
+   <li><strong>ImageMagick</strong> или <strong>libvips</strong> для обработки изображений;</li>
+   <li><strong>FFmpeg</strong> для обработки видео;</li>
+   <li>библиотеки для сборки <strong>Ruby</strong> и <strong>gem</strong>-пакетов;</li>
+   <li><strong>rbenv</strong> и <strong>ruby-build</strong> для установки <strong>Ruby</strong>;</li>
+   <li><strong>Yarn</strong> через <strong>Corepack</strong>.</li>
+</ul>
+
+<h3>Проверка</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+ruby -v
+
+node -v
+
+ffmpeg -version | head -n 1
+
+# PostrgreSQL:
+psql --version
+
+# Фиг знает, что проверяет:
+pg_lsclusters
+
+# Проверяем redis:
+redis-server --version
+# ... или valkey:
+valkey-server --version
+
+corepack --version
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo apt update
+
+sudo apt install -y \
+  curl \
+  wget \
+  gnupg \
+  apt-transport-https \
+  ca-certificates \
+  build-essential \
+  git \
+  libssl-dev \
+  libyaml-dev \
+  libreadline-dev \
+  zlib1g-dev \
+  libffi-dev \
+  libpq-dev \
+  libxml2-dev \
+  libxslt1-dev \
+  libprotobuf-dev \
+  protobuf-compiler \
+  libvips-dev \
+  imagemagick \
+  ffmpeg \
+  redis-tools
+</code></pre>
+<p style="margin-top: 4px"><strong>redis-tools</strong> пригодится для проверки подключения к <strong>Valkey</strong> командой <strong>redis-cli</strong>.</p>
+
+<p style="margin-bottom: 6px">Обновим <strong>Node.js</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">node -v
+  # v22.23.4
+
+npm -v
+  # 10.9.9
+
+# Обновляем Node.js:
+
+# Создаём папку:
+install -d -m 0755 /etc/apt/keyrings
+# получаем и сохраняем GPG-ключ:
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+
+sudo chmod 644 /etc/apt/keyrings/nodesource.gpg
+
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" \
+  | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+sudo apt update
+sudo apt install -y nodejs
+
+# Проверяем:
+node -v
+  # v24.22.2
+npm -v
+  # 11.19.1
+</code></pre>
+
+<ul style="margin-top: 4px; margin-bottom: 4px">
+   <li>curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key – скачиваем файл по указанному URL;</li>
+   <li>sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg – GPG получает скачанные данные через |, преобразует ключ из текстового формата ASCII-armored в бинарный формат OpenPGP и записывает его в файл: <code style="background-color: #191919; padding: 0 8px">/etc/apt/keyrings/nodesource.gpg</code></li>
+   <li>deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main – репозиторий бинарных пакетов. Здесь мы указываем URL-адрес репозитория, а в квадртных скобках с помощью параметра <strong><i>signed-by</i></strong> передаём ключ, которым проверяется подпись этого репозитория; <strong><i>nodistro</i></strong> – означает, что нет привязки к конкретном дистрибутиву – нам не нужно писать "trixie", например. <strong><i>main</i></strong> – в структуре репозитория <strong>APT</strong> после названия дистрибутива указывается название раздела, в котором находятся пакеты. В данном случае <strong>NodeSource</strong> использует раздел с названием <strong>main</strong>. Это не означает, что мы подключили главный репозиторий <strong>Debian</strong> или его раздел <strong>main</strong>. Это просто название каталога/раздела внутри репозитория <strong>NodeSource</strong>.</li>
+   <li>А сама команда <strong><i>tee</i></strong> записывает полученный через конвейер текст в файл: <code style="background-color: #191919; padding: 0 8px">/etc/apt/sources.list.d/nodesource.list</code>. Здесь мы используем <strong><i>tee</i></strong>, а не <strong><i>&gt;</i></strong>, – чтобы сохранить выполнение от <strong><i>sudo</i></strong>.</li>
+</ul>
+
+<p style="margin-top: 4px"><strong>Важное замечание</strong>: Мы не добавили <strong>NodeSource</strong> как источник доверия ко всем пакетам <strong>Debian</strong>. Благодаря <strong><i>signed-by</i></strong> этот ключ привязан именно к данному репозиторию. Это более правильный подход, чем добавлять сторонний ключ в глобальное хранилище доверенных ключей <strong>APT</strong>.</p>
+
+<p style="margin-bottom: 6px">Доустановим ещё вот эти системные пакеты:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install -y \
+  autoconf \
+  bison \
+  file \
+  pkg-config \
+  libgdbm-dev \
+  libidn-dev \
+  libicu-dev \
+  libjemalloc-dev \
+  libvips-tools
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo corepack enable
+yarn -v
+</code></pre>
+
+
+<h3>Создаём пользователя и Скачиваем Mastodon</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash"># Сначала проверим, нет ли пользователя mastodon в системе:
+getent passwd mastodon
+
+# Создаём пользователя mastodon:
+sudo adduser --disabled-login --gecos "Mastodon" mastodon
+
+# Проверим:
+getent passwd mastodon
+mastodon:x:1002:1002:Mastodon:/home/mastodon:/usr/sbin/nologin
+
+# В конце видно: /usr/sbin/nologin. Это нам помешает зайти от имени пользователя,
+# Поэтому поменяем на /bin/bash:
+sudo usermod -s /bin/bash mastodon
+
+sudo -iu mastodon
+git clone https://github.com/mastodon/mastodon.git live
+cd live
+cat .ruby-version
+  # 4.0.9
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li>--disabled-login – запрещает вход по паролю;</li>
+   <li>--gecos "Mastodon" – задаёт описание учётной записи;</li>
+</ul>
+
+<p>Теперь мы получили версию ruby: <code style="background-color: #191919; padding: 0 8px">4.0.9</code>.</p>
+
+<ul>
+   <li><strong>rbenv</strong> – управляет версиями <strong>Ruby</strong>;</li>
+   <li><strong>ruby-build</strong> – отвечает за скачивание исходников и компиляцию конкретных версий.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Ставим <strong>rbenv</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+
+#  Добавим rbenv в PATH и подключим его к Bash:
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' &gt;&gt; ~/.bashrc
+echo 'eval "$(rbenv init -)"' &gt;&gt; ~/.bashrc
+
+source ~/.bashrc
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Ставим <strong>ruby-build</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)/plugins/ruby-build"
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">rbenv --version
+  # rbenv 1.3.2-25-g07e9b1e
+
+rbenv install --list | grep 4.0.9
+  # 4.0.9
+</code></pre>
+<p style="margin-top: 4px">Отлично. <strong>rbenv</strong> установлен и видит нужную версию.</p>
+
+<p style="margin-bottom: 6px">Всё ещё находясь под пользователем <strong><i>mastodon</i></strong>, запускаем компиляцию:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">RUBY_CONFIGURE_OPTS=--with-jemalloc rbenv install 4.0.9
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li><code style="background-color: #191919; padding: 0 8px">RUBY_CONFIGURE_OPTS</code> передаёт дополнительные параметры сборщику <strong>Ruby</strong>;</li>
+   <li><code style="background-color: #191919; padding: 0 8px">--with-jemalloc</code> включает использование <strong>jemalloc</strong> — альтернативного менеджера памяти;</li>
+   <li><code style="background-color: #191919; padding: 0 8px">rbenv install 4.0.9</code> скачивает исходники <strong>Ruby</strong> и компилирует их.</li>
+</ul>
+
+<p style="margin-bottom: 6px">После компиляции выполним:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Укажем rbenv какую версию Ruby использовать по умолчанию:
+rbenv global 4.0.9
+
+# Проверяем:
+ruby -v
+gem -v
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверить выбранную версию:
+rbenv version
+
+# Посмотреть путь к исполняемому файлу:
+which ruby
+</code></pre>
+
+
+
+<p style="margin-bottom: 6px">Убедимся, что мы работаем от имени <strong>mastodon</strong>'а, в каталоге: <strong><i>~/home/mastodon/live</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">whoami
+  # mastodon
+
+pwd
+  # /home/mastodon/live
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем версию <strong>Bundler</strong>, с помощью которой собран проект:</p>
+<pre style="margin-top: 6px"><code class="language-bash">grep -A 2 'BUNDLED WITH' Gemfile.lock
+  # BUNDLED WITH
+  #   4.0.18
+
+# Устанавливаем эту версию:
+gem install bundler -v 4.0.18
+
+# Проверяем:
+bundle -v
+  # 4.0.18
+</code></pre>
+
+<p style="margin-bottom: 6px">Устанавливаем gems (все зависимости) (всё от имени <strong>mastodon</strong>):</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">bundle install
+</code></pre>
+<p style="margin-top: 4px">Эта команда прочитает <strong><i>Gemfile</i></strong> и <strong><i>Gemfile.lock</i></strong>, скачает необходимые библиотеки и установит их версии, зафиксированные проектом.</p>
+
+<p style="margin-bottom: 6px">Теперь установим <strong>JavaScript</strong>-зависимости. Всё также от имени <strong>mastodon</strong> выполняем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">yarn install --immutable
+  # ! Corepack is about to download https://repo.yarnpkg.com/4.18.1/packages/yarnpkg-cli/bin/yarn.js
+  # ? Do you want to continue? [Y/n] 
+
+  # скачиваем...
+
+# Проверяем ещё раз:
+yarn -v
+yarn install --immutable
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё в порядке, выходим из окружения пользователя <strong>mastodon</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">exit
+</code></pre>
+
+
+<h3>PostgreSQL</h3>
+
+<p style="margin-bottom: 6px">Проверим, какие у нас есть роли:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u postgres psql -c "\du"
+
+# Войдём в интерактивную консоль psql:
+sudo -u postgres psql
+  # ...
+</code></pre>
+
+<p style="margin-bottom: 6px"><strong>psql</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-pgsql">-- создаём отдельную роль "mastodon" с правом создавать базы данных:
+CREATE USER mastodon CREATEDB;
+
+-- создаём базу данных и назначаем её владельцем пользователя "mastodon":
+CREATE DATABASE mastodon_production OWNER mastodon;
+
+-- выходим из консоли:
+\q
+</code></pre>
+
+
+<h3>redis</h3>
+
+<p>Теперь нужно разобраться с <strong>Valkey</strong> — совместимой с <stong>Redis</strong> базой, которую Mastodon использует для очередей задач и кэширования.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Какие базы сейчас содержат данные:
+redis-cli -h 127.0.0.1 -p 6379 INFO keyspace
+  # # Keyspace
+  # db0:keys=125,expires=11,avg_ttl=1156536618
+  # db1:keys=190,expires=0,avg_ttl=0
+
+# Сколько логических баз доступно:
+redis-cli -h 127.0.0.1 -p 6379 CONFIG GET databases
+  # 1) "databases"
+  # 2) "16"
+</code></pre>
+
+<p><strong>db0</strong> и <strong>db1</strong> заняты. Для <strong>Mastodon</strong> выделим <strong>db2</strong>.</p>
+<p>Теперь нужно будет указать <strong>Mastodon</strong>'у адрес <strong>Valkey</strong>: <code style="background-color: #191919; padding: 0 8px">redis://127.0.0.1:6379/2</code>. Последняя цифра <strong><i>2</i></strong> – номер логической базы данных.</p>
+
+<p style="margin-bottom: 6px">Опять переходим в пользователя и каталог <strong>Mastodon</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -iu mastodon
+cd live
+</code></pre>
+
+<p style="margin-bottom: 6px">Затем проверим, какие переменные окружения предусмотрены шаблоном конфигурации:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">grep -E '^(LOCAL_DOMAIN|REDIS_URL|DB_HOST|DB_NAME|DB_USER|DB_PASS|SECRET_KEY_BASE|OTP_SECRET)=' .env.production.sample
+  # LOCAL_DOMAIN=example.com
+  # DB_HOST=/var/run/postgresql
+  # DB_USER=mastodon
+  # DB_NAME=mastodon_production
+  # DB_PASS=
+  # SECRET_KEY_BASE=
+</code></pre>
+<p style="margin-top: 4px"><code style="background-color: #191919; padding: 0 8px">DB_USER</code> и <code style="background-color: #191919; padding: 0 8px">DB_NAME</code> уже совпадают с созданными ролью и базой данных. Пароль <strong>PostgreSQL</strong> мы не задавали, поэтому <code style="background-color: #191919; padding: 0 8px">DB_PASS</code> пока оставим пустым.</p>
+<p style="margin-top: 0; margin-bottom: 0">Теперь для <strong>Mastodon</strong> настроим:</p>
+<ul style="margin-top: 0">
+   <li>домен mastotest.mclang.ru;</li>
+   <li><strong>PostgreSQL</strong> через локальный Unix-сокет;</li>
+   <li><strong>Valkey</strong> через 127.0.0.1:6379, база 2.</li>
+</ul>
+
+<h3>Конфигурационный файл:</h3>
+<p style="margin-bottom: 6px">От имени <strong>mastodon</strong>, находять в <strong><i>~/live</i></strong>, выполняем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cp .env.production.sample .env.production
+chmod 600 .env.production
+</code></pre>
+
+<h3>Секретный ключ</h3>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">RAILS_ENV=production bundle exec rails secret
+</code></pre>
+<p style="margin-top: 4px">Команда выведет длинную случайную строку. Скопируем её временно в редактор — она понадобится для SECRET_KEY_BASE. Никому её не отправляем.</p>
+
+<h3>Сгенерирем ключи Web Push</h3>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">RAILS_ENV=production bundle exec rails mastodon:webpush:generate_vapid_key
+</code></pre>
+<p style="margin-top: 4px">Команда выведет два значения: публичный и приватный ключи VAPID. Они нужны для push-уведомлений браузера.</p>
+
+
+<p style="margin-bottom: 6px">Теперь открываем файл <strong><i>.env.production</i></strong> и вносим туда:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">LOCAL_DOMAIN=mastotest.mclang.ru
+
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_DB=2
+
+DB_HOST=/var/run/postgresql
+DB_USER=mastodon
+DB_NAME=mastodon_production
+DB_PASS=
+DB_PORT=5432
+
+...
+
+SECRET_KEY_BASE=
+
+...
+
+VAPID_PRIVATE_KEY=
+VAPID_PUBLIC_KEY=
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 0">По сути, я добавил только "LOCAL_DOMAIN=mastotest.mclang.ru" и "REDIS_DB=2"</p>
+<p style="margin-top: 0">И ключи.</p>
+
+
+
+<p style="margin-bottom: 6px">А теперь ГПТ говрит что:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">REDIS_HOST=127.0.0.1 
+REDIS_PORT=6379
+REDIS_DB=2
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 6px">нужно заменить на:</p>
+<pre style="margin-top: 6px"><code class="language-bash">REDIS_URL=redis://127.0.0.1:6379/2
+</code></pre>
+
+<h3>Проверяем:</h3>
+<p style="margin-bottom: 6px">Проверяем доступ к базе данных PostgreSQL:</p>
+<pre style="margin-top: 6px"><code class="language-bash">psql -h /var/run/postgresql -U mastodon -d mastodon_production -c 'SELECT current_database();'
+  #   current_database   
+  # ---------------------
+  #  mastodon_production
+  # (1 row)
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Проверяем доступность выбранной базы <strong>Valkey</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">redis-cli -h 127.0.0.1 -p 6379 -n 2 PING
+  # PONG
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Теперь можно подготовить структуру базы Mastodon. Выполняем всё так же от юзера <strong>mastodon</strong>, из <strong><i>~/live/</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">RAILS_ENV=production bundle exec rails db:setup
+
+  # I, [2026-11-04T21:13:43.628401 #3506]  INFO -- : [dotenv] Loaded .env.production
+  # 
+  # Mastodon now requires that these variables are set:
+  # 
+  #   - ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
+  #   - ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+  #   - ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
+  # 
+  # Run `bin/rails db:encryption:init` to generate new secrets and then assign the environment variables.
+  # Do not change the secrets once they are set, as doing so may cause data loss and other issues that will be difficult or impossible to recover from.
+</code></pre>
+<p><strong>Mastodon 4.7.5</strong> требует ещё три секретных ключа для встроенного шифрования данных <strong>Active Record</strong>.</p>
+<p><strong>Rails</strong> сам подсказывает нужную команду. Выполним её, а затем добавим полученные значения в <strong><i>.env.production</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Выполняем эту команду:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">RAILS_ENV=production bin/rails db:encryption:init
+</code></pre>
+<p style="margin-top: 4px">Команда выдаст нам три ключа. Добавим их в <strong><i>.env.production</i></strong>.</p>
+
+
+
+<p style="margin-bottom: 6px">Ещё раз пробуем выполнить:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">RAILS_ENV=production bundle exec rails db:setup
+  # I, [2026-11-04T21:20:57.022914 #3838]  INFO -- : [dotenv] Loaded .env.production
+  # Database 'mastodon_production' already exists
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 0">Здесь мы получили сообщение о том, что db:setub попытался создать базу данных, которую мы уже создали вручную. Не нужно её удалять и запускать db:setub повторно.</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">В нашем случае просто нужно выполнить миграции. Эта команда создаст необходимые таблицы и применит миграции к уже существующей базе. Она не удаляет саму базу:</p>
+<pre style="margin-top: 6px"><code class="language-bash">RAILS_ENV=production bundle exec rails db:migrate
+  # I, [2026-11-04T21:24:35.358414 #3998]  INFO -- : [dotenv] Loaded .env.production
+</code></pre>
+
+<h2>Компиляция статики</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+RAILS_ENV=production bundle exec rails assets:precompile
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё нормально, выйдем из пользователя <strong>mastodon</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">exit
+</code></pre>
+
+<h2>Nginx</h2>
+
+<p style="margin-bottom: 6px">У <strong>Mastodon</strong> уже есть шаблон готового <strong>Nginx</strong>-конфига. Поэтому сделаем бэкап нашего и скопируем <strong>Mastodon</strong>'овский:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo cp /etc/nginx/sites-available/mastotest.mclang.ru /etc/nginx/sites-available/mastotest.mclang.ru.bak
+sudo cp /home/mastodon/live/dist/nginx.conf \
+  /etc/nginx/sites-available/mastotest.mclang.ru
+</code></pre>
+
+<p style="margin-bottom: 6px">Заменим на свои:</p>
+<pre style="margin-top: 6px"><code class="language-nginx"># в двух местах:
+server_name: mastotest.mclang.ru
+
+ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+
+# Ещё в шаблоне Mastodon вот такая запись:
+listen 443 ssl http2;
+listen [::]:443 ssl http2;
+
+# Но Nginx ругается на неё как на устаревшую
+# и рекомендует заменить на:
+listen 443 ssl;
+listen [::]:443 ssl;
+http2 on;
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверяем конфиг и перезагружаем <strong>Nginx</strong>, если всё в порядке:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo nginx -t
+
+sudo systemctl reload nginx
+</code></pre>
+
+
+
+<h2>Службы</h2>
+
+
+<p style="margin-bottom: 6px">Скопируем четыре файла: три основные службы и шаблонную службу потокового сервера.</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo cp /home/mastodon/live/dist/mastodon-web.service /etc/systemd/system/
+sudo cp /home/mastodon/live/dist/mastodon-sidekiq.service /etc/systemd/system/
+sudo cp /home/mastodon/live/dist/mastodon-streaming.service /etc/systemd/system/
+sudo cp /home/mastodon/live/dist/mastodon-streaming@.service /etc/systemd/system/
+
+# говорим systemd перечитать новые файлы службы:
+sudo systemctl daemon-reload
+
+# И проверяем, видит ли он их:
+systemctl list-unit-files | grep mastodon
+  # mastodon-sidekiq.service                     disabled        enabled
+  # mastodon-streaming.service                   disabled        enabled
+  # mastodon-streaming@.service                  disabled        enabled
+  # mastodon-web.service                         disabled        enabled
+</code></pre>
+
+<h3>Проверяем права</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+ls -ld /home/mastodon
+  # drwx------ 8 mastodon mastodon 4096 Nov  4 21:19 /home/mastodon
+
+sudo ls -ld /home/mastodon/live
+  # drwxrwxr-x 24 mastodon mastodon 4096 Nov  4 21:19 /home/mastodon/live
+
+sudo ls -ld /home/mastodon/live/public
+  # drwxrwxr-x 9 mastodon mastodon 4096 Nov  4 21:30 /home/mastodon/live/public
+
+sudo ls -ld /home/mastodon/live/tmp
+  # drwxrwxr-x 3 mastodon mastodon 4096 Nov  4 20:52 /home/mastodon/live/tmp
+
+# Всё выглядит нормально
+</code></pre>
+
+<p style="margin-bottom: 6px">Включим автозапуск четырёх служб:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo systemctl enable mastodon-web.service
+sudo systemctl enable mastodon-sidekiq.service
+sudo systemctl enable mastodon-streaming.service
+</code></pre>
+<p style="margin-top: 4px">Последняя команда автоматически подтянет mastodon-streaming@4000.service благодаря зависимости <strong><i>Wants=</i></strong>.</p>
+
+<p style="margin-bottom: 6px">Проверяем, всё ли запустилось нормально:</p>
+<pre style="margin-top: 6px"><code class="language-bash">systemctl list-unit-files | grep mastodon
+  # mastodon-sidekiq.service                     enabled         enabled
+  # mastodon-streaming.service                   enabled         enabled
+  # mastodon-streaming@.service                  disabled        enabled
+  # mastodon-web.service                         enabled         enabled
+</code></pre>
+
+
+<p style="margin-bottom: 6px">И проверяем их состояние:</p>
+<pre style="margin-top: 6px"><code class="language-bash">systemctl status mastodon-web mastodon-sidekiq mastodon-streaming mastodon-streaming@4000
+  # ○ mastodon-web.service - mastodon-web
+  #      Loaded: loaded (/etc/systemd/system/mastodon-web.service; enabled; preset: enabled)
+  #      Active: inactive (dead)
+  # 
+  # ○ mastodon-sidekiq.service - mastodon-sidekiq
+  #      Loaded: loaded (/etc/systemd/system/mastodon-sidekiq.service; enabled; preset: enabled)
+  #      Active: inactive (dead)
+  # 
+  # ○ mastodon-streaming.service - mastodon-streaming
+  #      Loaded: loaded (/etc/systemd/system/mastodon-streaming.service; enabled; preset: enabled)
+  #      Active: inactive (dead)
+  # 
+  # ○ mastodon-streaming@4000.service - mastodon-streaming on port 4000
+  #      Loaded: loaded (/etc/systemd/system/mastodon-streaming@.service; disabled; preset: enabled)
+  #      Active: inactive (dead)
+</code></pre>
+
+<p style="margin-bottom: 6px">Запускаем все службы по одной и проверяем их:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl start mastodon-web
+systemctl status mastodon-web
+
+sudo systemctl start mastodon-sidekiq
+systemctl status mastodon-sidekiq
+
+sudo systemctl start mastodon-streaming
+systemctl status mastodon-streaming mastodon-streaming@4000
+</code></pre>
+
+<p>Небольшое пояснение:</p>
+<ul>
+   <li>mastodon-streaming.service — active (exited). Это нормально: вспомогательная служба выполнила команду echo и завершилась.</li>
+   <li>mastodon-streaming@4000.service — active (running). Это настоящий сервер потоковой передачи.</li>
+   <li>Node.js запущен на порту 4000.</li>
+   <li>Потребление памяти — около 122 МБ.</li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ss -ltnp | grep -E ':3000|:4000'
+  # LISTEN 0      511        127.0.0.1:4000      0.0.0.0:*    users:(("MainThread",pid=5947,fd=21))                                             
+  # LISTEN 0      1024       127.0.0.1:3000      0.0.0.0:*    users:(("bundle",pid=5857,fd=6),("bundle",pid=5848,fd=6),("bundle",pid=5812,fd=6))
+</code></pre>
+<ul>
+   <li>3000 — Puma (Mastodon Web);</li>
+   <li>4000 — Node.js (Streaming).</li>
+</ul>
+
+<p style="margin-bottom: 6px">Последняя проверка:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -I https://mastotest.mclang.ru
+  # HTTP/2 200
+  # server: Mastodon
+  # content-type: text/html; charset=utf-8
+  # ...
+</code></pre>
+
+<p>Теперь можно открывать <strong>Mastodon</strong> в браузере.</p>
+
+<p style="margin-bottom: 6px">Всё в ошибках!!! Потому что у <strong>Nginx</strong> нет доступа к домашнему каталогу <strong>mastodon</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">ls -ld /home/mastodon
+  # drwx------ 8 mastodon mastodon ... /home/mastodon
+
+# Дадим доступ Nginx'у:
+sudo chmod 711 /home/mastodon
+
+ls -ld /home/mastodon
+  # drwx--x--x 8 mastodon mastodon 4096 Nov  4 21:19 /home/mastodon
+</code></pre>
+<p style="margin-top: 4px">Теперь всё должно заработать.</p>
+
+
+<h2>Новый пользователь</h2>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -iu mastodon
+cd live
+
+# посмотреть доступные параметры команды:
+RAILS_ENV=production bin/tootctl accounts create --help
+
+# уточним доступные роли в базе данных:
+RAILS_ENV=production bin/rails runner 'puts UserRole.pluck(:name)'
+  # ...
+  # Moderator
+  # Admin
+  # Owner
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">
+RAILS_ENV=production bin/tootctl accounts create USERNAME \
+  --email=EMAIL \
+  --confirmed \
+  --approve \
+  --role=Owner
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 6px">Команда создаст пользователя и сгенерирует пароль. Затем мы войдём в аккаунт и сменим пароль на свой.</p>
+
+<ul style="margin-top: 6px">
+   <li>confirmed – подтверждает адрес почты</li>
+   <li>approve – одобряет регистрацию администрацией</li>
+</ul>
+<p style="margin-bottom: 6px">Мы сразу при создании пользователя забыли указать опцию <strong><i>--approve</i></strong>, поэтому подтвердим пользователя отдельной командой:</p>
+<pre style="margin-top: 6px"><code class="language-bash">RAILS_ENV=production bin/tootctl accounts approve mark
+</code></pre>
+
+
+<p style="margin: 0">При попытке загрузить аватарку, ничего не происходит. На сервере выползает ошибка, связанная с AWS SDK.</p>
+<p style="margin: 0">У нас в конфигурационном файле включено <strong>S3</strong>-хранилище. Надо его изменить на локальное.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Явно включено <strong>S3</strong>-хранилище:</p>
+<pre style="margin-top: 6px"><code class="language-ini">S3_ENABLED=true
+S3_BUCKET=files.example.com
+S3_ALIAS_HOST=files.example.com
+</code></pre>
+
+<p style="margin-bottom: 6px">Изменим пока только <strong><i>S3-ENABLED</i></strong> на <strong><i>false</i></strong> и перезагрузим <strong>Mastodon</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl restart mastodon-web mastodon-sidekiq
+</code></pre>
+
+<p>Если в дальнейшем захочется развернуть отдельный <strong>S3</strong>-сервер для хранения файлов, то стоит приглядеться к <strong>Garage</strong>. Это опенсорсное ПО (AGPL-3.0), написанное на <strong>Rust</strong>.</p>
+
+
+<h2>single user mode</h2>
+
+<p style="margin-bottom: 6px">Добавлю-ка я ещё эту переменную в конфиг:</p>
+<pre style="margin-top: 6px"><code class="language-ini">SINGLE_USER_MODE=true
+</code></pre>
+<p style="margin-bottom: 6px">И перезагружаем сервисы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl restart mastodon-web
+sudo systemctl restart mastodon-sidekiq
+sudo systemctl restart mastodon-streaming
+</code></pre>
+
+<p style="margin-bottom: 6px">Перенаправление будет происходить с главной страницы сайта на первого пользователя в базе данных. Если у нас несколько пользователей и я хочу перенаправлять на какого-то конкретного, не первого, то тогда лучше оставить <code style="background-color: #191919; padding: 0 8px">SINGLE_USER_MODE=false</code>, а перенаправление организовать через <strong>Nginx</strong>. Что-то типа:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-nginx">location = / {
+    return 302 /@mark;
+}
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li><strong>301 Moved Permanently</strong> — постоянное перенаправление. Браузер может закешировать его надолго. Поисковые системы также воспринимают его как постоянный переезд;</li>
+   <li><strong>302 Found</strong> — временное перенаправление. Браузер не должен считать его окончательным адресом.</li>
+</ul>
+
+
+<h2>Ошибка 500</h2>
+
+<p style="margin-bottom: 0">При каждом обновлении страницы вылезает всплывающее окно с кодом <strong><i>500</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Ошибка <code style="background-color: #191919; padding: 0 8px">500</code> возникает не при загрузке ленты, а при запросе рекомендаций аккаунтов:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">GET /api/v2/suggestions
+status=500
+</code></pre>
+<p style="margin-top: 4px"><strong>Mastodon</strong> пытается получить рекомендации похожих профилей через <strong>Elasticsearch</strong>. Но <strong>Elasticsearch</strong> на твоём VPS не установлен и не запущен.</p>
+<p style="margin-bottom: 6px">А у меня в конфиге включён <strong><i>ES_ENABLED</i></strong>, а самого <strong>Elasticsearch</strong> на сервере нет:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-ini">ES_ENABLED=true
+</code></pre>
+<p style="margin-top: 4px">Просто можно отключить <strong>Elasticsearch</strong>. поиск по аккаунтам и публикациям в <strong>Mastodon</strong> переключится на базу данных — это предусмотрено самим кодом приложения.</p>
+
+
+<h2>Оформление</h2>
+
+<p>Про оформление можно почитать <a href="https://docs.joinmastodon.org/dev/frontend/theming/">здесь</a>.</p>
+
+<p>Основые файлы находятся в папке <strong><i>app/javascript/styles/mastodon/</i></strong>.</p>
+<p>Или в <strong><i>app/javascript/styles/mastodon/tokens/theme/</i></strong>.</p>
+
+<p style="margin-bottom: 0">В этих файлах определяются цветовые переменные интерфейса:</p>
+<ul style="margin-top: 0; margin-bottom: 2px">
+   <li>_base.scss</li>
+   <li>_dark.scss</li>
+   <li>_light.scss</li>
+</ul>
+<p style="margin-top: 2px">Можно создать собственную копию темы, изменить палитру и добавить её в <strong><i>config/themes.yml</i></strong>. Затем пересобрать ресурсы командой <code style="background-color: #191919; padding: 0 8px">assets:precompile</code>.</p>
+
+
+<p style="margin-bottom: 6px">У меня зарегистрирована только одна тема:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cat config/themes.yml 
+  # default: styles/application.scss
+</code></pre>
+
+<p style="margin-bottom: 6px">Скопируем <strong><i>application.scss</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cp app/javascript/styles/application.scss app/javascript/styles/my_theme.scss
+</code></pre>
+<p style="margin-bottom: 6px">И добавим в <strong><i>config/themes.yml</i></strong> новую тему:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">default: styles/application.scss
+my_theme: styles/my_theme.scss
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 0">After this, rebuild assets (<code style="background-color: #191919; padding: 0 8px">RAILS_ENV=production bundle exec rails assets:precompile</code>) and restart the <strong>Mastodon</strong> services or Docker container.</p>
+<p style="margin: 0">Once this is done, your custom theme will be selectable</p>
+<ul style="margin-top: 0">
+   <li>for users from <strong><i>Preferences &gt; Appearance &gt; Theme</i></strong></li>
+   <li>as the server’s default theme from <strong><i>Administration &gt; Server settings &gt; Design</i></strong>.</li>
+</ul>
+
+<p style="margin-bottom: 0"><strong>ВАЖНО!!!</strong>Если просто скопировать дефолтную тему и ничего в ней не менять, то при пересборке с помощью команды <code style="background-color: #191919; padding: 0 8px">RAILS_ENV=production bundle exec rails assets:precompile</code> происходит какая-то ошибка.</p>
+<p style="margin: 0">Как оказалось, когда <strong>Rolldown</strong> видел два одинаковых файла с темой, он объединял <strong>CSS</strong> этих двух тем. Поэтому если мы создаём вторую тему только формально (для теста – чтобы увидеть в интерфейсе <strong>Mastodon</strong>'а возможность её выбрать), нужно сделать так, чтобы копия <strong><i>my_theme.scss</i></strong> отличалась по содержимому от <strong><i>application.scss</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Просто добавим в конец скопированной темы <strong><i>my_theme.scss</i></strong> что-то типа этого, чтобы формально темы отличались:</p>
+<pre style="margin-top: 6px"><code class="language-css">:root {
+    --my-theme-test: 1;
+}
+</code></pre>
+
+<p>Итак, мы создали входную точнку подключения темы. Но эта тема идентична оригинальной.</p>
+<p style="margin-bottom: 6px">Здесь директива <strong><i>@use</i></strong> подключает файл с дизайн-токенами <strong>Mastodon</strong>: цветами, размерами, параметрами оформления и другими переменными:</p>
+<pre style="margin-top: 6px"><code class="language-css">@use 'mastodon/tokens';
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">cp -r app/javascript/styles/mastodon/tokens/theme app/javascript/styles/my_theme
+ls -lah app/javascript/styles/my_theme/
+  # total 32K
+  # drwxrwxr-x 2 mastodon mastodon 4.0K Nov  7 19:58 .
+  # drwxrwxr-x 6 mastodon mastodon 4.0K Nov  7 19:58 ..
+  # -rw-rw-r-- 1 mastodon mastodon 1.8K Nov  7 19:58 _base.scss
+  # -rw-rw-r-- 1 mastodon mastodon 4.6K Nov  7 19:58 _dark.scss
+  # -rw-rw-r-- 1 mastodon mastodon 4.7K Nov  7 19:58 _light.scss
+  # -rw-rw-r-- 1 mastodon mastodon  248 Nov  7 19:58 _utils.scss
+</code></pre>
+
+<p style="margin-top: 4px; margin-bottom: 0">В файле <strong><i>app/javascript/styles/my_theme.scss</i></strong> заменим строку <code style="background-color: #191919; padding: 0 8px">@use 'mastodon/tokens';</code> на <code style="background-color: #191919; padding: 0 8px">@use 'my_theme/index';</code>.</p>
+<p style="margin-top: 0">Теперь <strong><i>my_theme.scss</i></strong> подключает собственную палитру через <code style="background-color: #191919; padding: 0 8px">@use 'my_theme'</code>, но сам каталог <strong><i>my_theme</i></strong> пока не содержит файла, который описывает порядок подключения <strong><i>SCSS</i></strong>-модулей.</p>
+<p style="margin-bottom: 6px">Создадим <strong><i>app/javascript/styles/my_theme/index.scss</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">vim app/javascript/styles/my_theme/index.scss
+</code></pre>
+
+<p style="margin-bottom: 6px">... и добавим туда:</p>
+<pre style="margin-top: 6px"><code class="language-css">@use '../mastodon/tokens/shape';
+@use '../mastodon/tokens/type';
+
+@use 'base';
+@use 'dark';
+@use 'light';
+@use 'utils';
+
+html {
+  @include base.palette;
+  @include shape.space;
+  @include shape.radius;
+  @include type.font-size;
+  @include type.line-height;
+  @include type.letter-spacing;
+}
+
+[data-color-scheme='dark'],
+html:not([data-color-scheme]) {
+  color-scheme: dark;
+
+  @include dark.tokens;
+  @include utils.invert-on-dark;
+
+  &[data-contrast='high'],
+  [data-contrast='high'] & {
+    @include dark.contrast-overrides;
+  }
+}
+
+[data-color-scheme='light'] {
+  color-scheme: light;
+
+  @include light.tokens;
+  @include utils.invert-on-light;
+
+  &[data-contrast='high'],
+  [data-contrast='high'] & {
+    @include light.contrast-overrides;
+  }
+}
+</code></pre>
+
+<p>Это повторяет структуру оригинального <strong><i>app/javascript/styles/mastodon/tokens/index.scss</i></strong>, но вместо стандартных файлов <strong><i>theme</i></strong> использует мои копии.</p>
+
+<p style="margin-bottom: 6px">Теперь, допустим, я хочу подправить тёмную тему. Я открываю файл <strong><i>app/javascript/styles/my_theme/_dark.scss</i></strong> и меняю там цвета:</p>
+<pre style="margin-top: 6px"><code class="language-css">--color-text-primary: #D8DEE9; /* основной текст */
+--color-text-brand: #88C0D0;  /* акцентный цвет текста (ссылки, выделенные эл-ты) */
+
+--color-bg-primary: #2E3440;  /* Фон страницы */
+--color-bg-secondary: #3B4252; /* Фон панелей */
+
+--color-border-primary: #596579; /* Цвет границы и разделитей */
+</code></pre>
+<p style="margin-bottom: 6px">Затем пересобираю фронтенд и перезапускаю основную службу <strong>mastodon-web</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">RAILS_ENV=production bundle exec rails assets:precompile
+sudo systemctl restart mastodon-web.service
+</code></pre>
+
+
+<br><br>
+<hr>
+<br><br><br>
+<p>А ещё я менял в файле <strong><i>config/vite/plugin-mastodon-themes.ts</i></strong> строку <code style="background-color: #191919; padding: 0 8px">!themePath.endsWith('css')</code> на <code style="background-color: #191919; padding: 0 8px">!themePath.endsWith('.scss')</code></p>
+
+<p style="margin-bottom: 6px">Во время сборки выведем только интересующие нас ошибки:</p>
+<pre style="margin-top: 6px"><code class="language-bash">RAILS_ENV=production bundle exec rails assets:precompile 2&gt;&amp;1 | grep -E 'Invalid theme path|No valid themes|themes/'
+  # [vite] public/packs/assets/themes/default-DkDM-a1D.css                     331.34 kB │ gzip:  52.29 kB
+  # ActionView::Template::Error: Failed to find entry 'themes/default' in manifest files (ActionView::Template::Error)
+  # Vite::Manifest::MissingEntryError: Failed to find entry 'themes/default' in manifest files (Vite::Manifest::MissingEntryError)
+</code></pre>
+
+<p style="margin-bottom: 6px">Вот эта настройка отвечает за ссылки непосредственно в текстах публикаций, включая упоминания пользователей. Сейчас она смешивает два оттенка обычного текста, поэтому ссылки почти не отличаются от него:</p>
+<pre style="margin-top: 6px"><code class="language-css">--color-text-status-links: color-mix(
+  in oklab,
+  var(--color-text-primary),
+  var(--color-text-secondary)
+);
+</code></pre>
+
+<br><br>
+<hr>
+<br><br>
+
+<h2>Заново</h2>
+
+<p style="margin-bottom: 0">Создаём кастомную тему.</p>
+<p style="margin: 0">Я хочу чуть подредактировать дефолтные цвета.</p>
+<p style="margin: 0">Все темы у нас содержатся в папке <strong><i>app/javascript/styles/</i></strong>.</p>
+<p style="margin: 0">Тут у нас есть файл <strong><i>application.scss</i></strong> и папка <strong><i>mastodon</i></strong>. В <strong><i>mastodon</i></strong> лежит дефолтная тема, которая называется <strong><i>mastodon</i></strong>, а точка входа – это файл <strong><i>application.scss</i></strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Наша новая тема будет называться <strong><i>jopa</i></strong>, а точка входа... <strong><i>jopa_application.scss</i></strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">mkdir app/javascript/styles/jopa
+cp -r app/javascript/styles/mastodon/tokens app/javascript/styles/jopa/
+
+# копируем точку входа:
+cp app/javascript/styles/application.scss app/javascript/styles/jopa_application.scss
+</code></pre>
+<p style="margin-top: 4px">Здесь мы скопировали не всю оригинальную тему <strong><i>mastodon</i></strong>, а только папку <strong><i>tokens</i></strong> из неё. Потому что именно в этой папке находятся определение цветовых схем, а я хочу подправить только цвета, а всё остальное оставлю как есть.</p>
+
+<p style="margin-bottom: 6px">Заменим в нашей точке входа <strong><i>app/javascript/styles/jopa_application</i></strong> строчку:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-css">@use 'mastodon/tokens';
+</code></pre>
+<p style="margin-top: 6px; margin-bottom: 6px">на:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-css">@use 'jopa/tokens';
+</code></pre>
+<p style="margin-top: 4px; margin-bottom: 0">Все остальные подключения оставим как есть: из папки <strong><i>mastodon</i></strong>.</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">А ещё добавим в самый конец файла <strong><i>app/javascript/styles/jopa_application</i></strong> что-то типа этого:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-css">:root {
+    --my-theme-test: 1;
+}
+</code></pre>
+<p style="margin-top: 4px">Чат ГПТ предположил, что <strong>Rolldown</strong> неправильно собирает файлы, если видит, что они похожи (application и jopa_applicatoin). Он объединяет их в один css. В файле манифеста создаётся что-то не то. И если добавить что-то в конец, чтобы <strong>Rolldown</strong> не воспринимал эти два файла как один, то всё нормально соберётся. Оно и собралось. Не знаю, правда, почему так происходит - ведь мы же поменяли в скопированном файле одну строчку. Как бы то ни было, после добавления этого куска <strong>Rolldown</strong> нормально собирает проект.</p>
+
+<p style="margin-bottom: 6px">Добавим в <strong><i>config/themes.yaml</i></strong> нашу точку входа:</p>
+<pre style="margin-top: 6px"><code class="language-ini">jopa: styles/jopa_application.scss
+</code></pre>
+
+<p style="margin-bottom: 6px">Всё. Осталось только:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># пересобираем фронтенд:
+RAILS_ENV=production bundle exec rails assets:precompile
+
+# и перезапускаем основную службу:
+sudo systemctl restart mastodon-web.service
+</code></pre>
+
+<p>Теперь можно в личном кабинете <strong>Mastodon</strong> выбирать нашу новую тему <strong><i>jopa</i></strong>, которая пока ничем не отличается от дефолтной темы <strong><i>mastodon</i></strong>.</p>
+
+
+<h2>Меняем оформление</h2>
+
+<p style="margin-bottom: 6px">Открываем файл <strong><i>app/javascript/styles/jopa/tokens/theme/_dark.scss</i></strong> и для начала подправим несколько настроек, чтобы цвета были приятней для глаз:</p>
+<pre style="margin-top: 6px"><code class="language-css">--color-text-primary: #A0B1BC;       /* основной текст  */
+--color-text-secondary: #7DA0B6;       /* этим цветом выкрасились все пункты меню (неактивные) и весь оставшийся текст, кроме простого текста в постах. И скроллбар.  */
+--color-text-tertiary: #5D8198;         /* Значок крутящегося круга загрузки, когда подгружаются сообщения в ленте новостей, окрашен в этот цвет. */
+    /* Когда заходим внутрь статуса, то в выделенном сообщении этим цветом снизу подписана дата публикации и значок глобуса, а также надписи: boosts, quotes и favorites */
+	/* Всплывающее окно, когда мы наводим мышкой на своё имя в левом верхнем углу: хандлер и слово "сайт" (заголовок кастомного поля в профайле) окрашены в этот цвет. */
+	/* Если зайти в Notifications, то метки "Reply" - этим цветом, а также как давно опублико */
+	/* Во всех эл-тах select этим цветом отображается кнопка справа (вверх-вниз) */
+	/* Administraion -&gt; Roles */
+--color-text-brand: #5D8198;        /* выделенный текст, например активный пункт меню, отмеченные чекбоксы и радиобаттоны,   */
+     /* ... а также ссылки внутри textarea, где мы печатаем новый пост и обводка в фокусе этого textarea-окна */
+--color-text-on-brand-base: #8AA3AD;    /* цвет текста на брэндовой фиолетовой кнопке мастодона */
+--color-text-status-links: #61AFEF;  /* упоминания пользователей: @username*/
+
+--color-bg-primary: #282C34;     /* цвет фона */
+--color-bg-secondary: #3B4252;   /* цвет панелей */
+     /* фон textarea, куда мы пишем сообщение, фон строки поиска, фон скроллбара */
+--color-bg-tertiary: maroon      /* вроде бы этим цветом отображается верхняя панель во всплывающем окне, где отображаются смайлики */
+
+--color-bg-brand-base: #3A4658;  /* цвет кнопок, которые по умолчанию фиолетовые */
+--color-bg-brand-base-hover: #45546A;
+--color-bg-brand-softest: #282C34;  /* этим цветом подкрашивается фон некоторых элементов, когда я на них навожу мышкой */
+    /* иконки смайлика, рейтинга и т.п. внутри форму add-status. */
+	/* все иконки внизу каждого статуса */
+	/* все информационные окна - этого цвета */
+	/* эти цветом подсвечиваются пункты меня во всплывающем меню, когда кликаешь "... More", или когда нажимаешь "..." в любом статусе */
+	/* Фон некоторых элементов... напрмер когда нам говорят какие клавиши нажать: Shift + Ctrl. Фон у слов "Shift" и "Ctrl" будет подсвечен этим цветом  */
+	/* мелькает какой-то прямоугольник этого цвета после загрузк сообщений в новостной ленте: сначала я вижу крутящийся кружок цвета --color-text-tertiary, а потом мелькае прямоугольник этого цвета */
+
+--color-border-primary: #30434B; /* цвет границ */
+--color-border-brand: var(--color-text-brand);  /* этим цветом выделяется обводка outline тех текстовых полей, которые в фокусе (text, textarea) */
+     /* Этим цветом также окрашена обовдка двух кнопок-ссылок внутри compose-form ("Visibility and interaction" и "Выбор языка") */
+	 /* Кнопка "Edit", которая редактирует профайл (в ленте новостей) */
+	 /* В ленте новостей есть вкладки: Activity, Media, Features. Активные вкладки подчёркиваются этим текстом */
+	 /* Кнопка "копировать ссылку на профиль" тоже окрашивается на секунду в этот цвет, когда я нажимаю по ней */
+	 /* Кнопка "Unfollow" в окне с подписками. И ещё некоторые кнопки: "Hide this tab instead", например. */
+
+</code></pre>
+
+
+<p>components.scss -> .compose-form: {outline-color: var(--color-border-brand);}</p>
+
+
+<p>Текст "mastodon" в логотипчике Mastodon'а в правом верхнем углу окрашивается в цвет --color-text-primary.</p>
+
+<p>Статусы с сообщениями</p>
+<ul>
+   <li>Текст статусов: --color-text-primary</li>
+   <li>Display Name автора поста: --color-text-primary (но только выделенный)</li>
+   <li>Всё остальное: --color-text-secondary</li>
+</ul>
+<p>Меню справа</p>
+<ul>
+   <li>неактивные пункты меню: смешиваются два цвета: --color-text-secondary и --color-text-primary. Но как будто ещё что-то влияет. Меняю secondary - меняется цвет. Если делаю один цвет (primary) красным, а другой (secondary) жёлтым, то пункты меню становятся оранжевыми. primary - red, secondary - blue, пункты меню - фиолетовые.</li>
+   <li>активные пункты меню: --color--text-brand</li>
+   <li>цвет текста неактивных пунктов меню при наведении курсора: --color-text-primary</li>
+</ul>
+
+<p>Textarea для нового сообщения:</p>
+<ul>
+   <li>Простой текст сообщения: --color-text-primary</li>
+   <li>Placeholder: фиг знает</li>
+   <li>Кол-во симоволов: --color-text-secondary</li>
+   <li>Текст кнопки Post: --color-text-on-brand-base</li>
+   <li>Фон кнопки Post: --color-bg-brand-base</li>
+   <li>Фон кнопки Post при наведении курсора: --color-bg-brand-base-hover</li>
+   <li>Цвет оставшихся кнопочек ссылок: --color-text-brand</li>
+   <li>Фон четырёк ссылок в нижнем левом углу при наведении курсора: фиг знает</li>
+   <li>Цвет обводки: --color-border-primary</li>
+   <li>Цвет обводки в фокусе: --color-text-brand</li>
+</ul>
+
+<p>Мне не нравятся серые плейсхолдеры в textarea, где мы пишем новые сообщения</p>
+<p>Их цвет нужно указывать напряму в компоненте в файле mastodon/components.scss</p>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-scss">
+.compose-form {
+  ...
+  &amp;__highlightable {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
+    border-radius: 4px;
+    // цвет обводки формы по умолчанию (не в фокусе):
+    // по умолчанию был "--color-border-primary", но его плохо видно
+    border: 1px solid #506069;
+    position: relative;
+    background: var(--color-bg-secondary);
+    outline: var(--outline-focus-default);
+    outline-color: transparent;
+    outline-offset: -1px;
+    transition: outline-color 0.15s ease-out;
+
+    &amp;:has(textarea:focus) {
+      // Цвет обводки формы в фокусе:
+      // Сделаем его чуть светлей, чем дефолтный --color-border-brand:
+      outline-color:  #829BAC;
+    }
+  }
+  ...
+  .autosuggest-textarea__textarea,
+  .spoiler-input__input {
+     display: block;
+     box-sizing: border-box;
+     width: 100%;
+     max-height: 300px;
+     margin: 0;
+     /* здесь - цвет вводимого текста: */
+     color: var(--color-text-primary);
+     /* Здесь я добавил цвет текста плейсхолдера */
+     /* (по умолчанию плейсхолдер вообще не указан и у него дефолтный серый цвет): */
+     &amp;::placeholder {
+        color: red;
+        opacity: 1;
+     }
+     background: transparent;
+     font-family: inherit;
+     font-size: 14px;
+     padding: 12px;
+     line-height: normal;
+     border: 0;
+     outline: 0;
+
+     &amp;:focus {
+        outline: 0;
+     }
+  }
+  ...
+}
+
+/* строка поиска */
+/* Тут обратим внимание на то, чтобы .search__input ... */
+/* ... был не вложен в другое правило (для мобильной версии) */
+.search__input {
+  @include search-input;
+
+  display: block;
+  padding: 12px 16px;
+  padding-inline-start: 16px + 15px + 8px;
+  line-height: normal;
+  // добавим плейсхолдер:
+  &amp;::placeholder {
+    color: yellow;
+  }
+
+  &amp;:focus {
+    outline-color: var(--color-border-brand);
+  }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">А можно просто вот так в <strong><i>jopa_application.scss</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-scss">// Форма добавления статуса:
+.compose-form {
+   // здесь мы указываем цвета обводки:
+   &__highlightable {
+      border: 1px solid #506069;
+      &:has(textarea:focus) {
+         outline-color: #829BAC;
+      }
+   }
+   // А здесь – цвет простого текста и плейсхолдера:
+  .autosuggest-textarea__textarea,
+  .spoiler-input__input {
+    color: #B3BDC9;
+    &::placeholder {
+      color: #7F929F;
+    }
+  }
+}
+
+// Цвет текста и плейсхолдера в строке поиска:
+.search__input {
+   color: #B3BDC9;
+   &::placeholder {
+     color: #7F929F;
+   }
+
+// И добавим ещё цвет для кнопки
+// В textarea она должна быть светлей:
+   button.button--compact {
+      background-color: #515F78;
+      &:hover {
+         background-color: #5B6B86;
+      }
+   }
+}
+</code></pre>
+
+
+<p></p>
+<ul>
+   <li>Фон textarea: #3B4252</li>
+   <li>Основной текст внутри textarea: #D8DEE9</li>
+   <li>Приглушённый текст для плейсхолдера: #7F929F</li>
+</ul>
+
+<p style="margin-bottom: 6px">Мне не очень нравится то, что обводка в ленте новостей есть у каждого статуса. Хочу, чтобы были только горизонтальные линии, которые отделяют статусы друг от друга, а боковые вертикальные не нужны. Подправить это можно здесь:</p>
+<pre style="margin-top: 6px"><code class="language-css">.column {
+  width: clamp(380px, calc((100% - 350px) / 4), 400px);
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  /* строка 3181 */
+  > .scrollable {
+    /* Вот здесь задаётся цвет и толщина обводки: */
+    /* (можно просто заменить на "border: 0") */
+    border: 1px solid var(--color-border-primary);
+    border-radius: 0 0 4px 4px;
+
+    &.about,
+    &.privacy-policy {
+      border-top: 1px solid var(--color-border-primary);
+      border-radius: 4px;
+
+      @media screen and (max-width: $no-gap-breakpoint) {
+        border-top: 0;
+        border-bottom: 0;
+      }
+    }
+  }
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Или просто вот так в <strong><i>jopa_appliction.scss</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-css">.column &gt; .scrollable {
+   border: 0;
+}
+</code></pre>
+
+
+<p style="margin-bottom: 6px">.columns-area (3010th line) .... fixed.</p>
+<pre style="margin-top: 6px"><code class="language-css">
+.columns-area {
+...
+  &amp;__panels {
+    ... 
+    &amp;__pane {
+    ...
+      /* строка 3049 */
+      /* Боковые панели - в режиме fixed: */
+      &amp;__inner {
+        position: fixed;
+        width: 285px;
+        height: 100%;
+      }
+    }
+  }
+  ...
+...
+
+/* строка 3142 */
+/* column-header, который в режиме sticky: */
+.tabs-bar__wrapper {
+  background: var(--color-bg-primary);
+  backdrop-filter: $backdrop-blur-filter;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-top: 0;
+  ...
+  ...
+  ...
+}
+
+/* строка 3911 */
+/* это не нужно */
+.scrollable {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+
+  @supports (display: grid) {
+    contain: strict;
+  }
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">А можно просто добавить эти правила в точку входа моей темы <strong><i>jopa_application.scss</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-css">.tabs-bar__wrapper {
+    position: static;
+}
+.columns-area__panels__pane__inner {
+   position: static;
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">А ещё подправлю правое меню.</p>
+<pre style="margin-top: 6px"><code class="language-scss">.column-link {
+   &:hover {
+     // Цвет пункта меню при наведении на него курсора
+     // По умолчанию:--color-text-primary, а я чуть высветлил:
+     color: #B3BDC9;
+   }
+   &.column-link--transparent.active {
+      // Цвет активного пункта меню 
+      // По умолчанию: --color-text-brand, а я чуть затемнил:
+      color: #527286;
+   }
+}
+</code></pre>
+
+
+<ul>
+   <li>position: fixed закрепляет боковые панели.</li>
+   <li>overflow-y: scroll создаёт внутреннюю прокрутку колонок.</li>
+</ul>
+
+<!--
+e9c01debe8ee43540e76d76c810aa2ef
+-->
+
+<!--
+f74d3027ecd48255cd12e8fcb68b3fa582d11126f2cb54776841ecbc27decc9857b55fa5a387671b3ac10942783590b1a251afc3fd9b67b7412fc08818b4825e
+
+VAPID_PRIVATE_KEY=uxl8t9kFEpDMY5w79j-yEPGqguBlGn26MZs9mxYw_d4=
+VAPID_PUBLIC_KEY=BBpNhAJIraNkgxXXtiPyEZwF3r4aoqksoF80DXGWEqwroSNx6OyGd75hDOyYNrq6TKEjwDxVziZbG7DJTZCHdpI=
+
+ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=6LYlHtJ1IE1xefmDVqoCUzHSeULR9tWT
+ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=LYnoIU7yYVf1LrRmmEL3Z08PJRMAyKqy
+ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=7UEgMKp6m0kkqVKNousOtn6vWKwABBH3
+-->
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/pgsql.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script src="/assets/highlight/languages/css.min.js"></script>
+<script src="/assets/highlight/languages/scss.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

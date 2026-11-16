@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ознакомление</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely/">Вернуться назад</a>
+
+<h1>Ознакомление</h1>
+
+ <h3>Встраивание видосиков с PeerTube</h3>   
+      
+      
+<p style="margin-bottom: 6px">Тот код для встраивания, который выдаёт <strong>PeerTube</strong> по умолчанию:</p>   
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-xml">&lt;iframe   
+   title="умывальник"   
+   width="560"   
+   height="315"   
+   src="https://peertest.mclang.ru/videos/embed/6VAP4d1MxMsXMnfSrUNTPX"   
+   allow="fullscreen"   
+   sandbox="allow-same-origin allow-scripts allow-popups allow-forms"   
+   style="border: 0px;"   
+&gt;&lt;/iframe&gt;   
+</code></pre>   
+<p style="margin-top: 6px">Здесь проблема в том, что ширина видео фиксированная. И когда я открываю статью на мобильнике, то она вылезает за пределы статьи, ломая вёрстку.</p>
+
+
+<p style="margin-bottom: 6px">А если я отмечу галочку "Адаптированное встраивание", то получу такой код:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-xml">&lt;div style="position: relative; padding-top: 56.25%;"&gt;
+   &lt;iframe
+      title="умывальник"
+      width="100%"
+      height="100%"
+      src="https://peertest.mclang.ru/videos/embed/6VAP4d1MxMsXMnfSrUNTPX"
+      style="border: 0px; position: absolute; inset: 0px;"
+      allow="fullscreen"
+      sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+   &gt;&lt;/iframe&gt;
+&lt;/div&gt;
+</code></pre>
+<p style="margin-top: 6px">Но это плохо выглядит. Видео становится маленьким. Оно не меняется при изменения размера странички.</p>
+
+      
+      
+<p style="margin-bottom: 6px">Здесь ширина работает нормально. Она равна 560px, но когда ширина статья сжимается и становится уже, чем 560px, то ширина видео уменьшается в
+   месте с шириной статьи. Но высота не соответствует пропорциям видео. На вскидку, здесь ширина и высота <strong><i>iframe</i></strong> как будто соответствует пропорции <st   rong><i>4:3</i></strong>. А у меня оригинальное видео: <strong><i>16:9</i></strong>. В итоге, я вижу в окне с видосиком чёрные полосы сверху и снизу.</p>
+<pre style="margin-top: 6px"><code class="language-xml">&lt;div style="position: relative; width: 100%; max-width: 560px; margin: 0 auto; padding-top: 56.25%;"&gt;   
+   &lt;iframe
+      title="умывальник"
+      src="https://peertest.mclang.ru/videos/embed/6VAP4d1MxMsXMnfSrUNTPX"
+      allow="fullscreen"
+      sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+   &gt;&lt;/iframe&gt;
+&lt;/div&gt;
+</code></pre>
+
+
+<p style="margin-bottom: 6px">А сейчас с пропорциями всё хорошо. Добавим CSS-свойство <strong><i>aspect-ratio</i></strong>, чтобы правильно масштабировать видео:</p>
+   <pre style="margin-top: 6px"><code class="language-xml">&lt;div style="position: relative; width: 100%; max-width: 560px; aspect-ratio: 16 / 9; margin: 0;"&gt; 
+   &lt;iframe    
+      title="умывальник"   
+      src="https://peertest.mclang.ru/videos/embed/6VAP4d1MxMsXMnfSrUNTPX"   
+      allow="fullscreen"   
+      sandbox="allow-same-origin allow-scripts allow-popups allow-forms"   
+      style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"   
+   &gt;&lt;/iframe&gt;   
+&lt;/div&gt;   
+</code></pre>    
+
+<p style="margin-bottom: 6px">Если полноэкранный режим по-прежнему не включается во встроенном видосике, то можно ещё попробовать добавить свойство <strong><i>allowfullscreen</i></strong>:</p>
+   <pre style="margin-top: 6px"><code class="language-xml">&lt;div style="position: relative; width: 100%; max-width: 560px; aspect-ratio: 16 / 9; margin: 0;"&gt; 
+   &lt;iframe    
+      title="умывальник"   
+      src="https://peertest.mclang.ru/videos/embed/6VAP4d1MxMsXMnfSrUNTPX"   
+      allow="fullscreen"
+	  allowfullscreen
+      sandbox="allow-same-origin allow-scripts allow-popups allow-forms"   
+      style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"   
+   &gt;&lt;/iframe&gt;   
+&lt;/div&gt;   
+</code></pre>
+
+<p style="margin-bottom: 6px">Если нужно выровнить видео по центру, то просто добавим в <strong><i>margin</i></strong> свойство <strong><i>auto</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-xml">&lt;div style="position: relative; width: 100%; max-width: 560px; aspect-ratio: 16 / 9; margin: 0 auto;"&gt;
+   &lt;iframe
+      title="умывальник"
+      src="https://peertest.mclang.ru/videos/embed/6VAP4d1MxMsXMnfSrUNTPX"
+      allow="fullscreen"
+      sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+      style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"
+   &gt;&lt;/iframe&gt;
+&lt;/div&gt;
+</code></pre>  
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

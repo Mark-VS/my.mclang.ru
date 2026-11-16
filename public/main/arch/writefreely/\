@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/writefreely">Вернуться назад</a>
+
+<h1>Backup</h1>
+
+<p style="margin-bottom: 0">На регулярной основе придётся копировать только базу данных.</p>
+<p style="margin: 0">Ключи копируем единожды – для хранения. Делаем несколько копий.</p>
+<p style="margin-top: 0">А всё остальное – конфиг, кастомный CSS, пользовательские картинки, загруженные для статей, изменённые шаблоны, highlight.js-темы – копируем по мере необходимости.</p>
+
+<h2>Ключи</h2>
+<p style="margin-bottom: 6px">В первую очередь делаем копию ключей. Ключи нельзя копировать удалённо, потому что у них права: 600. Сначала нужно сделать временную копию на сервере, дать им права на чтение для всех, а затем скопировать их с локального компьютера. И конечно удалить эти временные копии после копирования.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># На сервере:
+cp /opt/writefreely/writefreely
+sudo cp -r keys ~/tmp/writefreely/
+sudo chmod 644 ~/tmp/writefreely/keys/*
+
+# С локального компьютера:
+rsync -av mark@mclang.ru:~/tmp/writefreely/keys ~/writefreely/
+# Для безопасности опять убираем права на чтение:
+chmod 600 ~/writefreely/keys/*
+
+# И удаляем времменную папку с ключами с сервера:
+ssh -t mark@mclang.ru "sudo rm -rf ~/tmp/writefreely/keys/"
+</code></pre>
+
+<h2>Конфиг</h2>
+<p style="margin-bottom: 6px">С конфигом делаем то же, что и с ключами, потому что у него так же ограничены права на чтение:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># На сервере:
+cd /opt/writefreely/writefreely
+sudo cp config.ini ~/tmp/writefreely/
+sudo chmod 644 ~/tmp/writefreely/config.ini
+
+# А затем с локального компьютера:
+rsync mark@mclang.ru:~/tmp/writefreely/config.ini ~/writefreely/
+# И опять убираем права на чтение:
+chmod 600 ~/writefreely/config.ini
+
+# И удаляем временный конфиг с сервера:
+ssh -t mark@mclang.ru "sudo rm ~/tmp/writefreely/config.ini"
+</code></pre>
+
+<h2>База данных</h2>
+<p style="margin-bottom: 6px">Создаём на сервере папку <strong><i>backup</i></strong>, в которую будем регулярно копировать базу данных и делаем первую копию этой папки на локальный компьютер:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># На сервере:
+cd /opt/writefreely/writefreely
+sudo -u writefreely mkdir -p backup
+sudo -u writefreely sqlite3 ./writefreely.db ".backup '/opt/writefreely/writefreely/backup/wf-bak-$(date +%Y-%m-%d_%H-%M-%S).db'"
+
+# На локальном компьютере:
+rsync -av mark@mclang.ru:/opt/writefreely/writefreely/backup ~/writefreely/
+</code></pre>
+
+
+<h2>Остальное</h2>
+<p style="margin-bottom: 6px">Остальное можно копировать, не заходя на сервер, по мере необходимости. У статики и у шаблонов права на чтение открыты для всех.</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Создаём папку для статики:
+mkdir -p ~/writefreely/static
+
+# Копируем все свои local-CSS (то есть, всю папку local):
+rsync -av mark@mclang.ru:/opt/writefreely/writefreely/static/local ~/writefreely/static
+# Копируем загруженные картинки (т.е., всю папку с картинками):
+rsync -av mark@mclang.ru:/opt/writefreely/writefreely/static/my_img ~/writefreely/static
+
+# Изменённый шаблон:
+mkdir -p ~/writefreely/templates
+rsync mark@mclang.ru:/opt/writefreely/writefreely/templates/collection-post.tmpl ~/writefreely/templates/
+
+# Тему для highlight.js, которую я чуть-чуть подправил:
+mkdir -p ~/backups2/writefreely/static/css/lib/
+rsync mark@mclang.ru:/opt/writefreely/writefreely/static/css/lib/androidstudio.css ~/writefreely/static/css/lib/
+</code></pre>
+
+<h2>Восстановление</h2>
+
+<h3>Восстанавливаем ключи</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># На локальном компьютере:
+chmod 644 ~/writefreely/keys/*
+# Убедимся, что на сервере существует временная папка:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+rsync -av ~/writefreely/keys mark@mclang.ru:~/tmp/writefreely/
+
+# На сервере:
+sudo cp -r ~/tmp/writefreely/keys /opt/writefreely/writefreely/
+cd /opt/writefreely/writefreely
+# Возвращаем владение пользователю writefreely:
+sudo chown -R writefreely:writefreely ./keys
+# И забираем права на чтение для всех остальных:
+sudo -u writefreely chmod 600 ./keys/*
+
+# И удаляем временные файлы:
+rm -r ~/tmp/writefreely/keys/
+</code></pre>
+
+<h3>Восстанавливаем конфиг</h3>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># На локальном компьютере:
+chmod 644 ~/writefreely/config.ini
+# Убедимся, что временная папка на сервере существует:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+rsync ~/writefreely/config.ini mark@mclang.ru:~/tmp/writefreely/
+
+# На сервере:
+sudo cp ~/tmp/writefreely/config.ini /opt/writefreely/writefreely/
+cd /opt/writefreely/writefreely
+# Возвращаем владение пользователю writefreely:
+sudo chown writefreely:writefreely config.ini
+# И забираем права на чтение:
+sudo -u writefreely chmod 600 config.ini
+
+# И удаляем временный файл:
+rm ~/tmp/writefreely/config.ini
+</code></pre>
+
+<h3>Восстанавливаем базу данных</h3>
+
+<p style="margin-bottom: 6px">Напрямую скопировать базу данных не сервер не получится, потому что у пользователя <strong><i>mark</i></strong> нет права на запись в папке <strong><i>/opt/writefreely/writefreely</i></strong>. Только на чтение. Поэтому:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Сначала копируем во временную папку на сервере:
+ssh mark@mclang.ru "mkdir -p ~/tmp/writefreely/"
+rsync ~/writefreely/backup/wf-bak-2026-10-11_21-24-29.db mark@mclang.ru:~/tmp/writefreely/writefreely.db
+ssh -t mark@mclang.ru "sudo cp ~/tmp/writefreely/writefreely.db /opt/writefreely/writefreely/writefreely.db"
+
+# На сервере возвращаем права пользователю writefreely:
+sudo chown writefreely:writefreely writefreely.db
+
+# Удаляем временный файл:
+ls ~/tmp/writefreely/
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

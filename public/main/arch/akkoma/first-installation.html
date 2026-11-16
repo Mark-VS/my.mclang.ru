@@ -1,0 +1,768 @@
+<!DOCTYPE html> <html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Installation</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/akkoma/">Вернуться назад</a>
+
+<h1>First Installation</h1>
+
+
+<p style="margin-bottom: 6px">Прежде всего можно выполнить вот эти два скрипта:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash"># Проверим версии нужных на пакетов ...
+# ... в репозитории Debian:
+apt-cache policy elixir erlang-base erlang-dev erlang-nox
+
+# И проверим инструменты сборки:
+for p in git gcc make cmake build-essential libmagic-dev; do
+    dpkg-query -W -f='${binary:Package} ${Status}\n' "$p" 2&gt;/dev/null
+done
+</code></pre>
+<p style="margin-top: 4px">Если всё нормально, и всё соответствует необходимым требованиям на официальной <a href="https://docs.akkoma.dev/stable/installation/debian_based_en/">страничке с установкой</a>, то идём дальше.</p>
+
+<p style="margin: 0">Официальная инструкция Akkoma рекомендует для установки из исходников <strong>elixir</strong>, <strong>erlang-dev</strong>, <strong>erlang-nox</strong>, <strong>cmake</strong> и <strong>libmagic-dev</strong>.</p>
+<p style="margin: 0">У меня уже установлены <strong>git</strong>, <strong>gcc</strong>, <strong>make</strong>, <strong>build-essential</strong>.</p>
+<p style="margin: 0"><strong>PostgreSQL</strong> у меня тоже установлен.</p>
+<p>Инструкция говорит, что нам надо ещё установить <strong>postgresql-contrib</strong>. Но при попытке его установить, <strong>APT</strong> говорит, что <strong>postgresql-contrib</strong> здесь не устанавливается отдельно – что вместо него нам нужен пакет <strong>postgresql</strong>. А <strong>postgresql</strong> у меня уже установлен самой последней версии.</p>
+
+
+<p style="margin-bottom: 6px">Можно выполнить для начала симуляцию установки, чтобы убедиться, что <strong>APT</strong> внезапно не начнёт что-то обновлять или удалять:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt-get -s install elixir erlang-dev erlang-nox cmake libmagic-dev
+</code></pre>
+
+<p style="margin-bottom: 6px">Если всё в порядке, устанавливаем зависимости:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install elixir erlang-dev erlang-nox cmake libmagic-dev
+
+# Проверяем Elixir:
+elixir --version
+  # Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [jit:ns]
+  # Elixir 1.18.3 (compiled with Erlang/OTP 27)
+
+# Проверяем OTP:
+erl -noshell -eval 'io:format("OTP ~s~n", [erlang:system_info(otp_release)]), halt().'
+  # OTP 27
+</code></pre>
+
+<h2>Создадим пользователя akkoma</h2>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo useradd -r -s /bin/false -m -d /var/lib/akkoma -U akkoma
+
+# Проверяем:
+getent passwd akkoma
+getent group akkoma
+ls -ld /var/lib/akkoma
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li><strong>-r</strong> – создать системного пользователя;</li>
+   <li><strong>-s <i>/bin/false</i></strong> – запретить обычный интерактивный ввод;</li>
+   <li><strong>-m -d <i>/var/lib/akkoma</i></strong> – создать домашний каталог в <strong><i>/var/lib/akkoma</i></strong>;</li>
+   <li><strong>-U</strong> – создать одноимённую группу <strong><i>akkoma</i></strong>.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Создадим папку <strong><i>/opt/akkoma</i></strong> и скачаем туда исходники (адрес возможно заблокирован):</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo mkdir -p /opt/akkoma
+sudo chown akkoma:akkoma /opt/akkoma
+sudo -Hu akkoma git clone https://akkoma.dev/AkkomaGang/akkoma.git -b stable /opt/akkoma
+</code></pre>
+<ul style="margin-top: 4px">
+   <li><strong>-u <i>akkoma</i></strong> – выполнить команду от имени пользователя <strong><i>akkoma</i></strong>;</li>
+   <li><strong>-H</strong> – установить <strong><i>HOME</i></strong> в домашний каталог целевого пользователя;</li>
+</ul>
+
+<p style="margin-bottom: 6px">Либо сначала скачаем на домашний компьютер:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo git clone https://akkoma.dev/AkkomaGang/akkoma.git -b stable /opt/akkoma
+cd /opt
+sudo tar -czf akkoma-source.tar.gz akkoma
+
+# И передадим на сервер:
+scp /opt/akkoma-source.tar.gz mark@mclang.ru:/tmp/
+
+# Распаоквываем архив на сервере:
+sudo tar -xzf /tmp/akkoma-source.tar.gz -C /opt/
+sudo chown -R akkoma:akkoma /opt/akkoma
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверим права:
+ls -ld /opt/akkoma
+  # drwxr-xr-x 19 akkoma akkoma 4096 Oct 24 17:23 /opt/akkoma
+
+ls -l /opt/akkoma/mix.exs
+  # -rw-r--r-- 1 akkoma akkoma 12565 Oct 24 17:23 /opt/akkoma/mix.exs
+
+Проверим, сохранился ли Git-репозиторий после упаковки и передачи:
+sudo -Hu akkoma git -C /opt/akkoma status --short --branch
+  # stable...origin/stable
+</code></pre>
+
+<h2>Инструкция по установке</h2>
+
+<p>Докуметация по установке на <strong>Debian</strong> находится здесь: <strong><i>/opt/akkoma/docs/docs/installation/debian_based_en.md</i></strong>.</p>
+
+<h2>Подготовка PostgreSQL для Akkoma</h2>
+
+<p>Нам нужна отдельная роль <strong>PostgreSQL</strong> и отдельная база данных. Это позволит Akkoma работать независимо от <strong>PeerTube</strong>, <strong>WriteFreely</strong> и других приложений.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Проверим, запущен ли PostgreSQL:
+sudo systemctl is-active postgresql
+  # active
+
+# Проверим, какие базы данных уже существуют:
+sudo -u postgres psql -c '\l'
+</code></pre>
+
+<p style="margin-bottom: 6px">Создаём пользователя для <strong>Akkoma</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">
+sudo -u postgres createuser --pwprompt akkoma
+
+# Создаём базу данных:
+sudo -u postgres createdb -O akkoma akkoma
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li><strong>-O <i>akkoma</i></strong> назначает владельцем базы роль akkoma;</li>
+   <li>второй <strong>akkoma</strong> — имя создаваемой базы.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Проверим результат:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u postgres psql -c '\l'
+</code></pre>
+
+
+
+<p><strong>Mix</strong> – это инструмент сборки и управления проектами на <strong>Elixir</strong>. Примерно как <strong>make</strong> в <strong>C</strong>, только он также управляет библиотеками проекта.</p>
+<p>У <strong>Akkoma</strong> есть исходный код, но он использует ещё и чужие библиотеки. Например, <strong>linkify</strong> — отдельный проект, который помогает обрабатывать ссылки в тексте.</p>
+
+<p style="margin-bottom: 6px">Проверим, запустятся ли инструменты от имени akkoma:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu akkoma elixir --version
+sudo -Hu akkoma mix --version
+sudo -Hu akkoma erl -noshell -eval 'io:format("OTP ~s~n", [erlang:system_info(otp_release)]), halt().'
+</code></pre>
+<p>Упс! Не запустилось.</p>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# А так выполняется:
+cd /tmp
+sudo -Hu akkoma elixir --version
+
+cd /opt/akkoma
+sudo -Hu akkoma mix --version
+</code></pre>
+
+<p style="margin-bottom: 6px">скачать все внешние зависимости, перечисленные в конфигурации проекта (т.е., в файле <strong><i>mix.exs</i></strong>):</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -Hu akkoma mix deps.get
+</code></pre>
+
+<p>Опять ничего не получается скачать из-за рашки.</p>
+<p>Попробуем установить зависимости на локальном компьютере.</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+cd /opt/akkoma
+
+# хз... без этой команды нет прав выполнять от имени mark
+# а от sudo нельзя, потому что настройки попадут в конфиг root'а:
+git config --global --add safe.directory /opt/akkoma
+git rev-parse HEAD
+
+</code></pre>
+
+
+<p>Всё через жопу. Попробуем установить happ-cli на сервер. Скачиваем его <a href="https://github.com/GenkaOk/happ-cli/releases">отсюда</a>. Распаковываем архив в ~/happ-cli</p>
+
+<p style="margin-bottom: 6px">Проверяем:</p>
+<pre style="margin-top: 6px"><code class="language-bash">find ~/happ-cli -maxdepth 2 -type f
+  # /home/mark/happ-cli/happ-linux-amd64/happ
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+~/happ-cli/happ-linux-amd64/happ sub add 'ССЫЛКА_НА_ПОДПИСКУ' --name dedvpn
+
+# Проверяем, добавилась ли подписка:
+~/happ-cli/happ-linux-amd64/happ sub list
+
+# Подключаемся через прокси:
+~/happ-cli/happ-linux-amd64/happ connect --mode proxy
+
+# То же самое:
+~/happ-cli/happ-linux-amd64/happ connect
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотреть список серверов:
+~/happ-cli/happ-linux-amd64/happ list
+
+# Подключиться к конкретному номеру сервера:
+~/happ-cli/happ-linux-amd64/happ connect 3 --mode proxy
+</code></pre>
+
+<p style="margin: 0">По справке клиента, <strong>SOCKS5</strong> будет доступен на 127.0.0.1:10808, а <strong>HTTP-прокси</strong> — на 127.0.0.1:10809. Не закрывай терминал, пока прокси нужен.</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">Теперь, когда запущен VPN, открываем другой терминал и скачиваем зависимости <strong>Akkoma</strong> через прокси:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cd /opt/akkoma
+sudo -Hu akkoma env \
+  HTTPS_PROXY=http://127.0.0.1:10809 \
+  HTTP_PROXY=http://127.0.0.1:10809 \
+  ALL_PROXY=socks5h://127.0.0.1:10808 \
+  GIT_CONFIG_COUNT=1 \
+  GIT_CONFIG_KEY_0=http.version \
+  GIT_CONFIG_VALUE_0=HTTP/1.1 \
+  mix deps.get
+</code></pre>
+
+<p>Всё поставилось. Были предупреждение об устаревших и уязвимых пакетах.</p>
+
+<h2>Nginx</h2>
+
+<p style="margin: 0">Добавляем доменное имя akkoma1.mclang.ru.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Создаём пробный Nginx-конфиг для сервера:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">server {
+   listen 80;
+   listen [::]:80;
+   server_name akkoma1.mclang.ru www.akkoma1.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+
+   server_name akkoma1.mclang.ru www.akkoma1.mclang.ru;
+   http2 on;
+
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+   include /etc/letsencrypt/options-ssl-nginx.conf;
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+   location / {
+      default_type "text/plain; charset=utf-8";
+      return 200 "Это надпись, которую выводит сервер akkoma1.mclang.ru через https!";
+   }
+
+}
+</code></pre>
+
+<p style="margin-bottom: 6px">Перед запуском <strong>Akkoma</strong> нужно будет заменить секцию <strong><i>location</i></strong> на:</p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+   location / {
+      proxy_http_version 1.1;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_pass http://127.0.0.1:4000;
+   }
+</code></pre>
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-nginx">
+server {
+   listen 80;
+   listen [::]:80;
+   server_name akkoma1.mclang.ru www.akkoma1.mclang.ru;
+   return 301 https://$host$request_uri;
+}
+
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+
+   server_name akkoma1.mclang.ru www.akkoma1.mclang.ru;
+   http2 on;
+
+   ssl_certificate /etc/letsencrypt/live/mclang.ru/fullchain.pem;
+   ssl_certificate_key /etc/letsencrypt/live/mclang.ru/privkey.pem;
+   include /etc/letsencrypt/options-ssl-nginx.conf;
+   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+   
+   client_max_body_size 100M;
+   ignore_invalid_headers off; # нашёл в шаблоне конфига эту настройку
+
+   # location / {
+   #   default_type "text/plain; charset=utf-8";
+   #   return 200 "Это надпись, которую выводит сервер akkoma1.mclang.ru через https!";
+   # }
+   location / {
+      proxy_http_version 1.1;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_pass http://127.0.0.1:4000;
+
+     # позже добавил в конфиг эти две строки, чтобы починить ошибки с WebSocket:
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+   }
+}
+</code></pre>
+
+<h2>Конф</h2>
+
+<p>Официальная инструкция Akkoma для установки из исходников использует задачу <code style="background-color: #191919; padding: 0 8px">mix pleroma.instance gen</code>. Она задаёт вопросы об экземпляре и создаёт конфигурацию, а также SQL-файл для настройки базы данных.</p>
+<p style="margin-bottom: 6px">Генерируем конфигурацию <strong>Akkoma</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu akkoma env MIX_ENV=prod mix pleroma.instance gen
+</code></pre>
+<p></p>Предыдущая команда завершилась с MatchError, потому что аргументы --frontend pleroma-fe --ref stable не соответствуют ожидаемому формату в этой версии Akkoma.Предыдущая команда завершилась с MatchError, потому что аргументы --frontend pleroma-fe --ref stable не соответствуют ожидаемому формату в этой версии Akkoma.Предыдущая команда завершилась с MatchError, потому что аргументы --frontend pleroma-fe --ref stable не соответствуют ожидаемому формату в этой версии Akkoma.
+<p style="margin-bottom: 2px">Далее около 15 минут компилируются компоненты и если всё прошло нормально, <strong>Akkoma</strong> начинает задавать вопросы:</p>
+<ul style="margin-top: 2px">
+   <li>What domain will your instance use? – akkoma1.mclang.ru</li>
+   <li>What base URL will uploads use? (e.g. https://media.example.come/media). Здесь просят ввести публичный адрес, по которому будут доступны для всех окружающих мои загрузки (файлы, фоточки, видосики и т.п.). Я ввожу: <strong><i>https://akkoma1.mclang.ru/media</i></strong></li>
+   <li>What is the name of your instance? – Test Akkoma Instance</li>
+   <li>What is your admin email address?</li>
+   <li>What email address do you want to use for sending email notifications?</li>
+   <li>Do you want search engines to index your site? (y/n)</li>
+   <li>Do you want to store the configuration in the database (allows controlling it from admin-fe)? (y/n)</li>
+   <li>What is the hostname of your database? [localhost] – оставляем <strong><i>localhost</i></strong> – PostgreSQL у нас установлен на этом же сервере.</li>
+   <li>What is the name of your database? [akkoma]</li>
+   <li>What is the user used to connect to your database [akkoma]</li>
+   <li>What is the password used to connect to your database? [autogenerated] – вводим свой пароль от пользователя PostgreSQL akkoma.</li>
+   <li>Would you like to use RUM indices? [n] – RUM (Readability, Usability, Maintainability) — это тип индексов PostgreSQL. Оставляем <strong><i>n</i></strong></li>
+   <li>What port will the app listen to (leave it if you are using the default setup with nginx)? [4000]</li>
+   <li>What ip  will the app listen to (leave it you are using the default setup with nginx)? [127.0.0.1]</li>
+   <li>What directory should media uploads go in (when using the local uploader)? [uploads]</li>
+   <li>What directory should custom public files be read from (custom emojis, frontend bundle overrides, robots.txt, etc.)? [instance/static/] – это каталог для дополнительных публичных файлов (эмодзи, файлов переопределения интерфейса и т.п.)</li>
+   <li>Do you want to strip metadata from uploaded images? This requires exiftool, it was detected as not installed, please install it if you answer yes. (y/n) [n] – Пока оставляем <strong>n</strong> по умолчанию. Эта опция удаляет метаданные из загружаемых изображений — например, EXIF-информацию о модели камеры, дате съёмки и иногда GPS-координатах. Для этого нужен <strong>exiftool</strong>, которого сейчас нет на сервере. Для тестового экземпляра можно пока ничего не устанавливать и оставить n. Если позже захочешь автоматически удалять метаданные из фотографий перед публикацией, включим эту опцию отдельно.</li>
+   <li>Do you want to read data from uploaded files so clients can use it to prefill fields like image description? This requires exiftool, it was detected as not installed, please install it if you answer yes. (y/n) [n] – оставляем как есть. Тоже что-то из серии извлечения метаданных с помощью <strong>exiftools</strong>.</li>
+   <li>Do you want to anonymize the filenames of uploads? (y/n) [n]  – Эта настройка определяет, будут ли имена загруженных файлов заменяться случайными или обезличенными именами. По умолчанию <strong><i>[n]</i></strong> <strong>Akkoma</strong> сохраняет исходные имена файлов.</li>
+</ul>
+
+<p style="margin-bottom: 6px">После ответов на все вопросы создаются следующие файлы:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash"># ...
+# Writing config to config/generated_config.exs.
+# Writing the postgres script to config/setup_db.psql.
+# Writing /opt/akkoma/instance/static/robots.txt.
+
+  # All files successfully written! Refer to the installation instructions for your platform for next steps.
+</code></pre>
+
+
+<ul style="margin-top: 4px">
+   <li>config/generated_config.exs — настройки Akkoma, включая домен и подключение к PostgreSQL.</li>
+   <li>config/setup_db.psql — SQL-скрипт для первоначальной настройки базы данных.</li>
+   <li>instance/static/robots.txt — публичный файл для поисковых роботов.</li>
+</ul>
+
+<p style="margin-bottom: 6px">Теперь выполним SQL-скрипт, который генератор создал для настройки базы PostgreSQL (запускаем её от имени пользователя postgres):</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">cd /opt/akkoma
+sudo -Hu postgres psql -f config/setup_db.psql
+  # psql:config/setup_db.psql:1: ERROR:  role "akkoma" already exists
+  # psql:config/setup_db.psql:2: ERROR:  database "akkoma" already exists
+  # You are now connected to database "akkoma" as user "postgres".
+  # CREATE EXTENSION
+  # CREATE EXTENSION
+  # CREATE EXTENSION
+</code></pre>
+
+<p>В официальной документации <strong>Akkoma</strong> для <strong>Debian</strong> указано, что генератор создаёт <strong><i>generated_config.exs</i></strong>, а затем этот файл нужно переименовать в <strong><i>prod.secret.exs</i></strong>. Именно его ищет <strong>prod.exs</strong>.</p>
+<p style="margin-bottom: 6px">Переименовываем <strong><i>/opt/akkoma/config/generated_config.exs</i></strong> в <strong><i>prod.secret.exs</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cd /opt/akkoma
+sudo -Hu akkoma mv config/generated_config.exs config/prod.secret.exs
+</code></pre>
+
+<p style="margin-bottom: 6px">Теперь выполним миграцию базы данных:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu akkoma env MIX_ENV=prod mix ecto.migrate
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Теперь следующий шаг — собрать production-версию Akkoma. Выполним:</p>
+
+<pre style="margin-top: 6px"><code class="language-bash">cd /opt/akkoma
+sudo -Hu akkoma env MIX_ENV=prod mix compile
+  # warning: `config/prod.secret.exs` not found. You may want to create one by running `mix pleroma.instance gen`
+  # 
+  # ==&gt; restarter
+  # Generated restarter app
+  # ==&gt; pleroma
+  # Compiling 12 files (.ex)
+  # warning: `config/prod.secret.exs` not found. You may want to create one by running `mix pleroma.instance gen`
+  #
+  # Generated pleroma app
+</code></pre>
+
+<p>Компиляция завершилась успешно.</p>
+<p><code style="background-color: #191919; padding: 0 8px">warning: `config/prod.secret.exs` not found. You may want to create one by running `mix pleroma.instance gen`</code> – это предупреждение можно пока игнорировать. В моей версии <strong>Akkoma</strong> генератор записал настройки в <strong><i>generated_config.exs</i></strong>. Не нужно создавать <strong><i>prod.secret.exs</i></strong> вручную</p>
+
+
+
+<h2>Соберём статические файлы интерфейса</h2>
+
+<p style="margin-bottom: 6px">Команда устанавливает веб-интерфейс <strong>Pleroma FE</strong>, который будет использоваться в моём экземпляре <strong>Akkoma</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">cd /opt/akkoma
+sudo -Hu akkoma env MIX_ENV=prod mix pleroma.frontend install --frontend pleroma-fe --ref stable
+</code></pre>
+<p style="margin-top: 4px">И опять компиляция...</p>
+
+<p>Какая-то проблема со скачиванием архива <strong><i>https://akkoma-updates.s3-website.fr-par.scw.cloud/frontend/stable/akkoma-fe.zip</i></strong>.</p>
+<p>Он скачивается ооочень медленно. И потом соединение обрывается.</p>
+
+<p style="margin-bottom: 6px">А можно запустить скрипт через прокси (всё равно не скачивается... видимо, скрипт через прокси не умеет рабоать.):</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu akkoma env \
+  MIX_ENV=prod \
+  HTTPS_PROXY=http://127.0.0.1:10809 \
+  HTTP_PROXY=http://127.0.0.1:10809 \
+  ALL_PROXY=socks5h://127.0.0.1:10808 \
+  mix pleroma.frontend install pleroma-fe --ref stable
+</code></pre>
+
+<p style="margin-bottom: 6px">Можно отдельно скачать архив через прокси с помощью curl:</p>
+<pre style="margin-top: 6px"><code class="language-bash">cd /tmp
+curl -fL --retry 3 --retry-all-errors \
+  --connect-timeout 15 --max-time 180 \
+  --proxy http://127.0.0.1:10809 \
+  -o akkoma-fe.zip \
+  https://akkoma-updates.s3-website.fr-par.scw.cloud/frontend/stable/akkoma-fe.zip
+
+curl -fL --retry 3 --retry-all-errors \
+  --connect-timeout 15 --max-time 180 \
+  --proxy http://127.0.0.1:10809 \
+  -o admin-fe.zip \
+  https://akkoma-updates.s3-website.fr-par.scw.cloud/frontend/stable/admin-fe.zip
+
+# Masto-FE:
+curl -fL --retry 3 --retry-all-errors \
+  --connect-timeout 15 --max-time 180 \
+  --proxy http://127.0.0.1:10809 \
+  -o masto-fe.zip \
+  https://akkoma-updates.s3-website.fr-par.scw.cloud/frontend/akkoma/masto-fe.zip
+</code></pre>
+
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# Проверяем архив:
+unzip -t /tmp/akkoma-fe.zip
+
+# И указываем его mix'у:
+cd /opt/akkoma
+sudo -Hu akkoma env MIX_ENV=prod \
+  mix pleroma.frontend install pleroma-fe \
+  --ref stable --file /tmp/akkoma-fe.zip
+
+# Admin-FE:
+sudo -Hu akkoma env MIX_ENV=prod \
+  mix pleroma.frontend install admin-fe \
+  --ref stable --file /tmp/admin-fe.zip
+
+# И Masto-FE:
+sudo -Hu akkoma env MIX_ENV=prod \
+  mix pleroma.frontend install masto-fe \
+  --ref akkoma --file /tmp/masto-fe.zip
+</code></pre>
+
+<p style="margin: 0">Фронтенд <strong>Pleroma-FE</strong> успешно установлен в <strong><i>/opt/akkoma/instance/static/frontends/pleroma-fe/stable</i></strong>.</p>
+<p style="margin: 0">Фронтенд <strong>Admin-FE</strong> успешно установлен в <strong><i>/opt/akkoma/instance/static/frontends/admin-fe/stable</i></strong>.</p>
+<p style="margin-top: 0">Фронтенд <strong>Masto-FE</strong> успешно установлен в <strong><i>/opt/akkoma/instance/frontends/mastodon-fe/akkoma</i></strong>.</p>
+
+<p>Админская панель всё равное не будет работать, если не включить в конфиге соответствующую настройку. И нужно перенести конфиг в базу данных.</p>
+<p>Сначала надо добавить <code style="background-color: #191919; padding: 0 8px">config :pleroma, configurable_from_database: true</code> в файл <strong><i>/opt/akkoma/config/prod.secret.exs</i></strong>, а потом выполним эту команду <code style="background-color: #191919; padding: 0 8px">sudo -Hu akkoma env MIX_ENV=prod mix pleroma.config migrate_to_db</code>, чтобы перенести настройки из конфигурационных файлов в базу данных. (пока не пробовал)</p>
+
+<div style="border: solid 1px grey">
+<p style="margin-bottom: 0">Тупой ГПТ посоветовал</p>
+<p style="margin-top: 0; margin-bottom: 6px">чтобы включить Mastodon-Fe, нужно заменить эту строку:</p>
+<pre style="margin-top: 6px; margin-bottom: 2px"><code class="language-bash">mastodon: %{"name" =&gt; "mastodon-fe", "ref" =&gt; "akkoma"},
+</code></pre>
+
+<p style="margin-top: 2px; margin-bottom: 6px">на эту:</p>
+<pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash">mastodon: %{"enabled" =&gt; true, "name" =&gt; "mastodon-fe", "ref" =&gt; "akkoma"},
+</code></pre>
+
+<p style="margin-top: 6px">Но это нифига не помогло, поэтому я вернул всё как было.</p>
+</div>
+
+
+<p style="margin-bottom: 6px">Можно проверить файл системной службы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+cat /opt/akkoma/installation/akkoma.service
+
+# Если он нас устраивает, то копируем его
+# в каталог системных служб:
+sudo cp /opt/akkoma/installation/akkoma.service /etc/systemd/system/akkoma.service
+</code></pre>
+
+
+<p style="margin-bottom: 6px">Подправим Nginx-конфиг, если нужно, и перечитаем службы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo systemctl daemon-reload
+
+sudo systemctl start akkoma.service
+
+# Проверим, отвечает ли сайт через https:
+curl -I --max-time 10 https://akkoma1.mclang.ru/
+</code></pre>
+
+<p>Если всё нормально, то можно заходить через браузер на <strong><i>https://akkoma1.mclang.ru</i></strong>.</p>
+
+
+<h2>Создание пользователя</h2>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo -Hu akkoma env MIX_ENV=prod mix pleroma.user new USERNAME kakashka@yandex.ru --admin
+</code></pre>
+
+<p>Пользователь создался. Akkoma также сгенерировал ссылку для установки пароля и выдала эту ссылку в терминале. Нужно открыть её в браузере и задать пароль для пользователя. После этого можно заходить на сайт под своим именем.</p>
+
+
+
+<h2>peertube</h2>
+
+<p></p>
+<p style="margin-bottom: 6px">В конфигурации явно указано:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+resolutions:
+  0p: false # audio-only (creates mp4 without video stream)
+</code></pre>
+<p>Теперь картина стала яснее. В конфигурации PeerTube:</p>
+<ul>
+   <li>transcoding.enabled: true — транскодирование включено.</li>
+   <li>web_videos.enabled: false — создание обычных веб-видео отключено.</li>
+   <li>hls.enabled: true — HLS включён.</li>
+   <li>0p: false — отдельное разрешение только для аудио отключено.</li>
+</ul>
+
+
+<p style="margin-bottom: 2px">Проблема <strong>PeerTube</strong>:</p>
+<ul style="margin-top: 2px; margin-bottom: 2px">
+   <li>Оригинальный видеофайл исправен. В нём есть видеопоток H.264 с разрешением 1920×1080 и аудиопоток AAC.</li>
+   <li>PeerTube создаёт веб-копию web-video, но в результате оказывается только аудиопоток AAC — видеопотока нет.</li>
+   <li>При этом задача транскодирования завершается успешно, то есть PeerTube не распознаёт результат как ошибочный.</li>
+   <li>HLS-версия создаётся нормально: в ней присутствуют и видео H.264, и звук AAC. На собственной странице PeerTube ролик воспроизводится полностью.</li>
+   <li>В <strong>Akkoma</strong> при просмотре федеративной публикации используется URL веб-копии. Поэтому звук воспроизводится, но изображения нет. В <strong>Mastodon</strong> тот же ролик работает нормально, поскольку клиент может обрабатывать доступные варианты видео иначе.</li>
+</ul>
+<p style="margin-top: 2px; margin-bottom: 0"><strong>HLS-версия</strong> — это вариант видео, подготовленный для потокового воспроизведения через интернет. HLS расшифровывается как HTTP Live Streaming.</p>
+<p style="margin-top: 0"><strong>Краткая формулировка проблемы</strong>. PeerTube 8.2.4 при обработке исправного загруженного видео создаёт MP4-файл веб-версии, содержащий только аудиопоток AAC без видеопотока. При этом транскодирование завершается без ошибки, а HLS-версия того же видео содержит оба потока и воспроизводится нормально. Из-за этого некоторые федеративные клиенты, в частности Akkoma, воспроизводят звук без изображения.</p>
+
+
+<p>Я сначала изменил настройку web_videos:  enabled: false на enabled: true в production.yaml. Это не решило проблему. Но когда изменил ту же настройку в local-production.yaml, то проблема решилась.</p>
+
+
+<p>Превьюшки</p>
+<p>media_preview_proxy. Вроде бы как отвечает за генерацию и отображение уменьшенных копий удалённого медиаконтента. Требует включённого media_proxy.</p>
+<p>Для генерации превьюшек также нужен imagemagick. Его надо обязательно установить. Иначе, после включения в конфиге этих пунктов, akkoma.service не сможет запуститься. Он будет выдавать жалобу в логах на отсутствие imagemagick и перезапускаться бесконечно.</p>
+<p style="margin-bottom: 6px">Поэтому ставим <strong>imagemagick</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install imagemagick
+</code></pre>
+
+<p><strong>Akkoma</strong> теперь нормально запустился, но эти настройки никак не повлияли на отображение превьюшек с PeerTube'а.</p>
+
+<p style="margin: 0">Чат гпт про статус с опубликованным видосом:</p>
+<p style="margin: 0"><strong>PeerTube</strong> действительно передаёт обложку видео в <strong>ActivityPub</strong> через свойство <strong><i>icon</i></strong>, содержащее URL изображения. Это предусмотрено форматом объекта Video в документации <strong>PeerTube</strong>.</p>
+<p style="margin: 0"><strong><i>icon</i></strong> у <strong>PeerTube</strong> — массив изображений разных размеров.</p>
+
+<p style="margin-bottom: 6px">Запросик к нашему <strong>akkoma</strong>-посту с <strong>peertube</strong>-видосиком:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -sS -H 'Accept: application/json' \
+  'https://akkoma1.mclang.ru/api/v1/statuses/BBmMnRJNJ0gjqC0pFJ' \
+  | jq '.media_attachments[] | {
+      type,
+      url,
+      preview_url,
+      remote_url,
+      meta
+    }'
+  # {
+  #   "type": "video",
+  #   "url": "https://peertest.mclang.ru/static/web-videos/162dfcf0-68d3-4b31-9b41-62384d3f6a78-1080.mp4",
+  #   "preview_url": "https://peertest.mclang.ru/static/web-videos/162dfcf0-68d3-4b31-9b41-62384d3f6a78-1080.mp4",
+  #   "remote_url": "https://peertest.mclang.ru/static/web-videos/162dfcf0-68d3-4b31-9b41-62384d3f6a78-1080.mp4",
+  #   "meta": {
+  #     "original": {
+  #       "width": 1920,
+  #       "aspect": 1.7777777777777777,
+  #       "height": 1080
+  #     }
+  #   }
+  # }
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим обложку через API самого <strong>PeerTube</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -sS \
+      'https://peertest.mclang.ru/api/v1/videos/iV2e8K3y3WriGzoRFUkdhc' \
+      | jq '{
+          id,
+          uuid,
+          shortUUID,
+          name,
+          thumbnailPath,
+          previewPath,
+          thumbnails
+        }'
+      # {
+      #   "id": 79,
+      #   "uuid": "91128868-da8f-40b2-b68b-1f35cba2bb33",
+      #   "shortUUID": "iV2e8K3y3WriGzoRFUkdhc",
+      #   "name": "Рюкзак",
+       #   "thumbnailPath": "/lazy-static/thumbnails/0f043596-88ef-41ed-bd91-c9ca1f0b8232.jpg",
+       #   "previewPath": "/lazy-static/thumbnails/6677590d-0be6-458b-bdf2-dbcd5eaad26f.jpg",
+       #   "thumbnails": [
+       #     {
+       #       "height": 157,
+       #       "width": 280,
+       #       "aspectRatio": "16:9",
+       #       "fileUrl": "https://peertest.mclang.ru/lazy-static/thumbnails/0f043596-88ef-41ed-bd91-c9ca1f0b8232.jpg"
+     #     },
+       #     {
+       #       "height": 480,
+       #       "width": 850,
+       #       "aspectRatio": "16:9",
+       #       "fileUrl": "https://peertest.mclang.ru/lazy-static/thumbnails/4757a0bc-ec87-40e6-bdf9-9e976ea8b773.jpg"
+       #     },
+       #     {
+       #       "height": 720,
+       #       "width": 1280,
+      #       "aspectRatio": "16:9",
+      #       "fileUrl": "https://peertest.mclang.ru/lazy-static/thumbnails/b5ff17be-cddf-4325-919d-a73b86560722.jpg"
+      #     },
+      #     {
+      #       "height": 1400,
+      #       "width": 1400,
+      #       "aspectRatio": "1:1",
+      #       "fileUrl": "https://peertest.mclang.ru/lazy-static/thumbnails/3de41b37-a771-4b0d-affb-a052a0c5e4ed.jpg"
+      #     },
+      #     {
+      #       "height": 1080,
+      #       "width": 1920,
+      #       "aspectRatio": "16:9",
+      #       "fileUrl": "https://peertest.mclang.ru/lazy-static/thumbnails/6677590d-0be6-458b-bdf2-dbcd5eaad26f.jpg"
+      #     }
+      #   ]
+      # }
+</code></pre>
+
+<p style="margin-bottom: 6px">Проверим <strong>ActivityPub</strong> напрямую:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+curl -sSL \
+  -H 'Accept: application/activity+json' \
+  'https://peertest.mclang.ru/videos/watch/91128868-da8f-40b2-b68b-1f35cba2bb33' \
+  | jq '{
+      type,
+      id,
+      icon,
+      image,
+      preview,
+      url,
+      attachment
+    }'
+# тут слишком большой вывод
+</code></pre>
+
+
+<p>В объекте Video есть поле icon с пятью изображениями JPEG — от 280 × 157 до 1920 × 1080. Значит, проблема не в том, что PeerTube вообще не публикует изображения для федерации.</p>
+<p>А ещё мы видим, что preview здесь — это не обложка, а раскадровка (storyboard). Это отдельная функция PeerTube.</p>
+<p>Таким образом, на данный момент у нас установлены три факта:</p>
+<ul>
+   <li>PeerTube располагает твоей обложкой.</li>
+   <li>PeerTube передаёт изображения через <i>icon</i> в <i>ActivityPub</i>.</li>
+   <li>Akkoma возвращает адрес MP4 в поле <i>preview_url</i>.</li>
+</ul>
+<p>Это указывает на проблему при обработке или сохранении данных на стороне <strong>Akkoma</strong>. Но пока рано утверждать, что это ошибка самой программы: ещё нужно проверить, как <strong>Akkoma</strong> выбирает изображение из массива <i>icon</i>.</p>
+
+<p>...</p>
+
+<p>Вот теперь видно, где именно формируется неправильный ответ API. В status_view.ex Akkoma берёт первый элемент массива attachment["url"], а затем использует его href и для видео, и для превью. MediaProxy.preview_url() не выбирает обложку из PeerTube — он получает уже выбранный URL. Поэтому мы и видим MP4 в preview_url.</p>
+<p>В transmogrifier.ex Akkoma преобразует вложения, но сохраняет только URL, тип, MIME-тип, размеры, название, описание и blurhash. Поле icon в этом коде вообще не обрабатывается.</p>
+<p>Однако есть ещё одна деталь: PeerTube передаёт миниатюры в icon самого объекта Video, а не обязательно в attachment. Поэтому простого добавления обработки icon в этот участок может быть недостаточно.</p>
+
+<h2>Themes</h2>
+
+<p style="margin-bottom: 6px">Темы находятся здесь:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+sudo ls static/frontends/pleroma-fe/stable/static/themes
+  # breezy-dark.json   ihatebeingalive.json  pleroma-dark.json   redmond-xx-se.json  redmond-xxi.json
+  # breezy-light.json  paper.json		 pleroma-light.json  redmond-xx.json	 thekanata.json
+</code></pre>
+
+<p style="margin-bottom: 6px">Открываем конфиг <strong><i>/opt/akkoma/config/config.exs</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># кусок дефолтного конфига:
+config :pleroma, :frontend_configurations,
+  # akkoma-fe already bundles its own defaults for everything
+  pleroma_fe: %{},
+  masto_fe: %{
+    showInstanceSpecificPanel: true
+  }
+</code></pre>
+
+<p style="margin-bottom: 6px">Я хочу сделать дефолтной <strong><i>breezy-dark</i></strong>. Поэтому добавляю её:</p>
+<pre style="margin-top: 6px"><code class="language-bash">config :pleroma, :frontend_configurations,
+  # akkoma-fe already bundles its own defaults for everything
+  pleroma_fe: %{
+    theme: "breezy-dark"
+  },
+  masto_fe: %{
+    showInstanceSpecificPanel: true
+  }
+</code></pre>
+
+
+<h2>Конфигурационный файл</h2>
+
+
+<p style="margin-bottom: 6px">Доп. настройки, в том числе и ограничения на загружаемые файлы:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-ini">config :pleroma, :instance,
+  name: "Akkoma",
+  ...
+  instance_thumbnail: "/instance/thumbnail.jpeg",
+  limit: 5_000,
+  description_limit: 5_000,
+  remote_limit: 100_000,
+  upload_limit: 16_000_000,
+  avatar_upload_limit: 2_000_000,
+  background_upload_limit: 4_000_000,
+  banner_upload_limit: 4_000_000,
+  languages: ["en"],
+</code></pre>
+<p style="margin-top: 4px">Здесь максимальный размер загружаемых файлов: 16МБ.</p>
+
+<p style="margin-bottom: 6px">И я бы ещё добавил русский язык (инстанс поддерживает два языка, но русский – основной):</p>
+<pre style="margin-top: 6px"><code class="language-bash">  upload_limit: 100_000_000;
+  languages: ["ru", "en"]
+</code></pre>
+
+
+<h2>Убираем бэкграунд</h2>
+
+<p style="margin-bottom: 6px">Чтобы убрать бэкграунд, нужно:</p>
+<pre style="margin-top: 6px"><code class="language-ini"># Здесь закомментируем:
+config :pleroma, :instance,  
+  # background_image: "/images/city.jpg",
+
+# А в этом разделе добавим пустой бэкграунд:
+config :pleroma, :frontend_configurations,
+  # akkoma-fe already bundles its own defaults for everything
+  pleroma_fe: %{
+    theme: "breezy-dark",
+    background: ""
+  },
+  masto_fe: %{
+    showInstanceSpecificPanel: true
+  }
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/nginx.min.js"></script>
+<script src="/assets/highlight/languages/ini.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

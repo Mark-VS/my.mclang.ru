@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>happ-cli</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<a href="/arch/vpn/">Вернуться назад</a>
+
+<h1>happ-cli</h1>
+
+<p style="margin-bottom: 0">Ссылка на Github: <a href="https://github.com/GenkaOk/happ-cli/releases">github.com/GenkaOk/happ-cli/releases</a></p>
+
+<p style="margin: 0">Нам нужен <strong><i>happ-linux-amd64.tar.gz</i></strong></p>
+
+
+<p style="margin-bottom: 6px">Текущая свежая версия: <strong><i>v0.0.4</i></strong>. Скачать можно по ссылке:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -LO https://github.com/GenkaOk/happ-cli/releases/download/v0.0.4/happ-linux-amd64.tar.gz
+
+# Распаковываем в домашний каталог:
+tar xvzf happ-linux-amd64.tar.gz -C ~/
+
+# Проверяем:
+~/happ-linux-amd64/happ --version
+
+# Смотрим доступные команды:
+~/happ-linux-amd64/happ --help
+</code></pre>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># Добавить подписку:
+~/happ-linux-amd64/happ sub add 'ССЫЛКА_ПОДПИСКИ' --name myvpn
+
+# Показать подписки:
+~/happ-linux-amd64/happ sub list
+
+# Выбрать активную подписку:
+~/happ-linux-amd64/happ sub [ИМЯ_ПОДПИСКИ]
+
+# Посмотреть список серверов активной подписки:
+~/happ-linux-amd64/happ list
+
+# Обновить подписку:
+~/happ-linux-amd64/happ sub update
+</code></pre>
+
+<p style="margin-bottom: 6px">Подключение:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Подключаемся к первому в списке серверу в режиме proxy:
+~/happ-linux-amd64/happ connect 1 --mode proxy
+
+# то же самое:
+~/happ-linux-amd64/happ connect
+</code></pre>
+
+<h2>Порты</h2>
+
+<p style="margin-bottom: 0">Какие порты использует <strong>happ-cli</strong>?</p>
+
+<p style="margin-top: 0; margin-bottom: 6px">Праверить, что слушает <strong>happ-cli</strong>, можно так:</p>
+<pre style="margin-top: 6px; margin-bottom: 2px"><code class="language-bash">
+ss -lntp
+</code></pre>
+
+<p style="margin-top: 2px; margin-bottom: 2px">Судя по выводу, <strong>happ-cli</strong> запустил сразу два прокси:</p>
+<ul style="margin-top: 2px">
+   <li>127.0.0.1:10808 — SOCKS5;</li>
+   <li>127.0.0.1:10809 — HTTP-прокси.</li>
+</ul>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+    lala
+</code></pre>
+-->
+
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

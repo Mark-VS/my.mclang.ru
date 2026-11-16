@@ -26,6 +26,11 @@
    <li><strong><i>-f</i></strong> – follow. Продолжает следить за журналом и показывать новые строки в реальном времени.</li>
 </ul>
 
+<p style="margin-bottom: 6px">Отслеживать в реальном времени все логи по процессу akkoma.service:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo journalctl -u akkoma.service -f
+</code></pre>
+
+
 
 <p style="margin-bottom: 6px">Показать логи за последние пять минут:</p>
 <pre style="margin-top: 6px"><code class="language-bash"># Показать все доступные записи для юнита pixelfed-horizon:
