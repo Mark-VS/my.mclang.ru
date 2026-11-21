@@ -30,7 +30,7 @@
 	  <p style="margin-top: 4px; margin-bottom: 0">Особенно важны ключи Active Record Encryption. Они используются для расшифровки зашифрованных данных в базе.</p>
 	  <p style="margin: 0"><strong>При переносе нельзя генерировать новые ключи вместо старых</strong>. Нужно перенести исходный <strong><i>.env.production</i></strong> без изменений.</p>
    </li>
-   <li>Конфигурация. Я изменял только файл <strong><i>config/themes.yml</i></strong>. Его и копируем. Все остальные файлы – дефолтные;</li>
+   <li>Конфигурация. Я изменял только файл <strong><i>config/themes.yml</i></strong>. Его и копируем. Все остальные файлы конфигурации – дефолтные;</li>
    <li>
       <p style="margin: 0">И все изменения во фронтенде, которые я наделал:</p>
 	  <ul style="margin-top: 0; margin-bottom: 4px">
@@ -44,6 +44,118 @@
 	  <p style="margin: 0">Для полноценного переноса лучше сохранить состояние <strong>Valkey</strong>. При этом не стоит автоматически предполагать, что файл называется <strong><i>/var/lib/redis/dump.rdb</i></strong>: у тебя <strong>Valkey</strong> (а не <strong>Redis</strong>), поэтому сначала нужно посмотреть его фактическую конфигурацию и каталог данных.</p>
    </li>
 </ul>
+
+<h2>Резервная копия PostgreSQL</h2>
+
+<p style="margin-bottom: 6px"><strong>pg_dump</strong> – утилита для резервного копирования <strong>PostgreSQL</strong>.</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo -u mastodon pg_dump -Fc mastodon_production -f /tmp/mastodon_production.dump
+</code></pre>
+<p style="margin-top: 4px"><strong>pg_dump</strong> сохраняет содержимое конкретной базы, но не сохраняет глобальные объекты <strong>PostgreSQL</strong>, например роли пользователей.</p>
+
+<h3>Восстановление БД PostgreSQL</h3>
+
+<p style="margin-bottom: 6px">Если мы переносим базу данных на новый сервер, сначала нужно создать саму роль <strong>PostgreSQL</strong> <strong><i>mastodon</i></strong>, если её ещё нет. Например:</p>
+<pre style="margin-top: 6px"><code class="language-bash">CREATE ROLE mastodon WITH LOGIN PASSWORD 'твой_пароль';
+</code></pre>
+
+<p style="margin-bottom: 6px">Затем создаём пустую базу данных <strong><i>mastodon_production</i></strong>, назначаем её владельцем роль <strong><i>mastodon</i></strong> и заполняем её содержимым из резервной копии:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash"># Создаём пустую базу данных PostgreSQL:
+sudo -u postgres createdb \
+  -O mastodon mastodon_production
+
+# Восстанавливаем базу данных из файла:
+sudo -u mastodon pg_restore \
+  -d mastodon_production \
+  /tmp/mastodon_production.dump
+</code></pre>
+
+<ul style="margin-top: 4px">
+   <li><strong><i>-O mastodon</i></strong> – назначить владельцем базы роль <strong><i>mastodon</i></strong>.</li>
+</ul>
+
+<h2>Valkey</h2>
+
+<p style="margin-bottom: 0">У меня по умолчанию <strong>Valkey</strong> сам периодически делает резервные копии.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Посмотреть правила автоматического сохранения можно так:</p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli CONFIG GET save
+  # 1) "save"
+  # 2) "3600 1 300 100 60 10000"
+</code></pre>
+
+<p style="margin-bottom: 0">у меня здесь три автоматических правила сохранения RDB в формате <strong><i>интервал_в_секундах количество_изменений</i></strong>:</p>
+<ul style="margin-top: 0">
+   <li><strong><i>3600 1</i></strong> – сохранять, если за последний час произошло хотя бы 1 изменение;</li>
+   <li><strong><i>300 100</i></strong> – сохранять, если за последние 5 минут произошло хотя бы 100 изменений;</li>
+   <li><strong><i>60 10000</i></strong> – сохранять, если за последнюю минуту произошло хотя бы 10 000 изменений.</li>
+</ul>
+
+
+<p style="margin-bottom: 6px">Эти команды покажут каталог и имя файла резервной копии:</p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli CONFIG GET dir
+  # 1) "dir"
+  # 2) "/var/lib/valkey"
+
+valkey-cli CONFIG GET dbfilename
+  # 1) "dbfilename"
+  # 2) "dump.rdb"
+</code></pre>
+
+<p style="margin-bottom: 6px">Для создания актуального снимка данных используется:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">valkey-cli SAVE
+</code></pre>
+
+<p style="margin-top: 4px; margin-bottom: 0"><strong><i>SAVE</i></strong> — синхронная операция. <strong>Valkey</strong> будет занят созданием снимка, пока она выполняется.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Для небольшого VPS это обычно не проблема, но при большой нагрузке лучше использовать <strong><i>BGSAVE</i></strong>. Она создаёт снимок в фоновом процессе:</p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli BGSAVE
+</code></pre>
+
+<p style="margin-bottom: 0">Проверим, когда был сделан последний бэкап.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Команда <strong><i>LASTSAVE</i></strong> возвращает <i>Unix timestamp</i> последнего успешного сохранения RDB:</p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli LASTSAVE
+  # (integer) 1795295121
+
+# Преобразуем timestamp в обычную дату:
+date -d @1795295121
+  # Sat Nov 21 21:05:21 UTC 2026
+</code></pre>
+
+<p style="margin-bottom: 6px">Посмотреть более подробную информацию о сохранениях:</p>
+<pre style="margin-top: 6px"><code class="language-bash">valkey-cli INFO persistence
+</code></pre>
+
+<p style="margin-bottom: 6px">Или можно просто посмотреть информацию о файле через <strong><i>ls</i></strong>, чтобы выяснить, когда происходила последняя резервная копия:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ls -lh /var/lib/valkey/dump.rdb
+   # -rw-rw---- 1 valkey valkey 2.2M Nov 21 21:05 /var/lib/valkey/dump.rdb
+</code></pre>
+
+<p style="margin-bottom: 0">То есть, последовательность выполнения бэкапа такая:</p>
+<ul style="margin-top: 0; margin-bottom: 2px">
+   <li>Останавливаем все службы <strong>Mastodon</strong>'а (mastodon-web, mastodon-streaming, mastodon-sidekiq)</li>
+   <li>Выполняем команду <strong><i>SAVE</i></strong> и проверяем, что файл <strong><i>dump.rdb</i></strong> обновился;</li>
+   <li>Останавливаем <strong>Valkey</strong></li>
+   <li>
+      <p style="margin: 0">Перетаскиваем файл <strong><i>dump.rdb</i></strong> туда, куда нам нужно.</p>
+      <p style="margin: 0">ВАЖНО: файл должен принадлежать пользователю <strong>valkey</strong>.</p>
+   </li>
+</ul>
+<p style="margin-top: 2px">Но этот бэкап не имеет смысла делать на регулярной основе. Он и так сам делается. Его имеет смысл делать вручную только перед переездом на новый сервер: делаем вручную бэкап, отключаем <strong>Valkey</strong> и переезжаем на новый сервер.</p>
+
+
+<h2>Подводим итоги</h2>
+
+<p style="margin-bottom: 0">На регулярной основе нужно делать резервные копии только:</p>
+<ul style="margin-top: 0; margin-bottom: 6px">
+   <li>базы данных <strong>PostgreSQL</strong>;</li>
+   <li>папки с пользовательскими медиа-файлами: <strong><i>~/mastodon/live/public/system/</i></strong>.</li>
+</ul>
+<p style="margin-top: 6px; margin-bottom: 0"><strong>Valkey</strong> делает бэкапы сам.</p>
+<p style="margin-top: 0; margin-bottom: 0">А всё остальное сохраняем единожды и никому не показываем:</p>
+<ul style="margin-top: 0">
+   <li>Ключи из <strong><i>/home/mastodon/live/.env.production</i></strong>;</li>
+   <li>конфигурация;</li>
+   <li>мой кстомный фронтенд.</li>
+</ul>
+
 
 <!-- Шаблон -->
 <!--
