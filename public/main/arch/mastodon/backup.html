@@ -50,7 +50,15 @@
 <p style="margin-bottom: 6px"><strong>pg_dump</strong> – утилита для резервного копирования <strong>PostgreSQL</strong>.</p>
 <pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo -u mastodon pg_dump -Fc mastodon_production -f /tmp/mastodon_production.dump
 </code></pre>
-<p style="margin-top: 4px"><strong>pg_dump</strong> сохраняет содержимое конкретной базы, но не сохраняет глобальные объекты <strong>PostgreSQL</strong>, например роли пользователей.</p>
+<p style="margin-top: 4px; margin-bottom: 2px"><strong>pg_dump</strong> сохраняет содержимое конкретной базы, но не сохраняет глобальные объекты <strong>PostgreSQL</strong>, например роли пользователей.</p>
+
+<p style="margin-top: 2px; margin-bottom: 2px">Параметры:</p>
+<ul style="margin-top: 2px; margin-bottom: 2px">
+   <li><strong><i>-F</i></strong> – задаёт формат резервной копии (format);</li>
+   <li><strong><i>-c</i></strong> – custom format (пользовательский формат <strong>PostgreSQL</strong>).</li>
+</ul>
+<p style="margin-top: 2px; margin-bottom: 0">То есть <code style="background-color: #191919; padding: 0 8px">-Fc</code> эквивалентно <code style="background-color: #191919; padding: 0 8px">--format=custom</code>.</p>
+<p style="margin-top: 0">Можно ещё указать <code style="background-color: #191919; padding: 0 8px">Fp</code> (plain text, т.е. обычный <strong>SQL</strong>-файл) или <code style="background-color: #191919; padding: 0 8px">Ft</code> (tar). Но всё же рекомендуется делать копию в формате <strong>custom</strong>. У него есть несколько преимуществ, в т.ч. хорошее сжатие. Он хорошо подходит для регулярных резервных копий.</p>
 
 <h3>Восстановление БД PostgreSQL</h3>
 
@@ -156,6 +164,106 @@ date -d @1795295121
    <li>мой кстомный фронтенд.</li>
 </ul>
 
+
+<h2>Практика</h2>
+
+<h3>Разовые бэкапы</h3>
+
+<p style="margin-bottom: 6px">Копируем секретные ключи:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir -p /home/mark/tmp/mastodon
+sudo cp /home/mastodon/live/.env.production /home/mark/tmp/mastodon/
+sudo chmod 644 /home/mark/tmp/mastodon/.env.production
+
+# На локальном компьютере:
+mkdir -p ~/tmp/mastodon
+rsync -av mark@mclang.ru:/home/mark/tmp/mastodon/.env.production ~/tmp/mastodon/
+chmod 600 /home/mark/tmp/mastodon/.env.production
+
+# И удаляем временный конфиг с сервера:
+ssh -t mark@mclang.ru "rm /home/mark/tmp/mastodon/.env.production"
+</code></pre>
+
+<p style="margin-bottom: 6px">Копируем конфиг, в котором мы указали подключённые темы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir -p /home/mark/tmp/mastodon/live/config
+cp -v /home/mastodon/live/config/themes.yml /tmp/
+
+# На локальном компьютере:
+mkdir -p /home/mark/tmp/mastodon/live/config
+rsync -av mark@mclang.ru:/tmp/themes.yml /home/mark/tmp/mastodon/live/config/
+
+# Удаляем копию файла с сервера:
+ssh -t mark@mclang.ru "rm /tmp/themes.yml"
+</code></pre>
+
+<p style="margin-bottom: 6px">Копируем точку входа в наше кастомное приложение <strong><i>jopa_application</i></strong> и папку <strong><i>jopa</i></strong> с кастомными файлами темы:</p>
+<pre style="margin-top: 6px"><code class="language-bash">mkdir -p /tmp/live/app/javascript/styles/jopa
+cp /home/mastodon/live/app/javascript/styles/jopa_application.scss /tmp/live/app/javascript/styles/
+cp -rv /home/mastodon/live/app/javascript/styles/jopa/tokens /tmp/live/app/javascript/styles/jopa/
+
+# На локальном компьютере:
+mkdir -p /home/mark/tmp/mastodon/live/app/javascript
+rsync -av mark@mclang.ru:/tmp/live/app/javascript/styles /home/mark/tmp/mastodon/live/app/javascript/
+
+# И удаляем временную папку на сервере:
+ssh -t mark@mclang.ru "rm -rf /tmp/live"
+</code></pre>
+
+<h3>Регулярные бэкапы</h3>
+
+<p style="margin-bottom: 6px">Делаем бэкап папки с пользовательскими медиафайлами и базы данных <strong>PostgreSQL</strong>:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash"># Создаём папки для медифайлов и для базы данных:
+mkdir -p /tmp/mastodon/live/public
+mkdir -p /tmp/mastodon/db_backup
+# Чтобы юзер mastodon смог сюда делать бэкап базы данных:
+chmod 777 /tmp/mastodon/db_backup
+
+cp -a /home/mastodon/live/public/system /tmp/mastodon/live/public/
+sudo -u mastodon pg_dump -Fc mastodon_production -f "/tmp/mastodon/db_backup/mastodon_production_$(date +%Y-%m-%d_%H-%M-%S).dump"
+
+# На локальном компьютере:
+rsync -av --delete mark@mclang.ru:/tmp/mastodon /home/mark/tmp
+</code></pre>
+<p style="margin-top: 4px">Здесь у всех скопированных файлов будут меняться владельцы. При восстановлении нужно будет вернуть владельца: <strong>mastodon</strong>.</p>
+
+<h3>Бэкапы по необходимости</h3>
+
+<p style="margin-bottom: 6px">И напоследок <strong>Valkey</strong>, если это нужно:</p>
+<pre style="margin-top: 6px"><code class="language-bash">
+# Останавливаем все службы Mastodon'а: 
+sudo systemctl stop mastodon-web.service
+sudo systemctl stop mastodon-streaming
+sudo systemctl stop mastodon-sidekiq
+
+# Делаем бэкап:
+valkey-cli SAVE
+
+# Останавливаем Valkey:
+sudo systemctl stop valkey
+
+# Делаем копию:
+sudo cp /var/lib/valkey/dump.rdb /tmp/
+
+# Дадим для копии права на чтения для всех:
+sudo chmod 644 /tmp/dump.rdb
+
+# И теперь на локальном компьютере забираем эту копию:
+mkdir -p ~/tmp/valkey
+rsync -v mark@mclang.ru:/tmp/dump.rdb /home/mark/tmp/valkey/
+
+# И удаляем временную копию с сервера, если она больше не нужна:
+ssh -t mark@mclang.ru "rm /tmp/dump.rdb"
+</code></pre>
+
+<p style="margin-bottom: 6px">Права оригинального и скопированного фалов:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo ls -lh /var/lib/valkey/dump.rdb
+  # -rw-rw---- 1 valkey valkey 2.2M Nov 22 19:14 dump.rdb
+
+ls -lh /tmp/dump.rdb 
+  # -rw-r----- 1 root root 2.2M Nov 22 19:22 /tmp/dump.rdb
+
+ls -lh ~/tmp/valkey/dump.rdb 
+  # -rw-r--r-- 1 mark mark 2.2M Nov 22 22:31 /home/mark/tmp/valkey/dump.rdb
+</code></pre>
 
 <!-- Шаблон -->
 <!--

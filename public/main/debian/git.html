@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>git</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/debian/">Вернуться назад</a></p>
+
+<h1>git</h1>
+
+<p style="margin-bottom: 6px">Посмотреть, на каком именно коммите сейчас находится мой репозиторий <strong>Mastodon</strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Посмотрим тег текущей версии:
+sudo -u mastodon git -C /home/mastodon/live describe --tags --exact-match
+  # v4.7.5
+
+# Идентификатор и описание текущего коммита:
+sudo -u mastodon git -C /home/mastodon/live log -1 --oneline
+  # 24cd1c875a (HEAD, tag: v4.7.5, origin/stable-4.7) Bump version to v4.7.5
+</code></pre>
+
+<p style="margin-bottom: 0">Допустим, я хочу проверить наличие новых версий в репозитории через <strong>git</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Для этого скачаем информацию о новых тегах из удалённого репозитория:</p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo -u mastodon git -C /home/mastodon/live fetch --tags
+</code></pre>
+
+<p style="margin-bottom: 6px">И теперь просмотрим версии в порядке убывания:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo -u mastodon git -C /home/mastodon/live tag --sort=-version:refname | head -10
+  # v5.0.0-beta.2
+  # v5.0.0-beta.1
+  # v4.7.6
+  # v4.7.5
+  # v4.7.4
+  # v4.7.3
+  # v4.7.2
+  # v4.7.1
+  # v4.7.0-rc.1
+  # v4.7.0-beta.1
+</code></pre>
+<p style="margin-top: 4px">Здесь видно, что текущая стабильная версия – <strong>4.7.6</strong>.</p>
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
