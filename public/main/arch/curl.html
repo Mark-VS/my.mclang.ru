@@ -14,6 +14,20 @@
 <a href="/arch">Вернуться назад</a>
     
 <h1>curl</h1>
+
+
+<p style="margin-bottom: 6px">Допустим, я хочу скачать файл <strong><i>https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz</i></strong>:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Сохранить файл под оригинальным именем:
+curl -O https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz
+
+# Показать индикатор загрузки при скачивании файла:
+curl -# -O https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz
+
+# Хочу указать собственное имя скачанного файла и чтобы был индикатор загрузки:
+curl -# -o ruby.tar.gz https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz
+</code></pre>
+
+
 <pre><code class="language-bash"># Пример скачивания установщика haskell GHCup через http:
 curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh</code></pre>
 

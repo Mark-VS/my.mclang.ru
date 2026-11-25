@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruby</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/highlight/styles_custom/androidstudio.css">
+</head>
+<body>
+<script src="/assets/highlight/highlight.min.js"></script>
+<p><a href="/debian/ruby">Вернуться назад</a></p>
+
+<h1 style="margin-bottom: 6px">Ruby</h1>
+
+<p style="margin-top: 6px; margin-bottom: 0">Официальный сайт: <a href="https://www.ruby-lang.org/">www.ruby-lang.org</a></p>
+<p style="margin: 0">Страничка для скачивания исходников: <a href="https://www.ruby-lang.org/en/downloads/">www.ruby-lang.org/en/downloads</a></p>
+<p style="margin-top: 0">Список всех релизов: <a href="https://www.ruby-lang.org/en/downloads/releases/">www.ruby-lang.org/en/downloads/releases</a></p>
+
+<p style="margin-bottom: 0">На данный момент последняя версия: <strong>4.0.10</strong>.</p>
+<p style="margin-top: 0">Прямая ссылка для скачивания: https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz</p>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">sudo apt install build-essential libssl-dev libyaml-dev \
+  libreadline-dev zlib1g-dev libffi-dev libgdbm-dev \
+  libncurses-dev autoconf bison
+</code></pre>
+
+<p>Проверяем, установлены ли пакеты.</p>
+<p style="margin-bottom: 6px">Debian:</p>
+<pre style="margin-top: 6px"><code class="language-bash">apt list --installed build-essential libssl-dev libyaml-dev \
+  libreadline-dev zlib1g-dev libffi-dev libgdbm-dev \
+  libncurses-dev autoconf bison
+</code></pre>
+
+<ul>
+   <li><strong>build-essential</strong> – компилятор и инструменты сборки;</li>
+   <li><strong>libssl-dev</strong> – OpenSSL</li>
+   <li><strong>libyaml-dev</strong> – YAML</li>
+   <li><strong>libreadline-dev</strong> – Readline</li>
+   <li><strong>zlib1g-dev</strong> – Zlib</li>
+   <li><strong>libffi-dev</strong> – FFI</li>
+   <li><strong>libgdbm-dev</strong> – GDBM</li>
+   <li><strong>libncurses-dev</strong> – Ncurses</li>
+   <li><strong>autoconf</strong> – GNU Autoconf – инструмент для автоматической подготовки сценария конфигурации программы.</li>
+   <li><strong>bison</strong> – GNU Bison – генератор синтаксических анализаторов (parser generator).</li>
+</ul>
+
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">./configure
+make -j2
+sudo make install
+</code></pre>
+
+
+<!-- Шаблон -->
+<!--
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash">
+
+</code></pre>
+-->
+<script src="/assets/highlight/languages/bash.min.js"></script>
+<script src="/assets/highlight/languages/xml.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
