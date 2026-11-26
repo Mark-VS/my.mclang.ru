@@ -72,7 +72,13 @@ pacman -Qg plasma
 pacman -Sl multilib
 # Список всех пакетов во всех доступных репозиториях:
 pacman -Sl
-	</code></pre>
+
+# Список пакетов, которые установлены явно:
+pacman -Qe  # explicitly installed
+
+# Список пакетов, установленных автоматически (как зависимости):
+pacman -Qd  # dependencies
+</code></pre>
 
 <h3 style="margin-bottom: 6px">Зеркала</h3>
 <pre style="margin-top: 6px; margin-bottom: 6px"><code class="language-bash"># Обновляем список зеркал:

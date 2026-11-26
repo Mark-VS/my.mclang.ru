@@ -46,12 +46,81 @@
    <li><strong>bison</strong> – GNU Bison – генератор синтаксических анализаторов (parser generator).</li>
 </ul>
 
+<p style="margin-bottom: 0">В <strong>Arch</strong>'е вместо <strong>build-essential</strong> нужен <strong>base-devel</strong>. При этом <strong>autoconf</strong> и <strong>bison</strong> находится внутри <strong>base-devel</strong>. Их не нужно ставить отдельно. Вроде бы как. Со слов ГПТ.</p>
+<p style="margin-top: 0; margin-bottom: 6px">Arch (проверяем те же библиотеки, кроме <strong>autoconf</strong> и <strong>bison</strong>):</p>
+<pre style="margin-top: 6px"><code class="language-bash">pacman -Q base-devel openssl libyaml \
+  readline zlib libffi gdbm ncurses
+</code></pre>
+
+<p style="margin-bottom: 6px">Скачиваем исходники:</p>
+<pre style="margin-top: 6px"><code class="language-bash">curl -# -O https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz
+
+# Распаковываем архив:
+tar xzvf ruby-4.0.10.tar.gz
+
+# И переходим в созданную папку:
+cd ruby-4.0.10
+</code></pre>
+
 <p style="margin-bottom: 6px"></p>
-<pre style="margin-top: 6px"><code class="language-bash">./configure
-make -j2
+<pre style="margin-top: 6px"><code class="language-bash"># Подготовим исходники к сборке и создадим Makefile ...
+# ... и укажем путь для дальнейшей установки программы:
+./configure --prefix=/usr/local
+
+# Запускаем компиляцию:
+make -j$(nproc)
+   # ждём около минуты (на моём ПК)
+
+# Проверим собранный интерпретатор:
+./ruby --version
+   # ruby 4.0.10 (2026-11-19 revision a704b7cd95) +PRISM [x86_64-linux]
+
+# Тесты:
+make test
+
+# И установка:
 sudo make install
 </code></pre>
 
+<p style="margin-bottom: 6px"></p>
+<pre style="margin-top: 6px"><code class="language-bash"># После установки проверим:
+ruby --version
+  # ruby 4.0.10 (2026-11-19 revision a704b7cd95) +PRISM [x86_64-linux]
+
+command -v ruby
+  # /usr/local/bin/ruby
+
+ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'
+ # OpenSSL 4.1.0 23 Oct 2026
+</code></pre>
+
+
+<h2>Удаление</h2>
+
+<p style="margin-bottom: 6px">Если сохранилась папка с <strong><i>Makefile</i></strong>, то можно запустить из неё:</p>
+<pre style="margin-top: 6px; margin-bottom: 4px"><code class="language-bash">sudo make uninstall
+</code></pre>
+<p style="margin-top: 4px">Почему-то удаляется всё, кроме файла <strong><i>/usr/local/lib/ruby/gems/4.0.0/plugins/rdoc_plugin.rb</i></strong>.</p>
+
+<p style="margin-bottom: 6px">А если <strong><i>Makefile</i></strong> не сохранился, то удаляем всё вручную:</p>
+<pre style="margin-top: 6px"><code class="language-bash"># Бинарники:
+sudo rm /usr/local/bin/{bundle,bundler,erb,gem,\
+  irb,minitest,racc,rake,rbs,rdbg,rdoc,ri,\
+  ruby,syntax_suggest,test-unit,typeprof}
+
+# Библиотеки:
+sudo rm /usr/local/lib/libruby-static.a
+sudo rm /usr/local/lib/pkgconfig/ruby-4.0.pc
+sudo rm -rf /usr/local/lib/ruby
+
+# Заголовочные файлы:
+sudo rm -rf /usr/local/include/ruby-4.0.0
+
+# Документация:
+sudo rm -rf /usr/local/share/doc/ruby
+sudo rm -rf /usr/local/share/ri/4.0.0
+sudo rm /usr/local/share/man/man1/{ruby.1.gz,erb.1.gz}
+</code></pre>
 
 <!-- Шаблон -->
 <!--
